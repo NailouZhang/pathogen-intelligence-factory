@@ -1,13 +1,24 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 import yaml
 
 from .utils import load_json
+
+
+
+def env_int(name: str, default: int) -> int:
+    value = os.getenv(name)
+    if value is None or not value.strip():
+        return default
+    try:
+        return int(value)
+    except ValueError as exc:
+        raise RuntimeError(f"{name} must be an integer") from exc
 
 
 def env_bool(name: str, default: bool = False) -> bool:
@@ -23,11 +34,13 @@ class Settings:
     project_root: Path
     output_dir: Path
     state_dir: Path
-    window_days: int = 7
-    max_papers: int = 24
-    max_news: int = 36
-    max_news_fetches: int = 50
-    max_fulltexts: int = 18
+    window_days: int = field(default_factory=lambda: env_int("PIF_WINDOW_DAYS", 7))
+    max_papers: int = field(default_factory=lambda: env_int("PIF_MAX_PAPERS", 50))
+    max_news: int = field(default_factory=lambda: env_int("PIF_MAX_NEWS", 50))
+    max_paper_candidates: int = field(default_factory=lambda: env_int("PIF_MAX_PAPER_CANDIDATES", 150))
+    max_news_candidates: int = field(default_factory=lambda: env_int("PIF_MAX_NEWS_CANDIDATES", 180))
+    max_news_fetches: int = field(default_factory=lambda: env_int("PIF_MAX_NEWS_FETCHES", 120))
+    max_fulltexts: int = field(default_factory=lambda: env_int("PIF_MAX_FULLTEXTS", 50))
     timezone: str = "Asia/Shanghai"
 
     @property
@@ -38,6 +51,8 @@ class Settings:
             "GEMINI_API_KEY",
             "GROQ_API_KEY",
             "SEMANTIC_SCHOLAR_API_KEY",
+            "GOOGLE_CSE_API_KEY",
+            "GOOGLE_CSE_ID",
         ]
         return {name: os.getenv(name, "").strip() for name in names}
 

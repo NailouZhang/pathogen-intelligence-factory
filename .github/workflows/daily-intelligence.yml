@@ -1,17 +1,30 @@
-name: Daily Pathogen Intelligence Factory
+name: Weekly Multi-Virus Intelligence Cycle
 
 on:
   schedule:
-    # 22:00 UTC = 06:00 Asia/Shanghai on the next calendar day
-    - cron: "0 22 * * *"
+    # 18:00 UTC = 02:00 Asia/Shanghai on the next calendar day.
+    # The resolver uses the actual Asia/Shanghai weekday, avoiding UTC weekday drift.
+    - cron: "0 18 * * *"
   workflow_dispatch:
     inputs:
       profile_id:
-        description: profiles/<profile_id>/seed.yaml
-        required: true
-        default: hantavirus
+        description: Optional single profile ID; keeps backward compatibility with the previous workflow
+        required: false
+        default: ""
+        type: string
+      profiles:
+        description: Optional comma-separated profile IDs, executed in the written order
+        required: false
+        default: ""
+        type: string
+      run_mode:
+        description: scheduled uses the weekday list; all runs all 15 profiles
+        required: false
+        default: scheduled
+        type: choice
+        options: [scheduled, all]
       refresh_profile:
-        description: Rebuild the strict terminology profile from authoritative sources
+        description: Rebuild strict terminology profiles from authoritative sources
         required: false
         default: false
         type: boolean
@@ -22,7 +35,7 @@ on:
         type: choice
         options: [auto, gemini, deterministic]
       dispatch_wechat:
-        description: Trigger the private WeChat publisher after a successful build
+        description: Trigger the private WeChat publisher after each successful profile
         required: false
         default: true
         type: boolean
@@ -33,18 +46,15 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pathogen-intelligence-${{ inputs.profile_id || vars.PIF_PROFILE_ID || 'hantavirus' }}
+  group: weekly-multi-virus-cycle
   cancel-in-progress: false
 
 jobs:
-  build:
+  cycle:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 350
     outputs:
-      profile_id: ${{ steps.vars.outputs.profile_id }}
-      issue_date: ${{ steps.verify.outputs.issue_date }}
-      data_sha: ${{ steps.persist.outputs.data_sha }}
-      package_path: ${{ steps.persist.outputs.package_path }}
+      pages_ready: ${{ steps.portal.outputs.pages_ready }}
     steps:
       - name: Checkout executable code
         uses: actions/checkout@v6
@@ -58,175 +68,205 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Install dependencies
+      - name: Install Python dependencies and CJK fonts
         run: |
+          set -Eeuo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
-      - name: Resolve profile and Pages URL
-        id: vars
+      - name: Resolve today's ordered profile queue
+        id: plan
         shell: bash
         env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_MODE: ${{ inputs.run_mode }}
           INPUT_PROFILE: ${{ inputs.profile_id }}
-          DEFAULT_PROFILE: ${{ vars.PIF_PROFILE_ID }}
-          CONFIGURED_PAGES_URL: ${{ vars.PIF_CONTENT_SOURCE_URL }}
+          INPUT_PROFILES: ${{ inputs.profiles }}
         run: |
           set -Eeuo pipefail
-          PROFILE_ID="${INPUT_PROFILE:-${DEFAULT_PROFILE:-hantavirus}}"
-          OWNER="${GITHUB_REPOSITORY%%/*}"
-          REPO="${GITHUB_REPOSITORY#*/}"
-          OWNER_LOWER="${OWNER,,}"
-          PAGES_URL="${CONFIGURED_PAGES_URL:-https://${OWNER_LOWER}.github.io/${REPO}/}"
-          echo "profile_id=$PROFILE_ID" >> "$GITHUB_OUTPUT"
-          echo "pages_url=$PAGES_URL" >> "$GITHUB_OUTPUT"
+          MODE="${INPUT_MODE:-scheduled}"
+          [[ "$EVENT_NAME" == schedule ]] && MODE=scheduled
+          python scripts/resolve_weekly_schedule.py \
+            --mode "$MODE" \
+            --profile-id "${INPUT_PROFILE:-}" \
+            --profiles "${INPUT_PROFILES:-}" \
+            --github-output "$GITHUB_OUTPUT"
 
-      - name: Restore profile-specific durable data
+      - name: Prepare durable data branch clone
         shell: bash
         env:
-          PROFILE_ID: ${{ steps.vars.outputs.profile_id }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -Eeuo pipefail
-          rm -rf /tmp/pif_previous /tmp/pif_out
-          mkdir -p /tmp/pif_previous /tmp/pif_out/data
+          rm -rf /tmp/pif_data_repo /tmp/pif_runs /tmp/pages_site
+          mkdir -p /tmp/pif_runs
+          git clone --quiet \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            /tmp/pif_data_repo
+          cd /tmp/pif_data_repo
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if git ls-remote --exit-code --heads origin intelligence-data >/dev/null 2>&1; then
-            git fetch origin intelligence-data:refs/remotes/origin/intelligence-data
-            git archive origin/intelligence-data "profiles/$PROFILE_ID/data" 2>/dev/null | tar -x -C /tmp/pif_previous || true
-            if [[ -d "/tmp/pif_previous/profiles/$PROFILE_ID/data" ]]; then
-              rsync -a "/tmp/pif_previous/profiles/$PROFILE_ID/data/" /tmp/pif_out/data/
-            fi
+            git checkout -B intelligence-data origin/intelligence-data
+          else
+            git checkout --orphan intelligence-data
+            git rm -rf . || true
           fi
 
-      - name: Collect, analyse, translate and render
+      - name: Run profiles sequentially and dispatch successful packages
+        id: run_cycle
+        shell: bash
         env:
-          PROFILE_ID: ${{ steps.vars.outputs.profile_id }}
+          PROFILES_JSON: ${{ steps.plan.outputs.profiles_json }}
           CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
           NCBI_API_KEY: ${{ secrets.NCBI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
+          GOOGLE_CSE_API_KEY: ${{ secrets.GOOGLE_CSE_API_KEY }}
+          GOOGLE_CSE_ID: ${{ secrets.GOOGLE_CSE_ID }}
+          PUBLISHER_REPO_TOKEN: ${{ secrets.PUBLISHER_REPO_TOKEN }}
+          PUBLISHER_REPO: ${{ vars.PUBLISHER_REPO || 'NailouZhang/pathogen-wechat-publisher' }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           GROQ_MODEL: ${{ vars.GROQ_MODEL }}
           GEMINI_IMAGE_MODEL: ${{ vars.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-image' }}
           PIF_USER_AGENT: ${{ vars.PIF_USER_AGENT }}
-          PIF_REFRESH_PROFILE: ${{ inputs.refresh_profile || 'false' }}
-          PIF_COVER_IMAGE_MODE: ${{ inputs.cover_image_mode || vars.PIF_COVER_IMAGE_MODE || 'auto' }}
-          PIF_CONTENT_SOURCE_URL: ${{ steps.vars.outputs.pages_url }}
+          PIF_REFRESH_PROFILE: ${{ github.event_name == 'schedule' && 'false' || inputs.refresh_profile || 'false' }}
+          PIF_COVER_IMAGE_MODE: ${{ github.event_name == 'schedule' && vars.PIF_COVER_IMAGE_MODE || inputs.cover_image_mode || vars.PIF_COVER_IMAGE_MODE || 'auto' }}
+          PIF_CONTENT_SOURCE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          PIF_WINDOW_DAYS: ${{ steps.plan.outputs.window_days }}
+          PIF_MAX_PAPERS: ${{ steps.plan.outputs.max_papers }}
+          PIF_MAX_NEWS: ${{ steps.plan.outputs.max_news }}
+          PIF_MAX_PAPER_CANDIDATES: "150"
+          PIF_MAX_NEWS_CANDIDATES: "180"
+          PIF_MAX_NEWS_FETCHES: "120"
+          PIF_MAX_FULLTEXTS: "50"
+          SHOULD_DISPATCH: ${{ github.event_name == 'schedule' || inputs.dispatch_wechat }}
         run: |
-          python scripts/run_daily.py \
-            --profile "$PROFILE_ID" \
-            --output-dir /tmp/pif_out \
-            --state-dir /tmp/pif_out/data/state
+          set -Eeuo pipefail
+          mapfile -t PROFILES < <(python -c 'import json,os; print("\n".join(json.loads(os.environ["PROFILES_JSON"])))')
+          printf 'Ordered queue: %s\n' "${PROFILES[*]}"
+          : > /tmp/pif_cycle_results.tsv
 
-      - name: Verify all contracts
-        id: verify
+          for PROFILE_ID in "${PROFILES[@]}"; do
+            echo "::group::Profile $PROFILE_ID"
+            OUT="/tmp/pif_runs/$PROFILE_ID"
+            rm -rf "$OUT"
+            mkdir -p "$OUT/data/state"
+
+            PREVIOUS="/tmp/pif_data_repo/profiles/$PROFILE_ID/data"
+            if [[ -d "$PREVIOUS" ]]; then
+              rsync -a "$PREVIOUS/" "$OUT/data/"
+              mkdir -p "$OUT/data/state"
+            fi
+
+            set +e
+            PIF_CONTENT_SOURCE_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/profiles/$PROFILE_ID/" \
+            python scripts/run_daily.py \
+              --profile "$PROFILE_ID" \
+              --output-dir "$OUT" \
+              --state-dir "$OUT/data/state" \
+              >"/tmp/${PROFILE_ID}.stdout.log" \
+              2>"/tmp/${PROFILE_ID}.stderr.log"
+            STATUS=$?
+            set -e
+
+            cat "/tmp/${PROFILE_ID}.stdout.log" || true
+            if [[ $STATUS -ne 0 ]]; then
+              cat "/tmp/${PROFILE_ID}.stderr.log" >&2 || true
+              printf '%s\tfailed\t%s\n' "$PROFILE_ID" "$STATUS" >> /tmp/pif_cycle_results.tsv
+              echo "::error::Profile $PROFILE_ID failed; continuing with the next queued profile."
+              echo "::endgroup::"
+              continue
+            fi
+
+            python scripts/validate_wechat_package.py "$OUT/wechat-package"
+            ISSUE_DATE="$(python -c 'import json,sys; print(json.load(open(sys.argv[1],encoding="utf-8"))["issue_date"])' "$OUT/data/latest.json")"
+
+            BASE="/tmp/pif_data_repo/profiles/$PROFILE_ID"
+            mkdir -p "$BASE/data" "$BASE/site" "$BASE/wechat-package"
+            rsync -a --delete "$OUT/data/" "$BASE/data/"
+            rsync -a --delete "$OUT/site/" "$BASE/site/"
+            rsync -a --delete "$OUT/wechat-package/" "$BASE/wechat-package/"
+
+            cd /tmp/pif_data_repo
+            git add -A "profiles/$PROFILE_ID"
+            if git diff --cached --quiet; then
+              DATA_SHA="$(git rev-parse HEAD)"
+            else
+              git commit -m "chore: publish $PROFILE_ID intelligence $ISSUE_DATE"
+              git push origin HEAD:intelligence-data
+              DATA_SHA="$(git rev-parse HEAD)"
+            fi
+            cd "$GITHUB_WORKSPACE"
+
+            PACKAGE_PATH="profiles/$PROFILE_ID/wechat-package"
+            if [[ "$SHOULD_DISPATCH" == true ]]; then
+              if [[ -z "$PUBLISHER_REPO_TOKEN" ]]; then
+                echo "::warning::PUBLISHER_REPO_TOKEN is empty; skipping WeChat dispatch for $PROFILE_ID"
+              else
+                SOURCE_REPO="$GITHUB_REPOSITORY" SOURCE_SHA="$DATA_SHA" PACKAGE_PATH="$PACKAGE_PATH" PROFILE_ID="$PROFILE_ID" ISSUE_DATE="$ISSUE_DATE" \
+                python -c 'import json,os; print(json.dumps({"event_type":"wechat-package-ready","client_payload":{"source_repo":os.environ["SOURCE_REPO"],"source_sha":os.environ["SOURCE_SHA"],"package_path":os.environ["PACKAGE_PATH"],"profile_id":os.environ["PROFILE_ID"],"publish_key":os.environ["PROFILE_ID"]+":"+os.environ["ISSUE_DATE"],"force":False,"refresh_cover":False}},ensure_ascii=False))' \
+                  >/tmp/dispatch.json
+                curl --fail-with-body --silent --show-error \
+                  -X POST \
+                  -H "Accept: application/vnd.github+json" \
+                  -H "Authorization: Bearer $PUBLISHER_REPO_TOKEN" \
+                  -H "X-GitHub-Api-Version: 2022-11-28" \
+                  "https://api.github.com/repos/$PUBLISHER_REPO/dispatches" \
+                  --data-binary @/tmp/dispatch.json
+              fi
+            fi
+
+            printf '%s\tsuccess\t%s\t%s\n' "$PROFILE_ID" "$ISSUE_DATE" "$DATA_SHA" >> /tmp/pif_cycle_results.tsv
+            echo "::endgroup::"
+          done
+
+          {
+            echo '### Weekly multi-virus cycle'
+            echo
+            echo "Schedule reason: ${{ steps.plan.outputs.reason }}"
+            echo
+            echo '| Profile | Status | Issue/exit | Commit |'
+            echo '|---|---|---|---|'
+            awk -F '\t' '{printf "| `%s` | %s | %s | `%s` |\n",$1,$2,$3,$4}' /tmp/pif_cycle_results.tsv
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build multi-profile Pages portal
+        id: portal
         shell: bash
         run: |
           set -Eeuo pipefail
-          test -s /tmp/pif_out/data/latest.json
-          test -s /tmp/pif_out/site/index.html
-          test -s /tmp/pif_out/site/feed.xml
-          test -s /tmp/pif_out/site/assets/cover.jpg
-          test -s /tmp/pif_out/wechat-package/manifest.json
-          test -s /tmp/pif_out/wechat-package/article.html
-          test -s /tmp/pif_out/wechat-package/cover.jpg
-          python scripts/validate_wechat_package.py /tmp/pif_out/wechat-package
-          python - <<'PY' >> "$GITHUB_OUTPUT"
-          import json
-          from pathlib import Path
-          issue = json.loads(Path('/tmp/pif_out/data/latest.json').read_text(encoding='utf-8'))
-          print('issue_date=' + issue['issue_date'])
-          PY
+          python scripts/build_portal.py \
+            --data-root /tmp/pif_data_repo \
+            --output /tmp/pages_site
+          test -s /tmp/pages_site/index.html
+          echo "pages_ready=true" >> "$GITHUB_OUTPUT"
 
       - name: Upload recovery artifact
         uses: actions/upload-artifact@v7
         with:
-          name: pathogen-intelligence-${{ steps.vars.outputs.profile_id }}-${{ steps.verify.outputs.issue_date }}-${{ github.run_number }}
-          path: /tmp/pif_out
-          if-no-files-found: error
+          name: weekly-virus-cycle-${{ github.run_number }}
+          path: |
+            /tmp/pif_runs
+            /tmp/pif_cycle_results.tsv
+          if-no-files-found: warn
           retention-days: 30
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: /tmp/pif_out/site
-
-      - name: Persist immutable profile outputs
-        id: persist
-        shell: bash
-        env:
-          PROFILE_ID: ${{ steps.vars.outputs.profile_id }}
-          ISSUE_DATE: ${{ steps.verify.outputs.issue_date }}
-        run: |
-          set -Eeuo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git ls-remote --exit-code --heads origin intelligence-data >/dev/null 2>&1; then
-            git switch --force-create intelligence-data origin/intelligence-data
-          else
-            git switch --orphan intelligence-data
-            git rm -rf . || true
-          fi
-
-          BASE="profiles/$PROFILE_ID"
-          mkdir -p "$BASE/data" "$BASE/site" "$BASE/wechat-package"
-          rsync -a --delete /tmp/pif_out/data/ "$BASE/data/"
-          rsync -a --delete /tmp/pif_out/site/ "$BASE/site/"
-          rsync -a --delete /tmp/pif_out/wechat-package/ "$BASE/wechat-package/"
-
-          # Keep the latest executed profile at the branch root for convenient inspection.
-          rsync -a --delete /tmp/pif_out/site/ site/
-          printf '%s\n' "$PROFILE_ID" > latest_profile.txt
-
-          git add -A profiles site latest_profile.txt
-          if git diff --cached --quiet; then
-            echo "No intelligence changes to commit." >&2
-            DATA_SHA="$(git rev-parse HEAD)"
-          else
-            git commit -m "chore: publish $PROFILE_ID intelligence $ISSUE_DATE"
-            git push origin HEAD:intelligence-data
-            DATA_SHA="$(git rev-parse HEAD)"
-          fi
-          echo "data_sha=$DATA_SHA" >> "$GITHUB_OUTPUT"
-          echo "package_path=$BASE/wechat-package" >> "$GITHUB_OUTPUT"
-
-      - name: Trigger private WeChat publisher
-        if: ${{ github.event_name == 'schedule' || inputs.dispatch_wechat }}
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.PUBLISHER_REPO_TOKEN }}
-          PUBLISHER_REPO: ${{ vars.PUBLISHER_REPO || 'NailouZhang/pathogen-wechat-publisher' }}
-          SOURCE_REPO: ${{ github.repository }}
-          SOURCE_SHA: ${{ steps.persist.outputs.data_sha }}
-          PACKAGE_PATH: ${{ steps.persist.outputs.package_path }}
-          PROFILE_ID: ${{ steps.vars.outputs.profile_id }}
-          ISSUE_DATE: ${{ steps.verify.outputs.issue_date }}
-        run: |
-          set -Eeuo pipefail
-          python - <<'PY' >/tmp/dispatch.json
-          import json, os
-          print(json.dumps({
-            "event_type": "wechat-package-ready",
-            "client_payload": {
-              "source_repo": os.environ["SOURCE_REPO"],
-              "source_sha": os.environ["SOURCE_SHA"],
-              "package_path": os.environ["PACKAGE_PATH"],
-              "profile_id": os.environ["PROFILE_ID"],
-              "publish_key": f"{os.environ['PROFILE_ID']}:{os.environ['ISSUE_DATE']}",
-              "force": False
-            }
-          }))
-          PY
-          curl --fail-with-body --silent --show-error \
-            -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "X-GitHub-Api-Version: 2026-03-10" \
-            "https://api.github.com/repos/$PUBLISHER_REPO/dispatches" \
-            --data-binary @/tmp/dispatch.json
+          path: /tmp/pages_site
 
   deploy-pages:
-    needs: build
+    needs: cycle
+    if: ${{ needs.cycle.outputs.pages_ready == 'true' }}
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .analysis import analyze_news, analyze_paper
-from .bootstrap import build_profile
+from .bootstrap import _fallback_profile, build_profile
 from .config import Settings, load_profile, load_seed
 from .content import enrich_scholarly_work, resolve_and_extract_news
 from .dates import date_window
@@ -16,6 +16,7 @@ from .llm import LLMRouter
 from .news import filter_news_window, search_bing_news, search_gdelt, search_google_news, search_reliefweb, search_who
 from .query_plan import build_query_plan
 from .relevance import filter_relevant_news, filter_relevant_papers
+from .ranking import rank_news, rank_papers
 from .render import render_site, render_wechat_package
 from .scholarly import (
     filter_window,
@@ -108,7 +109,10 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     seed = load_seed(settings.project_root, settings.profile_id)
     seed_hash = sha256_text(__import__("json").dumps(seed, ensure_ascii=False, sort_keys=True))
     profile_stale = not profile or profile.get("seed_hash") != seed_hash
-    if settings.refresh_profile or profile_stale or (not demo and profile and profile.get("generated_by") == "bundled_seed"):
+    if demo and (not profile or profile_stale):
+        profile = _fallback_profile(seed, [])
+        profile["seed_hash"] = seed_hash
+    elif settings.refresh_profile or profile_stale or (profile and profile.get("generated_by") == "bundled_seed"):
         profile = build_profile(settings, http, llm)
     plan = build_query_plan(profile, max_groups=7)
     start, end = date_window(settings.window_days, timezone_name=settings.timezone)
@@ -153,15 +157,13 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     papers = dedup_papers(raw_papers)
     dedup_prompt = (settings.project_root / "prompts" / "ambiguous_dedup.md").read_text(encoding="utf-8")
     papers = llm_review_ambiguous_duplicates(papers, llm, dedup_prompt)
-    papers.sort(key=lambda x: (x.get("availability_date") or "", x.get("relevance_score") or 0), reverse=True)
-    papers = papers[: settings.max_papers]
+    papers = rank_papers(papers)[: settings.max_paper_candidates]
 
     raw_news = filter_news_window(raw_news, start, end)
     raw_news = filter_relevant_news(raw_news, profile)
     news = dedup_news(raw_news)
     news = llm_review_ambiguous_duplicates(news, llm, dedup_prompt)
-    news.sort(key=lambda x: (x.get("published_date") or "", x.get("relevance_score") or 0), reverse=True)
-    news = news[: settings.max_news]
+    news = rank_news(news)[: settings.max_news_candidates]
     news, papers = attach_news_to_papers(news, papers)
 
     if demo:
@@ -195,7 +197,12 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             lambda item: resolve_and_extract_news(http, item),
             workers=8,
         )
-        news.sort(key=lambda x: (x.get("published_date") or "", x.get("relevance_score") or 0), reverse=True)
+
+    # Final ranking is applied after metadata/full-text enrichment so that
+    # study design, evidence completeness and official-source authority can
+    # influence the displayed top 50. If fewer records exist, all are shown.
+    papers = rank_papers(papers)[: settings.max_papers]
+    news = rank_news(news)[: settings.max_news]
 
     prompts_dir = settings.project_root / "prompts"
     for paper in papers:

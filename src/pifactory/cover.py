@@ -16,7 +16,7 @@ from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 from .config import Settings, load_seed
 from .utils import dump_json, load_json, sha256_text, utc_now_iso
 
-STYLE_VERSION = "cover-v1-navy-green-red"
+STYLE_VERSION = "cover-v2-cjk-no-date"
 
 
 def _file_sha256(path: Path) -> str:
@@ -152,7 +152,6 @@ def _compose_cover(background: Image.Image, profile: dict[str, Any], issue_date:
     draw.text((60, 183), en[:42], font=_font(25, False), fill=(201,222,231,255))
     draw.line((60, 235, 418, 235), fill=(39,174,96,255), width=4)
     draw.text((60, 258), "文献 · 疫情 · 公共卫生 · 证据审计", font=_font(21, False), fill=(244,226,196,255))
-    draw.text((60, 320), issue_date, font=_font(19, False), fill=(205,216,222,255))
     return image.convert("RGB")
 
 

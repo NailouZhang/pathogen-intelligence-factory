@@ -4,10 +4,10 @@ import json
 import re
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote_plus
 
 from bs4 import BeautifulSoup
 
+from .authority_discovery import discover_authoritative_urls
 from .config import Settings, load_seed
 from .http import HttpClient
 from .llm import LLMError, LLMRouter
@@ -23,16 +23,18 @@ def _html_to_text(raw: str, limit: int = 18000) -> str:
 
 
 def _fetch_authoritative_context(settings: Settings, seed: dict[str, Any], http: HttpClient) -> list[dict[str, Any]]:
-    profile_id = settings.profile_id
-    urls = list(seed.get("authoritative_urls") or [])
-    generic = [
-        f"https://viralzone.expasy.org/search?query={quote_plus(profile_id)}",
-        f"https://ictv.global/search?search_api_fulltext={quote_plus(profile_id)}",
-        f"https://ictv.global/search?keys={quote_plus(profile_id)}",
-    ]
-    urls.extend(generic)
+    secrets = settings.secrets
+    discovered = discover_authoritative_urls(
+        seed,
+        http,
+        google_api_key=secrets.get("GOOGLE_CSE_API_KEY", ""),
+        google_cse_id=secrets.get("GOOGLE_CSE_ID", ""),
+    )
     records: list[dict[str, Any]] = []
-    for url in unique_strings(urls):
+    for row in discovered:
+        url = str(row.get("url") or "").strip()
+        if not url:
+            continue
         try:
             raw = http.get_text(url)
             text = _html_to_text(raw)
@@ -40,12 +42,19 @@ def _fetch_authoritative_context(settings: Settings, seed: dict[str, Any], http:
                 continue
             records.append({
                 "url": url,
+                "title": row.get("title"),
+                "snippet": row.get("snippet"),
+                "discovery_method": row.get("discovery_method"),
                 "retrieved_at": utc_now_iso(),
                 "text": text,
                 "content_hash": sha256_text(text),
             })
         except Exception as exc:
-            records.append({"url": url, "error": clean_space(exc)[:300]})
+            records.append({
+                "url": url,
+                "discovery_method": row.get("discovery_method"),
+                "error": clean_space(exc)[:300],
+            })
     return records
 
 
@@ -70,15 +79,29 @@ def _fallback_profile(seed: dict[str, Any], sources: list[dict[str, Any]]) -> di
         "virus_names": unique_strings(seed.get("virus_names") or en_terms),
         "disease_names_en": unique_strings(seed.get("disease_names_en") or []),
         "disease_names_zh": unique_strings(seed.get("disease_names_zh") or []),
+        "accepted_names": unique_strings(seed.get("accepted_names") or seed.get("virus_names") or en_terms),
+        "historical_names": unique_strings(seed.get("historical_names") or []),
         "hosts": unique_strings(seed.get("hosts") or []),
+        "vectors": unique_strings(seed.get("vectors") or []),
+        "reservoirs": unique_strings(seed.get("reservoirs") or []),
         "transmission_terms": unique_strings(seed.get("transmission_terms") or []),
+        "clinical_terms": unique_strings(seed.get("clinical_terms") or []),
+        "epidemiology_terms": unique_strings(seed.get("epidemiology_terms") or []),
+        "geography_terms": unique_strings(seed.get("geography_terms") or []),
+        "genes_proteins": unique_strings(seed.get("genes_proteins") or []),
+        "genome_terms": unique_strings(seed.get("genome_terms") or []),
+        "diagnostics_terms": unique_strings(seed.get("diagnostics_terms") or []),
+        "prevention_terms": unique_strings(seed.get("prevention_terms") or []),
         "negative_terms": unique_strings(seed.get("negative_terms") or []),
         "translation_glossary": seed.get("translation_glossary") or [],
         "query_groups": seed.get("query_groups") or [
-            {"id": "core", "terms": en_terms[:8], "topics": []},
-            {"id": "clinical", "terms": en_terms[:5], "topics": ["infection", "disease", "diagnosis", "treatment"]},
-            {"id": "epidemiology", "terms": en_terms[:5], "topics": ["outbreak", "surveillance", "epidemiology", "case"]},
-            {"id": "ecology", "terms": en_terms[:5], "topics": ["reservoir", "host", "ecology", "spillover"]},
+            {"id": "core_taxonomy", "terms": en_terms[:8], "topics": ["taxonomy", "species", "lineage"]},
+            {"id": "clinical", "terms": en_terms[:6], "topics": ["infection", "disease", "severity", "treatment"]},
+            {"id": "epidemiology", "terms": en_terms[:6], "topics": ["outbreak", "surveillance", "epidemiology", "case"]},
+            {"id": "host_ecology", "terms": en_terms[:6], "topics": ["reservoir", "host", "vector", "ecology", "spillover"]},
+            {"id": "genomics", "terms": en_terms[:6], "topics": ["genome", "sequence", "phylogeny", "variant"]},
+            {"id": "diagnostics", "terms": en_terms[:6], "topics": ["diagnosis", "PCR", "serology", "assay"]},
+            {"id": "prevention", "terms": en_terms[:6], "topics": ["vaccine", "prevention", "control", "public health"]},
         ],
         "authoritative_sources": sources,
         "generated_by": "deterministic_seed_fallback",
