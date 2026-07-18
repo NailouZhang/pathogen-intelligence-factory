@@ -203,14 +203,21 @@ def _tier_badge(item: dict[str, Any], *, wechat: bool = False) -> str:
     return f'<span class="tier-badge tier-{html_escape(tier)}" title="{title}">{label}</span>'
 
 
+def _tier_badge_en(item: dict[str, Any]) -> str:
+    tier = str(item.get("priority_tier") or "C").upper()
+    label = {"A": "A high priority", "B": "B routine priority", "C": "C supplementary"}.get(tier, "C supplementary")
+    title = html_escape(item.get("priority_tier_reason") or "")
+    return f'<span class="tier-badge tier-{html_escape(tier)}" title="{title}">{label}</span>'
+
+
 def paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
     kind = work.get("paper_type") or "research"
     title_zh = work.get("title_zh") or work.get("title") or "Untitled"
     translated = work.get("abstract_zh") or work.get("summary_zh") or "原始数据库记录未提供摘要。"
     original = work.get("abstract") or "Original abstract is unavailable."
     authors = ", ".join((work.get("authors") or [])[:10]) or "Authors unavailable"
-    analysis = work.get("analysis_zh") or {}
-    analysis_en = work.get("analysis") or {}
+    analysis = work.get("elements_zh") or work.get("analysis_zh") or {}
+    analysis_en = work.get("elements_en") or work.get("analysis_en") or ((work.get("analysis") or {}).get("analysis") or {})
     audit = work.get("translation_audit") or {}
     links = []
     if work.get("doi"):
@@ -243,11 +250,11 @@ def paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
 <article class="card paper">
   <div class="meta-strip">{_paper_meta(work)}</div>
   <div class="card-body">
-    <div style="font-size:12px;color:{COLORS['paper_green']};font-weight:700;margin-bottom:7px;">{_tier_badge(work)}学术文献 · {'综述' if kind == 'review' else '研究'} · {html_escape(work.get('evidence_level') or 'E0')}</div>
+    <div style="font-size:12px;color:{COLORS['paper_green']};font-weight:700;margin-bottom:7px;"><span class="lang-zh">{_tier_badge(work)}学术文献 · {'综述' if kind == 'review' else '研究'} · {html_escape(work.get('evidence_level') or 'E0')}</span><span class="lang-en" hidden>{_tier_badge_en(work)}Academic literature · {'Review' if kind == 'review' else 'Research'} · {html_escape(work.get('evidence_level') or 'E0')}</span></div>
     <div class="lang-zh"><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(work.get('title'))}</div><div class="authors"><strong>作者：</strong> {html_escape(authors)}</div><div class="translated-body"><strong>摘要中文翻译</strong>{html_escape(translated)}</div><details><summary>查看{analysis_label}</summary><dl class="five-grid">{_five_elements(analysis, _paper_fields(kind))}</dl></details></div>
     <div class="lang-en" hidden><h3>{html_escape(work.get('title'))}</h3><div class="authors"><strong>Authors:</strong> {html_escape(authors)}</div><div class="original"><strong>Original Abstract</strong><br>{html_escape(original)}</div><details><summary>View {'review five-element analysis' if kind == 'review' else 'research seven-element analysis'}</summary><dl class="five-grid">{_five_elements(analysis_en, _paper_fields_en(kind), 'Not reported in the supplied evidence.')}</dl></details></div>
-    <div class="links">{' · '.join(links)}</div>
-    <div class="audit">标题翻译：{_attempt_label(audit.get('title') or {})}；摘要翻译：{_attempt_label(audit.get('abstract_or_body') or {})}；分析：{_analysis_label(work)}</div>
+    <div class="links"><span class="lang-zh">{' · '.join(links)}</span><span class="lang-en" hidden>{' · '.join(links)}</span></div>
+    <div class="audit"><span class="lang-zh">标题翻译：{_attempt_label(audit.get('title') or {})}；摘要翻译：{_attempt_label(audit.get('abstract_or_body') or {})}；分析：{_analysis_label(work)}</span><span class="lang-en" hidden>Title translation: {_attempt_label(audit.get('title') or {})}; abstract translation: {_attempt_label(audit.get('abstract_or_body') or {})}; analysis: {_analysis_label(work)}</span></div>
   </div>
 </article>"""
 
@@ -260,8 +267,8 @@ def news_card(article: dict[str, Any], *, wechat: bool = False) -> str:
         else article.get("content_zh") or article.get("summary_zh")
     ) or ""
     original = article.get("content") or article.get("excerpt") or "Original news body is unavailable."
-    analysis = article.get("analysis_zh") or {}
-    analysis_en = article.get("analysis") or {}
+    analysis = article.get("elements_zh") or article.get("analysis_zh") or {}
+    analysis_en = article.get("elements_en") or article.get("analysis_en") or ((article.get("analysis") or {}).get("analysis") or {})
     link = html_escape(article.get("resolved_url") or article.get("url"))
     meta = " &nbsp;|&nbsp; ".join(
         x for x in [
@@ -289,9 +296,9 @@ def news_card(article: dict[str, Any], *, wechat: bool = False) -> str:
   <div class="meta-strip">{meta}</div>
   <div class="card-body">
     <div class="lang-zh">{_tier_badge(article)}<h3 style="color:#9b2c2c">{html_escape(title_zh)}</h3><div class="title-en">{html_escape(article.get('title'))}</div><div class="translated-body"><strong>正文要点中文精炼</strong>{html_escape(translated)}</div><details><summary>查看新闻五要素</summary><dl class="five-grid">{_five_elements(analysis, _news_fields())}</dl></details></div>
-    <div class="lang-en" hidden><h3 style="color:#9b2c2c">{html_escape(article.get('title'))}</h3><div class="original"><strong>{html_escape("Syndicated Summary" if article.get("content_status") == "syndicated_summary" else "Fetched Original Body")}</strong><br>{html_escape(original)}</div><details><summary>View news five-element analysis</summary><dl class="five-grid">{_five_elements(analysis_en, _news_fields_en(), 'Not reported in the supplied evidence.')}</dl></details></div>
-    <div class="links"><a href="{link}">查看原始报道</a></div>
-    <div class="audit">标题翻译：{_attempt_label(audit.get('title') or {})}；新闻精炼翻译：{_attempt_label(audit.get('abstract_or_body') or {})}；分析：{_analysis_label(article)}</div>
+    <div class="lang-en" hidden>{_tier_badge_en(article)}<h3 style="color:#9b2c2c">{html_escape(article.get('title'))}</h3><div class="original"><strong>{html_escape("Syndicated Summary" if article.get("content_status") == "syndicated_summary" else "Fetched Original Body")}</strong><br>{html_escape(original)}</div><details><summary>View news five-element analysis</summary><dl class="five-grid">{_five_elements(analysis_en, _news_fields_en(), 'Not reported in the supplied evidence.')}</dl></details></div>
+    <div class="links"><span class="lang-zh"><a href="{link}">查看原始报道</a></span><span class="lang-en" hidden><a href="{link}">View original report</a></span></div>
+    <div class="audit"><span class="lang-zh">标题翻译：{_attempt_label(audit.get('title') or {})}；新闻精炼翻译：{_attempt_label(audit.get('abstract_or_body') or {})}；分析：{_analysis_label(article)}</span><span class="lang-en" hidden>Title translation: {_attempt_label(audit.get('title') or {})}; brief translation: {_attempt_label(audit.get('abstract_or_body') or {})}; analysis: {_analysis_label(article)}</span></div>
   </div>
 </article>"""
 
@@ -313,7 +320,7 @@ def _overview_html(block: dict[str, Any], title: str, *, wechat: bool = False) -
 <section class="overview">
   <h2>{html_escape(title)}</h2>
   <div class="lang-zh"><h3>{html_escape(block.get('headline_zh'))}</h3><p>{html_escape(block.get('lead_zh'))}</p><ul>{finding_html}</ul><p>{html_escape(block.get('trend_or_risk_zh'))}</p><p style="font-size:12px;color:#718096;">证据提醒：{html_escape(block.get('caveats_zh'))}</p></div>
-  <div class="lang-en" hidden><h3>{html_escape(block.get('headline_en'))}</h3><p>{html_escape(block.get('brief_en'))}</p></div>
+  <div class="lang-en" hidden><h3>{html_escape(block.get('headline_en'))}</h3><p>{html_escape(block.get('lead_en') or block.get('brief_en'))}</p><ul>{"".join(f"<li>{html_escape(item)}</li>" for item in (block.get('key_findings_en') or []))}</ul><p>{html_escape(block.get('trend_or_risk_en'))}</p><p style="font-size:12px;color:#718096;">Evidence caveat: {html_escape(block.get('caveats_en'))}</p></div>
   <p style="font-size:11px;color:#a0aec0;">汇总输入：{int(block.get('input_count') or 0)} 条；状态：{html_escape(block.get('status'))}</p>
 </section>"""
 
@@ -324,6 +331,8 @@ def _overview_statlines(issue: dict[str, Any], *, wechat: bool = False) -> str:
     news = funnel.get("news") or {}
     metrics = issue.get("metrics") or {}
     paper_duplicates = max(0, int(papers.get("after_candidate_gate") or 0) - int(papers.get("after_dedup") or 0))
+    paper_type_rejected = int(papers.get("type_gate_rejected") or 0)
+    paper_after_type = int(papers.get("after_type_gate") or papers.get("after_window") or 0)
     news_duplicates = max(0, int(news.get("after_candidate_gate") or 0) - int(news.get("after_dedup") or 0))
 
     paper_ready = int(papers.get("ready_before_top_n") or papers.get("displayed") or 0)
@@ -335,7 +344,7 @@ def _overview_statlines(issue: dict[str, Any], *, wechat: bool = False) -> str:
 
     paper_line = (
         f"文献概览：数据库记录 {int(papers.get('raw') or 0):,} 条；真实发表日期窗口内 {int(papers.get('after_window') or 0):,} 条；"
-        f"候选筛选后 {int(papers.get('after_candidate_gate') or 0):,} 条；去除重复 {paper_duplicates:,} 条；"
+        f"排除数据集、补充材料及非论文对象 {paper_type_rejected:,} 条后剩余 {paper_after_type:,} 条；候选筛选后 {int(papers.get('after_candidate_gate') or 0):,} 条；去除重复 {paper_duplicates:,} 条；"
         f"相关性复核通过 {int(papers.get('after_final_gate') or 0):,} 条；正文、分析与翻译门禁后可展示 {paper_ready:,} 条；"
         f"按优先级、证据强度、时效性和来源质量排序，受 PIF_MAX_PAPERS={paper_limit} 限制取前 {int(papers.get('displayed') or 0):,} 篇展示"
         f"（研究 {int(metrics.get('research') or 0)}、综述 {int(metrics.get('reviews') or 0)}；其余 {paper_excluded:,} 篇保留在审计数据中）。"
@@ -349,6 +358,7 @@ def _overview_statlines(issue: dict[str, Any], *, wechat: bool = False) -> str:
     )
     paper_line_en = (
         f"Literature funnel: {int(papers.get('raw') or 0):,} database records; {int(papers.get('after_window') or 0):,} within the real-publication window; "
+        f"{paper_type_rejected:,} dataset/supplement/non-article records were rejected, leaving {paper_after_type:,}; "
         f"{int(papers.get('after_final_gate') or 0):,} passed relevance review; {paper_ready:,} remained display-ready; "
         f"the top {int(papers.get('displayed') or 0):,} were displayed under PIF_MAX_PAPERS={paper_limit}, ranked by priority, evidence strength, recency and source quality."
     )
@@ -386,20 +396,25 @@ def _source_health(issue: dict[str, Any]) -> str:
     rows = status.get("sources") or []
     if not rows:
         return ""
-    cells = []
+    cells_zh: list[str] = []
+    cells_en: list[str] = []
+    state_zh = {"healthy": "正常", "degraded": "部分失败", "empty": "成功但无结果", "failed": "失败", "skipped": "跳过"}
+    state_en = {"healthy": "Healthy", "degraded": "Degraded", "empty": "Successful, no results", "failed": "Failed", "skipped": "Skipped"}
     for row in rows:
         failed = int(row.get("failed_queries") or 0)
         skipped = int(row.get("skipped_queries") or 0)
         ok = int(row.get("successful_queries") or 0)
         zero = int(row.get("zero_result_queries") or 0)
         health = clean_space(row.get("health"))
-        state_map = {"healthy": "正常", "degraded": "部分失败", "empty": "成功但无结果", "failed": "失败", "skipped": "跳过"}
-        state = state_map.get(health, "正常" if failed == 0 else ("部分失败" if ok else "失败"))
-        cells.append(
-            f'<tr><td>{html_escape(row.get("source"))}</td><td>{state}</td>'
+        zh = state_zh.get(health, "正常" if failed == 0 else ("部分失败" if ok else "失败"))
+        en = state_en.get(health, "Healthy" if failed == 0 else ("Degraded" if ok else "Failed"))
+        common = (
+            f'<td>{html_escape(row.get("source"))}</td><td>{{state}}</td>'
             f'<td>{ok}</td><td>{zero}</td><td>{failed}</td><td>{skipped}</td>'
-            f'<td>{int(row.get("records_reported") or 0)}</td></tr>'
+            f'<td>{int(row.get("records_reported") or 0)}</td>'
         )
+        cells_zh.append(f'<tr>{common.format(state=zh)}</tr>')
+        cells_en.append(f'<tr>{common.format(state=en)}</tr>')
     funnel = issue.get("retrieval_funnel") or {}
     papers = funnel.get("papers") or {}
     news = funnel.get("news") or {}
@@ -416,24 +431,55 @@ def _source_health(issue: dict[str, Any]) -> str:
             covered += 1
         if any(bool(x.get("query")) and not bool(x.get("executed")) for x in provider_rows):
             unexecuted += 1
-    return (
-        '<details class="source-health"><summary>查看检索源健康、身份锚点覆盖与全量相关性复核</summary>'
-        f'<p>文献：原始 {papers.get("raw",0)} → 真实发表日期窗口 {papers.get("after_window",0)} → '
+    paper_chain_zh = (
+        f'文献：原始 {papers.get("raw",0)} → 真实发表日期窗口 {papers.get("after_window",0)} → '
+        f'论文类型硬门禁 {papers.get("after_type_gate", papers.get("after_window",0))} → '
         f'候选闸门 {papers.get("after_candidate_gate",0)} → 相关性闸门 {papers.get("after_final_gate",0)} → '
         f'全部内容门禁后 {papers.get("ready_before_top_n", papers.get("displayed",0))} → '
-        f'按优先级/证据强度/时效性/来源质量取 Top-{papers.get("top_n_limit", papers.get("displayed",0))} → 展示 {papers.get("displayed",0)}。</p>'
-        f'<p>新闻：原始 {news.get("raw",0)} → 时间窗 {news.get("after_window",0)} → '
-        f'候选闸门 {news.get("after_candidate_gate",0)} → 相关性闸门 {news.get("after_final_gate",0)} → '
-        f'正文身份、主题及翻译门禁后 {news.get("ready_before_top_n", news.get("displayed",0))} → '
-        f'按优先级/证据强度/时效性/来源质量取 Top-{news.get("top_n_limit", news.get("displayed",0))} → 展示 {news.get("displayed",0)}。</p>'
-        f'<p>相关性复核：Python 已检查全部候选文献 {paper_review.get("candidates_reviewed_by_python",0)} 条、新闻 '
-        f'{news_review.get("candidates_reviewed_by_python",0)} 条；LLM 使用证据句紧凑包按 Token 动态分批，'
-        f'无篇数上限、无摘要前缀字符截断；仅 U 类记录升级为更完整证据。</p>'
-        f'<p>核心检索概念：共 {anchor.get("concept_count", len(concepts))} 个；本次至少一个来源返回记录的概念 {covered} 个；'
-        f'存在已计划但未执行查询的概念 {unexecuted} 个。完整逐概念统计保存在 data/audit/anchor_coverage.json。</p>'
-        '<div style="overflow-x:auto"><table><thead><tr><th>来源</th><th>状态</th>'
-        '<th>成功查询</th><th>成功但0条</th><th>失败</th><th>跳过</th><th>返回记录</th>'
-        f'</tr></thead><tbody>{"".join(cells)}</tbody></table></div></details>'
+        f'取 Top-{papers.get("top_n_limit", papers.get("displayed",0))} → 展示 {papers.get("displayed",0)}。'
+    )
+    paper_chain_en = (
+        f'Literature: raw {papers.get("raw",0)} → real-publication window {papers.get("after_window",0)} → '
+        f'article-type hard gate {papers.get("after_type_gate", papers.get("after_window",0))} → '
+        f'candidate gate {papers.get("after_candidate_gate",0)} → relevance gate {papers.get("after_final_gate",0)} → '
+        f'display-ready {papers.get("ready_before_top_n", papers.get("displayed",0))} → '
+        f'Top-{papers.get("top_n_limit", papers.get("displayed",0))} → displayed {papers.get("displayed",0)}.'
+    )
+    news_chain_zh = (
+        f'新闻：原始 {news.get("raw",0)} → 时间窗 {news.get("after_window",0)} → 候选闸门 {news.get("after_candidate_gate",0)} → '
+        f'相关性闸门 {news.get("after_final_gate",0)} → 正文身份、主题及翻译门禁后 '
+        f'{news.get("ready_before_top_n", news.get("displayed",0))} → '
+        f'取 Top-{news.get("top_n_limit", news.get("displayed",0))} → 展示 {news.get("displayed",0)}。'
+    )
+    news_chain_en = (
+        f'News: raw {news.get("raw",0)} → reporting window {news.get("after_window",0)} → candidate gate {news.get("after_candidate_gate",0)} → '
+        f'relevance gate {news.get("after_final_gate",0)} → body identity/topic and translation gates '
+        f'{news.get("ready_before_top_n", news.get("displayed",0))} → '
+        f'Top-{news.get("top_n_limit", news.get("displayed",0))} → displayed {news.get("displayed",0)}.'
+    )
+    table_zh = (
+        '<div style="overflow-x:auto"><table><thead><tr><th>来源</th><th>状态</th><th>成功查询</th>'
+        '<th>成功但0条</th><th>失败</th><th>跳过</th><th>返回记录</th></tr></thead>'
+        f'<tbody>{"".join(cells_zh)}</tbody></table></div>'
+    )
+    table_en = (
+        '<div style="overflow-x:auto"><table><thead><tr><th>Source</th><th>Status</th><th>Successful queries</th>'
+        '<th>Successful, zero results</th><th>Failed</th><th>Skipped</th><th>Records</th></tr></thead>'
+        f'<tbody>{"".join(cells_en)}</tbody></table></div>'
+    )
+    return (
+        '<div class="lang-zh"><details class="source-health"><summary>查看检索源健康、核心概念覆盖与全量相关性复核</summary>'
+        f'<p>{paper_chain_zh}</p><p>{news_chain_zh}</p>'
+        f'<p>相关性复核：Python 已检查候选文献 {paper_review.get("candidates_reviewed_by_python",0)} 条、新闻 '
+        f'{news_review.get("candidates_reviewed_by_python",0)} 条；边界记录由 LLM 按 Token 动态分批复核。</p>'
+        f'<p>核心检索概念：共 {anchor.get("concept_count", len(concepts))} 个；本次至少一个来源返回记录的概念 {covered} 个；存在已计划但未执行查询的概念 {unexecuted} 个。</p>'
+        f'{table_zh}</details></div>'
+        '<div class="lang-en" hidden><details class="source-health"><summary>View source health, concept coverage and full relevance review</summary>'
+        f'<p>{paper_chain_en}</p><p>{news_chain_en}</p>'
+        f'<p>Python reviewed {paper_review.get("candidates_reviewed_by_python",0)} literature candidates and '
+        f'{news_review.get("candidates_reviewed_by_python",0)} news candidates; boundary records were reviewed in token-budgeted LLM batches.</p>'
+        f'<p>Core search concepts: {anchor.get("concept_count", len(concepts))}; covered by at least one source: {covered}; planned but unexecuted: {unexecuted}.</p>'
+        f'{table_en}</details></div>'
     )
 
 def _section(title: str, cls: str, cards: list[str]) -> str:
@@ -468,14 +514,14 @@ def render_site(issue: dict[str, Any], output_dir: Path) -> None:
         + _overview_html(news_overview, "📰 本期新闻动态 / News Brief")
     )
     html = f"""<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html_escape(issue['title_zh'])}</title><style>{SITE_CSS}</style></head><body><main class="page">
-<header class="hero"><img src="assets/cover.jpg" alt="{html_escape(issue['title_zh'])}"><div class="hero-text"><h1>{html_escape(issue['title_zh'])}</h1><p>{html_escape(issue['issue_date'])} | 文献简报 + 公共卫生新闻简报 | {html_escape(issue['window_start'])}—{html_escape(issue['window_end'])}</p></div></header>
+<header class="hero"><img src="assets/cover.jpg" alt="{html_escape(issue['title_zh'])}"><div class="hero-text"><div class="lang-zh"><h1>{html_escape(issue['title_zh'])}</h1><p>{html_escape(issue['issue_date'])} | 文献简报 + 公共卫生新闻简报 | {html_escape(issue['window_start'])}—{html_escape(issue['window_end'])}</p></div><div class="lang-en" hidden><h1>{html_escape(issue['title_en'])}</h1><p>{html_escape(issue['issue_date'])} | Literature brief + public-health news | {html_escape(issue['window_start'])}—{html_escape(issue['window_end'])}</p></div></div></header>
 {_overview_statlines(issue)}
 {_analysis_quality_banner(issue)}
 {overview_html}
 <div class="toolbar"><button class="language-toggle" data-language="zh">中文</button><button class="language-toggle" data-language="en">English</button></div>
-<div class="stats"><div><strong>{len(research)}</strong><span>研究文献</span></div><div><strong>{len(reviews)}</strong><span>综述文献</span></div><div><strong>{len(news)}</strong><span>有效正文/实质摘要新闻</span></div><div><strong>{issue.get('metrics',{}).get('translated',0)}</strong><span>完整中文记录</span></div></div>
-<div class="content"><p style="font-size:12px;color:#718096;">{html_escape(tier_summary)}</p>{_source_health(issue)}{''.join(sections)}</div>
-<footer>文献与新闻分别汇总；研究论文使用七要素、综述使用五要素、新闻使用五要素。翻译按免费 Python 路径优先、LLM 最终兜底；未通过翻译或新闻内容质量门禁的记录不进入页面。</footer>
+<div class="stats"><div><strong>{len(research)}</strong><span class="lang-zh">研究文献</span><span class="lang-en" hidden>Research articles</span></div><div><strong>{len(reviews)}</strong><span class="lang-zh">综述文献</span><span class="lang-en" hidden>Reviews</span></div><div><strong>{len(news)}</strong><span class="lang-zh">有效新闻</span><span class="lang-en" hidden>Validated news</span></div><div><strong>{issue.get('metrics',{}).get('translated',0)}</strong><span class="lang-zh">完整双语记录</span><span class="lang-en" hidden>Complete bilingual records</span></div></div>
+<div class="content"><p class="lang-zh" style="font-size:12px;color:#718096;">{html_escape(tier_summary)}</p><p class="lang-en" hidden style="font-size:12px;color:#718096;">Literature priority A/B/C: {paper_tiers['A']}/{paper_tiers['B']}/{paper_tiers['C']}; news priority A/B/C: {news_tiers['A']}/{news_tiers['B']}/{news_tiers['C']}.</p>{_source_health(issue)}{''.join(sections)}</div>
+<footer><span class="lang-zh">研究论文使用七要素、综述与新闻使用对应五要素；所有公开网页卡片保留平行中英文结构化实体。</span><span class="lang-en" hidden>Research articles use seven structured elements; reviews and news use their five-element frameworks. Every public-page card retains parallel Chinese and English entities.</span></footer>
 </main><script>{SITE_JS}</script></body></html>"""
     (site_dir / "index.html").write_text(html, encoding="utf-8")
 

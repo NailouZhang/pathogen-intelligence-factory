@@ -9,7 +9,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from rapidfuzz.fuzz import ratio, token_set_ratio
 
 from .llm import LLMError, LLMRouter
-from .utils import clean_space, extract_doi, normalize_title, sha256_text, unique_strings
+from .utils import clean_scholarly_abstract, clean_space, extract_doi, normalize_title, sha256_text, unique_strings
 
 
 def _title_signature(value: str | None) -> str:
@@ -46,11 +46,45 @@ def _paper_key(record: dict[str, Any]) -> str:
     return f"title:{title}|author:{first_author}"
 
 
+
+def _author_key(value: Any) -> str:
+    text = clean_space(value)
+    tokens = re.findall(r"[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ'\-]*", text)
+    if not tokens:
+        return ""
+    # Database abbreviations commonly use ``Surname AB`` while full records use
+    # ``Alice B Surname``.  Detect a terminal initials token before choosing the
+    # surname so both forms collapse to the same conservative key.
+    terminal = re.sub(r"[^A-Za-z]", "", tokens[-1])
+    if len(tokens) >= 2 and 1 <= len(terminal) <= 3 and tokens[-1].upper() == tokens[-1]:
+        surname = tokens[-2].casefold()
+        first_initial = terminal[0].casefold()
+    else:
+        surname = tokens[-1].casefold()
+        first_initial = tokens[0][0].casefold() if tokens[0] else ""
+    return f"{surname}|{first_initial}"
+
+
+def _dedup_authors(values: list[Any]) -> list[str]:
+    groups: dict[str, str] = {}
+    order: list[str] = []
+    for raw in values:
+        value = clean_space(raw)
+        if not value:
+            continue
+        key = _author_key(value) or value.casefold()
+        if key not in groups:
+            groups[key] = value
+            order.append(key)
+        elif len(value) > len(groups[key]):
+            groups[key] = value
+    return [groups[key] for key in order]
+
 def _merge_paper(base: dict[str, Any], incoming: dict[str, Any]) -> dict[str, Any]:
     base.setdefault("sources", [])
     base["sources"] = unique_strings(base["sources"] + [base.get("source"), incoming.get("source")])
     base.setdefault("source_records", []).append(incoming)
-    base["authors"] = unique_strings((base.get("authors") or []) + (incoming.get("authors") or []))
+    base["authors"] = _dedup_authors((base.get("authors") or []) + (incoming.get("authors") or []))
     base["publication_types"] = unique_strings((base.get("publication_types") or []) + (incoming.get("publication_types") or []))
     base["source_ids"] = {**(base.get("source_ids") or {}), **{k: v for k, v in (incoming.get("source_ids") or {}).items() if v}}
     for field in (
@@ -72,7 +106,10 @@ def _merge_paper(base: dict[str, Any], incoming: dict[str, Any]) -> dict[str, An
 def dedup_papers(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     merged: dict[str, dict[str, Any]] = {}
     loose: list[dict[str, Any]] = []
-    for record in records:
+    for source_record in records:
+        record = dict(source_record)
+        if record.get("abstract"):
+            record["abstract"] = clean_scholarly_abstract(record.get("abstract"))
         if not record.get("title"):
             continue
         key = _paper_key(record)
@@ -122,6 +159,7 @@ def dedup_papers(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if not matched:
             loose.append(item)
     for index, item in enumerate(loose, 1):
+        item["authors"] = _dedup_authors(item.get("authors") or [])
         item["paper_id"] = "paper-" + sha256_text(_paper_key(item))[:16]
         item["rank"] = index
     return loose

@@ -327,3 +327,192 @@ data/audit/eligible_news.jsonl
 - 公开仓在数据分支写入成功后，向私有仓发送 `repository_dispatch` 只能采用 best-effort 方式。
 - 私有仓Token缺失、GitHub API连接失败或私有Runner离线，不得中断公开仓其余病毒、门户构建或GitHub Pages部署。
 - 私有仓失败通过Actions警告和私有仓运行日志单独处理；已经生成的数据和网页不得回滚。
+
+## 修复项 06：非叙述性缩写词表污染拦截
+
+### 状态
+
+已在修复项01—05基础上实现。狂犬病报告中 `Abbreviations/缩写` 段被分号切成伪句，并错误进入“主要结果、意义、局限”等字段的问题已修复。
+
+### 不可回退规则
+
+1. `split_sentences()`不得把分号作为硬句子边界。
+2. 在任何角色分类、证据检索或fallback之前，必须截断终末 `Abbreviations:`、`List of abbreviations:`、`Acronyms:`、`缩写：`、`缩略语：`段。
+3. 具有多个“短术语:定义”对的片段必须视为术语表，不得进入七/五要素候选句池。
+4. 原始摘要可以保留完整文本供用户查看，但精读证据包必须使用清洗后的叙述性文本。
+
+### 主要文件
+
+- `src/pifactory/utils.py`
+- `tests/test_v14_quality_and_bilingual.py`
+
+## 修复项 07：Dataset、补充材料和仓储对象早期硬门禁
+
+### 状态
+
+已实现文献类型与仓储平台双重硬熔断，在相关性复核、全文抓取、翻译和LLM之前执行。
+
+### 不可回退规则
+
+1. `dataset`、`component`、`grant`、`supplementary material`等非论文类型不得进入候选文献池。
+2. Figshare、Zenodo、Dryad及对应DOI前缀默认拒绝。
+3. 标题含 `Dataset`、`Supplementary Material`、`source data`、`数据集`、`补充材料`等明确非论文信号时拒绝。
+4. 每条拒绝记录必须写入 `data/audit/scholarly_record_type_gate.json`，不得静默丢弃。
+5. 门禁必须在Python/LLM相关性复核之前执行，避免消耗API和全文抓取配额。
+
+### 主要文件
+
+- `src/pifactory/scholarly_gate.py`
+- `src/pifactory/pipeline.py`
+- `src/pifactory/render.py`
+- `tests/test_v14_quality_and_bilingual.py`
+
+## 修复项 08：结构化分析严格标量Schema
+
+### 状态
+
+已修复新闻嵌套字典被 `str(dict)` 强转后穿透校验、最终在HTML中显示Python字典字面量的问题。
+
+### 不可回退规则
+
+1. `_paper_validator()`和`_news_validator()`必须先执行类型校验，再执行清洗和长度校验。
+2. 七/五要素每个值必须是非空字符串；`dict/list/tuple/set`一律拒绝。
+3. `evidence_ids`每个字段必须是字符串列表，列表成员不得为嵌套对象。
+4. `summary_en/brief_en`必须是字符串。
+5. 校验失败必须继续尝试下一模型或供应商；全部失败后才进入确定性fallback。
+6. 渲染层仍须HTML转义，但不得承担修复非法分析Schema的职责。
+
+### 主要文件
+
+- `src/pifactory/analysis.py`
+- `tests/test_v14_quality_and_bilingual.py`
+
+## 修复项 09：英文主分析与中英文平行实体
+
+### 状态
+
+用户问题4和问题8属于同一个数据层根因，已合并修复。分析只执行一次英文结构化抽取，保留为 `elements_en`；随后按字段翻译一次生成 `elements_zh`。公开网页为每个卡片生成独立中英文DOM镜像。
+
+### 不可回退规则
+
+1. 原生英文论文/新闻的LLM结构化输出必须保存在 `elements_en`。
+2. 中文结构化要素必须从已校验的英文要素逐字段翻译，保存为 `elements_zh`，不得重新分析原文以避免双倍Token和事实分叉。
+3. `analysis_en/analysis_zh`仅作为兼容别名，公开Schema以 `elements_en/elements_zh`为准。
+4. 标题、摘要、七/五要素、统计、总览、来源健康、链接、审计和页脚均须具有中英文DOM容器。
+5. JavaScript切换必须同时控制所有 `.lang-zh/.lang-en`，英文模式不得用固定占位符替代已有英文要素。
+6. 微信公众号包保持中文单语，因为公众号正文不支持页面级JavaScript切换；GitHub Pages提供完整双语。
+
+### 主要文件
+
+- `src/pifactory/translation.py`
+- `src/pifactory/render.py`
+- `src/pifactory/overview.py`
+- `prompts/literature_overview.md`
+- `prompts/news_overview.md`
+- `tests/test_v14_quality_and_bilingual.py`
+
+## 修复项 10：DOI落地页与Unpaywall邮箱解耦
+
+### 状态
+
+已修复 `doi_landing`错误嵌套在`if doi and mailto`中的缩进问题。
+
+### 不可回退规则
+
+1. 只要存在DOI，就必须加入 `https://doi.org/{doi}` 候选落地页。
+2. 只有Unpaywall API调用需要邮箱；未配置邮箱不得禁用通用DOI落地页。
+3. 内容审计必须记录 `doi_landing`是否尝试及失败原因。
+
+### 主要文件
+
+- `src/pifactory/content.py`
+- `tests/test_v14_quality_and_bilingual.py`
+
+## 修复项 11：21病原顺序运行的共享额度与冷却状态
+
+### 状态
+
+已将内存态 `ProviderRuntimeState`升级为北京时间每日共享文件状态。排在后面的profile会继承前面profile已确认的认证失败、额度耗尽和冷却信息。
+
+### 不可回退规则
+
+1. GitHub工作流中的21种病原必须按计划顺序串行运行，不得默认并行争抢同一免费额度池。
+2. 状态文件固定由 `PIF_PROVIDER_STATE_FILE`指定；生产工作流使用 `intelligence-data/shared/state/provider_quota_daily.json`的工作副本。
+3. 状态以Asia/Shanghai自然日自动重置。
+4. 401/403认证失败和明确额度耗尽在当日跨profile熔断；429按冷却期处理，不得永久判定额度耗尽。
+5. 文件读写必须加进程锁并原子覆盖；审计不得包含API Key。
+6. 本地顺序运行使用公开仓 `runtime/shared/provider_quota_daily.json`。
+
+### 主要文件
+
+- `src/pifactory/provider_state.py`
+- `src/pifactory/llm.py`
+- `.github/workflows/daily-intelligence.yml`
+- `scripts/run_profile_local.sh`
+- `tests/test_v14_quality_and_bilingual.py`
+
+## 修复项 12：稀缺病原事件驱动新闻检索
+
+### 状态
+
+已实现从本周真实发表、通过论文类型门禁的文献中提取病原、地点、疫情/病例/死亡等事件线索，动态追加到新闻RSS、GDELT、ReliefWeb和WHO查询。
+
+### 不可回退规则
+
+1. 动态事件词只能来自本期真实发表日期窗口内的文献。
+2. 事件来源文献必须先通过非论文对象门禁，并且文本中必须同时出现目标病原身份和事件词。
+3. 动态查询必须包含目标病原和地点，不得只用泛化的 `outbreak/case`。
+4. 马尔堡、尼帕、埃博拉、沙粒病毒、SFTSV等稀缺profile可将新闻相关性分数降低1分，但正文病原身份硬门禁和后置主题门禁不得放宽。
+5. 动态查询和证据来源必须写入 `data/audit/event_query_expansion.json`。
+6. 如果没有可信事件线索，系统继续使用原始检索词，不得虚构地点或事件。
+
+### 主要文件
+
+- `src/pifactory/event_query.py`
+- `src/pifactory/pipeline.py`
+- `src/pifactory/config.py`
+- `.github/workflows/daily-intelligence.yml`
+- `tests/test_v14_quality_and_bilingual.py`
+
+## 修复项 13：作者与摘要元数据展示去重
+
+### 状态
+
+四份网页额外暴露了跨数据库作者全名/缩写重复、Importance段落重复和转义HTML标签残留。本项作为展示与Token卫生修复纳入v14。
+
+### 不可回退规则
+
+1. 作者合并必须识别 `Hade Ramos` 与 `Ramos H`、`Pranav S. Pandit` 与 `Pandit PS`等全名/缩写变体，并优先保留信息更完整的显示形式。
+2. 摘要进入分析和翻译之前必须移除普通及HTML转义标签。
+3. 只有规范化后完全相同的长句才去重；短科学短语不得因重复出现而随意删除。
+4. 摘要末尾缩写词表继续遵守修复项06规则。
+5. 去重后的摘要用于翻译、证据选择和页面展示，避免重复消耗Token。
+
+### 主要文件
+
+- `src/pifactory/utils.py`
+- `src/pifactory/dedup.py`
+- `tests/test_v14_quality_and_bilingual.py`
+
+## 修复项 14：成品HTML渲染后质量硬门禁
+
+### 状态
+
+已新增独立的成品HTML审计器。每个profile完成页面渲染和公众号包校验后，必须再检查最终HTML，而不是只依赖中间JSON和单元测试。
+
+### 不可回退规则
+
+1. 成品HTML中任何七/五要素不得出现Python字典或列表字面量。
+2. 英文结构化要素不得以 `Not reported in the supplied evidence.` 等批量固定占位符代替已经存在的英文分析结果。
+3. 英文DOM中的结构化要素不得出现大段中文污染；专有名词和短中文引用除外。
+4. Figshare、Zenodo、Dryad及明确Dataset/Supplement对象不得作为论文卡片进入成品页面。
+5. `Abbreviations/缩写`之后的词表不得出现在七/五要素字段。
+6. 公开页面必须同时包含中文和英文切换容器。
+7. 发现关键问题时审计脚本退出非零，当前profile不得发布到Pages或触发公众号仓。
+8. 审计结果必须写入 `data/audit/rendered_html_quality.json`。
+
+### 主要文件
+
+- `scripts/audit_rendered_html.py`
+- `.github/workflows/daily-intelligence.yml`
+- `tests/test_v14_quality_and_bilingual.py`

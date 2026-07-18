@@ -10,7 +10,7 @@ from .postprocess import BANNED_EDITORIAL_SENTENCES, sanitize_editorial_block, s
 from .utils import clean_space, split_sentences, unique_strings
 
 
-OVERVIEW_POLICY_VERSION = "v10-recent-editorial-statistics-1"
+OVERVIEW_POLICY_VERSION = "v14-parallel-bilingual-overview-1"
 PLACEHOLDER_MARKERS = (
     "翻译暂不可用",
     "translation unavailable",
@@ -201,8 +201,8 @@ def select_overview_items(
 
 
 def _paper_payload(item: dict[str, Any]) -> dict[str, Any]:
-    analysis_en = (item.get("analysis") or {}).get("analysis") or {}
-    analysis_zh = item.get("analysis_zh") or {}
+    analysis_en = item.get("elements_en") or item.get("analysis_en") or (item.get("analysis") or {}).get("analysis") or {}
+    analysis_zh = item.get("elements_zh") or item.get("analysis_zh") or {}
     return {
         "paper_id": item.get("paper_id"),
         "paper_type": item.get("paper_type") or "research",
@@ -226,8 +226,8 @@ def _paper_payload(item: dict[str, Any]) -> dict[str, Any]:
 
 def _news_payload(item: dict[str, Any]) -> dict[str, Any]:
     analysis_block = item.get("analysis") or {}
-    analysis_en = analysis_block.get("analysis") or {}
-    analysis_zh = item.get("analysis_zh") or {}
+    analysis_en = item.get("elements_en") or item.get("analysis_en") or analysis_block.get("analysis") or {}
+    analysis_zh = item.get("elements_zh") or item.get("analysis_zh") or {}
     return {
         "news_id": item.get("news_id"),
         "priority_tier": item.get("priority_tier"),
@@ -253,7 +253,8 @@ def _overview_validator(valid_ids: set[str], kind: str):
             return False, "not object"
         required = [
             "headline_zh", "lead_zh", "key_findings_zh", "trend_or_risk_zh",
-            "caveats_zh", "headline_en", "brief_en", "source_ids",
+            "caveats_zh", "headline_en", "lead_en", "key_findings_en",
+            "trend_or_risk_en", "caveats_en", "brief_en", "source_ids",
         ]
         for key in required:
             if key not in data:
@@ -282,6 +283,12 @@ def _overview_validator(valid_ids: set[str], kind: str):
             for right in findings[index + 1:]:
                 if sentence_similarity(left, right) >= 0.90:
                     return False, "key findings are duplicated"
+        findings_en = data.get("key_findings_en")
+        if not isinstance(findings_en, list) or not 3 <= len(findings_en) <= 6:
+            return False, "key_findings_en must contain 3-6 items"
+        for key in ("headline_en", "lead_en", "trend_or_risk_en", "caveats_en", "brief_en"):
+            if not isinstance(data.get(key), str) or len(clean_space(data.get(key))) < (20 if key == "headline_en" else 60):
+                return False, f"{key} is missing or too short"
         source_ids = unique_strings(data.get("source_ids") or [])
         if len(source_ids) < min(3, len(valid_ids)):
             return False, "not enough source ids"
@@ -337,7 +344,19 @@ def _literature_fallback(profile: dict[str, Any], papers: list[dict[str, Any]]) 
         "trend_or_risk_zh": "本期研究方向以入选文献实际覆盖的临床、流行病学、宿主生态、诊断或分子监测主题为准。",
         "caveats_zh": "部分证据来自摘要、观察性研究或叙述性综述，结论应结合研究设计和证据等级理解。",
         "headline_en": f"Recent {profile.get('display_name_en') or profile.get('profile_id')} literature",
-        "brief_en": "The literature brief prioritizes papers published in the active reporting window and ranks them by relevance, evidence availability, study quality, recency, and independent-source convergence. Detailed study-specific evidence is retained in the article cards below.",
+        "lead_en": "This literature brief prioritizes publications in the active reporting window and ranks them by relevance, evidence availability, study quality, recency and source convergence.",
+        "key_findings_en": [
+            _clip_complete_sentences(
+                ((paper.get("elements_en") or paper.get("analysis_en") or (paper.get("analysis") or {}).get("analysis") or {}).get(
+                    "main_results" if paper.get("paper_type") != "review" else "consensus_and_key_conclusions"
+                ) or paper.get("abstract") or paper.get("title")),
+                320,
+            ) + (f" [{paper.get('paper_id')}]" if paper.get("paper_id") else "")
+            for paper in papers[:5]
+        ] or ["No literature item passed all publication, relevance, content and analysis gates."],
+        "trend_or_risk_en": "The direction of this week's research is defined by the clinical, epidemiological, ecological, diagnostic and molecular topics actually represented by the eligible publications.",
+        "caveats_en": "Some evidence is abstract-only, observational or derived from narrative reviews; conclusions should be interpreted in light of study design and evidence strength.",
+        "brief_en": "This literature brief prioritizes papers published in the active reporting window and ranks them by relevance, evidence availability, study quality, recency, and independent-source convergence. Detailed study-specific evidence is retained in the article cards below.",
         "source_ids": unique_strings(ids),
         "status": "deterministic_editorial_fallback",
         "input_count": len(papers),
@@ -369,6 +388,17 @@ def _news_fallback(profile: dict[str, Any], news: list[dict[str, Any]]) -> dict[
         "trend_or_risk_zh": "风险判断仅依据入选来源已经确认的信息，不把媒体推测升级为官方结论。",
         "caveats_zh": "动态网页、登录限制或来源更新可能影响正文完整度，具体事实以原始发布机构后续通报为准。",
         "headline_en": f"Recent {profile.get('display_name_en') or profile.get('profile_id')} news",
+        "lead_en": "This news brief includes only reports with an extracted body or a substantive syndicated summary that passed pathogen relevance and translation gates.",
+        "key_findings_en": [
+            _clip_complete_sentences(
+                ((article.get("elements_en") or article.get("analysis_en") or (article.get("analysis") or {}).get("analysis") or {}).get("event")
+                 or article.get("title")),
+                300,
+            ) + (f" [{article.get('news_id')}]" if article.get("news_id") else "")
+            for article in news[:5]
+        ] or ["No news report passed the body identity, topic relevance and translation gates in this reporting window."],
+        "trend_or_risk_en": "Risk statements are limited to information confirmed by eligible sources and do not upgrade media speculation into official conclusions.",
+        "caveats_en": "Dynamic pages, access restrictions and source updates can limit body completeness; facts should be checked against subsequent statements from the original institution.",
         "brief_en": "This news brief includes only reports with an extracted article body or a substantive source summary that passed relevance and translation checks. It separates confirmed developments from unresolved information and source limitations.",
         "source_ids": unique_strings(ids),
         "status": "deterministic_editorial_fallback",

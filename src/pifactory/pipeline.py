@@ -19,6 +19,7 @@ from .http import HttpClient
 from .llm import LLMRouter
 from .news import filter_news_window, search_bing_news, search_gdelt, search_google_news, search_reliefweb, search_who
 from .query_plan import build_query_plan, compile_query_sets
+from .event_query import augment_news_query_sets, derive_event_queries, is_scarce_profile, news_relevance_profile
 from .relevance import candidate_filter_news, candidate_filter_papers, filter_post_enrichment, final_filter
 from .source_status import SourceAudit
 from .ranking import rank_news, rank_papers
@@ -35,6 +36,7 @@ from .scholarly import (
     probe_europe_pmc_anchor_counts,
 )
 from .storage import load_state, save_state, write_issue
+from .scholarly_gate import filter_scholarly_records
 from .translation import TRANSLATION_CACHE_VERSION, translate_record
 from .overview import build_overviews
 from .progress import progress
@@ -226,6 +228,9 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     query_sets = compile_query_sets(profile)
     profile["query_sets"] = query_sets
     plan = build_query_plan(profile, max_groups=120)
+    event_query_plan = {"policy_version": "v14-event-driven-news-query-1", "queries": [], "evidence": []}
+    scarce_news_mode = is_scarce_profile(settings.profile_id)
+    news_profile = news_relevance_profile(profile, scarce=scarce_news_mode)
     progress(
         "query_plan",
         "compiled",
@@ -289,6 +294,19 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
                     source_audit.add(source="scholarly orchestration", status="failed", error=exc, details={"provider": name})
         progress("scholarly_retrieval", "complete", records=len(raw_papers))
 
+        # Use high-confidence event/location clues found in current scholarly
+        # records to expand news discovery before RSS/GDELT/WHO retrieval.
+        event_source_papers, _event_date_rejections = filter_publication_window(
+            [dict(item) for item in raw_papers], start, end, future_days=0
+        )
+        event_source_papers, _event_type_gate = filter_scholarly_records(event_source_papers)
+        event_query_plan = derive_event_queries(
+            event_source_papers, profile, max_queries=max(0, settings.news_event_query_limit)
+        )
+        augment_news_query_sets(query_sets, event_query_plan)
+        plan["event_driven_news"] = event_query_plan
+        plan["scarce_news_mode"] = scarce_news_mode
+
         raw_news: list[dict[str, Any]] = []
         general_news_queries = unique_strings(
             (query_sets.get("general_news_en") or [])
@@ -302,6 +320,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             reliefweb_queries=len(query_sets.get("reliefweb_core") or []),
         )
         who_terms = [x.get("news_en") or x.get("scholarly") for x in query_sets.get("core_concepts") or [] if isinstance(x, dict)]
+        who_terms = unique_strings(who_terms + list(event_query_plan.get("queries") or []))
         news_calls = [
             ("Google News RSS", lambda: search_google_news(http, general_news_queries, start, end, audit=source_audit)),
             ("Bing News RSS", lambda: search_bing_news(http, general_news_queries, start, end, audit=source_audit)),
@@ -363,6 +382,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         future_days=settings.publication_future_days,
     )
     papers_after_window = len(raw_papers)
+    raw_papers, scholarly_record_type_gate_summary = filter_scholarly_records(raw_papers)
+    papers_after_type_gate = len(raw_papers)
     paper_date_gate_summary = {
         "window_start": start.isoformat(),
         "window_end": end.isoformat(),
@@ -418,7 +439,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     raw_news_before_window = len(raw_news)
     raw_news = filter_news_window(raw_news, start, end)
     news_after_window = len(raw_news)
-    news_candidates = candidate_filter_news(raw_news, profile)
+    news_candidates = candidate_filter_news(raw_news, news_profile)
     news_after_candidate_gate = len(news_candidates)
     news = dedup_news(news_candidates)
     news_after_dedup = len(news)
@@ -462,7 +483,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     progress("relevance_review", "start", kind="news", candidates=len(news), mode=settings.llm_review_mode)
     news = final_filter(
         news,
-        profile,
+        news_profile,
         llm,
         kind="news",
         review_cache=relevance_review_cache,
@@ -547,7 +568,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         news_workers = max(1, min(6, int(os.getenv("PIF_NEWS_ENRICH_WORKERS", "4"))))
         fetched_news = _parallel_map(
             news_targets,
-            lambda item: resolve_and_extract_news(http, item, profile),
+            lambda item: resolve_and_extract_news(http, item, news_profile),
             workers=news_workers,
         )
         fetched_by_id = {item.get("news_id"): item for item in fetched_news}
@@ -585,7 +606,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     # navigation or standards text. Papers are also dropped when their enriched
     # evidence is explicitly irrelevant.
     papers, paper_post_enrichment_summary = filter_post_enrichment(papers, profile, "paper")
-    news, news_post_enrichment_summary = filter_post_enrichment(news, profile, "news")
+    news, news_post_enrichment_summary = filter_post_enrichment(news, news_profile, "news")
     paper_post_enrichment_rejected = paper_post_enrichment_summary["rejected"]
     news_post_enrichment_rejected = news_post_enrichment_summary["rejected"]
     news_circuit_rejected = news_circuit_summary["rejected"]
@@ -742,9 +763,13 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             item["title_zh"] = demo_titles.get(item.get("title"), item.get("title"))
             if item.get("paper_type") == "review":
                 item["analysis_zh"] = dict(demo_review)
+                item["elements_zh"] = dict(demo_review)
+                item["elements_en"] = dict((item.get("analysis") or {}).get("analysis") or {})
                 body = "该综述总结了环境变化背景下汉坦病毒的流行病学、储存宿主生态、致病机制、诊断和预防研究。现有证据表明，气候、土地利用和人兽接触变化可能重塑病毒溢出风险，但区域监测能力和临床研究质量仍不均衡。"
             else:
                 item["analysis_zh"] = dict(demo_research)
+                item["elements_zh"] = dict(demo_research)
+                item["elements_en"] = dict((item.get("analysis") or {}).get("analysis") or {})
                 body = "研究对371名林业工作者开展汉坦病毒抗体检测，并结合职业性啮齿动物接触史评估暴露风险。结果显示7.3%的参与者检出汉坦病毒IgG，频繁接触啮齿动物与血清阳性相关。"
             item["abstract_zh"] = body
             item["summary_zh"] = body
@@ -753,6 +778,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         for item in news:
             item["title_zh"] = demo_titles.get(item.get("title"), item.get("title"))
             item["analysis_zh"] = dict(demo_news)
+            item["elements_zh"] = dict(demo_news)
+            item["elements_en"] = dict((item.get("analysis") or {}).get("analysis") or {})
             item["content_zh"] = "地区卫生部门报告1例疑似汉坦病毒病例，患者病情稳定，正在进行实验室确认；截至报道时未发现新增病例。"
             item["wechat_summary_zh"] = "时间：本周二；地点与对象：A县一名疑似患者；事件：卫生部门报告1例疑似汉坦病毒病例；影响与风险：患者稳定且未发现新增病例；应对与不确定性：正在确证检测并提示避免接触啮齿动物排泄物。"
             item["summary_zh"] = item["content_zh"]
@@ -860,6 +887,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         "papers": {
             "raw": raw_papers_before_window,
             "after_window": papers_after_window,
+            "after_type_gate": papers_after_type_gate,
+            "type_gate_rejected": scholarly_record_type_gate_summary.get("rejected", 0),
             "after_candidate_gate": papers_after_candidate_gate,
             "after_dedup": papers_after_dedup,
             "before_final_gate": papers_before_final_gate,
@@ -918,6 +947,12 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             key: value for key, value in paper_date_gate_summary.items()
             if key != "rejected_records"
         },
+        "scholarly_record_type_gate": {
+            key: value for key, value in scholarly_record_type_gate_summary.items()
+            if key != "rejected_records"
+        },
+        "event_query_expansion": event_query_plan,
+        "scarce_news_mode": scarce_news_mode,
         "news_content_gate": {
             "resolver_rejected": news_content_gate_summary["resolver"]["rejected"],
             "circuit_rejected": news_content_gate_summary["circuit_breaker"]["rejected"],
@@ -965,6 +1000,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     dump_json(audit_dir / "llm_provider_usage.json", llm.usage_snapshot())
     dump_json(audit_dir / "retrieval_funnel.json", retrieval_funnel)
     dump_json(audit_dir / "publication_date_gate.json", paper_date_gate_summary)
+    dump_json(audit_dir / "scholarly_record_type_gate.json", scholarly_record_type_gate_summary)
+    dump_json(audit_dir / "event_query_expansion.json", event_query_plan)
     dump_json(audit_dir / "news_content_gate.json", news_content_gate_summary)
     dump_json(audit_dir / "paper_post_enrichment_gate.json", paper_post_enrichment_summary)
     dump_json(audit_dir / "display_selection.json", {

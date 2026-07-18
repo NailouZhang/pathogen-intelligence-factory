@@ -904,18 +904,20 @@ def enrich_scholarly_work(http: HttpClient, work: dict[str, Any], mailto: str, m
     for url in work.get("full_text_urls") or []:
         candidates.append(("europe_pmc_link", url))
     doi = work.get("doi")
-    if doi and mailto:
-        try:
-            payload = http.get_json(f"https://api.unpaywall.org/v2/{doi}", params={"email": mailto})
-            for location in [payload.get("best_oa_location")] + list(payload.get("oa_locations") or []):
-                if not isinstance(location, dict):
-                    continue
-                if location.get("url_for_pdf"):
-                    candidates.append(("unpaywall_pdf", location.get("url_for_pdf")))
-                if location.get("url_for_landing_page"):
-                    candidates.append(("unpaywall_landing", location.get("url_for_landing_page")))
-        except Exception as exc:
-            audit["attempts"].append({"method": "unpaywall", "status": "failed", "error": clean_space(exc)[:200]})
+    if doi:
+        if mailto:
+            try:
+                payload = http.get_json(f"https://api.unpaywall.org/v2/{doi}", params={"email": mailto})
+                for location in [payload.get("best_oa_location")] + list(payload.get("oa_locations") or []):
+                    if not isinstance(location, dict):
+                        continue
+                    if location.get("url_for_pdf"):
+                        candidates.append(("unpaywall_pdf", location.get("url_for_pdf")))
+                    if location.get("url_for_landing_page"):
+                        candidates.append(("unpaywall_landing", location.get("url_for_landing_page")))
+            except Exception as exc:
+                audit["attempts"].append({"method": "unpaywall", "status": "failed", "error": clean_space(exc)[:200]})
+        # DOI resolution is public and must not depend on an Unpaywall email.
         candidates.append(("doi_landing", f"https://doi.org/{doi}"))
     if work.get("url"):
         candidates.append(("source_landing", work.get("url")))

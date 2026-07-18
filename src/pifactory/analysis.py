@@ -13,7 +13,7 @@ from .utils import clean_space, split_sentences, truncate
 from .postprocess import contains_cross_field_overlap, deduplicate_structured_analysis, complete_text
 
 
-ANALYSIS_POLICY_VERSION = "v12-multillm-low-token-analysis-1"
+ANALYSIS_POLICY_VERSION = "v14-bilingual-strict-schema-analysis-1"
 
 REVIEW_HINTS = re.compile(
     r"\b(review|systematic review|meta-analysis|narrative review|scoping review|umbrella review|viewpoint|perspective|commentary|consensus statement)\b",
@@ -400,14 +400,19 @@ def _paper_validator(kind: str, valid_ids: set[str], role_map: dict[str, str] | 
         if not isinstance(evidence_ids, dict):
             return False, "evidence_ids missing"
         for key in required:
-            value = clean_space(analysis.get(key))
+            raw_value = analysis.get(key)
+            if not isinstance(raw_value, str):
+                return False, f"{key} must be a string, got {type(raw_value).__name__}"
+            value = clean_space(raw_value)
             if len(value) < 12:
                 return False, f"{key} too short"
+            if len(re.findall(r"[\u4e00-\u9fff]", value)) > max(2, int(len(value) * 0.05)):
+                return False, f"{key} must be English for the source-language entity"
             if _contains_bad_placeholder(value):
                 return False, f"{key} contains invalid placeholder"
             refs = evidence_ids.get(key)
-            if not isinstance(refs, list) or not refs:
-                return False, f"{key} lacks evidence ids"
+            if not isinstance(refs, list) or not refs or not all(isinstance(ref, str) for ref in refs):
+                return False, f"{key} lacks string evidence ids"
             unknown = [ref for ref in refs if clean_space(ref) not in valid_ids]
             if unknown:
                 return False, f"{key} contains unknown evidence ids"
@@ -419,6 +424,8 @@ def _paper_validator(kind: str, valid_ids: set[str], role_map: dict[str, str] | 
         overlap, reason = contains_cross_field_overlap(analysis, required)
         if overlap:
             return False, reason
+        if not isinstance(data.get("summary_en"), str):
+            return False, "summary_en must be a string"
         summary = clean_space(data.get("summary_en"))
         if len(summary) < 80 or len(summary.split()) > 260:
             return False, "summary_en length invalid"
@@ -438,17 +445,24 @@ def _news_validator(valid_ids: set[str]):
         if not isinstance(analysis, dict) or not isinstance(evidence_ids, dict):
             return False, "analysis or evidence_ids missing"
         for key in NEWS_FIELDS:
-            value = clean_space(analysis.get(key))
+            raw_value = analysis.get(key)
+            if not isinstance(raw_value, str):
+                return False, f"{key} must be a string, got {type(raw_value).__name__}"
+            value = clean_space(raw_value)
             if len(value) < 8:
                 return False, f"{key} too short"
+            if len(re.findall(r"[\u4e00-\u9fff]", value)) > max(2, int(len(value) * 0.05)):
+                return False, f"{key} must be English for the source-language entity"
             refs = evidence_ids.get(key)
-            if not isinstance(refs, list) or not refs:
-                return False, f"{key} lacks evidence ids"
+            if not isinstance(refs, list) or not refs or not all(isinstance(ref, str) for ref in refs):
+                return False, f"{key} lacks string evidence ids"
             if any(clean_space(ref) not in valid_ids for ref in refs):
                 return False, f"{key} contains unknown evidence ids"
         overlap, reason = contains_cross_field_overlap(analysis, NEWS_FIELDS, threshold=0.92)
         if overlap:
             return False, reason
+        if not isinstance(data.get("brief_en"), str):
+            return False, "brief_en must be a string"
         brief = clean_space(data.get("brief_en"))
         words = len(brief.split())
         if words < 55 or words > 170:

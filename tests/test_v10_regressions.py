@@ -66,6 +66,14 @@ def test_overview_validator_rejects_internal_reservation_sentence():
         "trend_or_risk_zh": "近期研究重点正由单点描述转向临床、生态与分子监测的综合评价。",
         "caveats_zh": "部分研究为观察性设计或仅有摘要证据，结果不应被解释为确定因果关系。",
         "headline_en": "Recent hantavirus literature",
+        "lead_en": "This weekly brief prioritizes recent evidence and distinguishes study results from interpretation across eligible publications.",
+        "key_findings_en": [
+            "A recent clinical study reported a directly observed result with its study design and sample context. [p1]",
+            "Epidemiological evidence identified a current surveillance or exposure pattern. [p2]",
+            "Review evidence identified concrete methodological gaps and future priorities. [p3]",
+        ],
+        "trend_or_risk_en": "Current research increasingly combines clinical, epidemiological, ecological and molecular evidence rather than relying on isolated descriptions.",
+        "caveats_en": "Some evidence is observational or abstract-only, so associations should not be interpreted as established causal effects.",
         "brief_en": "This literature briefing prioritizes papers published within the active reporting window and integrates study design, quantitative results, evidence strength, and source convergence across primary studies and reviews.",
         "source_ids": ["p1", "p2", "p3"],
     }

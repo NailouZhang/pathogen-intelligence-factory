@@ -1,4 +1,4 @@
-name: Weekly 21-Virus Intelligence Cycle v13
+name: Weekly 21-Virus Intelligence Cycle v14
 
 on:
   schedule:
@@ -208,6 +208,9 @@ jobs:
           PIF_LLM_CACHE_SUCCESS_ONLY: ${{ vars.PIF_LLM_CACHE_SUCCESS_ONLY || 'true' }}
           PIF_LLM_DISABLE_THINKING: ${{ vars.PIF_LLM_DISABLE_THINKING || 'true' }}
           PIF_LLM_PROVIDER_COOLDOWN_SECONDS: ${{ vars.PIF_LLM_PROVIDER_COOLDOWN_SECONDS || '60' }}
+          # Shared across all sequential profiles in this workflow and persisted
+          # on intelligence-data so later pathogens do not retry exhausted quotas.
+          PIF_PROVIDER_STATE_FILE: /tmp/pif_data_repo/shared/state/provider_quota_daily.json
           PIF_LLM_EXTRACT_PROVIDER_ORDER: ${{ vars.PIF_LLM_EXTRACT_PROVIDER_ORDER || 'siliconflow,groq,mistral,openrouter,gemini' }}
           PIF_LLM_RESCUE_PROVIDER_ORDER: ${{ vars.PIF_LLM_RESCUE_PROVIDER_ORDER || 'gemini,mistral,openrouter,groq,siliconflow' }}
           PIF_LLM_OVERVIEW_PROVIDER_ORDER: ${{ vars.PIF_LLM_OVERVIEW_PROVIDER_ORDER || 'gemini,mistral,openrouter,groq,siliconflow' }}
@@ -216,6 +219,10 @@ jobs:
           PIF_OPENROUTER_HTTP_REFERER: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
           PIF_OPENROUTER_APP_TITLE: Pathogen Intelligence Factory
           PIF_NEWS_CONTEXT_QUERY_LIMIT: "0"
+          PIF_NEWS_EVENT_QUERY_LIMIT: ${{ vars.PIF_NEWS_EVENT_QUERY_LIMIT || '4' }}
+          PIF_SCARCE_NEWS_PROFILES: ${{ vars.PIF_SCARCE_NEWS_PROFILES || 'marburg_virus,nipah_virus,ebola_viruses,arenaviridae,sftsv' }}
+          PIF_REJECT_PUBLICATION_TYPES: ${{ vars.PIF_REJECT_PUBLICATION_TYPES || 'dataset,data set,component,grant,supplementary material,supplement' }}
+          PIF_REJECT_REPOSITORY_HOSTS: ${{ vars.PIF_REJECT_REPOSITORY_HOSTS || 'figshare.com,zenodo.org,dryad.org,datadryad.org' }}
           PIF_OVERVIEW_MIN_ITEMS: "15"
           PIF_OVERVIEW_MAX_ITEMS: "25"
           PIF_WECHAT_NEWS_MAX_ZH_CHARS: "500"
@@ -247,6 +254,7 @@ jobs:
 
           mapfile -t PROFILES < <(python -c 'import json,os; print("\n".join(json.loads(os.environ["PROFILES_JSON"])))')
           printf 'Ordered queue: %s\n' "${PROFILES[*]}"
+          mkdir -p /tmp/pif_data_repo/shared/state
           : > /tmp/pif_cycle_results.tsv
 
           for PROFILE_ID in "${PROFILES[@]}"; do
@@ -282,6 +290,9 @@ jobs:
             fi
 
             python scripts/validate_wechat_package.py "$OUT/wechat-package"
+            python scripts/audit_rendered_html.py \
+              "$OUT/site/index.html" \
+              --json-out "$OUT/data/audit/rendered_html_quality.json"
             python scripts/issue_summary.py "$OUT/data/latest.json" --github-summary "$GITHUB_STEP_SUMMARY"
             ISSUE_DATE="$(python -c 'import json,sys; print(json.load(open(sys.argv[1],encoding="utf-8"))["issue_date"])' "$OUT/data/latest.json")"
 
@@ -292,7 +303,7 @@ jobs:
             rsync -a --delete "$OUT/wechat-package/" "$BASE/wechat-package/"
 
             cd /tmp/pif_data_repo
-            git add -A "profiles/$PROFILE_ID"
+            git add -A "profiles/$PROFILE_ID" "shared/state"
             if git diff --cached --quiet; then
               DATA_SHA="$(git rev-parse HEAD)"
             else

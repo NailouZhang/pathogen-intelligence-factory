@@ -49,6 +49,10 @@ key_findings_zh: 3-6 complete findings. Each states the result, evidence context
 trend_or_risk_zh: one complete paragraph explaining this week's research direction and practical implications.
 caveats_zh: one complete paragraph naming concrete design, sample, regional, preprint, abstract-only or heterogeneity limitations.
 headline_en: concise English headline.
+lead_en: 80-180 English words mirroring lead_zh.
+key_findings_en: 3-6 complete English findings with the same source IDs as the Chinese findings.
+trend_or_risk_en: complete English counterpart of trend_or_risk_zh.
+caveats_en: complete English counterpart of caveats_zh.
 brief_en: 140-300 English words matching the Chinese evidence.
 source_ids: all paper_ids actually used, minimum 3 when available.
 
@@ -68,6 +72,10 @@ RETURN JSON ONLY
   "trend_or_risk_zh": "",
   "caveats_zh": "",
   "headline_en": "",
+  "lead_en": "",
+  "key_findings_en": [""],
+  "trend_or_risk_en": "",
+  "caveats_en": "",
   "brief_en": "",
   "source_ids": [""]
 }

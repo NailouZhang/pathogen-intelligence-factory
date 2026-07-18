@@ -87,6 +87,7 @@ class Settings:
     analysis_cache_success_only: bool = field(default_factory=lambda: env_bool("PIF_LLM_CACHE_SUCCESS_ONLY", True))
     llm_preflight_file: str = field(default_factory=lambda: os.getenv("PIF_LLM_PREFLIGHT_FILE", "").strip())
     news_context_query_limit: int = field(default_factory=lambda: env_int("PIF_NEWS_CONTEXT_QUERY_LIMIT", 0))
+    news_event_query_limit: int = field(default_factory=lambda: env_int("PIF_NEWS_EVENT_QUERY_LIMIT", 4))
     profile_runtime_minutes: int = field(default_factory=lambda: env_int("PIF_PROFILE_RUNTIME_MINUTES", 90))
     overview_min_items: int = field(default_factory=lambda: env_int("PIF_OVERVIEW_MIN_ITEMS", 15))
     overview_max_items: int = field(default_factory=lambda: env_int("PIF_OVERVIEW_MAX_ITEMS", 25))

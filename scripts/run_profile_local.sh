@@ -7,7 +7,8 @@ ENV_PREFIX="${PIF_ENV_PREFIX:-$ROOT/.conda-env}"
 OUTPUT_DIR="${1:-$ROOT/runtime/$PROFILE_ID}"
 if [[ $# -gt 0 ]]; then shift; fi
 [[ -x "$ENV_PREFIX/bin/python" ]] || { echo "缺少环境：$ENV_PREFIX；先运行 scripts/bootstrap_dev.sh" >&2; exit 1; }
-mkdir -p "$OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR" "$ROOT/runtime/shared"
+export PIF_PROVIDER_STATE_FILE="${PIF_PROVIDER_STATE_FILE:-$ROOT/runtime/shared/provider_quota_daily.json}"
 cd "$ROOT"
 exec "$ENV_PREFIX/bin/python" -u scripts/run_daily.py \
   --profile "$PROFILE_ID" \

@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .http import HttpClient
-from .provider_state import ProviderRuntimeState
+from .provider_state import ProviderRuntimeState, ProviderStateStore
 from .utils import clean_space, utc_now_iso
 
 
@@ -170,7 +170,8 @@ class LLMRouter:
         self.mistral_key = self.keys["mistral"]
         self.siliconflow_key = self.keys["siliconflow"]
         self._model_cache: dict[str, list[str]] = {}
-        self.states = {name: ProviderRuntimeState(name) for name in self.keys}
+        self.state_store = ProviderStateStore(os.getenv("PIF_PROVIDER_STATE_FILE", "").strip() or None)
+        self.states = self.state_store.load(list(self.keys))
 
     @property
     def available(self) -> bool:
@@ -398,6 +399,7 @@ class LLMRouter:
                     "usage_monthly": data.get("usage_monthly"),
                 }
                 self.states[provider].account = result
+                self._persist_states()
                 return result
             if provider == "siliconflow":
                 body = self.http.get_json(
@@ -413,9 +415,11 @@ class LLMRouter:
                     "total_balance": data.get("totalBalance"),
                 }
                 self.states[provider].account = result
+                self._persist_states()
                 return result
             result = {"status": "not_supported"}
             self.states[provider].account = result
+            self._persist_states()
             return result
         except Exception as exc:
             result = {
@@ -424,12 +428,16 @@ class LLMRouter:
                 "error": self._safe_error_text(exc),
             }
             self.states[provider].account = result
+            self._persist_states()
             return result
 
     def _normalize_call_result(self, value: Any, model: str) -> tuple[Any, dict[str, Any], str]:
         if isinstance(value, tuple) and len(value) == 3:
             return value[0], value[1] or {}, clean_space(value[2]) or model
         return value, {}, model
+
+    def _persist_states(self) -> None:
+        self.state_store.save(self.states)
 
     def json_task(
         self,
@@ -526,6 +534,7 @@ class LLMRouter:
                             if not valid:
                                 raise LLMError(f"validation_failed: {reason}", category="validation_failed")
                         state.mark_success(model, usage)
+                        self._persist_states()
                         attempt.update({
                             "status": "success",
                             "response_model": response_model,
@@ -541,6 +550,7 @@ class LLMRouter:
                     except Exception as exc:
                         category = classify_llm_failure(exc)
                         state.mark_failure(model, category, cooldown_seconds=cooldown_seconds)
+                        self._persist_states()
                         attempt.update({
                             "status": "failed",
                             "failure_category": category,
@@ -567,8 +577,9 @@ class LLMRouter:
 
     def usage_snapshot(self) -> dict[str, Any]:
         return {
-            "schema_version": 1,
+            "schema_version": 2,
             "generated_at": utc_now_iso(),
+            "shared_state_file": str(self.state_store.path or ""),
             "provider_order": {
                 "extract": list(self.provider_order("extract")),
                 "rescue": list(self.provider_order("rescue")),

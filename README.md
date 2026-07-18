@@ -1,68 +1,110 @@
-# pathogen-intelligence-factory v13
+# pathogen-intelligence-factory v14
 
-公开的21病毒每周文献与公共卫生新闻情报工厂。固定GitHub仓库为 `NailouZhang/pathogen-intelligence-factory`，本地位置为 `$HOME/github-projects/pathogen-intelligence-factory`。
+公开的21种病毒每周文献与公共卫生新闻情报工厂。
 
-## 主要功能
+固定GitHub仓库：`NailouZhang/pathogen-intelligence-factory`
+固定本地目录：`$HOME/github-projects/pathogen-intelligence-factory`
+固定Conda环境：`$HOME/github-projects/pathogen-intelligence-factory/.conda-env`
 
-- 按北京时间每周轮转21种病毒；
-- PubMed、Europe PMC、Crossref、OpenAlex、Semantic Scholar、bioRxiv、medRxiv等文献源；
-- Google/Bing RSS、GDELT、WHO、ReliefWeb等新闻源；
-- 真实发表日期硬门禁，索引日期只做审计；
-- 文献和新闻双阶段相关性复核；
-- 新闻URL身份、正文主题和重复错误页熔断；
-- Gemini、Groq、OpenRouter、Mistral、SiliconFlow自动轮换；
-- L1摘要、L2全文关键证据、L3跨供应商复核；
-- 中文默认页面和完整英文切换；
-- 结构化七要素/五要素及全局fallback告警；
-- GitHub Pages、审计数据和 `wechat-package/v2`；
-- 通过不可变数据提交SHA触发私有微信公众号草稿仓。
-
-## 统计口径
-
-网页明确区分：
+## 完整链路
 
 ```text
-原始记录
-→ 时间窗
-→ 候选门禁
-→ 去重
-→ 相关性复核通过
-→ 正文/分析/翻译门禁后可展示
-→ 按优先级、证据强度、时效性和来源质量排序
-→ PIF_MAX_PAPERS/PIF_MAX_NEWS Top-N
-→ 最终展示
+21种病原北京时间顺序调度
+→ 多文献源与新闻源检索
+→ 真实发表日期硬门禁
+→ Dataset/补充材料/仓储对象硬门禁
+→ Python全量相关性复核与LLM边界复核
+→ 新闻正文身份、主题和错误页熔断
+→ L1摘要/L2关键全文证据/L3跨供应商复核
+→ elements_en英文结构化要素
+→ elements_zh中文翻译镜像
+→ 中英文GitHub Pages
+→ wechat-package/v2
+→ 私有公众号仓repository_dispatch
 ```
 
-Top-N之外的合格记录写入：
+## 已实现的质量策略
+
+- `created_date/indexed_date`只作审计，不决定本周入选；
+- Figshare、Zenodo、Dryad、Dataset、Supplement等默认在LLM前拒绝；
+- 新闻正文必须自身出现目标病原身份，不允许标题救援无关正文；
+- 相同错误URL/正文被多个不同标题复用时熔断；
+- 七/五要素严格要求字符串Schema，嵌套字典和列表不能进入HTML；
+- Gemini、Groq、OpenRouter、Mistral、SiliconFlow按任务和状态自动轮换；
+- 21个profile共享北京时间每日额度/冷却状态；
+- 全文只在本地筛选证据，不整体发送给LLM；
+- 马尔堡等稀缺病原使用文献事件线索动态增强新闻查询；
+- fallback超过阈值时在网页顶部、日志和审计中告警；
+- 中英文标题、摘要、要素、总览、统计、来源健康和审计完整切换；
+- Top-N是展示限制，不是相关性判定，全部合格记录保存在审计中；
+- 渲染完成后再次审计最终HTML，发现字典字面量、英文占位符、数据集卡片或缩写词表污染时阻止发布。
+
+## 核心审计文件
 
 ```text
+data/audit/publication_date_gate.json
+data/audit/scholarly_record_type_gate.json
+data/audit/news_content_gate.json
+data/audit/paper_post_enrichment_gate.json
+data/audit/event_query_expansion.json
+data/audit/analysis_quality.json
+data/audit/llm_provider_usage.json
+data/audit/retrieval_funnel.json
 data/audit/display_selection.json
 data/audit/eligible_papers.jsonl
 data/audit/eligible_news.jsonl
+data/audit/rendered_html_quality.json
 ```
 
-## 本地安装和测试
+## 本地安装
 
 ```bash
 cd "$HOME/github-projects/pathogen-intelligence-factory"
 bash scripts/bootstrap_dev.sh
-"$HOME/github-projects/pathogen-intelligence-factory/.conda-env/bin/python" -m playwright install --with-deps --only-shell chromium
+"$HOME/github-projects/pathogen-intelligence-factory/.conda-env/bin/python" \
+  -m playwright install --with-deps --only-shell chromium
 bash scripts/doctor_local.sh
 ```
 
-## 本地演示
+## 测试
+
+```bash
+cd "$HOME/github-projects/pathogen-intelligence-factory"
+"$HOME/github-projects/pathogen-intelligence-factory/.conda-env/bin/python" -m pytest -q
+```
+
+## 本地运行
+
+真实模式：
+
+```bash
+bash scripts/run_profile_local.sh hantavirus /tmp/pif-hantavirus
+```
+
+离线演示：
 
 ```bash
 bash scripts/run_profile_local.sh hantavirus /tmp/pif-hantavirus-demo --demo
-"$HOME/github-projects/pathogen-intelligence-factory/.conda-env/bin/python" scripts/issue_summary.py /tmp/pif-hantavirus-demo/data/latest.json
 ```
 
-完整安装和运行见：
+## GitHub运行
+
+```bash
+gh workflow run daily-intelligence.yml \
+  --repo NailouZhang/pathogen-intelligence-factory \
+  --ref main \
+  -f profile_id=hantavirus \
+  -f dispatch_wechat=false \
+  -f cover_image_mode=deterministic \
+  -f review_mode=balanced
+```
+
+完整安装、Secrets、Variables、Pages、Runner和公众号操作见：
 
 ```text
-docs/OPERATIONS_V13_ZH.md
-docs/STATISTICS_AND_SELECTION_V13_ZH.md
 docs/INSTALL_ZH.md
+docs/OPERATIONS_V14_ZH.md
+docs/QUALITY_AND_BILINGUAL_REPAIRS_V14_ZH.md
+docs/CURRENT_ENGINEERING_LIMITATIONS_V14_ZH.md
+REPAIR_LEDGER_ZH.md
 ```
-
-修复账本：`REPAIR_LEDGER_ZH.md`。

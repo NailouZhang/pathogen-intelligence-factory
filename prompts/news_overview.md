@@ -26,6 +26,10 @@ key_findings_zh: 3-6 distinct developments, each ending with valid news_ids.
 trend_or_risk_zh: one complete paragraph on current risk and response.
 caveats_zh: one concrete paragraph on unresolved information and source limitations.
 headline_en: concise English headline.
+lead_en: 70-160 English words mirroring lead_zh.
+key_findings_en: 3-6 complete English developments with the same news IDs.
+trend_or_risk_en: complete English counterpart of trend_or_risk_zh.
+caveats_en: complete English counterpart of caveats_zh.
 brief_en: 120-260 English words.
 source_ids: all news_ids actually used.
 
@@ -37,6 +41,10 @@ RETURN JSON ONLY
   "trend_or_risk_zh": "",
   "caveats_zh": "",
   "headline_en": "",
+  "lead_en": "",
+  "key_findings_en": [""],
+  "trend_or_risk_en": "",
+  "caveats_en": "",
   "brief_en": "",
   "source_ids": [""]
 }

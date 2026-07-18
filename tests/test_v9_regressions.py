@@ -99,6 +99,14 @@ def test_overview_validator_rejects_english_chinese_fields_and_ellipsis():
         "trend_or_risk_zh": "研究热点正在从单点描述扩展到临床、生态和分子监测的综合评估。",
         "caveats_zh": "部分结论仅基于摘要或观察性研究，不能直接推断因果关系。",
         "headline_en": "Recent hantavirus literature",
+        "lead_en": "This weekly brief prioritizes recent evidence and distinguishes study results from interpretation across eligible publications.",
+        "key_findings_en": [
+            "A recent clinical study reported a directly observed result with its study design and sample context. [p1]",
+            "Epidemiological evidence identified a current surveillance or exposure pattern. [p2]",
+            "Review evidence identified concrete methodological gaps and future priorities. [p3]",
+        ],
+        "trend_or_risk_en": "Current research increasingly combines clinical, epidemiological, ecological and molecular evidence rather than relying on isolated descriptions.",
+        "caveats_en": "Some evidence is observational or abstract-only, so associations should not be interpreted as established causal effects.",
         "brief_en": "This briefing integrates primary studies and reviews across clinical, epidemiological, ecological, and genomic themes. It preserves study design and quantitative evidence while distinguishing direct results from interpretation and identifying limitations in abstract-only and observational evidence.",
         "source_ids": ["p1", "p2", "p3"],
     }

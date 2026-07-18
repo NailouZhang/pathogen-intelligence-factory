@@ -49,7 +49,9 @@ def clean_space(value: Any) -> str:
 
 
 def strip_tags(value: Any) -> str:
-    text = re.sub(r"<[^>]+>", " ", str(value or ""))
+    # Unescape first so encoded markup such as ``&lt;b&gt;`` is also removed.
+    text = html.unescape(str(value or ""))
+    text = re.sub(r"<[^>]+>", " ", text)
     return clean_space(text)
 
 
@@ -132,12 +134,81 @@ def extract_numbers(value: Any) -> list[str]:
     return re.findall(r"(?<![A-Za-z])\d+(?:\.\d+)?%?", text)
 
 
+GLOSSARY_HEADING_RE = re.compile(
+    r"(?:^|[.!?。！？]\s+|[\r\n]+)\s*(?:abbreviations?|list\s+of\s+abbreviations|acronyms?|"
+    r"缩写(?:词)?(?:表)?|缩略语(?:表)?)\s*[:：]",
+    flags=re.I,
+)
+
+
+def strip_terminal_glossary(value: Any) -> str:
+    """Remove terminal abbreviation/glossary blocks before sentence selection.
+
+    Biomedical abstracts frequently append an ``Abbreviations: A: ...; B: ...``
+    section.  Those semicolon-delimited definitions are metadata, not narrative
+    evidence, and must never enter methods/results/limitations extraction.
+    """
+    raw = html.unescape(str(value or ""))
+    match = GLOSSARY_HEADING_RE.search(raw)
+    if match:
+        raw = raw[: match.start()]
+    return clean_space(raw)
+
+
+def _looks_like_glossary_fragment(text: str) -> bool:
+    value = clean_space(text)
+    if not value:
+        return True
+    colon_pairs = re.findall(r"(?:^|[;；])\s*[A-Za-z0-9][A-Za-z0-9+./_-]{1,24}\s*[:：]", value)
+    return len(colon_pairs) >= 2
+
+
 def split_sentences(value: Any, max_sentences: int = 50) -> list[str]:
-    text = clean_space(value)
+    text = strip_terminal_glossary(value)
     if not text:
         return []
-    parts = re.split(r"(?<=[.!?。！？])\s+|(?<=；)|(?<=;)\s+", text)
-    return [p.strip() for p in parts if len(p.strip()) >= 20][:max_sentences]
+    # Semicolons are soft punctuation in scientific prose.  Splitting on them
+    # created artificial "sentences" from abbreviation tables and lists.
+    parts = re.split(r"(?<=[.!?。！？])\s+|[\r\n]+", text)
+    output: list[str] = []
+    for part in parts:
+        sentence = clean_space(part)
+        if len(sentence) < 20 or _looks_like_glossary_fragment(sentence):
+            continue
+        output.append(sentence)
+        if len(output) >= max_sentences:
+            break
+    return output
+
+
+def clean_scholarly_abstract(value: Any, *, min_duplicate_chars: int = 70) -> str:
+    """Return narrative abstract text without markup, terminal glossaries or repeats.
+
+    Metadata providers sometimes concatenate the abstract and an ``Importance``
+    block twice.  Long duplicate sentences waste translation/LLM tokens and make
+    the rendered card look corrupt.  Short repeated scientific phrases are kept;
+    only normalized long sentence duplicates are removed.
+    """
+    text = strip_terminal_glossary(strip_tags(value))
+    if not text:
+        return ""
+    rows = split_sentences(text, max_sentences=240)
+    if not rows:
+        return text
+    seen: set[str] = set()
+    kept: list[str] = []
+    for row in rows:
+        key_source = re.sub(
+            r"^(?:abstract|background|objective|methods?|results?|findings?|conclusions?|importance)\s*[:：]?\s*",
+            "", row.casefold(), flags=re.I,
+        )
+        key = re.sub(r"[^a-z0-9\u4e00-\u9fff]+", " ", key_source).strip()
+        if len(row) >= min_duplicate_chars and key in seen:
+            continue
+        if len(row) >= min_duplicate_chars:
+            seen.add(key)
+        kept.append(row)
+    return clean_space(" ".join(kept))
 
 
 def html_escape(value: Any) -> str:

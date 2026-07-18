@@ -14,7 +14,7 @@ from .llm import LLMError, LLMRouter
 from .utils import clean_space, extract_numbers, sha256_text, split_sentences, truncate
 
 
-TRANSLATION_CACHE_VERSION = "v4.0-python-batch-llm-individual-rescue"
+TRANSLATION_CACHE_VERSION = "v14-parallel-bilingual-elements-1"
 
 DEFAULT_REPAIRS = {
     "汉塔病毒": "汉坦病毒",
@@ -641,7 +641,14 @@ def translate_record(
         body_zh = "原始数据库记录未提供摘要。"
         audits["abstract_or_body"] = {"status": "no_source_abstract", "provider": "deterministic", "attempts": []}
 
+    elements_en = {field: clean_space(analysis.get(field)) for field in fields}
     analysis_zh = {field: clean_space(translated.get(field)) for field in fields}
+    # Explicit parallel entities prevent renderers from depending on the nested
+    # provider response shape.  English is the original LLM analysis; Chinese is
+    # translated once, avoiding a second analysis call.
+    record["elements_en"] = elements_en
+    record["elements_zh"] = analysis_zh
+    record["analysis_en"] = elements_en
     title_ready = bool(title_zh)
     body_ready = bool(body_zh)
     analysis_ready = all(bool(analysis_zh.get(field)) for field in fields)

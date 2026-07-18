@@ -1,21 +1,30 @@
-pathogen-intelligence-factory v13 validation targets
+pathogen-intelligence-factory v14 validation targets
 
-Required checks:
-- Python compileall for src, scripts and tests
-- YAML parsing for every workflow and configuration file
-- 21 profile validation
-- query coverage audit
-- full pytest suite
-- demo pipeline and wechat-package validation
-- repair 01 publication-date hard gate
-- repair 02 news body identity and circuit breaker
-- repair 03 structured-analysis observability and fallback warning
-- repair 04 multi-provider quota routing and low-token evidence selection
-- repair 05 transparent relevance/content/Top-N counting
+Core regression groups:
+- real publication date hard gate
+- news body identity/topic gate and error-page circuit breaker
+- structured-analysis observability and fallback warning
+- five-provider low-token routing
+- transparent Top-N statistics
+- abbreviation/glossary removal
+- dataset/supplement/repository scholarly hard gate
+- strict scalar analysis schema
+- parallel elements_en/elements_zh and full-page language switching
+- DOI landing independent from Unpaywall email
+- cross-process daily provider state
+- event-driven scarce-pathogen news discovery
 
-Production-only checks that require the user's credentials/network:
-- live PubMed/Crossref/news retrieval
-- Gemini/Groq/OpenRouter/Mistral/SiliconFlow preflight
-- GitHub Pages deployment
-- repository_dispatch to the private publisher
-- local WeChat stable_token, permanent material and draft/add calls
+Expected local environment:
+- Conda prefix: $HOME/github-projects/pathogen-intelligence-factory/.conda-env
+- Python 3.12
+- requirements.txt installed
+- Playwright Chromium shell installed for bounded dynamic-news fallback
+
+Commands:
+  bash scripts/bootstrap_dev.sh
+  $HOME/github-projects/pathogen-intelligence-factory/.conda-env/bin/python -m pytest -q
+  bash scripts/doctor_local.sh
+
+Production validation additionally requires real source APIs, configured LLM keys,
+GitHub Actions, Pages, the private self-hosted Runner and the WeChat API. Offline
+unit/integration tests do not assert live provider availability.
