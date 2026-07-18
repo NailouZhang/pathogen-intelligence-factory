@@ -1,7 +1,7 @@
 from datetime import date
 
-from src.pifactory.dates import assess_publication_date, date_window, publication_search_end
-from src.pifactory.scholarly import _date_from_parts, _pubmed_term, filter_publication_window, search_crossref, search_europe_pmc
+from pifactory.dates import assess_publication_date, date_window, publication_search_end
+from pifactory.scholarly import _date_from_parts, _pubmed_term, filter_publication_window, search_crossref, search_europe_pmc
 
 
 class FakeHttp:

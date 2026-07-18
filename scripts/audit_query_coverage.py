@@ -7,13 +7,13 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+if str(ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(ROOT / "src"))
 
 import yaml
 
-from src.pifactory.profile_contract import deterministic_profile
-from src.pifactory.query_plan import compile_profile_queries
+from pifactory.profile_contract import deterministic_profile
+from pifactory.query_plan import compile_profile_queries
 
 
 def main() -> None:

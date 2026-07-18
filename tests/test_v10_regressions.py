@@ -2,15 +2,15 @@ from __future__ import annotations
 
 from datetime import date
 
-import src.pifactory.content as content
-from src.pifactory.overview import _overview_validator, select_overview_items
-from src.pifactory.postprocess import (
+import pifactory.content as content
+from pifactory.overview import _overview_validator, select_overview_items
+from pifactory.postprocess import (
     RESEARCH_FIELDS,
     complete_text,
     contains_cross_field_overlap,
     deduplicate_structured_analysis,
 )
-from src.pifactory.render import _overview_statlines
+from pifactory.render import _overview_statlines
 
 
 class FailingHTTP:

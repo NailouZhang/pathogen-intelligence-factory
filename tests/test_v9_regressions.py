@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from src.pifactory.analysis import build_paper_evidence
-from src.pifactory.content import resolve_and_extract_news
-from src.pifactory.dedup import dedup_news
-from src.pifactory.overview import _overview_validator
+from pifactory.analysis import build_paper_evidence
+from pifactory.content import resolve_and_extract_news
+from pifactory.dedup import dedup_news
+from pifactory.overview import _overview_validator
 
 
 class BrokenHTTP:

@@ -1,4 +1,4 @@
-from src.pifactory.ranking import rank_news, rank_papers
+from pifactory.ranking import rank_news, rank_papers
 
 
 def test_papers_receive_deterministic_priority_tiers():

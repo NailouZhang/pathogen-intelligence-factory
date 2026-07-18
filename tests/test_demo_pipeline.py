@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from src.pifactory.config import Settings
-from src.pifactory.pipeline import run_pipeline
+from pifactory.config import Settings
+from pifactory.pipeline import run_pipeline
 
 
 def test_demo_pipeline(tmp_path: Path):

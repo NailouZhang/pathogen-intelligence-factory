@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from src.pifactory.authority_discovery import AuthorityDiscoveryDisabled, discover_authoritative_urls
-from src.pifactory.authority_sources import configured_authority_sources
+from pifactory.authority_discovery import AuthorityDiscoveryDisabled, discover_authoritative_urls
+from pifactory.authority_sources import configured_authority_sources
 
 ROOT = Path(__file__).resolve().parents[1]
 

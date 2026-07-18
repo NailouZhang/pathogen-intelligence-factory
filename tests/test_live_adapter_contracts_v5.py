@@ -1,8 +1,8 @@
 from datetime import date
 
-from src.pifactory.news import search_reliefweb
-from src.pifactory.scholarly import search_crossref, search_openalex, search_semantic_scholar
-from src.pifactory.source_status import SourceAudit
+from pifactory.news import search_reliefweb
+from pifactory.scholarly import search_crossref, search_openalex, search_semantic_scholar
+from pifactory.source_status import SourceAudit
 
 
 class FakeHttp:

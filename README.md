@@ -1,4 +1,4 @@
-# pathogen-intelligence-factory v14
+# pathogen-intelligence-factory v14.2
 
 公开的21种病毒每周文献与公共卫生新闻情报工厂。
 

@@ -1,4 +1,4 @@
-from src.pifactory.source_status import SourceAudit
+from pifactory.source_status import SourceAudit
 
 
 def test_zero_results_are_distinct_from_failure_and_skip():

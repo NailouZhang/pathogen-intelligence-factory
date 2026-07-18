@@ -1,9 +1,9 @@
 from pathlib import Path
 
-import src.pifactory.translation as translation
-from src.pifactory.content import resolve_and_extract_news
-from src.pifactory.overview import build_overviews, select_overview_items
-from src.pifactory.translation import build_wechat_news_summary, translate_record
+import pifactory.translation as translation
+from pifactory.content import resolve_and_extract_news
+from pifactory.overview import build_overviews, select_overview_items
+from pifactory.translation import build_wechat_news_summary, translate_record
 
 
 class NoLLM:

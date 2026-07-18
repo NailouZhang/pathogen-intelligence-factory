@@ -105,6 +105,60 @@ def augment_news_query_sets(query_sets: dict[str, Any], event_plan: dict[str, An
     return query_sets
 
 
+def append_event_queries_to_plan(
+    plan: list[dict[str, Any]],
+    event_plan: dict[str, Any],
+    *,
+    scarce_news_mode: bool,
+    max_groups: int = 200,
+) -> list[dict[str, Any]]:
+    """Append event-driven news queries without changing the list contract.
+
+    ``build_query_plan`` intentionally returns a list of provider query groups.
+    Event-driven metadata is stored separately in the issue/audit payload, while
+    the concrete dynamic queries are appended as ordinary list entries so older
+    consumers of ``query_plan`` remain compatible.
+    """
+    if not isinstance(plan, list):
+        raise TypeError("query plan must remain a list of query-group dictionaries")
+
+    existing = {
+        clean_space(item.get("query")).casefold()
+        for item in plan
+        if isinstance(item, dict) and clean_space(item.get("query"))
+    }
+    evidence_by_query = {
+        clean_space(item.get("query")).casefold(): item
+        for item in (event_plan.get("evidence") or [])
+        if isinstance(item, dict) and clean_space(item.get("query"))
+    }
+    next_index = 1
+    for query in unique_strings(event_plan.get("queries") or []):
+        normalized = clean_space(query)
+        if not normalized or normalized.casefold() in existing:
+            continue
+        evidence = evidence_by_query.get(normalized.casefold(), {})
+        plan.append({
+            "group_id": f"event-news-{next_index:02d}",
+            "provider": "event_driven_news",
+            "purpose": "scholarly-event-driven news discovery",
+            "concept_id": "dynamic_event",
+            "concept_role": "event",
+            "query": normalized,
+            "news_query": normalized,
+            "source_paper_id": evidence.get("paper_id"),
+            "source_title": evidence.get("title"),
+            "location": evidence.get("location"),
+            "event_word": evidence.get("event_word"),
+            "scarce_news_mode": bool(scarce_news_mode),
+        })
+        existing.add(normalized.casefold())
+        next_index += 1
+        if len(plan) >= max_groups:
+            break
+    return plan
+
+
 def is_scarce_profile(profile_id: str) -> bool:
     configured = os.getenv("PIF_SCARCE_NEWS_PROFILES", "").strip()
     values = {clean_space(x) for x in configured.split(",") if clean_space(x)} if configured else DEFAULT_SCARCE_PROFILES

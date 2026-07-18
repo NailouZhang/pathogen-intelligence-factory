@@ -1,7 +1,7 @@
 from pathlib import Path
 
-import src.pifactory.translation as translation
-from src.pifactory.translation import _looks_chinese, _repair_zh, translate_record
+import pifactory.translation as translation
+from pifactory.translation import _looks_chinese, _repair_zh, translate_record
 
 
 PROFILE = {
@@ -85,7 +85,7 @@ def test_direct_google_endpoint_payload(monkeypatch):
 
 
 def test_placeholder_is_not_a_real_translation_metric():
-    from src.pifactory.utils import clean_space
+    from pifactory.utils import clean_space
 
     def real(item):
         title = clean_space(item.get("title_zh"))

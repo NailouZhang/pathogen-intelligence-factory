@@ -10,6 +10,8 @@ command -v git >/dev/null 2>&1 || { echo "[失败] 缺少 git" >&2; exit 1; }
 command -v gh >/dev/null 2>&1 || { echo "[失败] 缺少 gh" >&2; exit 1; }
 
 cd "$ROOT"
+export PYTHONPATH="$ROOT/src:$ROOT${PYTHONPATH:+:$PYTHONPATH}"
+"$ENV_PREFIX/bin/python" -c 'import pifactory, pathlib; print("[检查] pifactory:", pathlib.Path(pifactory.__file__).resolve())'
 "$ENV_PREFIX/bin/python" scripts/validate_all_profiles.py
 "$ENV_PREFIX/bin/python" scripts/audit_query_coverage.py --output /tmp/pif-query-coverage.json
 "$ENV_PREFIX/bin/python" -m compileall -q src scripts tests

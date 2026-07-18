@@ -2,8 +2,8 @@ from pathlib import Path
 
 import yaml
 
-from src.pifactory.profile_contract import deterministic_profile, validate_profile
-from src.pifactory.query_plan import compile_profile_queries
+from pifactory.profile_contract import deterministic_profile, validate_profile
+from pifactory.query_plan import compile_profile_queries
 
 ROOT = Path(__file__).resolve().parents[1]
 

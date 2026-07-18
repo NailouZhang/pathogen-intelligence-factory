@@ -516,3 +516,48 @@ data/audit/eligible_news.jsonl
 - `scripts/audit_rendered_html.py`
 - `.github/workflows/daily-intelligence.yml`
 - `tests/test_v14_quality_and_bilingual.py`
+
+
+## 修复项 15：公开仓 src-layout 导入与测试启动契约
+
+### 状态
+
+已修复公开仓采用 `src/pifactory` 布局，但 pytest 配置错误地只加入仓库根目录，导致使用正式包名 `pifactory` 的测试在收集阶段报 `ModuleNotFoundError`。
+
+### 不可回退规则
+
+1. `pyproject.toml` 的 pytest 路径必须指向 `src`，工程代码、脚本和测试统一使用正式包名 `pifactory`；不得重新引入 `src.pifactory` 双命名空间。
+2. 公开仓 Conda 引导脚本必须执行 `pip install --no-deps -e <repo>`，使 `pifactory` 不依赖当前工作目录即可导入。
+3. 本地诊断脚本必须显式设置 `PYTHONPATH=<repo>/src:<repo>`，并在运行测试前验证 `pifactory.__file__` 指向当前仓库。
+4. GitHub Actions 安装依赖后必须执行 editable install，保证本地和云端导入契约一致。
+5. 自动化不得依赖用户当前已激活的 `(wechat-publisher)` 环境；公开仓测试固定使用 `<public-repo>/.conda-env/bin/python`。
+
+### 主要文件
+
+- `pyproject.toml`
+- `scripts/bootstrap_dev.sh`
+- `scripts/doctor_local.sh`
+- `.github/workflows/daily-intelligence.yml`
+- `tests/test_import_contract_v14_1.py`
+
+
+## 修复项 15：事件驱动查询写入列表型 query_plan 导致生产崩溃（v14.2）
+
+### 根因
+
+`build_query_plan()` 的公开契约始终是 `list[dict]`，但 v14 在学术检索结束后错误执行了：
+
+```python
+plan["event_driven_news"] = event_query_plan
+plan["scarce_news_mode"] = scarce_news_mode
+```
+
+非 demo 的生产流水线因此在完成耗时的数据库检索后触发 `TypeError: list indices must be integers or slices, not str`。
+
+### 不可回退规则
+
+1. `query_plan` 必须继续保持查询组列表，不能在运行中改成映射或对其使用字符串索引。
+2. 动态事件查询必须作为普通查询组追加到列表，保留旧审计和消费端兼容性。
+3. `event_query_expansion` 与 `scarce_news_mode` 继续作为 issue/audit 的独立顶层字段保存。
+4. 必须测试列表契约、动态查询追加、重复查询去重和错误映射输入。
+5. 工作流生产路径必须在学术检索完成后仍可进入新闻检索，不得只测试 demo 分支。

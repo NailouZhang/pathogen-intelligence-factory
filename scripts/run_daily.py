@@ -6,11 +6,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "src"))
 
-from src.pifactory.config import Settings
-from src.pifactory.pipeline import run_pipeline
-from src.pifactory.progress import progress
+from pifactory.config import Settings
+from pifactory.pipeline import run_pipeline
+from pifactory.progress import progress
 
 
 def main() -> int:

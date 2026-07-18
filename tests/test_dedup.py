@@ -1,4 +1,4 @@
-from src.pifactory.dedup import attach_news_to_papers, dedup_news, dedup_papers
+from pifactory.dedup import attach_news_to_papers, dedup_news, dedup_papers
 
 
 def test_paper_doi_dedup_prefers_longer_abstract():

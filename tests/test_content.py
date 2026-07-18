@@ -1,4 +1,4 @@
-from src.pifactory.content import remove_boilerplate
+from pifactory.content import remove_boilerplate
 
 
 def test_google_news_boilerplate_removed():

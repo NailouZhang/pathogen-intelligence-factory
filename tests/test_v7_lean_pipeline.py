@@ -2,10 +2,10 @@ from pathlib import Path
 
 import yaml
 
-from src.pifactory.content import LEGAL_FULLTEXT_POLICY
-from src.pifactory.profile_contract import deterministic_profile
-from src.pifactory.query_plan import compile_profile_queries
-from src.pifactory.relevance import final_filter
+from pifactory.content import LEGAL_FULLTEXT_POLICY
+from pifactory.profile_contract import deterministic_profile
+from pifactory.query_plan import compile_profile_queries
+from pifactory.relevance import final_filter
 
 ROOT = Path(__file__).resolve().parents[1]
 

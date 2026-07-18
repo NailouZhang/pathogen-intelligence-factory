@@ -8,11 +8,11 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "src"))
 
-from src.pifactory.http import HttpClient
-from src.pifactory.llm import LLMError, LLMRouter
-from src.pifactory.utils import dump_json, utc_now_iso
+from pifactory.http import HttpClient
+from pifactory.llm import LLMError, LLMRouter
+from pifactory.utils import dump_json, utc_now_iso
 
 
 ROWS = [

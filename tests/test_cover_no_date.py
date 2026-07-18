@@ -1,4 +1,4 @@
-from src.pifactory.cover import STYLE_VERSION, _compose_cover, _deterministic_pathogen_art
+from pifactory.cover import STYLE_VERSION, _compose_cover, _deterministic_pathogen_art
 
 
 def test_cover_supports_cjk_and_does_not_change_with_issue_date():

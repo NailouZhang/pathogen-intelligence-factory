@@ -1,6 +1,6 @@
 from datetime import date
 
-from src.pifactory.news import search_google_news
+from pifactory.news import search_google_news
 
 
 class Response:

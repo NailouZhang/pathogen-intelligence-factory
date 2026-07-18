@@ -4,9 +4,9 @@ import json
 
 import yaml
 
-from src.pifactory.profile_contract import deterministic_profile
-from src.pifactory.query_plan import compile_profile_queries
-from src.pifactory.relevance import build_compact_evidence_packet, final_filter, pack_by_token_budget
+from pifactory.profile_contract import deterministic_profile
+from pifactory.query_plan import compile_profile_queries
+from pifactory.relevance import build_compact_evidence_packet, final_filter, pack_by_token_budget
 
 ROOT = Path(__file__).resolve().parents[1]
 

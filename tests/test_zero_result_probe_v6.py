@@ -1,7 +1,7 @@
 from datetime import date
 
-from src.pifactory.scholarly import probe_europe_pmc_anchor_counts, probe_pubmed_anchor_counts
-from src.pifactory.source_status import SourceAudit
+from pifactory.scholarly import probe_europe_pmc_anchor_counts, probe_pubmed_anchor_counts
+from pifactory.source_status import SourceAudit
 
 
 class Response:

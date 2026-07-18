@@ -1,4 +1,4 @@
-from src.pifactory.translation import _looks_chinese, _repair_zh
+from pifactory.translation import _looks_chinese, _repair_zh
 
 
 def test_repair_forbidden_hantavirus_terms():

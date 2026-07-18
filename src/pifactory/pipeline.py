@@ -19,7 +19,13 @@ from .http import HttpClient
 from .llm import LLMRouter
 from .news import filter_news_window, search_bing_news, search_gdelt, search_google_news, search_reliefweb, search_who
 from .query_plan import build_query_plan, compile_query_sets
-from .event_query import augment_news_query_sets, derive_event_queries, is_scarce_profile, news_relevance_profile
+from .event_query import (
+    append_event_queries_to_plan,
+    augment_news_query_sets,
+    derive_event_queries,
+    is_scarce_profile,
+    news_relevance_profile,
+)
 from .relevance import candidate_filter_news, candidate_filter_papers, filter_post_enrichment, final_filter
 from .source_status import SourceAudit
 from .ranking import rank_news, rank_papers
@@ -304,8 +310,12 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             event_source_papers, profile, max_queries=max(0, settings.news_event_query_limit)
         )
         augment_news_query_sets(query_sets, event_query_plan)
-        plan["event_driven_news"] = event_query_plan
-        plan["scarce_news_mode"] = scarce_news_mode
+        plan = append_event_queries_to_plan(
+            plan,
+            event_query_plan,
+            scarce_news_mode=scarce_news_mode,
+            max_groups=120,
+        )
 
         raw_news: list[dict[str, Any]] = []
         general_news_queries = unique_strings(

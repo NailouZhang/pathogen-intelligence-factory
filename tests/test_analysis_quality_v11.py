@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pytest
 
-from src.pifactory.analysis import RESEARCH_FIELDS, analyze_paper, compact_analysis_payload
-from src.pifactory.analysis_quality import summarize_analysis_quality
-from src.pifactory.llm import LLMError, LLMRouter
-from src.pifactory.render import render_site
+from pifactory.analysis import RESEARCH_FIELDS, analyze_paper, compact_analysis_payload
+from pifactory.analysis_quality import summarize_analysis_quality
+from pifactory.llm import LLMError, LLMRouter
+from pifactory.render import render_site
 
 
 ROOT = Path(__file__).resolve().parents[1]

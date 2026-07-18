@@ -7,13 +7,13 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "src"))
 
-from src.pifactory.bootstrap import build_profile
-from src.pifactory.config import Settings
-from src.pifactory.http import HttpClient
-from src.pifactory.llm import LLMRouter
-from src.pifactory.utils import dump_json
+from pifactory.bootstrap import build_profile
+from pifactory.config import Settings
+from pifactory.http import HttpClient
+from pifactory.llm import LLMRouter
+from pifactory.utils import dump_json
 
 
 def main() -> int:

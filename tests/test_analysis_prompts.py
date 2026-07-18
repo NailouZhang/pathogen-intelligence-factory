@@ -45,8 +45,8 @@ def test_news_prompt_has_five_required_elements_and_brief():
 
 
 def test_failed_or_weak_llm_still_produces_complete_research_framework(tmp_path):
-    from src.pifactory.analysis import RESEARCH_FIELDS, analyze_paper
-    from src.pifactory.llm import LLMError
+    from pifactory.analysis import RESEARCH_FIELDS, analyze_paper
+    from pifactory.llm import LLMError
 
     class WeakLLM:
         available = True

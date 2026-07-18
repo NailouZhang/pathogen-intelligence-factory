@@ -2,9 +2,9 @@ from pathlib import Path
 
 import yaml
 
-from src.pifactory.profile_contract import deterministic_profile
-from src.pifactory.query_plan import compile_profile_queries
-from src.pifactory.relevance import candidate_filter_news, candidate_filter_papers, final_filter, relevance_assessment
+from pifactory.profile_contract import deterministic_profile
+from pifactory.query_plan import compile_profile_queries
+from pifactory.relevance import candidate_filter_news, candidate_filter_papers, final_filter, relevance_assessment
 
 ROOT = Path(__file__).resolve().parents[1]
 

@@ -4,13 +4,13 @@ from dataclasses import dataclass
 
 from bs4 import BeautifulSoup
 
-from src.pifactory.content import (
+from pifactory.content import (
     _external_news_urls,
     _news_content_identity,
     apply_news_content_circuit_breaker,
     resolve_and_extract_news,
 )
-from src.pifactory.relevance import filter_post_enrichment
+from pifactory.relevance import filter_post_enrichment
 
 
 PROFILE = {

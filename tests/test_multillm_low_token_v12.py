@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from src.pifactory.analysis import ANALYSIS_POLICY_VERSION, RESEARCH_FIELDS, analyze_paper, build_paper_evidence
-from src.pifactory.llm import LLMError, LLMResult, LLMRouter
+from pifactory.analysis import ANALYSIS_POLICY_VERSION, RESEARCH_FIELDS, analyze_paper, build_paper_evidence
+from pifactory.llm import LLMError, LLMResult, LLMRouter
 
 
 class NeverHTTP:
