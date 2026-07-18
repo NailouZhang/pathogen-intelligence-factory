@@ -1,4 +1,4 @@
-name: Weekly 21-Virus Intelligence Cycle v14
+name: Weekly 21-Virus Intelligence Cycle v14.3
 
 on:
   schedule:
@@ -73,15 +73,20 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: |
+            requirements-build.txt
+            requirements.txt
 
-      - name: Install Python dependencies and CJK fonts
+      - name: Install Python build toolchain, dependencies and project
+        run: |
+          set -Eeuo pipefail
+          PIF_PYTHON_BIN=python bash scripts/install_python_project.sh editable
+
+      - name: Install CJK fonts and bounded browser fallback
         run: |
           set -Eeuo pipefail
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends fonts-noto-cjk
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-          python -m pip install --no-build-isolation --no-deps -e .
           # Install only the headless Chromium shell used by the bounded news
           # fallback. Static requests/Trafilatura extraction still runs first.
           python -m playwright install --with-deps --only-shell chromium

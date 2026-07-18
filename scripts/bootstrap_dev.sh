@@ -9,9 +9,7 @@ source "$CONDA_SH"
 if [[ ! -x "$ENV_PREFIX/bin/python" ]]; then
   conda create --prefix "$ENV_PREFIX" python=3.12 pip -y
 fi
-"$ENV_PREFIX/bin/python" -m pip install --upgrade pip setuptools wheel
-"$ENV_PREFIX/bin/python" -m pip install -r "$ROOT/requirements.txt"
-"$ENV_PREFIX/bin/python" -m pip install --no-build-isolation --no-deps -e "$ROOT"
-"$ENV_PREFIX/bin/python" -c 'import pifactory, pathlib; print("Installed package:", pathlib.Path(pifactory.__file__).resolve())'
+PIF_PYTHON_BIN="$ENV_PREFIX/bin/python" \
+  bash "$ROOT/scripts/install_python_project.sh" editable
 echo "Ready: $ENV_PREFIX/bin/python"
 echo "Test: $ENV_PREFIX/bin/python -m pytest -q"

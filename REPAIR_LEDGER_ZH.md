@@ -561,3 +561,27 @@ plan["scarce_news_mode"] = scarce_news_mode
 3. `event_query_expansion` 与 `scarce_news_mode` 继续作为 issue/audit 的独立顶层字段保存。
 4. 必须测试列表契约、动态查询追加、重复查询去重和错误映射输入。
 5. 工作流生产路径必须在学术检索完成后仍可进入新闻检索，不得只测试 demo 分支。
+
+
+## 修复项16：GitHub Actions构建后端与临时更新器（v14.3）
+
+### 现象
+GitHub Actions在执行editable安装时抛出`BackendUnavailable: Cannot import setuptools.build_meta`，业务流水线尚未开始即退出。
+
+### 根因
+`pyproject.toml`声明`setuptools.build_meta`，但工作流只升级pip并使用`--no-build-isolation`，没有保证当前Python环境先安装setuptools和wheel。CI工作流也仅安装运行依赖，没有验证项目包安装契约。
+
+### 不可回退规则
+1. 构建工具必须先于任何editable/regular项目安装完成并通过导入检查。
+2. GitHub Actions、CI和本地Conda引导必须调用同一个安装器。
+3. 公开仓环境继续固定为仓库内`.conda-env`，不得创建命名环境。
+4. 更新ZIP只在`/tmp`解压，更新器不得依赖版本化根目录名称。
+5. Actions在进入耗时检索前必须输出项目版本与`pifactory`导入路径。
+
+### 实现
+- 新增`requirements-build.txt`。
+- 新增`scripts/install_python_project.sh`。
+- `daily-intelligence.yml`和`ci.yml`统一调用共享安装器。
+- `bootstrap_dev.sh`复用同一安装器。
+- 新增`tests/test_build_install_contract_v14_3.py`。
+- `update_from_tmp.sh`改为自动发现工程根目录。

@@ -1,4 +1,4 @@
-name: CI
+name: CI v14.3
 on:
   workflow_dispatch:
   push:
@@ -14,7 +14,10 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - run: python -m pip install -r requirements.txt
+          cache-dependency-path: |
+            requirements-build.txt
+            requirements.txt
+      - run: PIF_PYTHON_BIN=python bash scripts/install_python_project.sh editable
       - run: python -m pytest
       - run: |
           rm -rf /tmp/pdi_demo
