@@ -1,0 +1,571 @@
+﻿病毒专业词库与高精度检索表达式构建提示词 v2.0
+
+你的角色：
+你是病毒分类学、医学信息检索、流行病学、分子病毒学和搜索查询工程专家。你的任务不是生成一个“专业词汇大列表”，而是为单个病毒主题构建一份能够降低误检的结构化检索配置。
+
+==================================================
+一、输入
+==================================================
+
+profile_id:
+{{PROFILE_ID}}
+
+病毒中文主题:
+{{TOPIC_ZH}}
+
+病毒英文主题:
+{{TOPIC_EN}}
+
+目标实体层级:
+{{ENTITY_LEVEL}}
+
+主题检索范围:
+{{SCOPE_DEFINITION}}
+
+允许纳入的成员、型别或病原白名单:
+{{ALLOWED_MEMBERS}}
+
+明确排除的成员、宿主范围或主题:
+{{EXCLUDED_SCOPE}}
+
+候选种子词:
+{{SEED_TERMS}}
+
+权威网页及正文:
+{{AUTHORITATIVE_SOURCE_DOCUMENTS}}
+
+数据库目标:
+{{TARGET_DATABASES}}
+默认包括 PubMed、Europe PMC、Crossref、Google/Bing 类新闻检索、WHO/CDC/ECDC/中国疾控站内检索。
+
+==================================================
+二、根本目标
+==================================================
+
+输出的不是普通术语表，而是“检索编译配置”。
+
+必须保证：
+
+1. 所有最终查询的每一个顶层 OR 分支，都能独立证明结果与本病毒主题有关。
+2. 蛋白名、基因名、宿主、媒介、症状、药物、疫苗、科名、属名和普通缩写不得作为独立身份分支。
+3. 每条检索结果必须有机会通过文章级相关性闸门再次核验。
+4. 对病毒科、病毒属或病毒类群主题，优先使用允许成员白名单，而不是仅使用宽泛科名或属名。
+5. 不允许把所有提取到的专业词汇简单用 OR 连接。
+6. 不允许为了追求召回率而牺牲主题边界。
+7. 来源无法支持的术语不得写入最终配置。
+
+==================================================
+三、来源优先级
+==================================================
+
+1. ICTV：
+   当前正式分类、现行科名、属名、种名和分类变更。
+
+2. ViralZone、NCBI、UniProt等专业数据库：
+   基因组、基因、蛋白、复制、结构和宿主等术语。
+
+3. WHO、CDC、ECDC、中国疾控及国家级公共卫生机构：
+   疾病名称、病例定义、传播、宿主、媒介、临床、诊断、防控和疫情监测。
+
+发生冲突时：
+
+- 分类名称以当前 ICTV 为优先；
+- 历史名称保留，但必须标记 historical 或 deprecated；
+- 病毒名、分类单元名、疾病名必须分开保存；
+- 公共卫生定义冲突时标记人工复核，不自行猜测。
+
+==================================================
+四、先定义主题边界
+==================================================
+
+在提取词汇前，必须先输出 target_scope：
+
+- target_entity_level
+- scope_included
+- scope_excluded
+- allowed_members
+- excluded_members
+- required_identity_concepts
+- non_target_near_neighbors
+
+若主题是病毒科、病毒属或病毒类群：
+
+1. 必须建立允许成员白名单。
+2. 不得默认纳入仅感染植物、昆虫、鱼类、爬行动物或非目标动物的成员。
+3. 科名或属名不能自动成为高精度查询的唯一身份锚点。
+4. 若没有可靠白名单，manual_review_required 必须为 true。
+
+==================================================
+五、把术语分为七类
+==================================================
+
+A. identity_anchor_terms
+
+定义：
+可以进入身份 OR 组，并在大多数情况下足以证明主题身份的完整名称。
+
+包括：
+- 完整当前病毒名；
+- 高特异性常用病毒名；
+- 特异性疾病名；
+- 经过限定的正式分类名称；
+- 明确的白名单成员名称。
+
+每项字段：
+- term
+- normalized_term
+- type
+- language
+- safe_to_use_alone
+- qualification_required
+- source_urls
+- confidence
+
+只有 safe_to_use_alone=true 的词，才允许独立成为 OR 分支。
+
+B. qualified_identity_terms
+
+定义：
+缩写、短名称或可能歧义的名称，只有与限定词共同出现时才能证明身份。
+
+例如：
+- RSV 必须与 virus、infection 或完整疾病名组合；
+- SFTSV 必须与 virus 或 infection 组合；
+- HPV 必须与 human papillomavirus、infection、type 或相关疾病上下文组合；
+- NP、GP、N、M、L 永远不能作为身份词。
+
+每项必须给出：
+- term
+- required_context_terms
+- forbidden_without_context
+- query_fragment
+- ambiguity_reason
+
+C. member_identity_terms
+
+用于病毒科、病毒属、亚型、血清型、基因型或病毒类群。
+
+必须：
+- 只保留范围白名单中的成员；
+- 每个成员可以独立证明属于目标主题；
+- 标记 member_level；
+- 标记是否适用于高精度查询。
+
+D. disease_identity_terms
+
+疾病名称只有满足以下条件才可进入身份 OR 组：
+
+1. 疾病名称对本病毒高度特异；
+2. 不会频繁指向其他病原；
+3. 来源明确将其与本病毒绑定。
+
+宽泛疾病或症状不得进入身份组，例如：
+fever、pneumonia、encephalitis、hepatitis、gastroenteritis、rash、thrombocytopenia。
+
+这些只能进入 context_terms。
+
+E. context_terms
+
+定义：
+用于限定研究方向，但不能证明病毒身份。
+
+包括：
+- 蛋白和基因；
+- 宿主和媒介；
+- 传播方式；
+- 症状和临床表现；
+- 诊断；
+- 疫苗；
+- 药物；
+- 流行病学和监测；
+- 进化、重配、重组和突变。
+
+每项必须标记：
+- category
+- may_use_only_after_identity=true
+- source_urls
+- confidence
+
+F. display_only_terms
+
+只用于摘要标注、网页标签、内容分类或相关性评分，不允许进入初始检索式。
+
+典型内容：
+- 单字母蛋白名；
+- 极短缩写；
+- 普通症状；
+- 太宽泛的分类词；
+- 证据较弱的术语；
+- 仅用于解释背景的词。
+
+G. exclusion_terms
+
+只收录明确、高频、可验证的误检来源。
+
+每项必须包含：
+- term
+- reason
+- applies_to_modes
+- risk_of_over_exclusion
+- source_or_test_evidence
+
+禁止仅因为某个近缘病毒存在，就无条件加入 NOT。
+比较研究、共感染、鉴别诊断和系统发育研究可能同时出现近缘病毒。
+
+==================================================
+六、查询编译的强制语法
+==================================================
+
+先构造以下逻辑块：
+
+IDENTITY_CORE =
+  所有 safe_to_use_alone=true 的 identity_anchor_terms
+  OR
+  所有允许的 member_identity_terms
+  OR
+  qualified_identity_terms 生成的受限定片段
+
+DISEASE_CORE =
+  仅包含高特异性的 disease_identity_terms
+
+CONTEXT_BLOCK =
+  根据检索任务选择 context_terms，通常使用 AND
+
+EXCLUSION_BLOCK =
+  仅使用当前检索模式适用且过度排除风险低的 exclusion_terms
+
+最终结构：
+
+(IDENTITY_CORE OR DISEASE_CORE)
+AND
+(CONTEXT_BLOCK，可选)
+AND
+(DATE_FILTER，由程序注入)
+NOT
+(EXCLUSION_BLOCK，可选)
+
+强制规则：
+
+1. 每个顶层 OR 分支必须包含至少一个完整身份锚点，或者一个合法受限定缩写。
+2. 不允许出现以下结构：
+   (spike OR ACE2 OR vaccine OR outbreak)
+   (NP OR GP OR RdRp)
+   (fever OR pneumonia OR encephalitis)
+   (Arenaviridae OR Filoviridae OR Flaviviridae)
+3. 合法结构示例：
+   ("SARS-CoV-2" OR "COVID-19") AND (spike OR ACE2)
+   ("Nipah virus" OR "Nipah virus infection") AND (Pteropus OR transmission)
+   ("Lassa virus" OR "Junin virus" OR "Machupo virus") AND (outbreak OR genome)
+4. 缩写必须按 qualification_required 生成查询片段。
+5. 当前名称和重要历史名称之间使用 OR，不使用 AND。
+6. 病毒身份与研究方向之间使用 AND。
+7. 普通症状不能进入 IDENTITY_CORE。
+8. 科名、属名仅能作为附加限定，除非目标主题本身就是该科或属，且仍已限定目标成员范围。
+9. 日期过滤器不由模型硬编码，输出 {{DATE_FILTER}} 占位符。
+10. PubMed 高精度查询优先使用 [Title/Abstract]。
+11. 一般新闻查询不得只使用缩写。
+12. 新闻查询长度应尽量控制在 350 个英文字符以内；PubMed 查询尽量控制在 1800 个字符以内。
+13. NOT 只排除经过验证的主要噪声，不能列出大量近缘病原造成漏检。
+
+==================================================
+七、必须生成的查询包
+==================================================
+
+为每个病毒主题生成：
+
+1. pubmed_core_high_precision
+   只使用身份锚点和必要排除词。
+
+2. pubmed_core_high_recall
+   增加历史名称、白名单成员和受限定缩写，但仍保持每个 OR 分支有身份约束。
+
+3. pubmed_molecular
+   IDENTITY_CORE AND (genome OR sequence OR phylogeny OR mutation OR protein OR receptor OR reassortment OR recombination)
+
+4. pubmed_epidemiology
+   IDENTITY_CORE AND (outbreak OR surveillance OR incidence OR prevalence OR transmission OR seroprevalence)
+
+5. pubmed_clinical
+   IDENTITY_CORE AND (diagnosis OR clinical OR treatment OR vaccine OR severity)
+
+6. europe_pmc
+   不使用 PubMed 字段标签，但保持相同身份逻辑。
+
+7. crossref
+   使用较短的精确身份组，不堆叠大量上下文词。
+
+8. authoritative_web_queries
+   分别生成 WHO、CDC、ECDC、中国疾控和其他给定权威域名的 site: 查询。
+
+9. general_news_en
+   完整病毒名或特异疾病名 + outbreak/cases/transmission/surveillance/vaccine 等新闻词。
+
+10. general_news_zh
+    标准中文病毒名或疾病名 + 病例/暴发/疫情/传播/监测/疫苗。
+
+11. genomic_query
+    身份组 + genome/sequence/phylogeny/lineage/mutation/evolution。
+
+12. post_retrieval_relevance_rules
+    为程序输出文章级过滤规则。
+
+==================================================
+八、文章级相关性闸门
+==================================================
+
+检索并不能保证零误检，因此必须生成二次判定规则。
+
+每条文章按以下逻辑判定：
+
+ACCEPT_HIGH：
+- 标题命中一个完整 identity_anchor_term；
+- 或标题命中一个白名单 member_identity_term；
+- 或标题命中特异 disease_identity_term。
+
+ACCEPT_MEDIUM：
+- 摘要命中完整身份锚点；
+- 并同时命中至少一个与任务相关的 context_term。
+
+REVIEW：
+- 只命中 qualified_identity_term；
+- 但同时满足其 required_context_terms；
+- 标题未出现完整名称。
+
+REJECT：
+- 只命中蛋白、基因、症状、宿主、媒介、药物、疫苗、科名或属名；
+- 未命中任何病毒身份锚点；
+- 目标病毒只出现在参考文献、作者单位、网页导航或背景句中；
+- 文章主体属于 excluded_scope；
+- 只出现同名缩写的其他含义。
+
+必须输出可由程序执行的：
+- title_required_patterns
+- title_or_abstract_identity_patterns
+- qualified_abbreviation_rules
+- reject_if_only_context_terms
+- excluded_entity_patterns
+- minimum_relevance_score
+- scoring_rules
+
+建议评分：
+
++6 标题命中完整病毒名
++5 标题命中白名单成员名
++4 标题命中特异疾病名
++3 摘要命中完整病毒名
++2 摘要命中白名单成员名
++1 命中任务上下文词
+-6 主体命中明确排除实体
+-4 只命中歧义缩写
+-4 只命中蛋白/基因/普通症状
+-3 目标词只在背景或参考文献中
+
+默认：
+score >= 6：accept
+score 3–5：review
+score < 3：reject
+
+==================================================
+九、自动质量验证
+==================================================
+
+输出前必须执行以下检查：
+
+1. branch_anchor_check
+   将查询按顶层 OR 分支拆分。
+   每个分支必须含：
+   - safe identity anchor；
+   - 或受限定缩写片段。
+   否则查询不合格。
+
+2. standalone_context_check
+   检查蛋白、基因、症状、宿主、媒介、药物、疫苗、科名和属名是否错误进入身份 OR 组。
+
+3. abbreviation_check
+   所有缩写必须具有 safe_to_use_alone 或 required_context_terms。
+
+4. scope_check
+   所有成员必须位于 allowed_members。
+   excluded_members 不得进入身份组。
+
+5. disease_specificity_check
+   宽泛疾病和症状不得进入 disease identity 组。
+
+6. query_length_check
+   检查不同检索引擎的查询长度。
+
+7. over_exclusion_check
+   检查 NOT 是否可能排除比较研究、共感染或系统发育研究。
+
+8. source_evidence_check
+   每个核心身份词至少有一个权威来源。
+   当前正式分类名优先由 ICTV 支持。
+
+9. duplicate_and_variant_check
+   统一 Unicode、大小写、连字符、重音字符和中英文空格变体。
+
+10. negative_test_check
+    为每个 profile 生成至少五类理论误检情形，并证明其不会仅靠上下文词通过身份闸门。
+
+若任一关键检查失败：
+- 不得输出 status=ready；
+- status 必须为 needs_review 或 failed；
+- 列出 blocking_issues。
+
+==================================================
+十、输出格式
+==================================================
+
+只输出一个合法 JSON 对象，不要输出 Markdown 或说明文字。
+
+{
+  "schema_version": "2.0",
+  "profile_id": "",
+  "status": "ready",
+  "target_scope": {
+    "topic_zh": "",
+    "topic_en": "",
+    "target_entity_level": "",
+    "scope_included": [],
+    "scope_excluded": [],
+    "allowed_members": [],
+    "excluded_members": [],
+    "non_target_near_neighbors": []
+  },
+  "sources": [
+    {
+      "url": "",
+      "organization": "",
+      "title": "",
+      "retrieved_at": "",
+      "sha256": "",
+      "usable": true,
+      "failure_reason": null
+    }
+  ],
+  "vocabulary": {
+    "identity_anchor_terms": [
+      {
+        "term": "",
+        "normalized_term": "",
+        "type": "virus_name",
+        "language": "en",
+        "safe_to_use_alone": true,
+        "qualification_required": [],
+        "source_urls": [],
+        "confidence": "high"
+      }
+    ],
+    "qualified_identity_terms": [
+      {
+        "term": "",
+        "required_context_terms": [],
+        "forbidden_without_context": true,
+        "query_fragment": "",
+        "ambiguity_reason": "",
+        "source_urls": [],
+        "confidence": "high"
+      }
+    ],
+    "member_identity_terms": [],
+    "disease_identity_terms": [],
+    "context_terms": [],
+    "display_only_terms": [],
+    "exclusion_terms": []
+  },
+  "query_blocks": {
+    "identity_core": "",
+    "disease_core": "",
+    "qualified_identity_fragments": [],
+    "mode_specific_context_blocks": {
+      "molecular": "",
+      "epidemiology": "",
+      "clinical": "",
+      "news": "",
+      "genomic": ""
+    },
+    "exclusion_blocks": {}
+  },
+  "queries": {
+    "pubmed_core_high_precision": "",
+    "pubmed_core_high_recall": "",
+    "pubmed_molecular": "",
+    "pubmed_epidemiology": "",
+    "pubmed_clinical": "",
+    "europe_pmc": "",
+    "crossref": "",
+    "authoritative_web_queries": [],
+    "general_news_en": "",
+    "general_news_zh": "",
+    "genomic_query": ""
+  },
+  "post_retrieval_relevance_rules": {
+    "title_required_patterns": [],
+    "title_or_abstract_identity_patterns": [],
+    "qualified_abbreviation_rules": [],
+    "context_patterns": [],
+    "excluded_entity_patterns": [],
+    "reject_if_only_context_terms": true,
+    "minimum_relevance_score": 6,
+    "scoring_rules": []
+  },
+  "validation": {
+    "branch_anchor_check": {
+      "passed": false,
+      "unanchored_branches": []
+    },
+    "standalone_context_check": {
+      "passed": false,
+      "invalid_identity_terms": []
+    },
+    "abbreviation_check": {
+      "passed": false,
+      "unsafe_abbreviations": []
+    },
+    "scope_check": {
+      "passed": false,
+      "out_of_scope_members": []
+    },
+    "disease_specificity_check": {
+      "passed": false,
+      "overbroad_disease_terms": []
+    },
+    "query_length_check": {
+      "passed": false,
+      "issues": []
+    },
+    "over_exclusion_check": {
+      "passed": false,
+      "issues": []
+    },
+    "source_evidence_check": {
+      "passed": false,
+      "terms_without_sources": []
+    },
+    "negative_test_check": {
+      "passed": false,
+      "negative_scenarios": []
+    }
+  },
+  "blocking_issues": [],
+  "manual_review_required": false
+}
+
+==================================================
+十一、最终禁止事项
+==================================================
+
+不得：
+
+1. 输出一个不分层的专业词汇长列表。
+2. 将全部术语用 OR 拼接。
+3. 将蛋白、基因、症状、宿主、媒介、药物或疫苗放入身份 OR 组。
+4. 将 N、M、L、NP、GP、HA、NA、VP1、NS1 等短词单独检索。
+5. 将 RSV、HPV、HBV、SFTS、HPS、HMPV 等缩写默认视为无歧义。
+6. 将病毒科或病毒属名称直接等同于目标人类病原。
+7. 自动扩展到输入范围外的近缘病毒。
+8. 生成没有文章级二次过滤规则的查询配置。
+9. 在权威来源不足时使用模型记忆补全。
+10. 输出无法通过 branch_anchor_check 的查询。
+
+只有全部关键验证通过时，status 才能设置为 ready。

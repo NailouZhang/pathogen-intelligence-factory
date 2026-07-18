@@ -1,0 +1,129 @@
+schema_version: '3.0'
+profile_id: measles_virus
+display_name_zh: 麻疹病毒
+display_name_en: Measles virus
+schedule:
+  day: wednesday
+  order: 8
+target_scope:
+  target_entity_level: 具体病毒及疾病
+  scope_included:
+  - 聚焦 measles virus/measles；排除犬瘟热等其他 Morbillivirus。
+  scope_excluded:
+  - canine distemper virus
+  - peste des petits ruminants virus
+  - rinderpest virus
+  - cetacean morbillivirus
+  allowed_members: []
+  excluded_members:
+  - canine distemper virus
+  - peste des petits ruminants virus
+  - rinderpest virus
+  - cetacean morbillivirus
+  required_identity_concepts:
+  - measles virus
+  - measles
+  - measles
+  - subacute sclerosing panencephalitis
+  non_target_near_neighbors:
+  - canine distemper virus
+  - peste des petits ruminants virus
+  - rinderpest virus
+  - cetacean morbillivirus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - measles virus
+  - measles
+  qualified_identity_terms:
+  - term: measles genotype
+    required_context_terms:
+    - B3
+    - D8
+    - genotype
+    query_fragment_seed: measles genotype AND (B3 OR D8 OR genotype)
+  - term: MeV
+    required_context_terms:
+    - measles
+    - virus
+    query_fragment_seed: '"MeV" AND ("measles" OR "virus")'
+  member_identity_terms: []
+  disease_identity_terms:
+  - measles
+  - subacute sclerosing panencephalitis
+  context_terms:
+  - outbreak
+  - elimination
+  - vaccine-preventable
+  - two-dose vaccination
+  - SSPE
+  - CD150
+  - SLAMF1
+  - nectin-4
+  - genotype
+  display_only_terms:
+  - MeV
+  - Morbillivirus
+  - H protein
+  - F protein
+  - N protein
+  - P protein
+  - M protein
+  - L protein
+  - V protein
+  - C protein
+  - SSPE
+  exclusion_terms:
+  - canine distemper virus
+  - peste des petits ruminants virus
+  - rinderpest virus
+  - cetacean morbillivirus
+manual_query_skeletons:
+  pubmed_high_precision: (("measles virus"[Title/Abstract] OR measles[Title/Abstract]) AND {{DATE_FILTER}}) NOT ("canine distemper
+    virus"[Title/Abstract])
+  news_high_precision: (measles OR "measles virus") AND (outbreak OR cases OR vaccination OR elimination OR surveillance)
+authoritative_sources:
+- name: ICTV Paramyxoviridae
+  organization: ICTV
+  url: https://ictv.global/report/chapter/paramyxoviridae/paramyxoviridae
+  role: taxonomy
+  required: false
+- name: ViralZone Morbillivirus
+  organization: ViralZone
+  url: https://viralzone.expasy.org/86?outline=all_by_species
+  role: molecular
+  required: false
+- name: WHO Measles
+  organization: WHO
+  url: https://www.who.int/news-room/fact-sheets/detail/measles
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 麻疹病毒
+- 麻疹
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

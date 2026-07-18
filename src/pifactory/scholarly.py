@@ -1,22 +1,21 @@
 from __future__ import annotations
 
-import html
-import json
 import re
+import time
 import xml.etree.ElementTree as ET
 from datetime import date
 from typing import Any
-from urllib.parse import quote
 
 from .dates import choose_availability_date
 from .http import HttpClient
-from .utils import clean_space, extract_doi, safe_date_string, strip_tags, unique_strings
+from .source_status import SourceAudit
+from .utils import clean_space, safe_date_string, strip_tags, unique_strings
+
+EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 
 
 def _xml_text(node: ET.Element | None) -> str:
-    if node is None:
-        return ""
-    return clean_space("".join(node.itertext()))
+    return clean_space("".join(node.itertext())) if node is not None else ""
 
 
 def _date_from_parts(year: Any, month: Any = 1, day: Any = 1) -> str | None:
@@ -25,36 +24,73 @@ def _date_from_parts(year: Any, month: Any = 1, day: Any = 1) -> str | None:
     )}
     try:
         y = int(str(year))
-        m_raw = str(month or 1)
-        m = months.get(m_raw[:3].lower(), int(m_raw) if m_raw.isdigit() else 1)
+        raw = str(month or 1)
+        m = months.get(raw[:3].lower(), int(raw) if raw.isdigit() else 1)
         d = int(str(day or 1))
         return date(y, m, d).isoformat()
     except (TypeError, ValueError):
         return None
 
 
-def _pubmed_search(http: HttpClient, query: str, start: date, end: date, api_key: str, limit: int) -> list[str]:
+def _pubmed_term(query: str, start: date, end: date) -> str:
     date_exprs = [
-        f'("{start:%Y/%m/%d}"[CRDT] : "{end:%Y/%m/%d}"[CRDT])',
-        f'("{start:%Y/%m/%d}"[EDAT] : "{end:%Y/%m/%d}"[EDAT])',
         f'("{start:%Y/%m/%d}"[EPDAT] : "{end:%Y/%m/%d}"[EPDAT])',
         f'("{start:%Y/%m/%d}"[PDAT] : "{end:%Y/%m/%d}"[PDAT])',
+        f'("{start:%Y/%m/%d}"[CRDT] : "{end:%Y/%m/%d}"[CRDT])',
+        f'("{start:%Y/%m/%d}"[EDAT] : "{end:%Y/%m/%d}"[EDAT])',
     ]
-    term = f"({query}) AND ({' OR '.join(date_exprs)})"
-    params = {"db": "pubmed", "term": term, "retmode": "json", "retmax": limit, "sort": "pub date"}
+    return f"({query}) AND ({' OR '.join(date_exprs)})"
+
+
+def _pubmed_request(http: HttpClient, params: dict[str, Any]) -> dict[str, Any]:
+    # NCBI recommends POST for queries longer than several hundred characters.
+    term = str(params.get("term") or "")
+    if len(term) > 450:
+        return http.request("POST", f"{EUTILS}/esearch.fcgi", data=params).json()
+    return http.get_json(f"{EUTILS}/esearch.fcgi", params=params)
+
+
+def _pubmed_search(
+    http: HttpClient,
+    query: str,
+    start: date,
+    end: date,
+    api_key: str,
+    limit: int,
+) -> tuple[list[str], int, int]:
+    term = _pubmed_term(query, start, end)
+    base: dict[str, Any] = {
+        "db": "pubmed",
+        "term": term,
+        "retmode": "json",
+        "sort": "pub date",
+        "usehistory": "y",
+        "retmax": 0,
+    }
     if api_key:
-        params["api_key"] = api_key
-    payload = http.get_json("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi", params=params)
-    return list(payload.get("esearchresult", {}).get("idlist", []))
+        base["api_key"] = api_key
+    first = _pubmed_request(http, base)
+    result = first.get("esearchresult", {})
+    count = int(result.get("count") or 0)
+    ids: list[str] = []
+    pages = 0
+    target = min(count, max(0, limit))
+    for retstart in range(0, target, 100):
+        params = dict(base)
+        params.update({"retstart": retstart, "retmax": min(100, target - retstart)})
+        payload = _pubmed_request(http, params)
+        ids.extend(payload.get("esearchresult", {}).get("idlist", []))
+        pages += 1
+    return unique_strings(ids), count, pages
 
 
 def _pubmed_fetch(http: HttpClient, pmids: list[str], api_key: str) -> list[dict[str, Any]]:
     if not pmids:
         return []
-    params = {"db": "pubmed", "id": ",".join(pmids), "retmode": "xml"}
+    params: dict[str, Any] = {"db": "pubmed", "id": ",".join(pmids), "retmode": "xml"}
     if api_key:
         params["api_key"] = api_key
-    raw = http.get_text("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi", params=params)
+    raw = http.request("POST", f"{EUTILS}/efetch.fcgi", data=params).text
     root = ET.fromstring(raw)
     output: list[dict[str, Any]] = []
     for article_node in root.findall(".//PubmedArticle"):
@@ -65,13 +101,13 @@ def _pubmed_fetch(http: HttpClient, pmids: list[str], api_key: str) -> list[dict
         journal = article.find("Journal")
         issue = journal.find("JournalIssue") if journal is not None else None
         pub_date = issue.find("PubDate") if issue is not None else None
-        title = _xml_text(article.find("ArticleTitle"))
-        abstract_parts = []
+        abstract_parts: list[str] = []
         for part in article.findall("Abstract/AbstractText"):
             label = clean_space(part.attrib.get("Label"))
             text = _xml_text(part)
-            abstract_parts.append(f"{label}: {text}" if label else text)
-        authors = []
+            if text:
+                abstract_parts.append(f"{label}: {text}" if label else text)
+        authors: list[str] = []
         for author in article.findall("AuthorList/Author"):
             collective = _xml_text(author.find("CollectiveName"))
             name = collective or clean_space(f"{_xml_text(author.find('ForeName'))} {_xml_text(author.find('LastName'))}")
@@ -82,102 +118,228 @@ def _pubmed_fetch(http: HttpClient, pmids: list[str], api_key: str) -> list[dict
         if pubmed_data is not None:
             for node in pubmed_data.findall("ArticleIdList/ArticleId"):
                 ids[node.attrib.get("IdType", "")] = _xml_text(node)
-        article_dates = article.findall("ArticleDate")
-        online = None
-        if article_dates:
-            online = _date_from_parts(
-                _xml_text(article_dates[0].find("Year")),
-                _xml_text(article_dates[0].find("Month")),
-                _xml_text(article_dates[0].find("Day")),
-            )
+        article_date = article.find("ArticleDate")
+        online = _date_from_parts(
+            _xml_text(article_date.find("Year")) if article_date is not None else None,
+            _xml_text(article_date.find("Month")) if article_date is not None else None,
+            _xml_text(article_date.find("Day")) if article_date is not None else None,
+        )
         print_date = _date_from_parts(
             _xml_text(pub_date.find("Year")) if pub_date is not None else None,
             _xml_text(pub_date.find("Month")) if pub_date is not None else None,
             _xml_text(pub_date.find("Day")) if pub_date is not None else None,
         )
-        created = None
         date_created = citation.find("DateCreated") if citation is not None else None
-        if date_created is not None:
-            created = _date_from_parts(_xml_text(date_created.find("Year")), _xml_text(date_created.find("Month")), _xml_text(date_created.find("Day")))
-        pagination = _xml_text(article.find("Pagination/MedlinePgn"))
-        types = [_xml_text(n) for n in article.findall("PublicationTypeList/PublicationType")]
+        created = _date_from_parts(
+            _xml_text(date_created.find("Year")) if date_created is not None else None,
+            _xml_text(date_created.find("Month")) if date_created is not None else None,
+            _xml_text(date_created.find("Day")) if date_created is not None else None,
+        )
+        pmid = ids.get("pubmed") or _xml_text(citation.find("PMID") if citation is not None else None)
         output.append({
             "source": "PubMed",
-            "source_ids": {"pmid": ids.get("pubmed") or _xml_text(citation.find("PMID") if citation is not None else None), "pmcid": ids.get("pmc")},
-            "doi": (ids.get("doi") or "").lower() or None,
-            "title": title,
+            "source_ids": {"pmid": pmid, "pmcid": ids.get("pmc")},
+            "doi": clean_space(ids.get("doi")).lower() or None,
+            "title": _xml_text(article.find("ArticleTitle")),
             "abstract": clean_space(" ".join(abstract_parts)),
             "authors": authors,
             "journal": _xml_text(journal.find("Title") if journal is not None else None),
-            "year": int(print_date[:4]) if print_date else (int(online[:4]) if online else None),
+            "year": int((online or print_date)[:4]) if (online or print_date) else None,
             "volume": _xml_text(issue.find("Volume") if issue is not None else None),
             "issue": _xml_text(issue.find("Issue") if issue is not None else None),
-            "pages": pagination,
+            "pages": _xml_text(article.find("Pagination/MedlinePgn")),
             "online_date": online,
             "created_date": created,
             "published_date": print_date,
             "print_date": print_date,
-            "publication_types": types,
-            "url": f"https://pubmed.ncbi.nlm.nih.gov/{ids.get('pubmed') or _xml_text(citation.find('PMID'))}/",
+            "publication_types": [_xml_text(n) for n in article.findall("PublicationTypeList/PublicationType")],
+            "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/" if pmid else "",
         })
     return output
 
 
-def search_pubmed(http: HttpClient, queries: list[str], start: date, end: date, api_key: str, per_query: int = 40) -> list[dict[str, Any]]:
+def search_pubmed(
+    http: HttpClient,
+    queries: list[str],
+    start: date,
+    end: date,
+    api_key: str,
+    per_query: int = 180,
+    max_total: int = 2000,
+    audit: SourceAudit | None = None,
+) -> list[dict[str, Any]]:
+    """Search every compiled PubMed query and fetch the union of PMIDs.
+
+    ESearch uses POST for long expressions and paginates with retstart/retmax.
+    ``max_total`` is a safety budget across all query modes, not a random
+    sample: IDs are collected in PubMed date order and de-duplicated.
+    """
     ids: list[str] = []
-    for query in queries:
+    query_by_id: dict[str, list[str]] = {}
+    for query in unique_strings(queries):
         try:
-            ids.extend(_pubmed_search(http, query, start, end, api_key, per_query))
-        except Exception:
-            continue
-    ids = unique_strings(ids)[:250]
+            found, total, pages = _pubmed_search(http, query, start, end, api_key, per_query)
+            ids.extend(found)
+            for pmid in found:
+                query_by_id.setdefault(pmid, []).append(query)
+            if audit:
+                audit.add(
+                    source="PubMed",
+                    query=query,
+                    mode="provider_boolean",
+                    status="success",
+                    records=len(found),
+                    pages=pages,
+                    endpoint=f"{EUTILS}/esearch.fcgi",
+                    details={"total_matches": total, "api_key_configured": bool(api_key)},
+                )
+        except Exception as exc:
+            if audit:
+                audit.add(source="PubMed", query=query, mode="provider_boolean", status="failed", endpoint=f"{EUTILS}/esearch.fcgi", error=exc)
+    ids = unique_strings(ids)[:max(0, max_total)]
     works: list[dict[str, Any]] = []
     for index in range(0, len(ids), 100):
+        batch = ids[index : index + 100]
         try:
-            works.extend(_pubmed_fetch(http, ids[index:index + 100], api_key))
-        except Exception:
-            continue
+            rows = _pubmed_fetch(http, batch, api_key)
+            for row in rows:
+                pmid = clean_space((row.get("source_ids") or {}).get("pmid"))
+                row["retrieval_queries"] = query_by_id.get(pmid, [])
+                row["retrieval_channels"] = ["pubmed_esearch"]
+            works.extend(rows)
+        except Exception as exc:
+            if audit:
+                audit.add(source="PubMed EFetch", status="failed", records=0, endpoint=f"{EUTILS}/efetch.fcgi", error=exc, details={"batch_size": len(batch)})
     return works
 
 
-def search_europe_pmc(http: HttpClient, queries: list[str], start: date, end: date, per_query: int = 50) -> list[dict[str, Any]]:
-    output: list[dict[str, Any]] = []
-    for query in queries:
+def probe_pubmed_anchor_counts(
+    http: HttpClient,
+    queries: list[str],
+    start: date,
+    end: date,
+    api_key: str = "",
+    audit: SourceAudit | None = None,
+) -> dict[str, int]:
+    """Count-only 90-day diagnostic; results never enter the daily report."""
+    counts: dict[str, int] = {}
+    endpoint = f"{EUTILS}/esearch.fcgi"
+    for query in unique_strings(queries):
+        try:
+            _, total, _ = _pubmed_search(http, query, start, end, api_key, 0)
+            counts[query] = total
+            if audit:
+                audit.add(
+                    source="PubMed 90-day anchor probe", query=query, mode="diagnostic_count_only",
+                    status="success", records=total, endpoint=endpoint,
+                    details={"diagnostic_only": True, "window_start": start.isoformat(), "window_end": end.isoformat()},
+                )
+        except Exception as exc:
+            if audit:
+                audit.add(
+                    source="PubMed 90-day anchor probe", query=query, mode="diagnostic_count_only",
+                    status="failed", endpoint=endpoint, error=exc,
+                    details={"diagnostic_only": True, "window_start": start.isoformat(), "window_end": end.isoformat()},
+                )
+    return counts
+
+
+def probe_europe_pmc_anchor_counts(
+    http: HttpClient,
+    queries: list[str],
+    start: date,
+    end: date,
+    audit: SourceAudit | None = None,
+) -> dict[str, int]:
+    """Count-only Europe PMC diagnostic used only when the 7-day core search is empty."""
+    counts: dict[str, int] = {}
+    endpoint = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
+    for query in unique_strings(queries):
         epmc_query = f"({query}) AND (FIRST_PDATE:[{start.isoformat()} TO {end.isoformat()}] OR CREATION_DATE:[{start.isoformat()} TO {end.isoformat()}])"
         try:
-            payload = http.get_json(
-                "https://www.ebi.ac.uk/europepmc/webservices/rest/search",
-                params={"query": epmc_query, "format": "json", "resultType": "core", "pageSize": per_query},
-            )
-        except Exception:
-            continue
-        for item in payload.get("resultList", {}).get("result", []):
-            authors = [a.get("fullName") for a in item.get("authorList", {}).get("author", []) if a.get("fullName")]
-            full_text_urls = []
-            for url_item in item.get("fullTextUrlList", {}).get("fullTextUrl", []) or []:
-                if url_item.get("url"):
-                    full_text_urls.append(url_item.get("url"))
-            output.append({
-                "source": "Europe PMC",
-                "source_ids": {"pmid": item.get("pmid"), "pmcid": item.get("pmcid"), "epmc": item.get("id")},
-                "doi": clean_space(item.get("doi")).lower() or None,
-                "title": strip_tags(item.get("title")),
-                "abstract": strip_tags(item.get("abstractText")),
-                "authors": authors or unique_strings(str(item.get("authorString", "")).split(",")),
-                "journal": clean_space(item.get("journalTitle")),
-                "year": item.get("pubYear"),
-                "volume": clean_space(item.get("journalVolume")),
-                "issue": clean_space(item.get("issue")),
-                "pages": clean_space(item.get("pageInfo")),
-                "online_date": safe_date_string(item.get("firstPublicationDate") or item.get("electronicPublicationDate")),
-                "first_publication_date": safe_date_string(item.get("firstPublicationDate")),
-                "created_date": safe_date_string(item.get("creationDate")),
-                "published_date": safe_date_string(item.get("journalInfo", {}).get("printPublicationDate") if isinstance(item.get("journalInfo"), dict) else None),
-                "publication_types": [item.get("pubType")] if item.get("pubType") else [],
-                "open_access": str(item.get("isOpenAccess", "")).upper() == "Y",
-                "full_text_urls": full_text_urls,
-                "url": f"https://europepmc.org/article/{item.get('source', 'MED')}/{item.get('id')}",
+            payload = http.get_json(endpoint, params={
+                "query": epmc_query, "format": "json", "resultType": "lite", "pageSize": 1,
             })
+            total = int(payload.get("hitCount") or 0)
+            counts[query] = total
+            if audit:
+                audit.add(
+                    source="Europe PMC 90-day anchor probe", query=query, mode="diagnostic_count_only",
+                    status="success", records=total, endpoint=endpoint,
+                    details={"diagnostic_only": True, "window_start": start.isoformat(), "window_end": end.isoformat()},
+                )
+        except Exception as exc:
+            if audit:
+                audit.add(
+                    source="Europe PMC 90-day anchor probe", query=query, mode="diagnostic_count_only",
+                    status="failed", endpoint=endpoint, error=exc,
+                    details={"diagnostic_only": True, "window_start": start.isoformat(), "window_end": end.isoformat()},
+                )
+    return counts
+
+def search_europe_pmc(
+    http: HttpClient,
+    queries: list[str],
+    start: date,
+    end: date,
+    per_query: int = 150,
+    audit: SourceAudit | None = None,
+) -> list[dict[str, Any]]:
+    output: list[dict[str, Any]] = []
+    endpoint = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
+    for query in unique_strings(queries):
+        epmc_query = f"({query}) AND (FIRST_PDATE:[{start.isoformat()} TO {end.isoformat()}] OR CREATION_DATE:[{start.isoformat()} TO {end.isoformat()}])"
+        cursor = "*"
+        collected = 0
+        pages = 0
+        failed: Exception | None = None
+        while collected < per_query:
+            try:
+                page_size = min(1000, per_query - collected)
+                payload = http.get_json(endpoint, params={
+                    "query": epmc_query,
+                    "format": "json",
+                    "resultType": "core",
+                    "pageSize": page_size,
+                    "cursorMark": cursor,
+                })
+                rows = payload.get("resultList", {}).get("result", []) or []
+                pages += 1
+                for item in rows:
+                    authors = [a.get("fullName") for a in item.get("authorList", {}).get("author", []) if a.get("fullName")]
+                    full_text_urls = [x.get("url") for x in item.get("fullTextUrlList", {}).get("fullTextUrl", []) or [] if x.get("url")]
+                    output.append({
+                        "source": "Europe PMC",
+                        "source_ids": {"pmid": item.get("pmid"), "pmcid": item.get("pmcid"), "epmc": item.get("id")},
+                        "doi": clean_space(item.get("doi")).lower() or None,
+                        "title": strip_tags(item.get("title")),
+                        "abstract": strip_tags(item.get("abstractText")),
+                        "authors": authors or unique_strings(str(item.get("authorString", "")).split(",")),
+                        "journal": clean_space(item.get("journalTitle")),
+                        "year": item.get("pubYear"),
+                        "volume": clean_space(item.get("journalVolume")),
+                        "issue": clean_space(item.get("issue")),
+                        "pages": clean_space(item.get("pageInfo")),
+                        "online_date": safe_date_string(item.get("firstPublicationDate") or item.get("electronicPublicationDate")),
+                        "first_publication_date": safe_date_string(item.get("firstPublicationDate")),
+                        "created_date": safe_date_string(item.get("creationDate")),
+                        "published_date": safe_date_string((item.get("journalInfo") or {}).get("printPublicationDate") if isinstance(item.get("journalInfo"), dict) else None),
+                        "publication_types": [item.get("pubType")] if item.get("pubType") else [],
+                        "open_access": str(item.get("isOpenAccess", "")).upper() == "Y",
+                        "full_text_urls": full_text_urls,
+                        "url": f"https://europepmc.org/article/{item.get('source', 'MED')}/{item.get('id')}",
+                        "retrieval_queries": [query],
+                    })
+                collected += len(rows)
+                next_cursor = payload.get("nextCursorMark")
+                if not rows or not next_cursor or next_cursor == cursor:
+                    break
+                cursor = next_cursor
+            except Exception as exc:
+                failed = exc
+                break
+        if audit:
+            audit.add(source="Europe PMC", query=query, status="failed" if failed else "success", records=collected, pages=pages, endpoint=endpoint, error=failed)
     return output
 
 
@@ -186,177 +348,327 @@ def _crossref_date(item: dict[str, Any], key: str) -> str | None:
     return _date_from_parts(*parts) if parts and parts[0] else None
 
 
-def search_crossref(http: HttpClient, queries: list[str], start: date, end: date, mailto: str, per_query: int = 40) -> list[dict[str, Any]]:
+def search_crossref(
+    http: HttpClient,
+    queries: list[str],
+    start: date,
+    end: date,
+    mailto: str,
+    per_query: int = 45,
+    include_indexed: bool = True,
+    audit: SourceAudit | None = None,
+) -> list[dict[str, Any]]:
+    """Search Crossref with provider-native simple identity queries.
+
+    Crossref does not receive PubMed Boolean syntax. Each identity is queried
+    independently through publication, created and optionally indexed date
+    channels. The latter two channels recover recently deposited metadata for
+    works whose printed publication date is older than the reporting window.
+    """
     output: list[dict[str, Any]] = []
-    filters = [
-        f"from-created-date:{start.isoformat()},until-created-date:{end.isoformat()}",
-        f"from-online-pub-date:{start.isoformat()},until-online-pub-date:{end.isoformat()}",
+    endpoint = "https://api.crossref.org/works"
+    channels = [
+        ("published", f"from-pub-date:{start.isoformat()},until-pub-date:{end.isoformat()}"),
+        ("created", f"from-created-date:{start.isoformat()},until-created-date:{end.isoformat()}"),
     ]
-    for query in queries:
-        for filter_value in filters:
+    if include_indexed:
+        channels.append(("indexed", f"from-index-date:{start.isoformat()},until-index-date:{end.isoformat()}"))
+
+    for term in unique_strings(queries):
+        for channel, filter_value in channels:
+            params: dict[str, Any] = {
+                "query.bibliographic": term,
+                "filter": filter_value,
+                "rows": min(1000, max(1, per_query)),
+            }
+            if mailto:
+                params["mailto"] = mailto
             try:
-                payload = http.get_json(
-                    "https://api.crossref.org/works",
-                    params={"query.bibliographic": query, "filter": filter_value, "rows": per_query, "mailto": mailto},
-                )
-            except Exception:
-                continue
-            for item in payload.get("message", {}).get("items", []):
-                authors = []
-                for author in item.get("author", []) or []:
-                    name = clean_space(f"{author.get('given', '')} {author.get('family', '')}")
-                    if name:
-                        authors.append(name)
-                links = [link for link in item.get("link", []) or [] if link.get("URL")]
-                output.append({
-                    "source": "Crossref",
-                    "source_ids": {},
-                    "doi": clean_space(item.get("DOI")).lower() or None,
-                    "title": strip_tags(" ".join(item.get("title") or [])),
-                    "abstract": strip_tags(item.get("abstract")),
-                    "authors": authors,
-                    "journal": clean_space(" ".join(item.get("container-title") or [])),
-                    "year": (_crossref_date(item, "published-online") or _crossref_date(item, "published") or "")[:4] or None,
-                    "volume": clean_space(item.get("volume")),
-                    "issue": clean_space(item.get("issue")),
-                    "pages": clean_space(item.get("page")),
-                    "online_date": _crossref_date(item, "published-online"),
-                    "created_date": safe_date_string((item.get("created") or {}).get("date-time")),
-                    "indexed_date": safe_date_string((item.get("indexed") or {}).get("date-time")),
-                    "published_date": _crossref_date(item, "published"),
-                    "print_date": _crossref_date(item, "published-print"),
-                    "publication_types": [item.get("type")] if item.get("type") else [],
-                    "full_text_links": links,
-                    "url": clean_space(item.get("URL")) or (f"https://doi.org/{item.get('DOI')}" if item.get("DOI") else None),
-                })
+                payload = http.get_json(endpoint, params=params)
+                rows = payload.get("message", {}).get("items", []) or []
+                for item in rows:
+                    authors = [clean_space(f"{a.get('given', '')} {a.get('family', '')}") for a in item.get("author", []) if a.get("family") or a.get("given")]
+                    output.append({
+                        "source": "Crossref",
+                        "source_ids": {},
+                        "doi": clean_space(item.get("DOI")).lower() or None,
+                        "title": strip_tags(" ".join(item.get("title") or [])),
+                        "abstract": strip_tags(item.get("abstract")),
+                        "authors": authors,
+                        "journal": clean_space(" ".join(item.get("container-title") or [])),
+                        "online_date": _crossref_date(item, "published-online"),
+                        "created_date": safe_date_string((item.get("created") or {}).get("date-time")),
+                        "indexed_date": safe_date_string((item.get("indexed") or {}).get("date-time")),
+                        "published_date": _crossref_date(item, "published") or _crossref_date(item, "issued"),
+                        "print_date": _crossref_date(item, "published-print"),
+                        "publication_types": [item.get("type")] if item.get("type") else [],
+                        "volume": clean_space(item.get("volume")),
+                        "issue": clean_space(item.get("issue")),
+                        "pages": clean_space(item.get("page")),
+                        "citation_count": item.get("is-referenced-by-count") or 0,
+                        "full_text_links": [x.get("URL") for x in item.get("link", []) if x.get("URL")],
+                        "url": item.get("URL") or (f"https://doi.org/{item.get('DOI')}" if item.get("DOI") else ""),
+                        "retrieval_queries": [term],
+                        "retrieval_channels": [f"crossref_{channel}"],
+                    })
+                if audit:
+                    audit.add(source="Crossref", query=term, mode=channel, status="success", records=len(rows), pages=1, endpoint=endpoint)
+            except Exception as exc:
+                if audit:
+                    audit.add(source="Crossref", query=term, mode=channel, status="failed", endpoint=endpoint, error=exc)
     return output
 
+def search_semantic_scholar(
+    http: HttpClient,
+    queries: list[str],
+    start: date,
+    end: date,
+    api_key: str = "",
+    per_query: int = 80,
+    anonymous_query_limit: int = 0,
+    anonymous_delay_ms: int = 500,
+    audit: SourceAudit | None = None,
+) -> list[dict[str, Any]]:
+    """Search Semantic Scholar through the bulk endpoint.
 
-def search_semantic_scholar(http: HttpClient, queries: list[str], start: date, end: date, api_key: str = "", per_query: int = 40) -> list[dict[str, Any]]:
+    The adapter accepts provider-native text/Boolean queries only. When no API
+    key is available it still runs a bounded anonymous subset so the source can
+    contribute without dominating runtime or repeatedly hitting rate limits.
+    """
     output: list[dict[str, Any]] = []
+    endpoint = "https://api.semanticscholar.org/graph/v1/paper/search/bulk"
     headers = {"x-api-key": api_key} if api_key else {}
-    fields = "paperId,title,abstract,authors,year,publicationDate,publicationTypes,journal,externalIds,openAccessPdf,url"
-    for query in queries:
-        try:
-            payload = http.get_json(
-                "https://api.semanticscholar.org/graph/v1/paper/search",
-                params={"query": query, "limit": per_query, "fields": fields, "publicationDateOrYear": f"{start.isoformat()}:{end.isoformat()}"},
-                headers=headers,
-            )
-        except Exception:
-            continue
-        for item in payload.get("data", []) or []:
-            ext = item.get("externalIds") or {}
-            journal = item.get("journal") or {}
-            oa = item.get("openAccessPdf") or {}
-            output.append({
-                "source": "Semantic Scholar",
-                "source_ids": {"semantic_scholar": item.get("paperId"), "pmid": ext.get("PubMed"), "pmcid": ext.get("PubMedCentral")},
-                "doi": clean_space(ext.get("DOI")).lower() or None,
-                "title": clean_space(item.get("title")),
-                "abstract": clean_space(item.get("abstract")),
-                "authors": [clean_space(a.get("name")) for a in item.get("authors", []) if a.get("name")],
-                "journal": clean_space(journal.get("name")),
-                "year": item.get("year"),
-                "volume": clean_space(journal.get("volume")),
-                "issue": clean_space(journal.get("pages")),
-                "pages": clean_space(journal.get("pages")),
-                "online_date": safe_date_string(item.get("publicationDate")),
-                "publication_types": item.get("publicationTypes") or [],
-                "open_access_pdf": clean_space(oa.get("url")),
-                "url": clean_space(item.get("url")),
-            })
-    return output
-
-
-def search_openalex(http: HttpClient, queries: list[str], start: date, end: date, mailto: str, per_query: int = 40) -> list[dict[str, Any]]:
-    output: list[dict[str, Any]] = []
-    for query in queries:
-        try:
-            payload = http.get_json(
-                "https://api.openalex.org/works",
-                params={
-                    "search": query,
-                    "filter": f"from_publication_date:{start.isoformat()},to_publication_date:{end.isoformat()}",
-                    "per-page": per_query,
-                    "mailto": mailto,
+    fields = "paperId,title,abstract,authors,venue,year,publicationDate,publicationTypes,externalIds,url,openAccessPdf,citationCount"
+    effective_queries = unique_strings(queries)
+    effective_per_query = per_query
+    if not api_key:
+        if anonymous_query_limit > 0:
+            effective_queries = effective_queries[:anonymous_query_limit]
+        effective_per_query = min(per_query, 40)
+        if audit:
+            audit.add(
+                source="Semantic Scholar",
+                mode="anonymous_mode",
+                status="success",
+                records=0,
+                endpoint=endpoint,
+                details={
+                    "message": "API key not configured; all compiled queries are attempted unless an explicit limit is configured",
+                    "query_limit": anonymous_query_limit,
+                    "queries_planned": len(effective_queries),
+                    "delay_ms": max(0, anonymous_delay_ms),
                 },
             )
-        except Exception:
+
+    for query_index, query in enumerate(effective_queries):
+        if not api_key and query_index and anonymous_delay_ms > 0:
+            time.sleep(anonymous_delay_ms / 1000.0)
+        token: str | None = None
+        collected = 0
+        pages = 0
+        failed: Exception | None = None
+        while collected < effective_per_query:
+            params: dict[str, Any] = {
+                "query": query,
+                "fields": fields,
+                "publicationDateOrYear": f"{start.isoformat()}:{end.isoformat()}",
+                "limit": min(100, effective_per_query - collected),
+                "sort": "publicationDate:desc",
+            }
+            if token:
+                params["token"] = token
+            try:
+                payload = http.get_json(endpoint, params=params, headers=headers)
+                rows = payload.get("data", []) or []
+                pages += 1
+                for item in rows:
+                    external = item.get("externalIds") or {}
+                    output.append({
+                        "source": "Semantic Scholar",
+                        "source_ids": {"semantic_scholar": item.get("paperId"), "pmid": external.get("PubMed"), "arxiv": external.get("ArXiv")},
+                        "doi": clean_space(external.get("DOI")).lower() or None,
+                        "title": clean_space(item.get("title")),
+                        "abstract": clean_space(item.get("abstract")),
+                        "authors": [a.get("name") for a in item.get("authors", []) if a.get("name")],
+                        "journal": clean_space(item.get("venue")),
+                        "year": item.get("year"),
+                        "online_date": safe_date_string(item.get("publicationDate")),
+                        "published_date": safe_date_string(item.get("publicationDate")),
+                        "publication_types": item.get("publicationTypes") or [],
+                        "citation_count": item.get("citationCount") or 0,
+                        "open_access_pdf": (item.get("openAccessPdf") or {}).get("url"),
+                        "url": item.get("url"),
+                        "retrieval_queries": [query],
+                        "retrieval_channels": ["semantic_bulk_authenticated" if api_key else "semantic_bulk_anonymous"],
+                    })
+                collected += len(rows)
+                token = payload.get("token")
+                if not rows or not token:
+                    break
+            except Exception as exc:
+                failed = exc
+                break
+        if audit:
+            audit.add(
+                source="Semantic Scholar",
+                query=query,
+                mode="bulk_authenticated" if api_key else "bulk_anonymous",
+                status="failed" if failed else "success",
+                records=collected,
+                pages=pages,
+                endpoint=endpoint,
+                error=failed,
+                details={"authenticated": bool(api_key)},
+            )
+    return output
+
+def _openalex_abstract(inverted: Any) -> str:
+    if not isinstance(inverted, dict):
+        return ""
+    pairs: list[tuple[int, str]] = []
+    for word, positions in inverted.items():
+        for pos in positions or []:
+            if isinstance(pos, int):
+                pairs.append((pos, str(word)))
+    return clean_space(" ".join(word for _, word in sorted(pairs)))
+
+
+def search_openalex(
+    http: HttpClient,
+    exact_queries: list[str],
+    normal_queries: list[str],
+    start: date,
+    end: date,
+    api_key: str = "",
+    per_query: int = 100,
+    audit: SourceAudit | None = None,
+) -> list[dict[str, Any]]:
+    """Run OpenAlex exact and normal full-text search channels.
+
+    Exact search protects precision for canonical identities. Normal search
+    adds stemming, punctuation and word-order tolerance. Both channels are
+    date-filtered, cursor-paginated and subjected to the same local relevance
+    gate after retrieval.
+    """
+    endpoint = "https://api.openalex.org/works"
+    if not api_key:
+        if audit:
+            audit.add(source="OpenAlex", status="skipped", endpoint=endpoint, error="OPENALEX_API_KEY is not configured")
+        return []
+    output: list[dict[str, Any]] = []
+    channels = [
+        ("exact", "search.exact", unique_strings(exact_queries)),
+        ("normal", "search", unique_strings(normal_queries)),
+    ]
+    for channel, parameter, queries in channels:
+        for query in queries:
+            cursor = "*"
+            collected = 0
+            pages = 0
+            failed: Exception | None = None
+            while collected < per_query:
+                try:
+                    params = {
+                        "api_key": api_key,
+                        parameter: query,
+                        "filter": f"from_publication_date:{start.isoformat()},to_publication_date:{end.isoformat()}",
+                        "per_page": min(100, per_query - collected),
+                        "cursor": cursor,
+                    }
+                    payload = http.get_json(endpoint, params=params)
+                    rows = payload.get("results", []) or []
+                    pages += 1
+                    for item in rows:
+                        doi = clean_space(item.get("doi")).removeprefix("https://doi.org/").lower() or None
+                        output.append({
+                            "source": "OpenAlex",
+                            "source_ids": {"openalex": item.get("id")},
+                            "doi": doi,
+                            "title": clean_space(item.get("display_name") or item.get("title")),
+                            "abstract": _openalex_abstract(item.get("abstract_inverted_index")),
+                            "authors": [clean_space((a.get("author") or {}).get("display_name")) for a in item.get("authorships", []) if (a.get("author") or {}).get("display_name")],
+                            "journal": clean_space(((item.get("primary_location") or {}).get("source") or {}).get("display_name")),
+                            "year": item.get("publication_year"),
+                            "online_date": safe_date_string(item.get("publication_date")),
+                            "published_date": safe_date_string(item.get("publication_date")),
+                            "publication_types": [item.get("type")] if item.get("type") else [],
+                            "citation_count": item.get("cited_by_count") or 0,
+                            "open_access": bool((item.get("open_access") or {}).get("is_oa")),
+                            "open_access_pdf": (item.get("best_oa_location") or {}).get("pdf_url"),
+                            "url": (item.get("primary_location") or {}).get("landing_page_url") or item.get("id"),
+                            "retrieval_queries": [query],
+                            "retrieval_channels": [f"openalex_{channel}"],
+                        })
+                    collected += len(rows)
+                    next_cursor = (payload.get("meta") or {}).get("next_cursor")
+                    if not rows or not next_cursor or next_cursor == cursor:
+                        break
+                    cursor = next_cursor
+                except Exception as exc:
+                    failed = exc
+                    break
+            if audit:
+                audit.add(source="OpenAlex", query=query, mode=channel, status="failed" if failed else "success", records=collected, pages=pages, endpoint=endpoint, error=failed)
+    return output
+
+def filter_window(records: list[dict[str, Any]], start: date, end: date) -> list[dict[str, Any]]:
+    output: list[dict[str, Any]] = []
+    for record in records:
+        availability, basis = choose_availability_date(record, start, end)
+        if not availability:
             continue
-        for item in payload.get("results", []) or []:
-            primary = item.get("primary_location") or {}
-            source = primary.get("source") or {}
-            ids = item.get("ids") or {}
-            abstract_index = item.get("abstract_inverted_index") or {}
-            positions: list[tuple[int, str]] = []
-            for word, indexes in abstract_index.items():
-                positions.extend((int(i), word) for i in indexes)
-            abstract = " ".join(word for _, word in sorted(positions))
-            output.append({
-                "source": "OpenAlex",
-                "source_ids": {"openalex": item.get("id"), "pmid": clean_space(ids.get("pmid")).split("/")[-1] or None},
-                "doi": clean_space(ids.get("doi")).removeprefix("https://doi.org/").lower() or None,
-                "title": clean_space(item.get("title")),
-                "abstract": clean_space(abstract),
-                "authors": [clean_space(a.get("author", {}).get("display_name")) for a in item.get("authorships", []) if a.get("author", {}).get("display_name")],
-                "journal": clean_space(source.get("display_name")),
-                "year": item.get("publication_year"),
-                "online_date": safe_date_string(item.get("publication_date")),
-                "publication_types": [item.get("type")] if item.get("type") else [],
-                "open_access_pdf": clean_space(primary.get("pdf_url")),
-                "url": clean_space(primary.get("landing_page_url") or item.get("doi") or item.get("id")),
-            })
+        try:
+            parsed = date.fromisoformat(availability[:10])
+        except ValueError:
+            continue
+        if start <= parsed <= end:
+            record["availability_date"] = availability
+            record["availability_date_basis"] = basis
+            output.append(record)
     return output
 
 
-def filter_window(records: list[dict[str, Any]], start: date, end: date) -> list[dict[str, Any]]:
-    out: list[dict[str, Any]] = []
-    for record in records:
-        available, basis = choose_availability_date(record, start, end)
-        if not available:
-            continue
-        record["availability_date"] = available
-        record["availability_date_basis"] = basis
-        out.append(record)
-    return out
-
-
-def search_biorxiv_medrxiv(http: HttpClient, start: date, end: date, max_records_per_server: int = 300) -> list[dict[str, Any]]:
-    """Collect recent bioRxiv and medRxiv preprint metadata, then let the shared
-    pathogen relevance filter select matching records locally.
-    """
+def search_biorxiv_medrxiv(
+    http: HttpClient,
+    start: date,
+    end: date,
+    max_records_per_server: int = 1200,
+    audit: SourceAudit | None = None,
+) -> list[dict[str, Any]]:
     output: list[dict[str, Any]] = []
     for server in ("biorxiv", "medrxiv"):
         cursor = 0
-        while cursor < max_records_per_server:
+        collected = 0
+        pages = 0
+        failed: Exception | None = None
+        endpoint = f"https://api.biorxiv.org/details/{server}/{start.isoformat()}/{end.isoformat()}"
+        while collected < max_records_per_server:
             try:
-                payload = http.get_json(
-                    f"https://api.biorxiv.org/details/{server}/{start.isoformat()}/{end.isoformat()}/{cursor}"
-                )
-            except Exception:
+                payload = http.get_json(f"{endpoint}/{cursor}")
+                rows = payload.get("collection", []) or []
+                pages += 1
+                for item in rows:
+                    output.append({
+                        "source": "bioRxiv" if server == "biorxiv" else "medRxiv",
+                        "source_ids": {server: item.get("doi")},
+                        "doi": clean_space(item.get("doi")).lower() or None,
+                        "title": clean_space(item.get("title")),
+                        "abstract": clean_space(item.get("abstract")),
+                        "authors": unique_strings(str(item.get("authors", "")).split(";")),
+                        "journal": "bioRxiv" if server == "biorxiv" else "medRxiv",
+                        "online_date": safe_date_string(item.get("date")),
+                        "published_date": safe_date_string(item.get("date")),
+                        "publication_types": ["preprint"],
+                        "url": f"https://doi.org/{item.get('doi')}" if item.get("doi") else "",
+                    })
+                collected += len(rows)
+                cursor += len(rows)
+                total = int(((payload.get("messages") or [{}])[0]).get("total") or collected)
+                if not rows or collected >= total:
+                    break
+            except Exception as exc:
+                failed = exc
                 break
-            collection = payload.get("collection") or []
-            if not collection:
-                break
-            for item in collection:
-                doi = clean_space(item.get("doi")).lower() or None
-                authors = unique_strings(re.split(r";|,", clean_space(item.get("authors"))))
-                output.append({
-                    "source": server,
-                    "source_ids": {"preprint": doi},
-                    "doi": doi,
-                    "title": strip_tags(item.get("title")),
-                    "abstract": strip_tags(item.get("abstract")),
-                    "authors": authors,
-                    "journal": server,
-                    "year": int(str(item.get("date", ""))[:4]) if str(item.get("date", ""))[:4].isdigit() else None,
-                    "online_date": safe_date_string(item.get("date")),
-                    "first_publication_date": safe_date_string(item.get("date")),
-                    "publication_types": ["preprint"],
-                    "url": f"https://www.{server}.org/content/{doi}v{item.get('version', '1')}" if doi else None,
-                })
-            if len(collection) < 100:
-                break
-            cursor += 100
+        if audit:
+            audit.add(source="bioRxiv" if server == "biorxiv" else "medRxiv", status="failed" if failed else "success", records=collected, pages=pages, endpoint=endpoint, error=failed)
     return output

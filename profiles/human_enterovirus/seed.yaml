@@ -1,0 +1,185 @@
+schema_version: '3.0'
+profile_id: human_enterovirus
+display_name_zh: 人肠道病毒
+display_name_en: Human enteroviruses
+schedule:
+  day: tuesday
+  order: 6
+target_scope:
+  target_entity_level: 人非脊髓灰质炎肠道病毒类群
+  scope_included:
+  - 默认聚焦 non-polio human enteroviruses，尤其 EV-A71、EV-D68、CV-A6、CV-A16 等；脊髓灰质炎病毒另建 profile。
+  scope_excluded:
+  - poliovirus
+  - poliomyelitis
+  - porcine enterovirus
+  - bovine enterovirus
+  - simian enterovirus
+  allowed_members:
+  - EV-A71
+  - enterovirus A71
+  - EV-D68
+  - enterovirus D68
+  - coxsackievirus A6
+  - CV-A6
+  - coxsackievirus A16
+  - CV-A16
+  - echovirus
+  excluded_members:
+  - poliovirus
+  - poliomyelitis
+  - porcine enterovirus
+  - bovine enterovirus
+  - simian enterovirus
+  required_identity_concepts:
+  - human enterovirus
+  - human enteroviruses
+  - non-polio enterovirus
+  - nonpolio enterovirus
+  - EV-A71
+  - enterovirus A71
+  - EV-D68
+  - enterovirus D68
+  - coxsackievirus A6
+  - CV-A6
+  - coxsackievirus A16
+  - CV-A16
+  - echovirus
+  - acute flaccid myelitis
+  - enterovirus infection
+  - aseptic meningitis
+  non_target_near_neighbors:
+  - poliovirus
+  - poliomyelitis
+  - porcine enterovirus
+  - bovine enterovirus
+  - simian enterovirus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - human enterovirus
+  - human enteroviruses
+  - non-polio enterovirus
+  - nonpolio enterovirus
+  qualified_identity_terms:
+  - term: hand foot
+    required_context_terms:
+    - mouth
+    - disease
+    query_fragment_seed: hand foot and mouth disease
+  - term: NPEV
+    required_context_terms:
+    - non-polio enterovirus
+    - nonpolio enterovirus
+    - enterovirus
+    query_fragment_seed: '"NPEV" AND ("non-polio enterovirus" OR "nonpolio enterovirus" OR "enterovirus")'
+  - term: HFMD
+    required_context_terms:
+    - enterovirus
+    - hand foot and mouth disease
+    query_fragment_seed: '"HFMD" AND ("enterovirus" OR "hand foot and mouth disease")'
+  - term: AFM
+    required_context_terms:
+    - enterovirus
+    - acute flaccid myelitis
+    query_fragment_seed: '"AFM" AND ("enterovirus" OR "acute flaccid myelitis")'
+  member_identity_terms:
+  - EV-A71
+  - enterovirus A71
+  - EV-D68
+  - enterovirus D68
+  - coxsackievirus A6
+  - CV-A6
+  - coxsackievirus A16
+  - CV-A16
+  - echovirus
+  disease_identity_terms:
+  - acute flaccid myelitis
+  - enterovirus infection
+  - aseptic meningitis
+  context_terms:
+  - HFMD
+  - AFM
+  - encephalitis
+  - VP1
+  - capsid
+  - 3C protease
+  - 3D polymerase
+  - genotype
+  - recombinant
+  - outbreak
+  display_only_terms:
+  - enterovirus
+  - NPEV
+  - HFMD
+  - AFM
+  - VP1
+  - VP2
+  - VP3
+  - VP4
+  - IRES
+  - 2Apro
+  - 3Cpro
+  - 3Dpol
+  - echovirus
+  exclusion_terms:
+  - poliovirus
+  - poliomyelitis
+  - porcine enterovirus
+  - bovine enterovirus
+  - simian enterovirus
+manual_query_skeletons:
+  pubmed_high_precision: (("non-polio enterovirus"[Title/Abstract] OR "nonpolio enterovirus"[Title/Abstract] OR "EV-A71"[Title/Abstract]
+    OR "enterovirus A71"[Title/Abstract] OR "EV-D68"[Title/Abstract] OR "enterovirus D68"[Title/Abstract] OR "coxsackievirus
+    A6"[Title/Abstract] OR "coxsackievirus A16"[Title/Abstract]) AND {{DATE_FILTER}}) NOT (poliovirus[Title/Abstract] OR porcine
+    enterovirus[Title/Abstract])
+  news_high_precision: ("non-polio enterovirus" OR "EV-A71" OR "EV-D68" OR "coxsackievirus A6" OR "coxsackievirus A16") AND
+    (outbreak OR cases OR surveillance OR "hand foot and mouth disease" OR "acute flaccid myelitis")
+authoritative_sources:
+- name: ICTV Picornaviridae
+  organization: ICTV
+  url: https://ictv.global/report/chapter/picornaviridae/picornaviridae
+  role: taxonomy
+  required: false
+- name: CDC Non-Polio Enterovirus
+  organization: CDC
+  url: https://www.cdc.gov/non-polio-enterovirus/about/index.html
+  role: public_health
+  required: false
+- name: NCBI Bookshelf Enterovirus
+  organization: NCBI
+  url: https://www.ncbi.nlm.nih.gov/books/NBK562330/
+  role: molecular
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 人肠道病毒
+- 非脊髓灰质炎肠道病毒
+- 手足口病
+- EV-A71
+- EV-D68
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

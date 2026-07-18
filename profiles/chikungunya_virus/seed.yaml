@@ -1,0 +1,147 @@
+schema_version: '3.0'
+profile_id: chikungunya_virus
+display_name_zh: 基孔肯雅病毒
+display_name_en: Chikungunya virus
+schedule:
+  day: thursday
+  order: 11
+target_scope:
+  target_entity_level: 具体病毒及疾病
+  scope_included:
+  - 聚焦 chikungunya virus/chikungunya；不使用 Alphavirus 或 Togaviridae 单独检索。
+  scope_excluded:
+  - O’nyong-nyong virus
+  - Mayaro virus
+  - Ross River virus
+  - Sindbis virus
+  allowed_members: []
+  excluded_members:
+  - O’nyong-nyong virus
+  - Mayaro virus
+  - Ross River virus
+  - Sindbis virus
+  required_identity_concepts:
+  - chikungunya virus
+  - chikungunya
+  - chikungunya fever
+  - chikungunya fever
+  - chikungunya infection
+  - chronic chikungunya arthritis
+  non_target_near_neighbors:
+  - O’nyong-nyong virus
+  - Mayaro virus
+  - Ross River virus
+  - Sindbis virus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - chikungunya virus
+  - chikungunya
+  - chikungunya fever
+  qualified_identity_terms:
+  - term: ECSA lineage
+    required_context_terms:
+    - chikungunya
+    query_fragment_seed: ECSA lineage AND chikungunya
+  - term: Asian lineage
+    required_context_terms:
+    - chikungunya
+    query_fragment_seed: '"Asian lineage" AND chikungunya'
+  - term: West African lineage
+    required_context_terms:
+    - chikungunya
+    query_fragment_seed: '"West African lineage" AND chikungunya'
+  - term: Indian Ocean lineage
+    required_context_terms:
+    - chikungunya
+    query_fragment_seed: '"Indian Ocean lineage" AND chikungunya'
+  - term: CHIKV
+    required_context_terms:
+    - chikungunya
+    - virus
+    query_fragment_seed: '"CHIKV" AND ("chikungunya" OR "virus")'
+  member_identity_terms: []
+  disease_identity_terms:
+  - chikungunya fever
+  - chikungunya infection
+  - chronic chikungunya arthritis
+  context_terms:
+  - Aedes aegypti
+  - Aedes albopictus
+  - mosquito-borne
+  - acute arthralgia
+  - chronic arthropathy
+  - E1-A226V
+  - vector competence
+  - outbreak
+  display_only_terms:
+  - CHIKV
+  - ECSA
+  - E1
+  - E2
+  - nsP1
+  - nsP2
+  - nsP3
+  - nsP4
+  - Alphavirus
+  - Togaviridae
+  - arthralgia
+  exclusion_terms:
+  - O’nyong-nyong virus
+  - Mayaro virus
+  - Ross River virus
+  - Sindbis virus
+manual_query_skeletons:
+  pubmed_high_precision: (("chikungunya virus"[Title/Abstract] OR chikungunya[Title/Abstract] OR ("CHIKV"[Title/Abstract]
+    AND virus[Title/Abstract])) AND {{DATE_FILTER}})
+  news_high_precision: ("chikungunya virus" OR chikungunya) AND (outbreak OR cases OR transmission OR surveillance OR vaccine)
+authoritative_sources:
+- name: ICTV Togaviridae
+  organization: ICTV
+  url: https://ictv.global/report/chapter/togaviridae/togaviridae
+  role: taxonomy
+  required: false
+- name: ViralZone Alphavirus
+  organization: ViralZone
+  url: https://viralzone.expasy.org/625
+  role: molecular
+  required: false
+- name: WHO Chikungunya
+  organization: WHO
+  url: https://www.who.int/news-room/fact-sheets/detail/chikungunya
+  role: public_health
+  required: false
+- name: CDC About Chikungunya
+  organization: CDC
+  url: https://www.cdc.gov/chikungunya/about/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 基孔肯雅病毒
+- 基孔肯雅热
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

@@ -1,0 +1,139 @@
+schema_version: '3.0'
+profile_id: sars_cov_2
+display_name_zh: SARS-CoV-2
+display_name_en: Severe acute respiratory syndrome coronavirus 2
+schedule:
+  day: monday
+  order: 2
+target_scope:
+  target_entity_level: 具体病毒及其疾病
+  scope_included:
+  - 聚焦 SARS-CoV-2/COVID-19；不将其他冠状病毒、SARS-CoV-1 或 MERS-CoV 默认纳入。
+  scope_excluded:
+  - SARS-CoV-1
+  - SARS coronavirus
+  - MERS-CoV
+  - Middle East respiratory syndrome coronavirus
+  - bovine coronavirus
+  - feline coronavirus
+  allowed_members:
+  - Betacoronavirus pandemicum
+  excluded_members:
+  - SARS-CoV-1
+  - SARS coronavirus
+  - MERS-CoV
+  - Middle East respiratory syndrome coronavirus
+  - bovine coronavirus
+  - feline coronavirus
+  required_identity_concepts:
+  - SARS-CoV-2
+  - severe acute respiratory syndrome coronavirus 2
+  - COVID-19
+  - coronavirus disease 2019
+  - Betacoronavirus pandemicum
+  - COVID-19
+  - coronavirus disease 2019
+  non_target_near_neighbors:
+  - SARS-CoV-1
+  - SARS coronavirus
+  - MERS-CoV
+  - Middle East respiratory syndrome coronavirus
+  - bovine coronavirus
+  - feline coronavirus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - SARS-CoV-2
+  - severe acute respiratory syndrome coronavirus 2
+  - COVID-19
+  - coronavirus disease 2019
+  qualified_identity_terms: []
+  member_identity_terms:
+  - Betacoronavirus pandemicum
+  disease_identity_terms:
+  - COVID-19
+  - coronavirus disease 2019
+  context_terms:
+  - variant
+  - lineage
+  - spike protein
+  - receptor-binding domain
+  - ACE2
+  - TMPRSS2
+  - wastewater surveillance
+  - genomic surveillance
+  - immune escape
+  - neutralizing antibody
+  display_only_terms:
+  - S protein
+  - N protein
+  - M protein
+  - E protein
+  - RBD
+  - ACE2
+  - TMPRSS2
+  - ORF1ab
+  - RdRp
+  - variant
+  - lineage
+  - clade
+  - coronavirus
+  exclusion_terms:
+  - SARS-CoV-1
+  - SARS coronavirus
+  - MERS-CoV
+  - Middle East respiratory syndrome coronavirus
+  - bovine coronavirus
+  - feline coronavirus
+manual_query_skeletons:
+  pubmed_high_precision: (("SARS-CoV-2"[Title/Abstract] OR "severe acute respiratory syndrome coronavirus 2"[Title/Abstract]
+    OR "COVID-19"[Title/Abstract]) AND {{DATE_FILTER}}) NOT ("SARS-CoV-1"[Title/Abstract] OR "MERS-CoV"[Title/Abstract])
+  news_high_precision: ("SARS-CoV-2" OR "COVID-19") AND (outbreak OR surveillance OR variant OR vaccine OR transmission OR
+    cases)
+authoritative_sources:
+- name: ICTV Coronaviridae
+  organization: ICTV
+  url: https://ictv.global/report/chapter/coronaviridae/coronaviridae
+  role: taxonomy
+  required: false
+- name: ViralZone Betacoronavirus
+  organization: ViralZone
+  url: https://viralzone.expasy.org/764?outline=all_by_species
+  role: molecular
+  required: false
+- name: CDC About COVID-19
+  organization: CDC
+  url: https://www.cdc.gov/covid/about/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 新冠病毒
+- 新型冠状病毒
+- 新冠肺炎
+- COVID-19
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

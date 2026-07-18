@@ -1,0 +1,154 @@
+schema_version: '3.0'
+profile_id: mpox_virus
+display_name_zh: 猴痘病毒（Mpox病毒）
+display_name_en: Mpox virus
+schedule:
+  day: friday
+  order: 15
+target_scope:
+  target_entity_level: 具体病毒及疾病
+  scope_included:
+  - 聚焦 mpox virus/monkeypox virus 及 mpox；其他 orthopoxviruses 仅在比较或鉴别诊断时纳入。
+  scope_excluded:
+  - variola virus
+  - smallpox
+  - cowpox virus
+  - vaccinia virus
+  - molluscum contagiosum virus
+  allowed_members: []
+  excluded_members:
+  - variola virus
+  - smallpox
+  - cowpox virus
+  - vaccinia virus
+  - molluscum contagiosum virus
+  required_identity_concepts:
+  - mpox virus
+  - monkeypox virus
+  - mpox
+  - monkeypox
+  - mpox
+  - monkeypox
+  non_target_near_neighbors:
+  - variola virus
+  - smallpox
+  - cowpox virus
+  - vaccinia virus
+  - molluscum contagiosum virus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - mpox virus
+  - monkeypox virus
+  - mpox
+  - monkeypox
+  qualified_identity_terms:
+  - term: MPXV
+    required_context_terms:
+    - virus
+    - mpox
+    query_fragment_seed: MPXV AND (virus OR mpox)
+  - term: clade I
+    required_context_terms:
+    - mpox
+    - monkeypox
+    query_fragment_seed: '"clade I" AND (mpox OR monkeypox)'
+  - term: clade Ib
+    required_context_terms:
+    - mpox
+    - monkeypox
+    query_fragment_seed: '"clade Ib" AND (mpox OR monkeypox)'
+  - term: clade II
+    required_context_terms:
+    - mpox
+    - monkeypox
+    query_fragment_seed: '"clade II" AND (mpox OR monkeypox)'
+  member_identity_terms: []
+  disease_identity_terms:
+  - mpox
+  - monkeypox
+  context_terms:
+  - zoonotic transmission
+  - close contact
+  - sexual transmission
+  - lesion swab
+  - genomic surveillance
+  - tecovirimat
+  - MVA-BN
+  - JYNNEOS
+  - clade I
+  - clade Ib
+  - clade II
+  display_only_terms:
+  - MPXV
+  - clade I
+  - clade Ia
+  - clade Ib
+  - clade II
+  - PCR
+  - rash
+  - lymphadenopathy
+  - Orthopoxvirus
+  - Poxviridae
+  exclusion_terms:
+  - variola virus
+  - smallpox
+  - cowpox virus
+  - vaccinia virus
+  - molluscum contagiosum virus
+manual_query_skeletons:
+  pubmed_high_precision: (("mpox virus"[Title/Abstract] OR "monkeypox virus"[Title/Abstract] OR mpox[Title/Abstract] OR monkeypox[Title/Abstract])
+    AND {{DATE_FILTER}})
+  news_high_precision: ("mpox virus" OR "monkeypox virus" OR mpox OR monkeypox) AND (outbreak OR cases OR transmission OR
+    clade OR vaccine)
+authoritative_sources:
+- name: ViralZone Orthopoxvirus
+  organization: ViralZone
+  url: https://viralzone.expasy.org/149
+  role: molecular
+  required: false
+- name: ViralZone Poxvirus Resource
+  organization: ViralZone
+  url: https://viralzone.expasy.org/9957
+  role: molecular
+  required: false
+- name: WHO Mpox
+  organization: WHO
+  url: https://www.who.int/news-room/fact-sheets/detail/mpox
+  role: public_health
+  required: false
+- name: CDC About Mpox
+  organization: CDC
+  url: https://www.cdc.gov/monkeypox/about/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 猴痘病毒
+- 猴痘
+- Mpox
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

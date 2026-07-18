@@ -1,68 +1,9 @@
-# 安装与升级
+# 公开仓库 v6 安装与升级
 
-## 本地开发环境
+本文件只操作 `NailouZhang/pathogen-intelligence-factory`。完整逐条命令见 `docs/GITHUB_UPDATE_PUBLIC_ZH.md`。
 
-```bash
-cd "$HOME/github-projects/pathogen-intelligence-factory"
-bash scripts/bootstrap_dev.sh
-```
+核心顺序：公开仓打标签 → 运行完整包中的 `install_public_repo_update.sh` → 安装依赖 → 验证 21 个 profile 与查询覆盖 → pytest/compileall → 单独 commit/push → 配置 Secrets/Variables → 先运行 hantavirus 且 `dispatch_wechat=false` → 再运行全部 21 个 profile 且不推微信 → 检查 Pages 和 `data/audit`。
 
-默认 Conda 初始化：
+本版本必须设置 `OPENALEX_API_KEY`；Semantic Scholar Key 暂无时保持未设置，程序会以匿名降速模式执行全部编译查询。ReliefWeb Variable 使用 `wiv-virology-literature-tracker-42x`，审核前未授权响应会记录为 pending/skipped。
 
-```text
-/home/stone/20T/DataBase/SoftwaresEnsembel/MiniConda/etc/profile.d/conda.sh
-```
-
-## GitHub Secrets
-
-```bash
-gh secret set CROSSREF_MAILTO --repo NailouZhang/pathogen-intelligence-factory
-gh secret set NCBI_API_KEY --repo NailouZhang/pathogen-intelligence-factory
-gh secret set GEMINI_API_KEY --repo NailouZhang/pathogen-intelligence-factory
-gh secret set GROQ_API_KEY --repo NailouZhang/pathogen-intelligence-factory
-gh secret set PUBLISHER_REPO_TOKEN --repo NailouZhang/pathogen-intelligence-factory
-```
-
-可选：
-
-```bash
-gh secret set SEMANTIC_SCHOLAR_API_KEY --repo NailouZhang/pathogen-intelligence-factory
-gh secret set GOOGLE_CSE_API_KEY --repo NailouZhang/pathogen-intelligence-factory
-gh secret set GOOGLE_CSE_ID --repo NailouZhang/pathogen-intelligence-factory
-```
-
-Variables：
-
-```bash
-gh variable set PUBLISHER_REPO --body NailouZhang/pathogen-wechat-publisher --repo NailouZhang/pathogen-intelligence-factory
-gh variable set PIF_COVER_IMAGE_MODE --body auto --repo NailouZhang/pathogen-intelligence-factory
-gh variable set GEMINI_IMAGE_MODEL --body gemini-3.1-flash-image --repo NailouZhang/pathogen-intelligence-factory
-```
-
-## Pages
-
-仓库 `Settings → Pages → Source` 选择 `GitHub Actions`。
-
-## 首次测试
-
-```bash
-gh workflow run daily-intelligence.yml \
-  --repo NailouZhang/pathogen-intelligence-factory \
-  -f profile_id=hantavirus \
-  -f refresh_profile=true \
-  -f dispatch_wechat=true
-```
-
-## 全清单首次建库
-
-会消耗更多 API 配额，建议确认单病原成功后执行：
-
-```bash
-gh workflow run daily-intelligence.yml \
-  --repo NailouZhang/pathogen-intelligence-factory \
-  -f run_mode=all \
-  -f refresh_profile=true \
-  -f dispatch_wechat=false
-```
-
-随后定时工作流会每日只运行当天 2–3 个病原，并正常触发公众号草稿。
+Pages 设置：`Settings → Pages → Build and deployment → Source → GitHub Actions`。

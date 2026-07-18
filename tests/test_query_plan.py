@@ -1,8 +1,33 @@
-from src.pifactory.query_plan import build_query_plan
+from pathlib import Path
+
+import yaml
+
+from src.pifactory.profile_contract import deterministic_profile
+from src.pifactory.query_plan import build_query_plan, compile_profile_queries
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_query_plan_contains_profile_terms():
-    profile = {"profile_id": "hantavirus", "query_groups": [{"id": "core", "terms": ["hantavirus", "Andes virus"], "topics": ["outbreak"]}]}
+def compiled(profile_id: str):
+    seed = yaml.safe_load((ROOT / "profiles" / profile_id / "seed.yaml").read_text(encoding="utf-8"))
+    docs = [{"url": x["url"], "usable": True, "sha256": "x"} for x in seed["authoritative_sources"]]
+    return compile_profile_queries(deterministic_profile(seed, docs))
+
+
+def test_query_plan_uses_database_specific_anchored_queries():
+    profile = compiled("sftsv")
     plan = build_query_plan(profile)
-    assert "hantavirus" in plan[0]["scholarly_query"]
-    assert "outbreak" in plan[0]["news_query"]
+    assert plan
+    assert all("pubmed_query" in x for x in plan)
+    assert any("severe fever with thrombocytopenia syndrome virus" in x["pubmed_query"] for x in plan)
+    assert all("{{DATE_FILTER}}" not in x["pubmed_query"] for x in plan)
+    assert all(len(x["news_query"]) <= 350 for x in plan if x["news_query"])
+
+
+def test_context_and_short_symbols_never_become_standalone_identity_branches():
+    profile = compiled("sftsv")
+    queries = "\n".join(q for qs in profile["query_sets"].values() for q in qs)
+    assert '("NSs")' not in queries
+    assert '("Gn")' not in queries
+    assert '("thrombocytopenia")' not in queries
+    assert '"SFTSV"[Title/Abstract] AND' in queries

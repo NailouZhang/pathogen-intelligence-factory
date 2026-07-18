@@ -1,0 +1,145 @@
+schema_version: '3.0'
+profile_id: respiratory_syncytial_virus
+display_name_zh: 呼吸道合胞病毒
+display_name_en: Respiratory syncytial virus
+schedule:
+  day: monday
+  order: 3
+target_scope:
+  target_entity_level: 具体人病毒
+  scope_included:
+  - 聚焦人呼吸道合胞病毒及 RSV-A/RSV-B；不将牛、羊等动物 RSV 纳入。
+  scope_excluded:
+  - bovine respiratory syncytial virus
+  - ovine respiratory syncytial virus
+  - bovine RSV
+  - BRSV
+  allowed_members:
+  - RSV-A
+  - RSV-B
+  - HRSV-A
+  - HRSV-B
+  excluded_members:
+  - bovine respiratory syncytial virus
+  - ovine respiratory syncytial virus
+  - bovine RSV
+  - BRSV
+  required_identity_concepts:
+  - respiratory syncytial virus
+  - human respiratory syncytial virus
+  - RSV infection
+  - RSV-A
+  - RSV-B
+  - HRSV-A
+  - HRSV-B
+  - respiratory syncytial virus infection
+  - RSV bronchiolitis
+  non_target_near_neighbors:
+  - bovine respiratory syncytial virus
+  - ovine respiratory syncytial virus
+  - bovine RSV
+  - BRSV
+candidate_vocabulary:
+  identity_anchor_terms:
+  - respiratory syncytial virus
+  - human respiratory syncytial virus
+  - RSV infection
+  qualified_identity_terms:
+  - term: RSV
+    required_context_terms:
+    - respiratory syncytial
+    - virus
+    - infection
+    query_fragment_seed: '"RSV" AND ("respiratory syncytial" OR "virus" OR "infection")'
+  - term: HRSV
+    required_context_terms:
+    - human respiratory syncytial
+    - virus
+    - infection
+    query_fragment_seed: '"HRSV" AND ("human respiratory syncytial" OR "virus" OR "infection")'
+  member_identity_terms:
+  - RSV-A
+  - RSV-B
+  - HRSV-A
+  - HRSV-B
+  disease_identity_terms:
+  - respiratory syncytial virus infection
+  - RSV bronchiolitis
+  context_terms:
+  - bronchiolitis
+  - lower respiratory tract infection
+  - infant hospitalization
+  - older adults
+  - maternal vaccination
+  - nirsevimab
+  - palivizumab
+  - fusion protein
+  display_only_terms:
+  - RSV
+  - HRSV
+  - F protein
+  - G protein
+  - N protein
+  - P protein
+  - L protein
+  - M2-1
+  - bronchiolitis
+  - LRTI
+  exclusion_terms:
+  - bovine respiratory syncytial virus
+  - ovine respiratory syncytial virus
+  - bovine RSV
+  - BRSV
+manual_query_skeletons:
+  pubmed_high_precision: (("respiratory syncytial virus"[Title/Abstract] OR "human respiratory syncytial virus"[Title/Abstract]
+    OR ("RSV"[Title/Abstract] AND (virus[Title/Abstract] OR infection[Title/Abstract]))) AND {{DATE_FILTER}}) NOT ("bovine
+    respiratory syncytial virus"[Title/Abstract])
+  news_high_precision: ("respiratory syncytial virus" OR "RSV infection") AND (outbreak OR surveillance OR hospitalization
+    OR vaccine OR nirsevimab)
+authoritative_sources:
+- name: ICTV Pneumoviridae
+  organization: ICTV
+  url: https://ictv.global/report/chapter/pneumoviridae/pneumoviridae
+  role: taxonomy
+  required: false
+- name: ViralZone Pneumoviridae
+  organization: ViralZone
+  url: https://viralzone.expasy.org/7877
+  role: molecular
+  required: false
+- name: CDC About RSV
+  organization: CDC
+  url: https://www.cdc.gov/rsv/about/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 呼吸道合胞病毒
+- RSV感染
+- 合胞病毒
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

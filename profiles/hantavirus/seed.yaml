@@ -1,97 +1,192 @@
-display_name_en: Hantavirus
+schema_version: '3.0'
+profile_id: hantavirus
 display_name_zh: 汉坦病毒
-seed_terms:
-- Hantavirus
-- Orthohantavirus
-- orthohantavirus
-virus_names:
-- Hantavirus
-- Orthohantavirus
-- hantaan virus
-- seoul virus
-- puumala virus
-- sin nombre virus
-disease_names_en:
-- hemorrhagic fever with renal syndrome
-- hantavirus pulmonary syndrome
-- hantavirus cardiopulmonary syndrome
-disease_names_zh:
+display_name_en: Hantaviruses
+schedule:
+  day: friday
+  order: 13
+target_scope:
+  target_entity_level: 人致病正汉坦病毒类群
+  scope_included:
+  - 聚焦与 HFRS/HPS/HCPS 相关的 orthohantaviruses 和主要人类病原；非哺乳动物 hantavirus 默认排除。
+  scope_excluded:
+  - fish hantavirus
+  - reptile hantavirus
+  - insect hantavirus
+  - non-mammalian hantavirus
+  allowed_members:
+  - Hantaan virus
+  - Seoul virus
+  - Puumala virus
+  - Dobrava-Belgrade virus
+  - Sin Nombre virus
+  - Andes virus
+  excluded_members:
+  - fish hantavirus
+  - reptile hantavirus
+  - insect hantavirus
+  - non-mammalian hantavirus
+  required_identity_concepts:
+  - hantavirus
+  - orthohantavirus
+  - hantavirus infection
+  - Hantaan virus
+  - Seoul virus
+  - Puumala virus
+  - Dobrava-Belgrade virus
+  - Sin Nombre virus
+  - Andes virus
+  - hemorrhagic fever with renal syndrome
+  - hantavirus pulmonary syndrome
+  - hantavirus cardiopulmonary syndrome
+  non_target_near_neighbors:
+  - fish hantavirus
+  - reptile hantavirus
+  - insect hantavirus
+  - non-mammalian hantavirus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - hantavirus
+  - orthohantavirus
+  - hantavirus infection
+  qualified_identity_terms:
+  - term: HTNV
+    required_context_terms:
+    - Hantaan
+    - hantavirus
+    - virus
+    query_fragment_seed: '"HTNV" AND ("Hantaan" OR "hantavirus" OR "virus")'
+  - term: SEOV
+    required_context_terms:
+    - Seoul
+    - hantavirus
+    - virus
+    query_fragment_seed: '"SEOV" AND ("Seoul" OR "hantavirus" OR "virus")'
+  - term: PUUV
+    required_context_terms:
+    - Puumala
+    - hantavirus
+    - virus
+    query_fragment_seed: '"PUUV" AND ("Puumala" OR "hantavirus" OR "virus")'
+  - term: DOBV
+    required_context_terms:
+    - Dobrava
+    - hantavirus
+    - virus
+    query_fragment_seed: '"DOBV" AND ("Dobrava" OR "hantavirus" OR "virus")'
+  - term: SNV
+    required_context_terms:
+    - Sin Nombre
+    - hantavirus
+    - virus
+    query_fragment_seed: '"SNV" AND ("Sin Nombre" OR "hantavirus" OR "virus")'
+  - term: ANDV
+    required_context_terms:
+    - Andes
+    - hantavirus
+    - virus
+    query_fragment_seed: '"ANDV" AND ("Andes" OR "hantavirus" OR "virus")'
+  member_identity_terms:
+  - Hantaan virus
+  - Seoul virus
+  - Puumala virus
+  - Dobrava-Belgrade virus
+  - Sin Nombre virus
+  - Andes virus
+  disease_identity_terms:
+  - hemorrhagic fever with renal syndrome
+  - hantavirus pulmonary syndrome
+  - hantavirus cardiopulmonary syndrome
+  context_terms:
+  - HFRS
+  - HPS
+  - HCPS
+  - rodent reservoir
+  - aerosolized rodent excreta
+  - capillary leak
+  - thrombocytopenia
+  - renal syndrome
+  - S segment
+  - M segment
+  - L segment
+  display_only_terms:
+  - HTNV
+  - SEOV
+  - PUUV
+  - DOBV
+  - SNV
+  - ANDV
+  - HFRS
+  - HPS
+  - HCPS
+  - N protein
+  - Gn
+  - Gc
+  - RdRp
+  - S segment
+  - M segment
+  - L segment
+  exclusion_terms:
+  - fish hantavirus
+  - reptile hantavirus
+  - insect hantavirus
+  - non-mammalian hantavirus
+manual_query_skeletons:
+  pubmed_high_precision: (("hantavirus"[Title/Abstract] OR "orthohantavirus"[Title/Abstract] OR "Hantaan virus"[Title/Abstract]
+    OR "Seoul virus"[Title/Abstract] OR "Puumala virus"[Title/Abstract] OR "Sin Nombre virus"[Title/Abstract] OR "Andes virus"[Title/Abstract])
+    AND {{DATE_FILTER}})
+  news_high_precision: ("hantavirus" OR "Hantaan virus" OR "Seoul virus" OR "Puumala virus" OR "Sin Nombre virus" OR "Andes
+    virus") AND (outbreak OR case OR infection OR rodent OR surveillance)
+authoritative_sources:
+- name: ICTV Hantaviridae
+  organization: ICTV
+  url: https://ictv.global/report/chapter/hantaviridae/hantaviridae
+  role: taxonomy
+  required: false
+- name: ICTV Orthohantavirus
+  organization: ICTV
+  url: https://ictv.global/report/chapter/hantaviridae/hantaviridae/mammantavirinae/orthohantavirus
+  role: taxonomy
+  required: false
+- name: ViralZone Orthohantavirus
+  organization: ViralZone
+  url: https://viralzone.expasy.org/213
+  role: molecular
+  required: false
+- name: CDC About Hantavirus
+  organization: CDC
+  url: https://www.cdc.gov/hantavirus/about/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 汉坦病毒
+- 汉坦病毒感染
 - 肾综合征出血热
 - 汉坦病毒肺综合征
-- 汉坦病毒心肺综合征
-negative_terms:
-- Hanta board game
-- fictional virus
-profile_id: hantavirus
-authoritative_urls: []
-authority_search_domains:
-- ictv.global
-- viralzone.expasy.org
-query_groups:
-- id: core_taxonomy
-  terms: &id001
-  - Hantavirus
-  - Orthohantavirus
-  - orthohantavirus
-  topics:
-  - taxonomy
-  - species
-  - lineage
-  - classification
-- id: clinical
-  terms: *id001
-  topics:
-  - infection
-  - disease
-  - clinical
-  - severity
-  - treatment
-- id: epidemiology
-  terms: *id001
-  topics:
-  - outbreak
-  - surveillance
-  - incidence
-  - prevalence
-  - case
-- id: host_ecology
-  terms: *id001
-  topics:
-  - host
-  - reservoir
-  - vector
-  - ecology
-  - spillover
-- id: genomics
-  terms: *id001
-  topics:
-  - genome
-  - sequence
-  - phylogeny
-  - variant
-  - mutation
-- id: diagnostics
-  terms: *id001
-  topics:
-  - diagnosis
-  - PCR
-  - serology
-  - assay
-  - detection
-- id: prevention
-  terms: *id001
-  topics:
-  - vaccine
-  - prevention
-  - control
-  - public health
-  - intervention
-translation_glossary:
-- en: Hantavirus
-  zh: 汉坦病毒
-- en: hemorrhagic fever with renal syndrome
-  zh: 肾综合征出血热
-- en: hantavirus pulmonary syndrome
-  zh: 汉坦病毒肺综合征
-- en: hantavirus cardiopulmonary syndrome
-  zh: 汉坦病毒心肺综合征
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

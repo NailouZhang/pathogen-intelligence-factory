@@ -1,0 +1,167 @@
+schema_version: '3.0'
+profile_id: seasonal_influenza
+display_name_zh: 季节性流感病毒
+display_name_en: Seasonal influenza viruses
+schedule:
+  day: monday
+  order: 1
+target_scope:
+  target_entity_level: 病毒主题（人季节性甲/乙型流感）
+  scope_included:
+  - 聚焦人群季节性 Influenza A/B 及其流行、抗原演化、疫苗和治疗；不以禽流感、猪流感或 Influenza C/D 为主体。
+  scope_excluded:
+  - avian influenza
+  - H5N1
+  - H5N6
+  - H7N9
+  - H9N2
+  - swine influenza
+  - influenza C virus
+  - influenza D virus
+  allowed_members:
+  - A(H1N1)pdm09
+  - A(H3N2)
+  - B/Victoria lineage
+  excluded_members:
+  - avian influenza
+  - H5N1
+  - H5N6
+  - H7N9
+  - H9N2
+  - swine influenza
+  - influenza C virus
+  - influenza D virus
+  required_identity_concepts:
+  - seasonal influenza
+  - influenza A virus
+  - influenza B virus
+  - human influenza A virus
+  - human influenza B virus
+  - A(H1N1)pdm09
+  - A(H3N2)
+  - B/Victoria lineage
+  - seasonal influenza
+  - human influenza
+  - influenza infection
+  non_target_near_neighbors:
+  - avian influenza
+  - H5N1
+  - H5N6
+  - H7N9
+  - H9N2
+  - swine influenza
+  - influenza C virus
+  - influenza D virus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - seasonal influenza
+  - influenza A virus
+  - influenza B virus
+  - human influenza A virus
+  - human influenza B virus
+  qualified_identity_terms:
+  - term: IAV
+    required_context_terms:
+    - influenza A
+    - influenza virus
+    query_fragment_seed: '"IAV" AND ("influenza A" OR "influenza virus")'
+  - term: IBV
+    required_context_terms:
+    - influenza B
+    - influenza virus
+    query_fragment_seed: '"IBV" AND ("influenza B" OR "influenza virus")'
+  member_identity_terms:
+  - A(H1N1)pdm09
+  - A(H3N2)
+  - B/Victoria lineage
+  disease_identity_terms:
+  - seasonal influenza
+  - human influenza
+  - influenza infection
+  context_terms:
+  - antigenic drift
+  - vaccine effectiveness
+  - antiviral resistance
+  - oseltamivir
+  - hemagglutinin
+  - neuraminidase
+  - reassortment
+  - ILI
+  - SARI
+  display_only_terms:
+  - influenza
+  - IAV
+  - IBV
+  - HA
+  - NA
+  - M1
+  - M2
+  - NS1
+  - PB1
+  - PB2
+  - PA
+  - ILI
+  - SARI
+  exclusion_terms:
+  - avian influenza
+  - H5N1
+  - H5N6
+  - H7N9
+  - H9N2
+  - swine influenza
+  - influenza C virus
+  - influenza D virus
+manual_query_skeletons:
+  pubmed_high_precision: (("seasonal influenza"[Title/Abstract] OR "influenza A virus"[Title/Abstract] OR "influenza B virus"[Title/Abstract]
+    OR "A(H1N1)pdm09"[Title/Abstract] OR "A(H3N2)"[Title/Abstract]) AND {{DATE_FILTER}}) NOT (avian influenza[Title/Abstract]
+    OR swine influenza[Title/Abstract])
+  news_high_precision: ("seasonal influenza" OR "influenza A virus" OR "influenza B virus" OR "A(H1N1)pdm09" OR "A(H3N2)")
+    AND (outbreak OR surveillance OR vaccine OR cases)
+authoritative_sources:
+- name: WHO Seasonal influenza
+  organization: WHO
+  url: https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29
+  role: public_health
+  required: false
+- name: CDC About Influenza
+  organization: CDC
+  url: https://www.cdc.gov/flu/about/index.html
+  role: public_health
+  required: false
+- name: ViralZone Orthomyxoviridae
+  organization: ViralZone
+  url: https://viralzone.expasy.org/223
+  role: molecular
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 季节性流感
+- 甲型流感
+- 乙型流感
+- 流感病毒
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

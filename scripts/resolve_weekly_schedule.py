@@ -27,10 +27,16 @@ def load_schedule(path: Path) -> dict:
     missing = [day for day in DAY_NAMES if day not in week]
     if missing:
         raise RuntimeError(f"weekly schedule missing days: {missing}")
+    expected_per_day = int(data.get("profiles_per_day") or 3)
+    wrong_counts = {day: len(week.get(day, [])) for day in DAY_NAMES if len(week.get(day, [])) != expected_per_day}
+    if wrong_counts:
+        raise RuntimeError(f"each day must contain exactly {expected_per_day} profiles: {wrong_counts}")
     flattened = [str(p).strip() for day in DAY_NAMES for p in week.get(day, []) if str(p).strip()]
     if len(flattened) != len(set(flattened)):
         duplicates = sorted({x for x in flattened if flattened.count(x) > 1})
         raise RuntimeError(f"profiles occur more than once in the weekly schedule: {duplicates}")
+    if len(flattened) != expected_per_day * len(DAY_NAMES):
+        raise RuntimeError(f"weekly schedule must contain {expected_per_day * len(DAY_NAMES)} unique profiles")
     return data
 
 

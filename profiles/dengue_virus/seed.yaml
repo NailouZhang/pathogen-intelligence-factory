@@ -1,0 +1,159 @@
+schema_version: '3.0'
+profile_id: dengue_virus
+display_name_zh: 登革病毒
+display_name_en: Dengue virus
+schedule:
+  day: thursday
+  order: 10
+target_scope:
+  target_entity_level: 具体病毒类群及疾病
+  scope_included:
+  - 聚焦四种登革病毒血清型和登革热；排除其他黄病毒，除非比较研究。
+  scope_excluded:
+  - Zika virus
+  - yellow fever virus
+  - West Nile virus
+  - Japanese encephalitis virus
+  allowed_members:
+  - DENV-1
+  - DENV-2
+  - DENV-3
+  - DENV-4
+  - dengue virus 1
+  - dengue virus 2
+  - dengue virus 3
+  - dengue virus 4
+  excluded_members:
+  - Zika virus
+  - yellow fever virus
+  - West Nile virus
+  - Japanese encephalitis virus
+  required_identity_concepts:
+  - dengue virus
+  - dengue
+  - dengue infection
+  - DENV-1
+  - DENV-2
+  - DENV-3
+  - DENV-4
+  - dengue virus 1
+  - dengue virus 2
+  - dengue virus 3
+  - dengue virus 4
+  - severe dengue
+  - dengue hemorrhagic fever
+  - dengue shock syndrome
+  non_target_near_neighbors:
+  - Zika virus
+  - yellow fever virus
+  - West Nile virus
+  - Japanese encephalitis virus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - dengue virus
+  - dengue
+  - dengue infection
+  qualified_identity_terms:
+  - term: DENV
+    required_context_terms:
+    - dengue
+    - virus
+    query_fragment_seed: '"DENV" AND ("dengue" OR "virus")'
+  member_identity_terms:
+  - DENV-1
+  - DENV-2
+  - DENV-3
+  - DENV-4
+  - dengue virus 1
+  - dengue virus 2
+  - dengue virus 3
+  - dengue virus 4
+  disease_identity_terms:
+  - severe dengue
+  - dengue hemorrhagic fever
+  - dengue shock syndrome
+  context_terms:
+  - Aedes aegypti
+  - Aedes albopictus
+  - mosquito-borne
+  - vector surveillance
+  - serotype replacement
+  - antibody-dependent enhancement
+  - NS1
+  - envelope protein
+  display_only_terms:
+  - DENV
+  - ADE
+  - E protein
+  - C protein
+  - prM
+  - NS1
+  - NS2A
+  - NS2B
+  - NS3
+  - NS4A
+  - NS4B
+  - NS5
+  - Flavivirus
+  - Orthoflavivirus
+  exclusion_terms:
+  - Zika virus
+  - yellow fever virus
+  - West Nile virus
+  - Japanese encephalitis virus
+manual_query_skeletons:
+  pubmed_high_precision: (("dengue virus"[Title/Abstract] OR dengue[Title/Abstract] OR "DENV-1"[Title/Abstract] OR "DENV-2"[Title/Abstract]
+    OR "DENV-3"[Title/Abstract] OR "DENV-4"[Title/Abstract]) AND {{DATE_FILTER}})
+  news_high_precision: ("dengue virus" OR dengue OR "DENV-1" OR "DENV-2" OR "DENV-3" OR "DENV-4") AND (outbreak OR cases OR
+    transmission OR surveillance OR vaccine)
+authoritative_sources:
+- name: ICTV Flaviviridae
+  organization: ICTV
+  url: https://ictv.global/report/chapter/flaviviridae/flaviviridae
+  role: taxonomy
+  required: false
+- name: ViralZone Orthoflavivirus
+  organization: ViralZone
+  url: https://viralzone.expasy.org/24?outline=all_by_species
+  role: molecular
+  required: false
+- name: WHO Dengue
+  organization: WHO
+  url: https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue
+  role: public_health
+  required: false
+- name: CDC About Dengue
+  organization: CDC
+  url: https://www.cdc.gov/dengue/about/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 登革病毒
+- 登革热
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

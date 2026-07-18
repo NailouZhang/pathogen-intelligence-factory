@@ -1,0 +1,144 @@
+schema_version: '3.0'
+profile_id: human_metapneumovirus
+display_name_zh: 人偏肺病毒
+display_name_en: Human metapneumovirus
+schedule:
+  day: tuesday
+  order: 4
+target_scope:
+  target_entity_level: 具体人病毒
+  scope_included:
+  - 聚焦 human metapneumovirus；不把 avian metapneumovirus 或泛 Metapneumovirus 结果纳入。
+  scope_excluded:
+  - avian metapneumovirus
+  - turkey rhinotracheitis virus
+  - avian pneumovirus
+  allowed_members:
+  - HMPV-A
+  - HMPV-B
+  - hMPV A1
+  - hMPV A2
+  - hMPV B1
+  - hMPV B2
+  excluded_members:
+  - avian metapneumovirus
+  - turkey rhinotracheitis virus
+  - avian pneumovirus
+  required_identity_concepts:
+  - human metapneumovirus
+  - human metapneumovirus infection
+  - HMPV-A
+  - HMPV-B
+  - hMPV A1
+  - hMPV A2
+  - hMPV B1
+  - hMPV B2
+  - human metapneumovirus infection
+  - HMPV infection
+  non_target_near_neighbors:
+  - avian metapneumovirus
+  - turkey rhinotracheitis virus
+  - avian pneumovirus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - human metapneumovirus
+  - human metapneumovirus infection
+  qualified_identity_terms:
+  - term: HMPV
+    required_context_terms:
+    - human metapneumovirus
+    - virus
+    - infection
+    query_fragment_seed: '"HMPV" AND ("human metapneumovirus" OR "virus" OR "infection")'
+  - term: hMPV
+    required_context_terms:
+    - human metapneumovirus
+    - virus
+    - infection
+    query_fragment_seed: '"hMPV" AND ("human metapneumovirus" OR "virus" OR "infection")'
+  member_identity_terms:
+  - HMPV-A
+  - HMPV-B
+  - hMPV A1
+  - hMPV A2
+  - hMPV B1
+  - hMPV B2
+  disease_identity_terms:
+  - human metapneumovirus infection
+  - HMPV infection
+  context_terms:
+  - bronchiolitis
+  - pneumonia
+  - acute respiratory infection
+  - pediatric respiratory infection
+  - older adults
+  - immunocompromised
+  - fusion protein
+  display_only_terms:
+  - HMPV
+  - hMPV
+  - A1
+  - A2
+  - B1
+  - B2
+  - F protein
+  - G protein
+  - SH protein
+  - N protein
+  - P protein
+  exclusion_terms:
+  - avian metapneumovirus
+  - turkey rhinotracheitis virus
+  - avian pneumovirus
+manual_query_skeletons:
+  pubmed_high_precision: (("human metapneumovirus"[Title/Abstract] OR ("HMPV"[Title/Abstract] AND (virus[Title/Abstract] OR
+    infection[Title/Abstract]))) AND {{DATE_FILTER}}) NOT ("avian metapneumovirus"[Title/Abstract])
+  news_high_precision: ("human metapneumovirus" OR ("HMPV" AND (virus OR infection))) AND (outbreak OR surveillance OR cases
+    OR hospitalization)
+authoritative_sources:
+- name: ICTV Pneumoviridae
+  organization: ICTV
+  url: https://ictv.global/report/chapter/pneumoviridae/pneumoviridae
+  role: taxonomy
+  required: false
+- name: ViralZone Pneumoviridae
+  organization: ViralZone
+  url: https://viralzone.expasy.org/7877
+  role: molecular
+  required: false
+- name: CDC Human Metapneumovirus
+  organization: CDC
+  url: https://www.cdc.gov/human-metapneumovirus/about/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 人偏肺病毒
+- 人类偏肺病毒
+- HMPV感染
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

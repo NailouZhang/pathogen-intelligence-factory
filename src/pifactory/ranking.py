@@ -43,6 +43,10 @@ HIGH_LEVEL_TYPES = {
     "practice guideline": 20,
 }
 
+TIER_ORDER = {"A": 3, "B": 2, "C": 1}
+TRUSTED_PAPER_SOURCES = {"PubMed", "Europe PMC", "OpenAlex", "Crossref", "Semantic Scholar"}
+
+
 
 def _days_old(value: str | None) -> int:
     try:
@@ -114,14 +118,60 @@ def news_quality(record: dict[str, Any]) -> tuple[float, list[str]]:
     return round(score, 3), reasons
 
 
+def paper_priority_tier(record: dict[str, Any]) -> tuple[str, str]:
+    relevance = float(record.get("relevance_score") or 0)
+    sources = set(record.get("sources") or [record.get("source")])
+    types = " ".join(str(x).lower() for x in record.get("publication_types") or [])
+    design_points = max((points for token, points in HIGH_LEVEL_TYPES.items() if token in types), default=0)
+    has_evidence = bool(clean_space(record.get("abstract") or record.get("full_text")))
+    evidence_level = clean_space(record.get("evidence_level"))
+    trusted = bool(sources & TRUSTED_PAPER_SOURCES)
+    citations = int(record.get("citation_count") or 0)
+
+    if relevance >= 0.6 and has_evidence and (
+        design_points >= 16
+        or evidence_level == "E2"
+        or citations >= 20
+        or (trusted and float(record.get("quality_score") or 0) >= 62)
+    ):
+        return "A", "高相关性，且具备高等级研究设计、全文证据或较强数据库/引用支持"
+    if relevance >= 0.6 and (has_evidence or trusted):
+        return "B", "主题明确且摘要或可信数据库元数据较完整"
+    return "C", "补充性记录、预印本或证据完整度有限"
+
+
+def news_priority_tier(record: dict[str, Any]) -> tuple[str, str]:
+    url = clean_space(record.get("resolved_url") or record.get("url"))
+    host = (urlparse(url).hostname or "").lower()
+    publisher = clean_space(record.get("publisher")).lower()
+    source = clean_space(record.get("source")).lower()
+    haystack = " ".join((host, publisher, source))
+    official = bool(record.get("official")) or any(token in haystack for token in OFFICIAL_NEWS_TOKENS)
+    has_body = bool(clean_space(record.get("content")))
+    institution = any(token in haystack for token in ("university", "hospital", "institute", "laboratory", "public health", "reliefweb"))
+    if official:
+        return "A", "政府、WHO/CDC/ECDC或其他官方公共卫生来源"
+    if institution or has_body:
+        return "B", "可信机构来源或已成功抓获正文"
+    return "C", "新闻聚合或正文证据有限，作为补充信息"
+
+
 def rank_papers(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for record in records:
         score, reasons = paper_quality(record)
         record["quality_score"] = score
         record["quality_reasons"] = reasons
+        tier, reason = paper_priority_tier(record)
+        record["priority_tier"] = tier
+        record["priority_tier_reason"] = reason
     return sorted(
         records,
-        key=lambda x: (x.get("quality_score") or 0, x.get("availability_date") or ""),
+        key=lambda x: (
+            TIER_ORDER.get(str(x.get("priority_tier")), 0),
+            x.get("quality_score") or 0,
+            x.get("availability_date") or "",
+            clean_space(x.get("title")),
+        ),
         reverse=True,
     )
 
@@ -131,8 +181,16 @@ def rank_news(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
         score, reasons = news_quality(record)
         record["quality_score"] = score
         record["quality_reasons"] = reasons
+        tier, reason = news_priority_tier(record)
+        record["priority_tier"] = tier
+        record["priority_tier_reason"] = reason
     return sorted(
         records,
-        key=lambda x: (x.get("quality_score") or 0, x.get("published_date") or ""),
+        key=lambda x: (
+            TIER_ORDER.get(str(x.get("priority_tier")), 0),
+            x.get("quality_score") or 0,
+            x.get("published_date") or "",
+            clean_space(x.get("title")),
+        ),
         reverse=True,
     )

@@ -1,4 +1,4 @@
-name: Weekly Multi-Virus Intelligence Cycle
+name: Weekly 21-Virus Intelligence Cycle v6
 
 on:
   schedule:
@@ -18,7 +18,7 @@ on:
         default: ""
         type: string
       run_mode:
-        description: scheduled uses the weekday list; all runs all 15 profiles
+        description: scheduled uses the weekday list; all runs all 21 profiles
         required: false
         default: scheduled
         type: choice
@@ -46,7 +46,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: weekly-multi-virus-cycle
+  group: weekly-21-virus-cycle
   cancel-in-progress: false
 
 jobs:
@@ -125,8 +125,8 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
-          GOOGLE_CSE_API_KEY: ${{ secrets.GOOGLE_CSE_API_KEY }}
-          GOOGLE_CSE_ID: ${{ secrets.GOOGLE_CSE_ID }}
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+          RELIEFWEB_APPNAME: ${{ vars.RELIEFWEB_APPNAME || secrets.RELIEFWEB_APPNAME || 'wiv-virology-literature-tracker-42x' }}
           PUBLISHER_REPO_TOKEN: ${{ secrets.PUBLISHER_REPO_TOKEN }}
           PUBLISHER_REPO: ${{ vars.PUBLISHER_REPO || 'NailouZhang/pathogen-wechat-publisher' }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
@@ -139,10 +139,32 @@ jobs:
           PIF_WINDOW_DAYS: ${{ steps.plan.outputs.window_days }}
           PIF_MAX_PAPERS: ${{ steps.plan.outputs.max_papers }}
           PIF_MAX_NEWS: ${{ steps.plan.outputs.max_news }}
-          PIF_MAX_PAPER_CANDIDATES: "150"
-          PIF_MAX_NEWS_CANDIDATES: "180"
-          PIF_MAX_NEWS_FETCHES: "120"
-          PIF_MAX_FULLTEXTS: "50"
+          # Zero disables arbitrary local document-count truncation. Provider
+          # pagination limits and the seven-day window remain in force.
+          PIF_MAX_PAPER_CANDIDATES: "0"
+          PIF_MAX_NEWS_CANDIDATES: "0"
+          PIF_MAX_NEWS_FETCHES: "0"
+          PIF_MAX_FULLTEXTS: "0"
+          PIF_PUBMED_PER_QUERY: "180"
+          PIF_PUBMED_TOTAL_LIMIT: "2000"
+          PIF_EUROPE_PMC_PER_QUERY: "150"
+          PIF_CROSSREF_PER_QUERY: "45"
+          PIF_CROSSREF_INCLUDE_INDEXED: "true"
+          PIF_SEMANTIC_PER_QUERY: "80"
+          # No Semantic Scholar key yet: attempt every compiled single-anchor
+          # query with conservative anonymous pacing. Set a positive limit only
+          # as an emergency response to sustained provider throttling.
+          PIF_SEMANTIC_ANONYMOUS_QUERY_LIMIT: "0"
+          PIF_SEMANTIC_ANONYMOUS_DELAY_MS: "500"
+          PIF_OPENALEX_PER_QUERY: "100"
+          # Every post-Python candidate is reviewed. Records are packed by
+          # estimated token budget until the queue is empty; there is no paper
+          # count or character-prefix cutoff.
+          PIF_LLM_REVIEW_MODE: "all_compact"
+          PIF_LLM_COMPACT_BATCH_TOKENS: "12000"
+          PIF_LLM_ESCALATION_BATCH_TOKENS: "10000"
+          PIF_RELEVANCE_REVIEW_CACHE: "true"
+          PIF_ANALYSIS_CACHE: "true"
           SHOULD_DISPATCH: ${{ github.event_name == 'schedule' || inputs.dispatch_wechat }}
         run: |
           set -Eeuo pipefail
@@ -225,7 +247,7 @@ jobs:
           done
 
           {
-            echo '### Weekly multi-virus cycle'
+            echo '### Weekly 21-virus cycle'
             echo
             echo "Schedule reason: ${{ steps.plan.outputs.reason }}"
             echo
@@ -248,7 +270,7 @@ jobs:
       - name: Upload recovery artifact
         uses: actions/upload-artifact@v7
         with:
-          name: weekly-virus-cycle-${{ github.run_number }}
+          name: weekly21-virus-cycle-${{ github.run_number }}
           path: |
             /tmp/pif_runs
             /tmp/pif_cycle_results.tsv

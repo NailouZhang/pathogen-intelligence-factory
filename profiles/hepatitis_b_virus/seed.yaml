@@ -1,0 +1,172 @@
+schema_version: '3.0'
+profile_id: hepatitis_b_virus
+display_name_zh: 乙型肝炎病毒
+display_name_en: Hepatitis B virus
+schedule:
+  day: sunday
+  order: 21
+target_scope:
+  target_entity_level: 具体病毒及疾病
+  scope_included:
+  - 聚焦 HBV/hepatitis B 及其慢性感染、肝硬化、肝癌、疫苗与治疗；其他肝炎病毒不默认纳入。
+  scope_excluded:
+  - hepatitis C virus
+  - hepatitis A virus
+  - hepatitis E virus
+  allowed_members:
+  - HBV genotype A
+  - HBV genotype B
+  - HBV genotype C
+  - HBV genotype D
+  - HBV genotype E
+  - HBV genotype F
+  - HBV genotype G
+  - HBV genotype H
+  - HBV genotype I
+  - HBV genotype J
+  excluded_members:
+  - hepatitis C virus
+  - hepatitis A virus
+  - hepatitis E virus
+  required_identity_concepts:
+  - hepatitis B virus
+  - hepatitis B
+  - HBV infection
+  - chronic hepatitis B
+  - acute hepatitis B
+  - HBV genotype A
+  - HBV genotype B
+  - HBV genotype C
+  - HBV genotype D
+  - HBV genotype E
+  - HBV genotype F
+  - HBV genotype G
+  - HBV genotype H
+  - HBV genotype I
+  - HBV genotype J
+  - chronic hepatitis B
+  - acute hepatitis B
+  - HBV-associated hepatocellular carcinoma
+  - HBV-related cirrhosis
+  non_target_near_neighbors:
+  - hepatitis C virus
+  - hepatitis A virus
+  - hepatitis E virus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - hepatitis B virus
+  - hepatitis B
+  - HBV infection
+  - chronic hepatitis B
+  - acute hepatitis B
+  qualified_identity_terms:
+  - term: HBV
+    required_context_terms:
+    - hepatitis B
+    - virus
+    - infection
+    query_fragment_seed: '"HBV" AND ("hepatitis B" OR "virus" OR "infection")'
+  member_identity_terms:
+  - HBV genotype A
+  - HBV genotype B
+  - HBV genotype C
+  - HBV genotype D
+  - HBV genotype E
+  - HBV genotype F
+  - HBV genotype G
+  - HBV genotype H
+  - HBV genotype I
+  - HBV genotype J
+  disease_identity_terms:
+  - chronic hepatitis B
+  - acute hepatitis B
+  - HBV-associated hepatocellular carcinoma
+  - HBV-related cirrhosis
+  context_terms:
+  - HBsAg
+  - HBeAg
+  - HBcAg
+  - HBV DNA
+  - cccDNA
+  - pgRNA
+  - HBx
+  - mother-to-child transmission
+  - vaccination
+  - tenofovir
+  - entecavir
+  display_only_terms:
+  - HBV
+  - HBsAg
+  - HBeAg
+  - HBcAg
+  - anti-HBc
+  - anti-HBs
+  - cccDNA
+  - rcDNA
+  - pgRNA
+  - HBx
+  - HCC
+  - genotype A
+  - genotype B
+  exclusion_terms:
+  - hepatitis C virus
+  - hepatitis A virus
+  - hepatitis E virus
+manual_query_skeletons:
+  pubmed_high_precision: (("hepatitis B virus"[Title/Abstract] OR "hepatitis B"[Title/Abstract] OR "HBV infection"[Title/Abstract]
+    OR "chronic hepatitis B"[Title/Abstract]) AND {{DATE_FILTER}}) NOT ("hepatitis C virus"[Title/Abstract])
+  news_high_precision: ("hepatitis B virus" OR "hepatitis B" OR "HBV infection") AND (vaccine OR treatment OR prevalence OR
+    screening OR elimination)
+authoritative_sources:
+- name: ViralZone Hepadnaviridae
+  organization: ViralZone
+  url: https://viralzone.expasy.org/9
+  role: molecular
+  required: false
+- name: ViralZone Orthohepadnavirus
+  organization: ViralZone
+  url: https://viralzone.expasy.org/101?outline=all_by_species
+  role: molecular
+  required: false
+- name: WHO Hepatitis B
+  organization: WHO
+  url: https://www.who.int/news-room/fact-sheets/detail/hepatitis-b
+  role: public_health
+  required: false
+- name: CDC Hepatitis B Basics
+  organization: CDC
+  url: https://www.cdc.gov/hepatitis-b/about/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 乙型肝炎病毒
+- 乙肝病毒
+- 乙型肝炎
+- 乙肝
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

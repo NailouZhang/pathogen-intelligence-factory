@@ -1,91 +1,149 @@
-display_name_en: Norovirus
-display_name_zh: 诺如病毒
-seed_terms:
-- Norovirus
-- Norwalk virus
-- human norovirus
-virus_names:
-- Norovirus
-- Norwalk virus
-- human norovirus
-- GII.4 norovirus
-disease_names_en:
-- norovirus gastroenteritis
-- acute gastroenteritis
-disease_names_zh:
-- 诺如病毒胃肠炎
-- 急性胃肠炎
-negative_terms:
-- Norovirus game
-- computer virus
+schema_version: '3.0'
 profile_id: norovirus
-authoritative_urls: []
-authority_search_domains:
-- ictv.global
-- viralzone.expasy.org
-query_groups:
-- id: core_taxonomy
-  terms: &id001
-  - Norovirus
-  - Norwalk virus
+display_name_zh: 诺如病毒
+display_name_en: Norovirus
+schedule:
+  day: wednesday
+  order: 7
+target_scope:
+  target_entity_level: 人诺如病毒主题
+  scope_included:
+  - 聚焦 human norovirus 及人群胃肠炎暴发；排除鼠诺如病毒和其他动物诺如病毒。
+  scope_excluded:
+  - murine norovirus
+  - mouse norovirus
+  - bovine norovirus
+  - canine norovirus
+  - porcine norovirus
+  allowed_members:
+  - Norovirus GI
+  - Norovirus GII
+  - GII.4 norovirus
+  - norovirus GII.4
+  excluded_members:
+  - murine norovirus
+  - mouse norovirus
+  - bovine norovirus
+  - canine norovirus
+  - porcine norovirus
+  required_identity_concepts:
+  - norovirus
   - human norovirus
-  topics:
-  - taxonomy
-  - species
-  - lineage
-  - classification
-- id: clinical
-  terms: *id001
-  topics:
-  - infection
-  - disease
-  - clinical
-  - severity
-  - treatment
-- id: epidemiology
-  terms: *id001
-  topics:
-  - outbreak
-  - surveillance
-  - incidence
-  - prevalence
-  - case
-- id: host_ecology
-  terms: *id001
-  topics:
-  - host
-  - reservoir
-  - vector
-  - ecology
-  - spillover
-- id: genomics
-  terms: *id001
-  topics:
-  - genome
-  - sequence
-  - phylogeny
-  - variant
-  - mutation
-- id: diagnostics
-  terms: *id001
-  topics:
-  - diagnosis
-  - PCR
-  - serology
-  - assay
-  - detection
-- id: prevention
-  terms: *id001
-  topics:
-  - vaccine
-  - prevention
-  - control
-  - public health
-  - intervention
-translation_glossary:
-- en: Norovirus
-  zh: 诺如病毒
-- en: norovirus gastroenteritis
-  zh: 诺如病毒胃肠炎
-- en: acute gastroenteritis
-  zh: 急性胃肠炎
+  - Norwalk virus
+  - norovirus infection
+  - Norovirus GI
+  - Norovirus GII
+  - GII.4 norovirus
+  - norovirus GII.4
+  - norovirus gastroenteritis
+  non_target_near_neighbors:
+  - murine norovirus
+  - mouse norovirus
+  - bovine norovirus
+  - canine norovirus
+  - porcine norovirus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - norovirus
+  - human norovirus
+  - Norwalk virus
+  - norovirus infection
+  qualified_identity_terms:
+  - term: acute gastroenteritis
+    required_context_terms:
+    - norovirus
+    query_fragment_seed: '"acute gastroenteritis" AND norovirus'
+  - term: HuNoV
+    required_context_terms:
+    - human norovirus
+    - norovirus
+    - gastroenteritis
+    query_fragment_seed: '"HuNoV" AND ("human norovirus" OR "norovirus" OR "gastroenteritis")'
+  member_identity_terms:
+  - Norovirus GI
+  - Norovirus GII
+  - GII.4 norovirus
+  - norovirus GII.4
+  disease_identity_terms:
+  - norovirus gastroenteritis
+  context_terms:
+  - foodborne outbreak
+  - waterborne outbreak
+  - healthcare-associated outbreak
+  - environmental persistence
+  - VP1
+  - VP2
+  - HBGA
+  - genogroup
+  - genotype
+  - genomic surveillance
+  display_only_terms:
+  - HuNoV
+  - GI
+  - GII
+  - GII.4
+  - VP1
+  - VP2
+  - VPg
+  - RdRp
+  - HBGA
+  - acute gastroenteritis
+  - vomiting disease
+  exclusion_terms:
+  - murine norovirus
+  - mouse norovirus
+  - bovine norovirus
+  - canine norovirus
+  - porcine norovirus
+manual_query_skeletons:
+  pubmed_high_precision: (("norovirus"[Title/Abstract] OR "human norovirus"[Title/Abstract] OR "Norwalk virus"[Title/Abstract])
+    AND {{DATE_FILTER}}) NOT ("murine norovirus"[Title/Abstract] OR "bovine norovirus"[Title/Abstract])
+  news_high_precision: ("norovirus" OR "Norwalk virus") AND (outbreak OR gastroenteritis OR cases OR foodborne OR school OR
+    hospital)
+authoritative_sources:
+- name: ICTV Caliciviridae
+  organization: ICTV
+  url: https://ictv.global/report/chapter/caliciviridae/caliciviridae
+  role: taxonomy
+  required: false
+- name: ViralZone Norovirus
+  organization: ViralZone
+  url: https://viralzone.expasy.org/194?outline=all_by_species
+  role: molecular
+  required: false
+- name: CDC About Norovirus
+  organization: CDC
+  url: https://www.cdc.gov/norovirus/about/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 诺如病毒
+- 诺如病毒感染
+- 诺如病毒胃肠炎
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

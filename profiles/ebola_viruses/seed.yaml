@@ -1,0 +1,188 @@
+schema_version: '3.0'
+profile_id: ebola_viruses
+display_name_zh: 埃博拉病毒类群
+display_name_en: Ebola viruses
+schedule:
+  day: saturday
+  order: 18
+target_scope:
+  target_entity_level: 埃博拉病毒属相关人类病原类群
+  scope_included:
+  - 聚焦导致或可能导致人类 Ebola disease 的具体 ebolaviruses；各病毒名称保持独立，不将全部结果改写成 Ebola virus。
+  scope_excluded:
+  - Marburg virus
+  - Ravn virus
+  - cuevavirus
+  allowed_members:
+  - Sudan virus
+  - Bundibugyo virus
+  - Taï Forest virus
+  - Tai Forest virus
+  - Reston virus
+  - Bombali virus
+  - Zaire ebolavirus
+  excluded_members:
+  - Marburg virus
+  - Ravn virus
+  - cuevavirus
+  required_identity_concepts:
+  - Ebola virus
+  - Ebola virus disease
+  - Ebola disease
+  - ebolavirus
+  - Sudan virus
+  - Bundibugyo virus
+  - Taï Forest virus
+  - Tai Forest virus
+  - Reston virus
+  - Bombali virus
+  - Zaire ebolavirus
+  - Ebola virus disease
+  - Ebola disease
+  - Sudan virus disease
+  non_target_near_neighbors:
+  - Marburg virus
+  - Ravn virus
+  - cuevavirus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - Ebola virus
+  - Ebola virus disease
+  - Ebola disease
+  - ebolavirus
+  qualified_identity_terms:
+  - term: EBOV
+    required_context_terms:
+    - Ebola
+    - ebolavirus
+    - virus
+    query_fragment_seed: '"EBOV" AND ("Ebola" OR "ebolavirus" OR "virus")'
+  - term: SUDV
+    required_context_terms:
+    - Sudan virus
+    - Ebola
+    - ebolavirus
+    query_fragment_seed: '"SUDV" AND ("Sudan virus" OR "Ebola" OR "ebolavirus")'
+  - term: BDBV
+    required_context_terms:
+    - Bundibugyo
+    - Ebola
+    - ebolavirus
+    query_fragment_seed: '"BDBV" AND ("Bundibugyo" OR "Ebola" OR "ebolavirus")'
+  - term: TAFV
+    required_context_terms:
+    - Tai Forest
+    - Taï Forest
+    - ebolavirus
+    query_fragment_seed: '"TAFV" AND ("Tai Forest" OR "Taï Forest" OR "ebolavirus")'
+  - term: RESTV
+    required_context_terms:
+    - Reston
+    - ebolavirus
+    - virus
+    query_fragment_seed: '"RESTV" AND ("Reston" OR "ebolavirus" OR "virus")'
+  - term: BOMV
+    required_context_terms:
+    - Bombali
+    - ebolavirus
+    - virus
+    query_fragment_seed: '"BOMV" AND ("Bombali" OR "ebolavirus" OR "virus")'
+  member_identity_terms:
+  - Sudan virus
+  - Bundibugyo virus
+  - Taï Forest virus
+  - Tai Forest virus
+  - Reston virus
+  - Bombali virus
+  - Zaire ebolavirus
+  disease_identity_terms:
+  - Ebola virus disease
+  - Ebola disease
+  - Sudan virus disease
+  context_terms:
+  - viral hemorrhagic fever
+  - body fluids
+  - healthcare-associated transmission
+  - safe burial
+  - contact tracing
+  - rVSV-ZEBOV
+  - monoclonal antibody
+  - genomic surveillance
+  display_only_terms:
+  - EBOV
+  - EVD
+  - SUDV
+  - BDBV
+  - TAFV
+  - RESTV
+  - BOMV
+  - GP
+  - NP
+  - VP24
+  - VP30
+  - VP35
+  - VP40
+  - L polymerase
+  - Filoviridae
+  exclusion_terms:
+  - Marburg virus
+  - Ravn virus
+  - cuevavirus
+manual_query_skeletons:
+  pubmed_high_precision: (("Ebola virus"[Title/Abstract] OR "Ebola virus disease"[Title/Abstract] OR "Sudan virus"[Title/Abstract]
+    OR "Bundibugyo virus"[Title/Abstract] OR "Taï Forest virus"[Title/Abstract] OR "Reston virus"[Title/Abstract] OR "Bombali
+    virus"[Title/Abstract]) AND {{DATE_FILTER}}) NOT ("Marburg virus"[Title/Abstract])
+  news_high_precision: ("Ebola virus" OR "Ebola virus disease" OR "Sudan virus" OR "Bundibugyo virus") AND (outbreak OR case
+    OR transmission OR vaccine OR treatment)
+authoritative_sources:
+- name: ViralZone Filoviridae
+  organization: ViralZone
+  url: https://viralzone.expasy.org/23?outline=all_by_species
+  role: molecular
+  required: false
+- name: ViralZone Ebolavirus Resource
+  organization: ViralZone
+  url: https://viralzone.expasy.org/11865
+  role: molecular
+  required: false
+- name: WHO Ebola Disease
+  organization: WHO
+  url: https://www.who.int/news-room/fact-sheets/detail/ebola-disease
+  role: public_health
+  required: false
+- name: CDC Ebola Basics
+  organization: CDC
+  url: https://www.cdc.gov/ebola/about/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 埃博拉病毒
+- 埃博拉病毒病
+- 埃博拉出血热
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

@@ -1,0 +1,175 @@
+schema_version: '3.0'
+profile_id: human_papillomavirus
+display_name_zh: 人乳头瘤病毒
+display_name_en: Human papillomaviruses
+schedule:
+  day: wednesday
+  order: 9
+target_scope:
+  target_entity_level: 人乳头瘤病毒类群
+  scope_included:
+  - 聚焦 human papillomavirus、具体型别及相关疾病；不使用泛 Papillomaviridae 单独检索。
+  scope_excluded:
+  - bovine papillomavirus
+  - canine papillomavirus
+  - equine papillomavirus
+  - papillomavirus-like particle without human context
+  allowed_members:
+  - HPV16
+  - HPV 16
+  - HPV18
+  - HPV 18
+  - HPV31
+  - HPV33
+  - HPV45
+  - HPV6
+  - HPV11
+  - high-risk HPV
+  - oncogenic HPV
+  excluded_members:
+  - bovine papillomavirus
+  - canine papillomavirus
+  - equine papillomavirus
+  - papillomavirus-like particle without human context
+  required_identity_concepts:
+  - human papillomavirus
+  - human papillomaviruses
+  - HPV infection
+  - HPV16
+  - HPV 16
+  - HPV18
+  - HPV 18
+  - HPV31
+  - HPV33
+  - HPV45
+  - HPV6
+  - HPV11
+  - high-risk HPV
+  - oncogenic HPV
+  - cervical intraepithelial neoplasia
+  - HPV-associated cervical cancer
+  - HPV-associated anal cancer
+  - HPV-associated oropharyngeal cancer
+  - genital warts
+  non_target_near_neighbors:
+  - bovine papillomavirus
+  - canine papillomavirus
+  - equine papillomavirus
+  - papillomavirus-like particle without human context
+candidate_vocabulary:
+  identity_anchor_terms:
+  - human papillomavirus
+  - human papillomaviruses
+  - HPV infection
+  qualified_identity_terms:
+  - term: HPV
+    required_context_terms:
+    - human papillomavirus
+    - papillomavirus
+    - infection
+    - genotype
+    query_fragment_seed: '"HPV" AND ("human papillomavirus" OR "papillomavirus" OR "infection" OR "genotype")'
+  member_identity_terms:
+  - HPV16
+  - HPV 16
+  - HPV18
+  - HPV 18
+  - HPV31
+  - HPV33
+  - HPV45
+  - HPV6
+  - HPV11
+  - high-risk HPV
+  - oncogenic HPV
+  disease_identity_terms:
+  - cervical intraepithelial neoplasia
+  - HPV-associated cervical cancer
+  - HPV-associated anal cancer
+  - HPV-associated oropharyngeal cancer
+  - genital warts
+  context_terms:
+  - persistent infection
+  - vaccination
+  - cervical screening
+  - L1
+  - L2
+  - E6
+  - E7
+  - genotype
+  - integration
+  - oncogenic
+  display_only_terms:
+  - HPV
+  - CIN
+  - L1
+  - L2
+  - E1
+  - E2
+  - E4
+  - E5
+  - E6
+  - E7
+  - cervical cancer
+  - anal cancer
+  - oropharyngeal cancer
+  exclusion_terms:
+  - bovine papillomavirus
+  - canine papillomavirus
+  - equine papillomavirus
+  - papillomavirus-like particle without human context
+manual_query_skeletons:
+  pubmed_high_precision: (("human papillomavirus"[Title/Abstract] OR "HPV16"[Title/Abstract] OR "HPV18"[Title/Abstract] OR
+    "high-risk HPV"[Title/Abstract]) AND {{DATE_FILTER}}) NOT ("bovine papillomavirus"[Title/Abstract])
+  news_high_precision: ("human papillomavirus" OR "HPV infection" OR "HPV16" OR "HPV18") AND (vaccine OR screening OR cancer
+    OR prevalence OR prevention)
+authoritative_sources:
+- name: ICTV Papillomaviridae
+  organization: ICTV
+  url: https://ictv.global/report/chapter/papillomaviridae/papillomaviridae
+  role: taxonomy
+  required: false
+- name: ViralZone Papillomaviridae
+  organization: ViralZone
+  url: https://viralzone.expasy.org/5
+  role: molecular
+  required: false
+- name: CDC About HPV
+  organization: CDC
+  url: https://www.cdc.gov/hpv/about/index.html
+  role: public_health
+  required: false
+- name: WHO Cervical Cancer
+  organization: WHO
+  url: https://www.who.int/news-room/fact-sheets/detail/cervical-cancer
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 人乳头瘤病毒
+- HPV感染
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

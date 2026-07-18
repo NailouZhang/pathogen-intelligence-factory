@@ -1,23 +1,94 @@
-# v2.1 architecture and audit logic
+# 21 病毒高精度情报架构
 
-## Profile bootstrap
+## 1. 固定主题契约
 
-The first real run reads `profiles/<profile_id>/seed.yaml`, fetches supplied ICTV/ViralZone URLs and generic search pages, and asks Gemini/Groq to return a bilingual profile. The generated profile is persisted at `data/profiles/<profile_id>/profile.json` on `intelligence-data`. Subsequent runs reuse it.
+每个 `profiles/<profile_id>/seed.yaml` 同时保存：
 
-## Date policy
+- 主题实体层级；
+- 纳入和排除边界；
+- 允许成员白名单；
+- 候选身份锚点；
+- 受限定缩写；
+- 特异疾病词；
+- 只能跟在身份块之后使用的上下文词；
+- 禁止单独检索词；
+- 低风险排除候选；
+- 固定权威 URL；
+- 人工查询骨架。
 
-The report window is seven calendar days. A scholarly item is included using the first available date within the window in this order: online publication, first publication, database creation, database indexing, publication, print. A future print issue does not postpone an already-online paper.
+主题边界是人工契约，大模型不得扩大。
 
-## Evidence levels
+## 2. 权威来源处理
 
-- E0: metadata only. Translate title; no research conclusion.
-- E1: abstract available. Abstract-level analysis.
-- E2: verified public HTML/XML/PDF evidence available. Expanded analysis.
+专业词库构建不再搜索 ICTV、ViralZone 或通用搜索引擎。程序只请求 `seed.yaml` 中列出的精确 HTTPS URL，清洗正文后保存：
 
-## Translation
+- URL；
+- 机构；
+- 页面标题；
+- 获取时间；
+- SHA-256；
+- 清洗正文；
+- 成功或失败状态。
 
-Translation is deliberately separate from scientific analysis. It preserves numbers, uncertainty, technical names, and glossary tokens. The final Python fallback uses independent translation services through `deep-translator`, so a model outage does not automatically leave every title untranslated.
+页面临时失败时可使用最近一次成功缓存；没有来源正文时仍可使用人工候选词生成确定性受限 profile，但会在审计中记录来源失败。
 
-## Failure behavior
+## 3. 词库精炼与查询编译
 
-An API, webpage, model, or translation failure is recorded in `data/audit/`. A single failed record never aborts the daily publication. When model analysis fails but source evidence exists, the system produces a conservative source-extract fallback instead of an empty card.
+Gemini 为主、Groq 为回退。模型只能基于人工边界和给定页面正文完成术语分层；最终生产查询由 Python 编译器生成，模型不能直接覆盖生产查询。
+
+术语分为七层：
+
+1. `identity_anchor_terms`；
+2. `qualified_identity_terms`；
+3. `member_identity_terms`；
+4. `disease_identity_terms`；
+5. `context_terms`；
+6. `display_only_terms`；
+7. `exclusion_terms`。
+
+每个查询顶层 OR 分支都必须包含安全身份锚点或合法受限定缩写。蛋白、基因、症状、宿主、媒介、药物、疫苗、宽泛科属名不得成为独立身份分支。
+
+## 4. 文献与新闻检索
+
+不同来源使用各自语法：
+
+- PubMed：带 `[Title/Abstract]` 的高精度、较高召回、分子、流行病学、临床查询；
+- Europe PMC：不使用 PubMed 字段标签；
+- Crossref、Semantic Scholar、OpenAlex、预印本：使用短而精确的身份组和模式上下文；
+- 权威网页和新闻：使用完整英文或中文身份词，不单独使用短缩写。
+
+日期窗口由程序注入，默认最近 7 天。
+
+## 5. 文章级二次相关性闸门
+
+初始检索结果还要通过确定性评分：
+
+- 标题完整身份 +6；
+- 标题白名单成员 +5；
+- 标题特异疾病 +4；
+- 摘要完整身份 +3；
+- 摘要白名单成员 +2；
+- 任务上下文 +1；
+- 明确排除实体主导且无目标标题身份 -6；
+- 只命中未限定缩写 -4；
+- 只命中上下文词 -4。
+
+生产展示默认只接受 `score >= 6` 且存在真实身份锚点的记录；`review` 留在审计数据中。
+
+## 6. 内容生产
+
+通过闸门的记录再进行：
+
+- DOI、PMID、PMCID、URL、标题多级去重；
+- 摘要和开放全文补充；
+- 高水平文献和权威新闻排序；
+- 最多 50 篇文献和 50 条新闻；
+- 术语保护的中英翻译；
+- 基于现有证据的五要素；
+- GitHub Pages 卡片与 `wechat-package/v2`。
+
+## 7. 双仓发布
+
+公开仓库将每个 profile 的结果提交到 `intelligence-data`，取得完整 40 位 SHA，然后发送 `repository_dispatch`。私有仓库的 self-hosted runner 使用该 SHA 下载不可变发布包，验证后创建微信公众号草稿。
+
+公众号端不强制复制网页交互折叠和每卡外链；正文保留可见 DOI/PMID，并通过 `content_source_url` 提供完整网页入口。

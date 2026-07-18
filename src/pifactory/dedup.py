@@ -41,8 +41,8 @@ def _merge_paper(base: dict[str, Any], incoming: dict[str, Any]) -> dict[str, An
     if len(clean_space(incoming.get("abstract"))) > len(clean_space(base.get("abstract"))):
         base["abstract"] = incoming.get("abstract")
         base["abstract_source"] = incoming.get("source")
-    for field in ("full_text_links", "full_text_urls"):
-        base[field] = (base.get(field) or []) + (incoming.get(field) or [])
+    for field in ("full_text_links", "full_text_urls", "retrieval_queries", "retrieval_channels"):
+        base[field] = unique_strings((base.get(field) or []) + (incoming.get(field) or []))
     if not base.get("open_access_pdf") and incoming.get("open_access_pdf"):
         base["open_access_pdf"] = incoming.get("open_access_pdf")
     return base

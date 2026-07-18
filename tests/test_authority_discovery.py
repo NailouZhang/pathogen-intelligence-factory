@@ -1,12 +1,22 @@
-from src.pifactory.authority_discovery import _allowed, _decode_ddg_url
+from pathlib import Path
+
+import pytest
+import yaml
+
+from src.pifactory.authority_discovery import AuthorityDiscoveryDisabled, discover_authoritative_urls
+from src.pifactory.authority_sources import configured_authority_sources
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_authority_domain_filter():
-    assert _allowed("https://ictv.global/report/example", ("ictv.global", "viralzone.expasy.org"))
-    assert _allowed("https://viralzone.expasy.org/123", ("ictv.global", "viralzone.expasy.org"))
-    assert not _allowed("https://example.com/ictv.global", ("ictv.global", "viralzone.expasy.org"))
+def test_search_discovery_is_permanently_disabled():
+    with pytest.raises(AuthorityDiscoveryDisabled):
+        discover_authoritative_urls({}, None)
 
 
-def test_duckduckgo_redirect_decode():
-    url = "https://duckduckgo.com/l/?uddg=https%3A%2F%2Fictv.global%2Freport%2Fx"
-    assert _decode_ddg_url(url) == "https://ictv.global/report/x"
+def test_exact_sources_are_loaded_from_seed_only():
+    seed = yaml.safe_load((ROOT / "profiles/hantavirus/seed.yaml").read_text(encoding="utf-8"))
+    sources = configured_authority_sources(seed)
+    assert len(sources) >= 3
+    assert all(x["url"].startswith("https://") for x in sources)
+    assert {x["url"] for x in sources} == {x["url"] for x in seed["authoritative_sources"]}

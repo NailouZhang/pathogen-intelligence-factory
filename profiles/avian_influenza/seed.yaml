@@ -1,0 +1,181 @@
+schema_version: '3.0'
+profile_id: avian_influenza
+display_name_zh: 禽流感病毒
+display_name_en: Avian influenza A viruses
+schedule:
+  day: thursday
+  order: 12
+target_scope:
+  target_entity_level: 人兽共患禽源甲型流感类群
+  scope_included:
+  - 聚焦 H5/H7/H9 等具有人兽共患和公共卫生意义的 avian influenza A viruses；不把普通季节性人流感作为主体。
+  scope_excluded:
+  - seasonal influenza
+  - swine influenza
+  - equine influenza
+  - canine influenza
+  allowed_members:
+  - H5N1
+  - H5N6
+  - H5N8
+  - H5Nx
+  - H7N9
+  - H7N4
+  - H9N2
+  - highly pathogenic avian influenza
+  - low pathogenic avian influenza
+  excluded_members:
+  - seasonal influenza
+  - swine influenza
+  - equine influenza
+  - canine influenza
+  required_identity_concepts:
+  - avian influenza
+  - avian influenza A virus
+  - avian influenza virus
+  - bird flu
+  - zoonotic influenza
+  - H5N1
+  - H5N6
+  - H5N8
+  - H5Nx
+  - H7N9
+  - H7N4
+  - H9N2
+  - highly pathogenic avian influenza
+  - low pathogenic avian influenza
+  - human infection with avian influenza
+  - zoonotic avian influenza
+  non_target_near_neighbors:
+  - seasonal influenza
+  - swine influenza
+  - equine influenza
+  - canine influenza
+candidate_vocabulary:
+  identity_anchor_terms:
+  - avian influenza
+  - avian influenza A virus
+  - avian influenza virus
+  - bird flu
+  - zoonotic influenza
+  qualified_identity_terms:
+  - term: AIV
+    required_context_terms:
+    - avian influenza
+    - influenza virus
+    - bird flu
+    query_fragment_seed: '"AIV" AND ("avian influenza" OR "influenza virus" OR "bird flu")'
+  - term: HPAI
+    required_context_terms:
+    - avian influenza
+    - influenza virus
+    query_fragment_seed: '"HPAI" AND ("avian influenza" OR "influenza virus")'
+  - term: LPAI
+    required_context_terms:
+    - avian influenza
+    - influenza virus
+    query_fragment_seed: '"LPAI" AND ("avian influenza" OR "influenza virus")'
+  member_identity_terms:
+  - H5N1
+  - H5N6
+  - H5N8
+  - H5Nx
+  - H7N9
+  - H7N4
+  - H9N2
+  - highly pathogenic avian influenza
+  - low pathogenic avian influenza
+  disease_identity_terms:
+  - human infection with avian influenza
+  - zoonotic avian influenza
+  context_terms:
+  - HPAI
+  - LPAI
+  - poultry outbreak
+  - wild bird surveillance
+  - spillover
+  - mammalian adaptation
+  - reassortment
+  - PB2-E627K
+  - PB2-D701N
+  display_only_terms:
+  - AIV
+  - HPAI
+  - LPAI
+  - H5
+  - H7
+  - H9
+  - HA
+  - NA
+  - PB2
+  - PB1
+  - PA
+  - NP
+  - M1
+  - M2
+  - NS1
+  - bird flu
+  exclusion_terms:
+  - seasonal influenza
+  - swine influenza
+  - equine influenza
+  - canine influenza
+manual_query_skeletons:
+  pubmed_high_precision: (("avian influenza"[Title/Abstract] OR "avian influenza A virus"[Title/Abstract] OR "H5N1"[Title/Abstract]
+    OR "H5N6"[Title/Abstract] OR "H7N9"[Title/Abstract] OR "H9N2"[Title/Abstract]) AND {{DATE_FILTER}}) NOT ("seasonal influenza"[Title/Abstract])
+  news_high_precision: ("avian influenza" OR "bird flu" OR "H5N1" OR "H5N6" OR "H7N9" OR "H9N2") AND (outbreak OR human case
+    OR poultry OR wild bird OR spillover)
+authoritative_sources:
+- name: WHO Avian and Other Zoonotic Influenza
+  organization: WHO
+  url: https://www.who.int/news-room/fact-sheets/detail/influenza-%28avian-and-other-zoonotic%29
+  role: public_health
+  required: false
+- name: CDC About Bird Flu
+  organization: CDC
+  url: https://www.cdc.gov/bird-flu/about/index.html
+  role: public_health
+  required: false
+- name: ViralZone Orthomyxoviridae
+  organization: ViralZone
+  url: https://viralzone.expasy.org/223
+  role: molecular
+  required: false
+- name: ViralZone H5N1
+  organization: ViralZone
+  url: https://viralzone.expasy.org/130?outline=all_by_species
+  role: molecular
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 禽流感病毒
+- 禽流感
+- H5N1
+- H7N9
+- H9N2
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

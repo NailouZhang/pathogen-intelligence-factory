@@ -1,0 +1,137 @@
+schema_version: '3.0'
+profile_id: nipah_virus
+display_name_zh: 尼帕病毒
+display_name_en: Nipah virus
+schedule:
+  day: saturday
+  order: 16
+target_scope:
+  target_entity_level: 具体病毒及疾病
+  scope_included:
+  - 聚焦 Nipah virus/Nipah virus infection；不把其他 Henipavirus 默认纳入。
+  scope_excluded:
+  - Hendra virus
+  - Cedar virus
+  - Ghanaian bat henipavirus
+  - Mojiang virus
+  allowed_members:
+  - NiV-Malaysia
+  - NiV-Bangladesh
+  excluded_members:
+  - Hendra virus
+  - Cedar virus
+  - Ghanaian bat henipavirus
+  - Mojiang virus
+  required_identity_concepts:
+  - Nipah virus
+  - Nipah virus infection
+  - Nipah virus disease
+  - NiV-Malaysia
+  - NiV-Bangladesh
+  - Nipah virus encephalitis
+  - Nipah virus infection
+  non_target_near_neighbors:
+  - Hendra virus
+  - Cedar virus
+  - Ghanaian bat henipavirus
+  - Mojiang virus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - Nipah virus
+  - Nipah virus infection
+  - Nipah virus disease
+  qualified_identity_terms:
+  - term: NiV
+    required_context_terms:
+    - Nipah
+    query_fragment_seed: ("NiV" AND "Nipah")
+  member_identity_terms:
+  - NiV-Malaysia
+  - NiV-Bangladesh
+  disease_identity_terms:
+  - Nipah virus encephalitis
+  - Nipah virus infection
+  context_terms:
+  - Pteropus
+  - fruit bat
+  - flying fox
+  - pig amplification host
+  - raw date palm sap
+  - person-to-person transmission
+  - nosocomial transmission
+  - ephrin-B2
+  - ephrin-B3
+  display_only_terms:
+  - NiV
+  - NiV-M
+  - NiV-B
+  - Henipavirus
+  - G protein
+  - F protein
+  - N protein
+  - P protein
+  - V protein
+  - W protein
+  - C protein
+  - encephalitis
+  exclusion_terms:
+  - Hendra virus
+  - Cedar virus
+  - Ghanaian bat henipavirus
+  - Mojiang virus
+manual_query_skeletons:
+  pubmed_high_precision: (("Nipah virus"[Title/Abstract] OR "Nipah virus infection"[Title/Abstract] OR ("NiV"[Title/Abstract]
+    AND Nipah[Title/Abstract])) AND {{DATE_FILTER}})
+  news_high_precision: ("Nipah virus" OR "Nipah virus infection") AND (outbreak OR case OR transmission OR encephalitis OR
+    surveillance)
+authoritative_sources:
+- name: ICTV Henipavirus
+  organization: ICTV
+  url: https://ictv.global/report/chapter/paramyxoviridae/paramyxoviridae/henipavirus
+  role: taxonomy
+  required: false
+- name: WHO Nipah Virus
+  organization: WHO
+  url: https://www.who.int/news-room/fact-sheets/detail/nipah-virus
+  role: public_health
+  required: false
+- name: CDC About Nipah Virus
+  organization: CDC
+  url: https://www.cdc.gov/nipah-virus/about/index.html
+  role: public_health
+  required: false
+- name: CDC Clinical Overview
+  organization: CDC
+  url: https://www.cdc.gov/nipah-virus/hcp/clinical-overview/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 尼帕病毒
+- 尼帕病毒感染
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

@@ -1,0 +1,137 @@
+schema_version: '3.0'
+profile_id: rabies_virus
+display_name_zh: 狂犬病病毒
+display_name_en: Rabies virus
+schedule:
+  day: sunday
+  order: 20
+target_scope:
+  target_entity_level: 具体病毒及疾病
+  scope_included:
+  - 聚焦 Rabies virus/rabies；其他 lyssaviruses 仅在比较、暴露或鉴别诊断时纳入。
+  scope_excluded:
+  - Australian bat lyssavirus
+  - European bat lyssavirus
+  - Lagos bat virus
+  - Mokola virus
+  allowed_members:
+  - Lyssavirus rabies
+  excluded_members:
+  - Australian bat lyssavirus
+  - European bat lyssavirus
+  - Lagos bat virus
+  - Mokola virus
+  required_identity_concepts:
+  - rabies virus
+  - rabies
+  - rabies infection
+  - Lyssavirus rabies
+  - rabies
+  - rabies encephalitis
+  - human rabies
+  non_target_near_neighbors:
+  - Australian bat lyssavirus
+  - European bat lyssavirus
+  - Lagos bat virus
+  - Mokola virus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - rabies virus
+  - rabies
+  - rabies infection
+  qualified_identity_terms:
+  - term: RABV
+    required_context_terms:
+    - rabies
+    - virus
+    query_fragment_seed: '"RABV" AND ("rabies" OR "virus")'
+  member_identity_terms:
+  - Lyssavirus rabies
+  disease_identity_terms:
+  - rabies
+  - rabies encephalitis
+  - human rabies
+  context_terms:
+  - animal bite
+  - saliva exposure
+  - dog-mediated rabies
+  - bat rabies
+  - post-exposure prophylaxis
+  - pre-exposure prophylaxis
+  - rabies immunoglobulin
+  - mass dog vaccination
+  - One Health
+  display_only_terms:
+  - RABV
+  - Lyssavirus
+  - N protein
+  - P protein
+  - M protein
+  - G protein
+  - L protein
+  - PEP
+  - PrEP
+  - RIG
+  - hydrophobia
+  - aerophobia
+  exclusion_terms:
+  - Australian bat lyssavirus
+  - European bat lyssavirus
+  - Lagos bat virus
+  - Mokola virus
+manual_query_skeletons:
+  pubmed_high_precision: (("rabies virus"[Title/Abstract] OR rabies[Title/Abstract] OR "human rabies"[Title/Abstract]) AND
+    {{DATE_FILTER}})
+  news_high_precision: ("rabies virus" OR rabies OR "human rabies") AND (case OR exposure OR bite OR vaccination OR post-exposure
+    prophylaxis)
+authoritative_sources:
+- name: ViralZone Lyssavirus
+  organization: ViralZone
+  url: https://viralzone.expasy.org/22?outline=all_by_species
+  role: molecular
+  required: false
+- name: ViralZone Rabies Virus
+  organization: ViralZone
+  url: https://viralzone.expasy.org/222
+  role: molecular
+  required: false
+- name: WHO Rabies
+  organization: WHO
+  url: https://www.who.int/news-room/fact-sheets/detail/rabies
+  role: public_health
+  required: false
+- name: CDC About Rabies
+  organization: CDC
+  url: https://www.cdc.gov/rabies/about/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 狂犬病病毒
+- 狂犬病
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

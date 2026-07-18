@@ -1,40 +1,53 @@
-# Pathogen Intelligence Factory — 15种病毒每周循环版
+# Pathogen Intelligence Factory v6 — 21 病毒全锚点、高召回、高精度系统
 
-公开 GitHub 仓库，按北京时间每日 02:00 顺序分析当天清单中的病毒。每种病毒每周一次，检索窗口为过去 7 天；最多展示质量排序后的前 50 篇文献和前 50 条权威新闻。
+公开仓库：`NailouZhang/pathogen-intelligence-factory`
 
-## 默认周计划
+本仓库每天北京时间 02:00 按顺序处理 3 个病毒主题，一周覆盖 21 个主题。每个主题检索过去 7 天的文献与新闻，依次完成：固定权威网页词库、数据库专属查询编译、所有安全身份锚点逐词独立检索、组合式补充检索、去重与内容补全、全候选 Python 复核、动态 Token 批次 LLM 复核、A/B/C 等级排序、最终 Top 50 双语与五要素分析、GitHub Pages、`wechat-package/v2` 和私有 Runner 发布。
 
-- 周一：Arenaviridae、Hantavirus、Mpox Virus
-- 周二：SFTSV、SARS-CoV-2
-- 周三：Nipah virus、Ebola virus
-- 周四：Norovirus、Chikungunya virus
-- 周五：Influenza Virus、Rhinovirus
-- 周六：Parainfluenza Virus、Enterovirus
-- 周日：Respiratory Syncytial Virus、Human Metapneumovirus
+## v6 的关键变化
 
-调度只需修改 `config/weekly_virus_schedule.yaml`。每个病原的简单种子词在 `profiles/<profile_id>/seed.yaml`。
+- 不使用 Google CSE 自动寻找权威网页；21 个 profile 只使用人工确认的 ICTV、ViralZone、WHO、CDC 等固定来源。
+- 每个 `safe_to_use_alone=true` 的完整身份词在 PubMed、Europe PMC、Semantic Scholar、OpenAlex、Crossref 和新闻查询中拥有独立入口，避免热门成员挤掉罕见成员。
+- 分组 OR、分子、流行病学、临床和基因组查询只作为补充，不再承担唯一召回责任。
+- 缩写只有与必要上下文组合后才可检索；蛋白、基因、宿主、症状、药物和疫苗不能独立证明病毒身份。
+- Python 检查 100% 候选；LLM 以身份命中、上下文命中、排除命中和完整证据句构成紧凑包，按 Token 预算动态分批处理到队列为空。
+- 不再设置“最多复核 80 篇”或“摘要前 2500 字符”限制；只有模型返回 `U` 的记录才升级为更完整的句子级证据。
+- 只有最终展示的 Top 50 文献与 Top 50 新闻执行深度翻译、五要素和综合综述，避免对未展示候选浪费模型 Token。
+- 当 PubMed 与 Europe PMC 的 7 天核心查询同时为 0 时，自动执行 90 天逐锚点 count-only 健康探针；探针结果只用于诊断，不进入日报。
+- 每条最终记录具有确定性质量分和 A/B/C 优先级，不随机抽取。
+- 每次输出来源健康、检索漏斗、单锚点覆盖和全量相关性复核审计。
 
-## 运行链路
+## 每周调度
+
+`config/weekly_virus_schedule.yaml` 定义 7 天 × 每天 3 个 profile。YAML 顺序就是实际执行顺序，后续可直接编辑。
+
+## 主要输出
 
 ```text
-周清单 → 严格术语档案 → 多源文献/新闻 → 相关性与去重
-→ 高水平/权威排序 → 翻译与五要素 → 独立病原网页和封面
-→ intelligence-data 不可变提交 → 私有发布仓库 → 本地 Runner
-→ 微信公众号草稿
+output/
+├── data/latest.json
+├── data/audit/query_plan.json
+├── data/audit/source_status.json
+├── data/audit/anchor_coverage.json
+├── data/audit/relevance_review.json
+├── data/audit/retrieval_funnel.json
+├── site/index.html
+└── wechat-package/
+    ├── manifest.json
+    ├── article.html
+    ├── cover.jpg
+    └── images/
 ```
 
-## 关键变化
+## 本地验证
 
-- 每日 02:00 北京时间启动，单 Job 严格顺序执行；
-- 15 个内置 profile；
-- `max_papers=50`、`max_news=50`；
-- Google CSE 可选，DuckDuckGo 与站内搜索回退；
-- GitHub Pages 根目录变为 15 病原门户，各病原报告位于 `/profiles/<profile_id>/`；
-- 封面支持 CJK 字体，不显示日期或时间；
-- `pathogen-wechat-publisher` 合约不随病原变化。
+```bash
+python -m pip install -r requirements.txt
+python scripts/validate_all_profiles.py
+python scripts/audit_query_coverage.py
+python scripts/check_credentials.py || true
+python -m pytest -q
+python -m compileall -q src scripts tests
+```
 
-详见：
-
-- `docs/WEEKLY_15_VIRUSES_ZH.md`
-- `docs/AUTHORITY_DISCOVERY_ZH.md`
-- `docs/INSTALL_ZH.md`
+完整说明见 `docs/INSTALL_ZH.md`、`docs/RETRIEVAL_V6_ZH.md`、`docs/FULL_CORPUS_REVIEW_V6_ZH.md`、`docs/CREDENTIALS_V6_ZH.md` 和 `docs/GITHUB_UPDATE_PUBLIC_ZH.md`。

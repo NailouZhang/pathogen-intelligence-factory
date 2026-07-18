@@ -37,10 +37,31 @@ class Settings:
     window_days: int = field(default_factory=lambda: env_int("PIF_WINDOW_DAYS", 7))
     max_papers: int = field(default_factory=lambda: env_int("PIF_MAX_PAPERS", 50))
     max_news: int = field(default_factory=lambda: env_int("PIF_MAX_NEWS", 50))
-    max_paper_candidates: int = field(default_factory=lambda: env_int("PIF_MAX_PAPER_CANDIDATES", 150))
-    max_news_candidates: int = field(default_factory=lambda: env_int("PIF_MAX_NEWS_CANDIDATES", 180))
-    max_news_fetches: int = field(default_factory=lambda: env_int("PIF_MAX_NEWS_FETCHES", 120))
-    max_fulltexts: int = field(default_factory=lambda: env_int("PIF_MAX_FULLTEXTS", 50))
+    # Zero means no post-dedup document-count cutoff.  Provider adapters still
+    # have per-query pagination limits, but no candidate is discarded merely
+    # because it falls after an arbitrary local index.
+    max_paper_candidates: int = field(default_factory=lambda: env_int("PIF_MAX_PAPER_CANDIDATES", 0))
+    max_news_candidates: int = field(default_factory=lambda: env_int("PIF_MAX_NEWS_CANDIDATES", 0))
+    max_news_fetches: int = field(default_factory=lambda: env_int("PIF_MAX_NEWS_FETCHES", 0))
+    max_fulltexts: int = field(default_factory=lambda: env_int("PIF_MAX_FULLTEXTS", 0))
+    pubmed_per_query: int = field(default_factory=lambda: env_int("PIF_PUBMED_PER_QUERY", 180))
+    pubmed_total_limit: int = field(default_factory=lambda: env_int("PIF_PUBMED_TOTAL_LIMIT", 2000))
+    europe_pmc_per_query: int = field(default_factory=lambda: env_int("PIF_EUROPE_PMC_PER_QUERY", 150))
+    crossref_per_query: int = field(default_factory=lambda: env_int("PIF_CROSSREF_PER_QUERY", 45))
+    crossref_include_indexed: bool = field(default_factory=lambda: env_bool("PIF_CROSSREF_INCLUDE_INDEXED", True))
+    semantic_per_query: int = field(default_factory=lambda: env_int("PIF_SEMANTIC_PER_QUERY", 80))
+    semantic_anonymous_query_limit: int = field(default_factory=lambda: env_int("PIF_SEMANTIC_ANONYMOUS_QUERY_LIMIT", 0))
+    semantic_anonymous_delay_ms: int = field(default_factory=lambda: env_int("PIF_SEMANTIC_ANONYMOUS_DELAY_MS", 500))
+    openalex_per_query: int = field(default_factory=lambda: env_int("PIF_OPENALEX_PER_QUERY", 100))
+    # LLM review has no document-count or character cutoff.  Every candidate
+    # that survives the Python coarse gate is packed into token-budgeted batches
+    # until the queue is empty.  Only unresolved U records receive fuller
+    # sentence-selected evidence.
+    llm_review_mode: str = field(default_factory=lambda: os.getenv("PIF_LLM_REVIEW_MODE", "all_compact").strip().lower())
+    llm_compact_batch_tokens: int = field(default_factory=lambda: env_int("PIF_LLM_COMPACT_BATCH_TOKENS", 12000))
+    llm_escalation_batch_tokens: int = field(default_factory=lambda: env_int("PIF_LLM_ESCALATION_BATCH_TOKENS", 10000))
+    relevance_review_cache_enabled: bool = field(default_factory=lambda: env_bool("PIF_RELEVANCE_REVIEW_CACHE", True))
+    analysis_cache_enabled: bool = field(default_factory=lambda: env_bool("PIF_ANALYSIS_CACHE", True))
     timezone: str = "Asia/Shanghai"
 
     @property
@@ -51,10 +72,15 @@ class Settings:
             "GEMINI_API_KEY",
             "GROQ_API_KEY",
             "SEMANTIC_SCHOLAR_API_KEY",
-            "GOOGLE_CSE_API_KEY",
-            "GOOGLE_CSE_ID",
+            "OPENALEX_API_KEY",
+            "RELIEFWEB_APPNAME",
         ]
-        return {name: os.getenv(name, "").strip() for name in names}
+        values = {name: os.getenv(name, "").strip() for name in names}
+        # ReliefWeb requires a pre-approved appname. The requested name is
+        # shipped as a non-secret default; before approval the adapter records
+        # a clear pending/rejected status and the remaining news sources run.
+        values["RELIEFWEB_APPNAME"] = values.get("RELIEFWEB_APPNAME") or "wiv-virology-literature-tracker-42x"
+        return values
 
     @property
     def user_agent(self) -> str:

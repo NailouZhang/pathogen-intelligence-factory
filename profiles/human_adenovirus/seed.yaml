@@ -1,0 +1,179 @@
+schema_version: '3.0'
+profile_id: human_adenovirus
+display_name_zh: 人腺病毒
+display_name_en: Human adenoviruses
+schedule:
+  day: tuesday
+  order: 5
+target_scope:
+  target_entity_level: 人腺病毒类群
+  scope_included:
+  - 聚焦感染人的腺病毒及具体 HAdV 型别；排除动物腺病毒和仅作为基因治疗载体的文章，除非主题明确要求。
+  scope_excluded:
+  - canine adenovirus
+  - bovine adenovirus
+  - porcine adenovirus
+  - fowl adenovirus
+  - adenoviral vector
+  - gene therapy vector
+  allowed_members:
+  - HAdV-3
+  - HAdV-4
+  - HAdV-7
+  - HAdV-14
+  - HAdV-21
+  - HAdV-40
+  - HAdV-41
+  - human adenovirus species A
+  - human adenovirus species B
+  - human adenovirus species C
+  - human adenovirus species D
+  - human adenovirus species E
+  - human adenovirus species F
+  - human adenovirus species G
+  excluded_members:
+  - canine adenovirus
+  - bovine adenovirus
+  - porcine adenovirus
+  - fowl adenovirus
+  - adenoviral vector
+  - gene therapy vector
+  required_identity_concepts:
+  - human adenovirus
+  - human adenoviruses
+  - human adenoviral infection
+  - HAdV-3
+  - HAdV-4
+  - HAdV-7
+  - HAdV-14
+  - HAdV-21
+  - HAdV-40
+  - HAdV-41
+  - human adenovirus species A
+  - human adenovirus species B
+  - human adenovirus species C
+  - human adenovirus species D
+  - human adenovirus species E
+  - human adenovirus species F
+  - human adenovirus species G
+  - adenovirus infection
+  - adenoviral conjunctivitis
+  - adenoviral gastroenteritis
+  non_target_near_neighbors:
+  - canine adenovirus
+  - bovine adenovirus
+  - porcine adenovirus
+  - fowl adenovirus
+  - adenoviral vector
+  - gene therapy vector
+candidate_vocabulary:
+  identity_anchor_terms:
+  - human adenovirus
+  - human adenoviruses
+  - human adenoviral infection
+  qualified_identity_terms:
+  - term: HAdV
+    required_context_terms:
+    - human adenovirus
+    - adenovirus infection
+    - virus
+    query_fragment_seed: '"HAdV" AND ("human adenovirus" OR "adenovirus infection" OR "virus")'
+  member_identity_terms:
+  - HAdV-3
+  - HAdV-4
+  - HAdV-7
+  - HAdV-14
+  - HAdV-21
+  - HAdV-40
+  - HAdV-41
+  - human adenovirus species A
+  - human adenovirus species B
+  - human adenovirus species C
+  - human adenovirus species D
+  - human adenovirus species E
+  - human adenovirus species F
+  - human adenovirus species G
+  disease_identity_terms:
+  - adenovirus infection
+  - adenoviral conjunctivitis
+  - adenoviral gastroenteritis
+  context_terms:
+  - acute respiratory disease
+  - epidemic keratoconjunctivitis
+  - pharyngoconjunctival fever
+  - gastroenteritis
+  - hexon
+  - penton base
+  - fiber protein
+  - recombinant adenovirus
+  display_only_terms:
+  - adenovirus
+  - HAdV
+  - hexon
+  - fiber
+  - penton
+  - E1A
+  - E1B
+  - E3
+  - species A
+  - species B
+  - species C
+  exclusion_terms:
+  - canine adenovirus
+  - bovine adenovirus
+  - porcine adenovirus
+  - fowl adenovirus
+  - adenoviral vector
+  - gene therapy vector
+manual_query_skeletons:
+  pubmed_high_precision: (("human adenovirus"[Title/Abstract] OR "human adenoviruses"[Title/Abstract] OR "HAdV-3"[Title/Abstract]
+    OR "HAdV-7"[Title/Abstract] OR "HAdV-41"[Title/Abstract]) AND {{DATE_FILTER}}) NOT (canine adenovirus[Title/Abstract]
+    OR bovine adenovirus[Title/Abstract] OR fowl adenovirus[Title/Abstract])
+  news_high_precision: ("human adenovirus" OR "HAdV-3" OR "HAdV-7" OR "HAdV-41") AND (outbreak OR infection OR surveillance
+    OR cases)
+authoritative_sources:
+- name: ICTV Adenoviridae
+  organization: ICTV
+  url: https://ictv.global/report/chapter/adenoviridae/adenoviridae
+  role: taxonomy
+  required: false
+- name: ViralZone Adenoviridae
+  organization: ViralZone
+  url: https://viralzone.expasy.org/4
+  role: molecular
+  required: false
+- name: CDC About Adenovirus
+  organization: CDC
+  url: https://www.cdc.gov/adenovirus/about/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 人腺病毒
+- 腺病毒感染
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment

@@ -1,0 +1,137 @@
+schema_version: '3.0'
+profile_id: marburg_virus
+display_name_zh: 马尔堡病毒
+display_name_en: Marburg virus
+schedule:
+  day: sunday
+  order: 19
+target_scope:
+  target_entity_level: 马尔堡病毒类群及疾病
+  scope_included:
+  - 聚焦 Marburg virus、Ravn virus 和 Marburg virus disease；排除 ebolaviruses。
+  scope_excluded:
+  - Ebola virus
+  - Sudan virus
+  - Bundibugyo virus
+  - ebolavirus
+  allowed_members:
+  - Ravn virus
+  excluded_members:
+  - Ebola virus
+  - Sudan virus
+  - Bundibugyo virus
+  - ebolavirus
+  required_identity_concepts:
+  - Marburg virus
+  - Marburg virus disease
+  - Marburg disease
+  - Ravn virus
+  - Marburg virus disease
+  - Marburg hemorrhagic fever
+  non_target_near_neighbors:
+  - Ebola virus
+  - Sudan virus
+  - Bundibugyo virus
+  - ebolavirus
+candidate_vocabulary:
+  identity_anchor_terms:
+  - Marburg virus
+  - Marburg virus disease
+  - Marburg disease
+  qualified_identity_terms:
+  - term: MARV
+    required_context_terms:
+    - Marburg
+    query_fragment_seed: ("MARV" AND "Marburg")
+  - term: RAVV
+    required_context_terms:
+    - Ravn
+    query_fragment_seed: ("RAVV" AND "Ravn")
+  member_identity_terms:
+  - Ravn virus
+  disease_identity_terms:
+  - Marburg virus disease
+  - Marburg hemorrhagic fever
+  context_terms:
+  - Egyptian rousette
+  - Rousettus aegyptiacus
+  - cave exposure
+  - mine exposure
+  - body fluids
+  - contact tracing
+  - safe burial
+  - genomic surveillance
+  display_only_terms:
+  - MARV
+  - RAVV
+  - MVD
+  - GP
+  - NP
+  - VP24
+  - VP30
+  - VP35
+  - VP40
+  - L polymerase
+  - Orthomarburgvirus
+  - Filoviridae
+  exclusion_terms:
+  - Ebola virus
+  - Sudan virus
+  - Bundibugyo virus
+  - ebolavirus
+manual_query_skeletons:
+  pubmed_high_precision: (("Marburg virus"[Title/Abstract] OR "Ravn virus"[Title/Abstract] OR "Marburg virus disease"[Title/Abstract])
+    AND {{DATE_FILTER}}) NOT ("Ebola virus"[Title/Abstract])
+  news_high_precision: ("Marburg virus" OR "Ravn virus" OR "Marburg virus disease") AND (outbreak OR case OR transmission
+    OR contact tracing)
+authoritative_sources:
+- name: ViralZone Filoviridae
+  organization: ViralZone
+  url: https://viralzone.expasy.org/23?outline=all_by_species
+  role: molecular
+  required: false
+- name: ViralZone Orthomarburgvirus
+  organization: ViralZone
+  url: https://viralzone.expasy.org/224
+  role: molecular
+  required: false
+- name: WHO Marburg Virus Disease
+  organization: WHO
+  url: https://www.who.int/news-room/fact-sheets/detail/marburg-virus-disease
+  role: public_health
+  required: false
+- name: CDC About Marburg
+  organization: CDC
+  url: https://www.cdc.gov/marburg/about/index.html
+  role: public_health
+  required: false
+source_policy:
+  exact_urls_only: true
+  allow_search_discovery: false
+  allow_llm_memory_completion: false
+  minimum_usable_sources: 1
+  cache_on_success: true
+  use_cache_on_fetch_failure: true
+query_policy:
+  date_filter_injected_by_program: true
+  pubmed_max_chars: 1800
+  news_max_chars: 350
+  reject_unanchored_or_branches: true
+  reject_context_only_hits: true
+  minimum_relevance_score: 6
+  review_score_min: 3
+  candidate_relevance_score: 3
+  keep_review_until_enrichment: true
+  llm_review_medium_confidence: true
+news_identity_terms_zh:
+- 马尔堡病毒
+- 马尔堡病毒病
+retrieval_policy:
+  execute_all_query_chunks: true
+  pubmed_per_query: 120
+  europe_pmc_per_query: 150
+  crossref_per_term: 50
+  semantic_scholar_per_term: 80
+  openalex_per_term: 80
+  candidate_gate: accept_or_review
+  final_gate: accept_after_content_enrichment
