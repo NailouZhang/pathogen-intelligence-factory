@@ -1,66 +1,47 @@
-weekly21 v8 双仓系统离线验证报告
+weekly21 v9 双仓系统离线验证报告
 生成日期：2026-07-18
 
-一、配置与检索覆盖
-- profile 数量：21
-- status=ready：21/21
-- 每个 profile 核心检索概念：5
-- 核心检索概念总数：105
-- provider 查询计划记录：945
-- 受限定缩写规则：56
-- 北京时间调度：7 天 × 每天 3 个 profile
+一、针对用户运行日志确认的偏差
 
-二、公开仓自动测试
-- pytest：74 passed
-- Python compileall：通过
-- YAML/YML 解析：24 个文件通过
-- Shell bash -n：通过
-- validate_all_profiles.py：21/21 ready
-- audit_query_coverage.py：通过并生成 QUERY_COVERAGE_21_V8.json
+- 学术候选：2608 原始记录，636 条去重候选，227 条通过相关性复核；说明前期检索并未导致只有35篇。
+- v8 内容处理：70篇文献均保留，但34条新闻全部因正文门禁被删除。
+- v8 翻译门禁：50篇完成单篇分析，翻译后仅35篇就绪；旧流程没有从补位候选重新补足。
 
-三、v8 专项回归测试
-- 文献与新闻汇总完全分离：通过
-- 汇总选择上限 25、目标下限 15：通过
-- 原始研究七要素提示词：通过
-- 综述五要素提示词：通过
-- 新闻五要素与 body-grounded brief：通过
-- 弱模型/无效模型输出的确定性完整框架兜底：通过
-- Python 免费翻译优先：通过
-- Python 翻译全部失败后 LLM 最终兜底：通过
-- 译文数字保留与 translation_ready 门禁：通过
-- 微信新闻摘要最长 500 个中文字符：通过
-- 新闻正文提取成功与标题重复拒绝：通过
-- Top 50 + 最多 20 条补位候选后移内容补全：通过
-- 页面禁止“翻译暂不可用”占位符：通过
+二、v9 代码修复
 
-四、端到端 Demo
-- profile：hantavirus
-- issue schema：4.0
-- 文献：2（研究 1、综述 1）
-- 新闻：1
-- 文献汇总块：生成成功
-- 新闻汇总块：生成成功
-- 双语页面：生成成功
-- wechat-package/v2：校验通过
-- 微信新闻摘要长度：≤500
-- 翻译占位符：0
+1. 文献和新闻补位池从 20 增至 30；最多 80 条展示候选保持到内容、分析和翻译完成。
+2. 最终 Top 50 在 translation_ready/content_ready 之后重新排序选择，不再在翻译前锁死50条。
+3. 新闻保留 RSS entry links、summary 外链、GDELT/发布者直接 URL、canonical、OpenGraph、JSON-LD、mainEntityOfPage 和脚本内 URL。
+4. 原始正文失败时，仅通过严格质量门禁的实质性转载摘要可标记 syndicated_summary；标题重复仍拒绝。
+5. 文献/新闻汇总分离；中文字段执行中文比例、无省略号、完整句、来源ID和占位符校验。
+6. 研究七要素、综述五要素使用修辞角色对齐，Python 回退也按角色选句。
+7. 批量翻译缺项时逐字段重新走免费 Python 翻译器与 LLM 最终兜底。
+8. 封面、网页、RSS 和微信标题改为每周情报。
 
-五、私有发布仓
-- 版本：2.5.0
-- pytest：4 passed
-- Python compileall：通过
-- YAML/YML 解析：1 个文件通过
-- Shell bash -n：通过
-- 固定 repository、Conda Python、UTF-8、manifest、SHA-256、封面复用、publish_key 防重复逻辑保留
+三、实际完成的离线测试
 
-六、未在打包环境冒充完成的在线步骤
-- 真实 PubMed、Europe PMC、Crossref、Semantic Scholar、OpenAlex、bioRxiv、medRxiv 请求
-- 真实 Google/Bing/GDELT/ReliefWeb/WHO 新闻请求
-- ReliefWeb appname 审核结果
-- 真实 deep-translator、Google 兼容入口和 MyMemory 的网络可用性
-- 真实 Gemini/Groq 配额、模型可用性和响应质量
-- 真实 GitHub Actions、intelligence-data 分支和 GitHub Pages
-- 本地 self-hosted Runner
-- 微信 stable token、素材上传和 draft/add
+- 21/21 profile：ready。
+- 每个 profile：5 个核心检索概念、45 条 provider 适配查询。
+- 21 个 profile 查询覆盖审计：通过。
+- 公开仓 pytest：81 passed。
+- 私有仓 pytest：4 passed。
+- 公开仓 Python compileall：通过。
+- 私有仓 Python compileall：通过。
+- 公开仓 YAML/YML：24 个解析通过。
+- 私有仓 YAML/YML：1 个解析通过。
+- 全部 Shell 脚本 bash -n：通过。
+- 汉坦病毒 Demo：成功生成每周标题、分离式中文汇总、研究/综述/新闻卡片、Pages 和 wechat-package/v2。
+- Demo 中“每日情报”：0；汇总省略号：0；翻译不可用占位符：0。
+- ZIP CRC：在最终打包后验证。
 
-在线行为必须在用户自己的 GitHub Secrets、网络、Runner、公网 IP 白名单和微信公众号环境中执行首次验收。工程已对来源失败、翻译失败、新闻正文失败和模型失败保留审计与失败门禁。
+四、没有在打包环境中冒充完成的在线测试
+
+- 真实 PubMed、Europe PMC、Crossref、Semantic Scholar、OpenAlex、bioRxiv/medRxiv 在线请求。
+- Google/Bing/GDELT/WHO/ReliefWeb 对当天新闻页面的真实解析。
+- ReliefWeb appname 审核状态。
+- Gemini/Groq 实际调用、额度和限流。
+- GitHub Actions、GitHub Pages 和 intelligence-data 推送。
+- 本地 Ubuntu self-hosted Runner。
+- 微信 stable token、素材上传和 draft/add。
+
+首次在线验收应使用 hantavirus、dispatch_wechat=false、cover_image_mode=deterministic，并重点查看 news content_audit、paper_ready_pool、news_ready_pool 和最终 displayed 数量。

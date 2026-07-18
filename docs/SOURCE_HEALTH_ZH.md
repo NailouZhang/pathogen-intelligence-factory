@@ -1,47 +1,14 @@
-# v8 数据源健康、核心概念覆盖和检索漏斗
+# v9 数据源健康、检索漏斗和输出数量审计
 
-每次运行输出：
+每次运行生成 `data/audit/source_status.json`、`query_plan.json`、`anchor_coverage.json`、`relevance_review.json`、`retrieval_funnel.json`、`papers.jsonl` 和 `news.jsonl`。
 
-```text
-data/audit/query_plan.json
-data/audit/source_status.json
-data/audit/anchor_coverage.json
-data/audit/relevance_review.json
-data/audit/retrieval_funnel.json
-```
+重点检查：
 
-## source_status.json
+- `after_final_gate`：相关性复核后候选数量；
+- `selected_for_content_enrichment`：进入 50+30 补位池的数量；
+- `content_rejected`：内容补全失败数量；
+- `translation_rejected`：翻译不就绪数量；
+- `displayed`：最终页面数量；
+- `paper_ready_pool`、`news_ready_pool`：最终选取前的就绪池。
 
-区分：
-
-- `healthy/success`：接口成功并返回记录；
-- `empty`：接口成功但 7 天内为 0；
-- `degraded`：部分查询成功、部分失败；
-- `skipped`：缺少可选 Key 或 ReliefWeb 仍待审核；
-- `failed`：网络、认证、查询或解析失败。
-
-## anchor_coverage.json
-
-v8 中的“锚点覆盖”指 5 个核心检索概念在 PubMed、Europe PMC、Crossref、Semantic Scholar、OpenAlex 和新闻通道中的执行与返回数量，不再表示完整富词库逐词查询。
-
-## retrieval_funnel.json
-
-记录：
-
-```text
-raw
-→ after_window
-→ after_candidate_gate
-→ after_dedup
-→ after_final_gate
-→ displayed
-```
-
-全文和新闻正文补全只发生在 `displayed` 集合。
-
-离线审计：
-
-```bash
-python scripts/audit_query_coverage.py \
-  --output /tmp/query-coverage-v8.json
-```
+当就绪池不少于 50 而 displayed 小于 50 时，测试必须失败。新闻正文审计记录 attempted_urls、resolved_url、content_status、content_method、content_length、标题正文相似度和错误原因。

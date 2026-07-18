@@ -5,12 +5,12 @@ import json
 import re
 import xml.etree.ElementTree as ET
 from typing import Any
-from urllib.parse import urljoin, urlparse
+from urllib.parse import parse_qs, unquote, urljoin, urlparse
 
 import fitz
 import trafilatura
 from bs4 import BeautifulSoup
-from rapidfuzz.fuzz import partial_ratio, token_set_ratio
+from rapidfuzz.fuzz import partial_ratio, ratio, token_set_ratio
 
 from .http import HttpClient
 from .utils import clean_space, extract_doi, normalize_title, sha256_text, split_sentences, strip_tags, truncate, unique_strings, utc_now_iso
@@ -86,24 +86,118 @@ def _paragraph_text(soup: BeautifulSoup) -> str:
     return clean_space(" ".join(unique_strings(paragraphs)))
 
 
+def _is_aggregator_url(value: str | None) -> bool:
+    url = clean_space(value).lower()
+    return any(host in url for host in (
+        "news.google.", "google.com/rss", "googleusercontent.com",
+        "bing.com/news", "msn.com/",
+    ))
+
+
 def _candidate_news_urls(record: dict[str, Any]) -> list[str]:
-    return unique_strings(
-        [
-            record.get("resolved_url"),
-            record.get("url"),
-            record.get("source_url"),
-            record.get("canonical_url"),
-            record.get("link"),
-            record.get("original_url"),
-        ]
+    urls: list[str] = []
+    for value in (
+        record.get("resolved_url"), record.get("url"), record.get("source_url"),
+        record.get("canonical_url"), record.get("link"), record.get("original_url"),
+        record.get("publisher_url"),
+    ):
+        if value:
+            urls.append(clean_space(value))
+    urls.extend(clean_space(x) for x in (record.get("candidate_urls") or []) if clean_space(x))
+    for duplicate in record.get("duplicate_sources") or []:
+        if isinstance(duplicate, dict) and duplicate.get("url"):
+            urls.append(clean_space(duplicate.get("url")))
+    # Prefer direct publisher URLs over aggregators while retaining the latter
+    # as discovery pages that may expose canonical/article links.
+    return sorted(unique_strings(urls), key=lambda x: (1 if _is_aggregator_url(x) else 0, len(x)))
+
+
+def _decode_embedded_url(value: str) -> str:
+    url = clean_space(value)
+    if not url:
+        return ""
+    try:
+        parsed = urlparse(url)
+        query = parse_qs(parsed.query)
+        for key in ("url", "u", "q", "target", "redirect", "redirect_url"):
+            for candidate in query.get(key, []):
+                decoded = unquote(candidate)
+                if decoded.startswith(("http://", "https://")):
+                    return decoded
+    except Exception:
+        pass
+    return url
+
+
+def _external_news_urls(soup: BeautifulSoup, raw: str, base_url: str) -> list[str]:
+    """Discover publisher article URLs from aggregator/landing pages."""
+    candidates: list[str] = []
+    for attr, value in (("property", "og:url"), ("name", "twitter:url"), ("name", "citation_public_url")):
+        tag = soup.find("meta", attrs={attr: value})
+        if tag and tag.get("content"):
+            candidates.append(urljoin(base_url, clean_space(tag.get("content"))))
+    canonical = soup.find("link", rel=lambda x: x and "canonical" in str(x).lower())
+    if canonical and canonical.get("href"):
+        candidates.append(urljoin(base_url, clean_space(canonical.get("href"))))
+    for script in soup.find_all("script", attrs={"type": "application/ld+json"}):
+        try:
+            data = json.loads(script.string or script.get_text(" "))
+        except Exception:
+            continue
+        stack = data if isinstance(data, list) else [data]
+        for node in stack:
+            if not isinstance(node, dict):
+                continue
+            graph = node.get("@graph") if isinstance(node.get("@graph"), list) else [node]
+            for item in graph:
+                if not isinstance(item, dict):
+                    continue
+                for key in ("url", "mainEntityOfPage"):
+                    value = item.get(key)
+                    if isinstance(value, dict):
+                        value = value.get("@id") or value.get("url")
+                    if isinstance(value, str):
+                        candidates.append(urljoin(base_url, value))
+    for anchor in soup.find_all("a", href=True):
+        href = _decode_embedded_url(urljoin(base_url, anchor.get("href")))
+        if href.startswith(("http://", "https://")):
+            candidates.append(href)
+    # Some aggregators embed escaped article URLs in scripts. Keep only normal
+    # HTTP URLs and filter obvious assets/social/navigation domains.
+    for found in re.findall(r'https?://[^"\'<>\s]+', raw):
+        candidates.append(found.replace("\u0026", "&").replace("\\/", "/"))
+    blocked = (
+        "news.google.", "google.com/", "googleusercontent.com", "gstatic.com",
+        "bing.com/", "microsoft.com/", "facebook.com/", "twitter.com/",
+        "x.com/", "youtube.com/", "doubleclick.net/",
     )
+    base_host = urlparse(base_url).netloc.lower()
+    output: list[str] = []
+    for candidate in unique_strings(candidates):
+        decoded = _decode_embedded_url(candidate)
+        try:
+            parsed = urlparse(decoded)
+        except Exception:
+            continue
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            continue
+        lower = decoded.lower()
+        if any(token in lower for token in blocked):
+            continue
+        if parsed.path.lower().endswith((".jpg", ".jpeg", ".png", ".gif", ".svg", ".css", ".js")):
+            continue
+        # Prefer external publisher pages; same-host links are still useful for
+        # non-aggregator source sites.
+        if parsed.netloc.lower() != base_host or not _is_aggregator_url(base_url):
+            output.append(decoded)
+    return unique_strings(output)[:20]
 
 
 def _news_text_quality(text: str, title: str) -> tuple[bool, float, dict[str, Any]]:
     value = remove_boilerplate(text)
     title_norm = normalize_title(title)
     value_norm = normalize_title(value)
-    title_similarity = token_set_ratio(title_norm, value_norm) / 100 if title_norm and value_norm else 0.0
+    title_similarity = ratio(title_norm, value_norm) / 100 if title_norm and value_norm else 0.0
     sentences = split_sentences(value, max_sentences=200)
     words = re.findall(r"[A-Za-z0-9\u4e00-\u9fff]+", value.lower())
     unique_ratio = len(set(words)) / max(1, len(words))
@@ -124,7 +218,7 @@ def _news_text_quality(text: str, title: str) -> tuple[bool, float, dict[str, An
             "accept cookies",
         )
     )
-    valid = len(value) >= 320 and len(sentences) >= 2 and not title_only and unique_ratio >= 0.12
+    valid = len(value) >= 260 and len(sentences) >= 2 and not title_only and unique_ratio >= 0.10
     score = min(len(value), 12000) / 50 + len(sentences) * 3 + unique_ratio * 40 - navigation_noise * 10
     if title_only:
         score -= 300
@@ -135,6 +229,29 @@ def _news_text_quality(text: str, title: str) -> tuple[bool, float, dict[str, An
         "title_body_similarity": round(title_similarity, 3),
         "title_only": title_only,
         "navigation_noise": navigation_noise,
+    }
+
+
+def _news_summary_quality(text: str, title: str) -> tuple[bool, dict[str, Any]]:
+    """Validate a syndicated/RSS summary without pretending it is full text."""
+    value = remove_boilerplate(text)
+    title_norm = normalize_title(title)
+    value_norm = normalize_title(value)
+    similarity = ratio(title_norm, value_norm) / 100 if title_norm and value_norm else 0.0
+    tokens = re.findall(r"[A-Za-z0-9\u4e00-\u9fff]+", value)
+    sentences = split_sentences(value, max_sentences=20)
+    valid = (
+        len(value) >= 140
+        and len(tokens) >= 24
+        and similarity < 0.90
+        and (len(sentences) >= 2 or len(value) >= 260)
+    )
+    return valid, {
+        "chars": len(value),
+        "tokens": len(tokens),
+        "sentences": len(sentences),
+        "title_body_similarity": round(similarity, 3),
+        "title_only": similarity >= 0.90 and len(value) < 300,
     }
 
 
@@ -189,7 +306,7 @@ def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars
     best_quality: dict[str, Any] = {}
     final_url = clean_space(record.get("url"))
 
-    while queue and len(visited) < 6:
+    while queue and len(visited) < 10:
         url = queue.pop(0)
         if not url or url in visited:
             continue
@@ -218,6 +335,12 @@ def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars
                 record["canonical_url"] = canonical_url
                 if canonical_url not in visited and canonical_url not in queue:
                     queue.append(canonical_url)
+            discovered = _external_news_urls(soup, raw, final_url)
+            for candidate_url in discovered:
+                if candidate_url not in visited and candidate_url not in queue:
+                    queue.append(candidate_url)
+            if discovered:
+                audit.setdefault("discovered_urls", []).extend(discovered)
             for method, extracted in _extract_news_candidates(raw, soup):
                 valid, score, quality = _news_text_quality(extracted, best_title or record.get("title"))
                 audit["extraction_attempts"].append(
@@ -240,17 +363,24 @@ def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars
             audit.setdefault("errors", []).append({"url": url, "error": clean_space(exc)[:400]})
 
     rss_excerpt = remove_boilerplate(record.get("excerpt") or "")
-    excerpt_valid, _, excerpt_quality = _news_text_quality(rss_excerpt, record.get("title"))
+    summary_valid, summary_quality = _news_summary_quality(rss_excerpt, record.get("title"))
     if best_text:
         content_status = "full" if len(best_text) >= 1500 else "partial"
         content = truncate(best_text, max_chars)
+    elif summary_valid:
+        # A substantive syndicated summary is useful evidence when the original
+        # site blocks automated extraction. It is clearly labelled and never
+        # represented as full original body text. This prevents a complete news
+        # blackout while preserving provenance and uncertainty.
+        content_status = "syndicated_summary"
+        content = truncate(rss_excerpt, min(max_chars, 6000))
+        best_method = "rss_syndicated_summary"
+        best_quality = summary_quality
     elif rss_excerpt:
-        # RSS text remains in the audit and can support candidate ranking, but it
-        # is not accepted as a fetched original report body for final display.
-        content_status = "excerpt_only" if not excerpt_quality.get("title_only") else "title_only_rejected"
+        content_status = "title_only_rejected" if summary_quality.get("title_only") else "excerpt_only"
         content = ""
-        best_method = "rss_excerpt_not_displayable"
-        best_quality = excerpt_quality
+        best_method = "rss_excerpt_not_substantive"
+        best_quality = summary_quality
     else:
         content_status = "unavailable"
         content = ""
@@ -263,7 +393,7 @@ def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars
     record["content_method"] = best_method
     record["content_hash"] = sha256_text(content) if content else None
     record["title_body_similarity"] = best_quality.get("title_body_similarity")
-    record["content_audit"] = {**audit, "selected_quality": best_quality}
+    record["content_audit"] = {**audit, "selected_quality": best_quality, "provenance": content_status}
     return record
 
 
@@ -399,12 +529,18 @@ def enrich_scholarly_work(http: HttpClient, work: dict[str, Any], mailto: str, m
                 parse_method = "jats_xml"
             else:
                 raw = response.text
-                extracted = trafilatura.extract(raw, include_comments=False, include_tables=True, favor_recall=True) or ""
-                soup = BeautifulSoup(raw, "lxml")
-                abstract = _meta_content(soup, [("name", "citation_abstract"), ("name", "description"), ("property", "og:description")])
-                text = clean_space(extracted or abstract)
-                sections = {"full_text": text} if text else {}
-                parse_method = "publisher_html"
+                sniff = raw.lstrip()[:500].lower()
+                if sniff.startswith("<?xml") or sniff.startswith("<article") or "<article " in sniff:
+                    sections = _jats_sections(raw)
+                    text = clean_space(" ".join(sections.values()))
+                    parse_method = "jats_xml_sniffed"
+                else:
+                    extracted = trafilatura.extract(raw, include_comments=False, include_tables=True, favor_recall=True) or ""
+                    soup = BeautifulSoup(raw, "lxml")
+                    abstract = _meta_content(soup, [("name", "citation_abstract"), ("name", "description"), ("property", "og:description")])
+                    text = clean_space(extracted or abstract)
+                    sections = {"full_text": text} if text else {}
+                    parse_method = "publisher_html"
             accepted, identity = _identity_score(work, text, final_url)
             attempt.update({"status": "accepted" if accepted else "identity_rejected", "identity": identity, "chars": len(text), "parse_method": parse_method})
             audit["attempts"].append(attempt)

@@ -16,7 +16,7 @@ from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 from .config import Settings, load_seed
 from .utils import dump_json, load_json, sha256_text, utc_now_iso
 
-STYLE_VERSION = "cover-v2-cjk-no-date"
+STYLE_VERSION = "cover-v3-weekly-cjk-no-date"
 
 
 def _file_sha256(path: Path) -> str:
@@ -147,7 +147,7 @@ def _compose_cover(background: Image.Image, profile: dict[str, Any], issue_date:
     draw = ImageDraw.Draw(image)
     zh = str(profile.get("display_name_zh") or profile.get("display_name_en") or profile.get("profile_id"))
     en = str(profile.get("display_name_en") or profile.get("profile_id"))
-    draw.text((58, 54), "全球病原每日情报", font=_font(25, True), fill=(245,248,250,255))
+    draw.text((58, 54), "全球病原每周情报", font=_font(25, True), fill=(245,248,250,255))
     draw.text((58, 108), zh[:20], font=_font(52, True), fill=(255,255,255,255))
     draw.text((60, 183), en[:42], font=_font(25, False), fill=(201,222,231,255))
     draw.line((60, 235, 418, 235), fill=(39,174,96,255), width=4)

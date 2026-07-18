@@ -157,6 +157,9 @@ def news_quality(record: dict[str, Any]) -> tuple[float, list[str]]:
     if status in {"full", "captured", "partial"} and clean_space(record.get("content")):
         score += 12
         reasons.append("body=12")
+    elif status == "syndicated_summary" and clean_space(record.get("content")):
+        score += 7
+        reasons.append("syndicated_summary=7")
     elif clean_space(record.get("excerpt")):
         score += 4
     score += max(0, 8 - _days_old(record.get("published_date")) * 0.5)
@@ -197,6 +200,8 @@ def news_priority_tier(record: dict[str, Any]) -> tuple[str, str]:
     if official:
         return "A", "政府、WHO/CDC/ECDC或其他官方公共卫生来源"
     if institution or has_body:
+        if clean_space(record.get("content_status")) == "syndicated_summary":
+            return "B", "可信机构来源或已获得可核验的实质性转载摘要"
         return "B", "可信机构来源或已成功抓获正文"
     return "C", "新闻聚合或正文证据有限，作为补充信息"
 

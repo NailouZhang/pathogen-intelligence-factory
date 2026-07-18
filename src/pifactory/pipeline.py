@@ -478,11 +478,11 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         news = [fetched_by_id.get(item.get("news_id"), item) for item in news]
         news_content_rejected = sum(
             1 for item in news
-            if item.get("content_status") not in {"full", "partial"} or not clean_space(item.get("content"))
+            if item.get("content_status") not in {"full", "partial", "syndicated_summary"} or not clean_space(item.get("content"))
         )
         news = [
             item for item in news
-            if item.get("content_status") in {"full", "partial"} and clean_space(item.get("content"))
+            if item.get("content_status") in {"full", "partial", "syndicated_summary"} and clean_space(item.get("content"))
         ]
         progress(
             "display_content_enrichment", "complete", kind="news",
@@ -504,12 +504,18 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
                 clean_space(article.get("content") or article.get("excerpt")),
                 profile,
             )
-        papers = rank_papers(papers)[: settings.max_papers]
-        news = rank_news(news)[: settings.max_news]
+        # Keep the bounded replacement pool through analysis and translation.
+        # Final Top-N selection occurs only after translation/content gates so
+        # failed translations cannot reduce a healthy 50-item literature set.
+        papers = rank_papers(papers)
+        news = rank_news(news)
 
     if demo:
-        papers = rank_papers(papers)[: settings.max_papers]
-        news = rank_news(news)[: settings.max_news]
+        # Keep the bounded replacement pool through analysis and translation.
+        # Final Top-N selection occurs only after translation/content gates so
+        # failed translations cannot reduce a healthy 50-item literature set.
+        papers = rank_papers(papers)
+        news = rank_news(news)
 
     prompts_dir = settings.project_root / "prompts"
     analysis_cache = state.setdefault("analysis_cache", {})
@@ -644,12 +650,24 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
 
     translation_rejected_papers = sum(not bool(item.get("translation_ready")) for item in papers)
     translation_rejected_news = sum(not bool(item.get("translation_ready")) for item in news)
-    papers = [item for item in papers if item.get("translation_ready")]
-    news = [item for item in news if item.get("translation_ready") and len(clean_space(item.get("wechat_summary_zh"))) <= settings.wechat_news_max_zh_chars]
+    paper_ready_pool = [item for item in papers if item.get("translation_ready")]
+    news_ready_pool = [
+        item for item in news
+        if item.get("translation_ready")
+        and len(clean_space(item.get("wechat_summary_zh"))) <= settings.wechat_news_max_zh_chars
+    ]
+    # Replacement candidates remain available until after translation. Rank the
+    # complete ready pool and only now select the final display limits. This
+    # directly prevents translation failures in the original Top 50 from
+    # shrinking the published literature count when lower-ranked valid records
+    # are available.
+    papers = rank_papers(paper_ready_pool)[: settings.max_papers]
+    news = rank_news(news_ready_pool)[: settings.max_news]
     progress(
         "translation_gate", "complete",
-        papers_retained=len(papers), papers_rejected=translation_rejected_papers,
-        news_retained=len(news), news_rejected=translation_rejected_news,
+        paper_ready_pool=len(paper_ready_pool), papers_retained=len(papers), papers_rejected=translation_rejected_papers,
+        news_ready_pool=len(news_ready_pool), news_retained=len(news), news_rejected=translation_rejected_news,
+        paper_target=settings.max_papers, news_target=settings.max_news,
     )
 
     def has_real_title_translation(item: dict[str, Any]) -> bool:
@@ -703,8 +721,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         "window_start": start.isoformat(),
         "window_end": end.isoformat(),
         "generated_at": utc_now_iso(),
-        "title_zh": f"{profile.get('display_name_zh') or settings.profile_id}每日情报",
-        "title_en": f"{profile.get('display_name_en') or settings.profile_id} Daily Intelligence",
+        "title_zh": f"{profile.get('display_name_zh') or settings.profile_id}每周情报",
+        "title_en": f"{profile.get('display_name_en') or settings.profile_id} Weekly Intelligence",
         "profile": profile,
         "query_plan": plan,
         "source_status": source_status,

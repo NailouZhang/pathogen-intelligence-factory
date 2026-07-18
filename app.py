@@ -5,13 +5,13 @@ from pathlib import Path
 
 import streamlit as st
 
-st.set_page_config(page_title="病原每日情报", layout="wide")
+st.set_page_config(page_title="病原每周情报", layout="wide")
 path = Path("data/latest.json")
 if not path.exists():
     st.info("尚未在本地找到 data/latest.json。GitHub Pages 是默认部署方式；运行一次日报后即可在 Streamlit 中预览。")
     st.stop()
 issue = json.loads(path.read_text(encoding="utf-8"))
-st.title(issue.get("title_zh", "病原每日情报"))
+st.title(issue.get("title_zh", "病原每周情报"))
 st.caption(f"{issue.get('window_start')} — {issue.get('window_end')}")
 research = [x for x in issue.get("papers", []) if x.get("paper_type") == "research"]
 reviews = [x for x in issue.get("papers", []) if x.get("paper_type") == "review"]

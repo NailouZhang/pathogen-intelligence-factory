@@ -14,7 +14,7 @@ from .llm import LLMError, LLMRouter
 from .utils import clean_space, extract_numbers, sha256_text, split_sentences, truncate
 
 
-TRANSLATION_CACHE_VERSION = "v3.0-python-first-llm-last"
+TRANSLATION_CACHE_VERSION = "v4.0-python-batch-llm-individual-rescue"
 
 DEFAULT_REPAIRS = {
     "汉塔病毒": "汉坦病毒",
@@ -515,6 +515,33 @@ def _translate_field_map(
                 attempts.append({"provider": "llm_router", "status": "failed", "error": clean_space(exc)[:700]})
                 audits[key] = {"status": "translation_unavailable", "provider": "none", "attempts": attempts}
 
+    # Structured batch output can occasionally omit one key even when the model
+    # translated all other fields. Rescue every remaining field individually so
+    # a single missing analysis element does not discard an otherwise valid paper.
+    for key, source in list(unresolved.items()):
+        try:
+            candidate, rescue_audit = translate_text(
+                source,
+                profile=profile,
+                llm=llm,
+                prompt_text=prompt_text,
+                cache=cache,
+                max_chars=30000,
+                field_kind=field_kinds.get(key, "body"),
+            )
+            if candidate:
+                previous_attempts = list((audits.get(key) or {}).get("attempts") or [])
+                rescue_audit = dict(rescue_audit)
+                rescue_audit["status"] = "passed_individual_rescue"
+                rescue_audit["attempts"] = previous_attempts + list(rescue_audit.get("attempts") or [])
+                translated[key] = candidate
+                audits[key] = rescue_audit
+                unresolved.pop(key, None)
+        except Exception as exc:
+            attempts = list((audits.get(key) or {}).get("attempts") or [])
+            attempts.append({"provider": "individual_rescue", "status": "failed", "error": clean_space(exc)[:700]})
+            audits[key] = {"status": "translation_unavailable", "provider": "none", "attempts": attempts}
+
     for key in unresolved:
         audits.setdefault(key, {"status": "translation_unavailable", "provider": "none", "attempts": []})
     return translated, audits
@@ -631,7 +658,7 @@ def translate_record(
     record["translation_ready"] = translation_ready
     record["translation_audit"] = {
         "policy_version": TRANSLATION_CACHE_VERSION,
-        "order": ["deep_translator_google", "google_direct_python", "mymemory", "llm_final_fallback"],
+        "order": ["deep_translator_google", "google_direct_python", "mymemory", "llm_batch_fallback", "individual_field_rescue"],
         "title": audits.get("title", {}),
         "abstract_or_body": audits.get("abstract_or_body", {}),
         "fields": {field: audits.get(field, {"status": "empty_source", "provider": "none", "attempts": []}) for field in fields},

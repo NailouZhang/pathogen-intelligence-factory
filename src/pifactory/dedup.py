@@ -127,6 +127,14 @@ def dedup_papers(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return loose
 
 
+def _is_news_aggregator_url(value: str | None) -> bool:
+    url = clean_space(value).lower()
+    return any(host in url for host in (
+        "news.google.", "google.com/rss", "googleusercontent.com",
+        "bing.com/news", "msn.com/",
+    ))
+
+
 def dedup_news(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     by_url: dict[str, dict[str, Any]] = {}
@@ -153,11 +161,30 @@ def dedup_news(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
             })
             duplicate["retrieval_queries"] = unique_strings((duplicate.get("retrieval_queries") or []) + (record.get("retrieval_queries") or []))
             duplicate["retrieval_concepts"] = unique_strings((duplicate.get("retrieval_concepts") or []) + (record.get("retrieval_concepts") or []))
+            duplicate["candidate_urls"] = unique_strings(
+                (duplicate.get("candidate_urls") or [])
+                + [duplicate.get("url"), duplicate.get("resolved_url")]
+                + (record.get("candidate_urls") or [])
+                + [record.get("url"), record.get("resolved_url"), record.get("canonical_url")]
+            )
+            incoming_url = clean_space(record.get("resolved_url") or record.get("url"))
+            current_url = clean_space(duplicate.get("resolved_url") or duplicate.get("url"))
+            if incoming_url and _is_news_aggregator_url(current_url) and not _is_news_aggregator_url(incoming_url):
+                duplicate["url"] = incoming_url
+                duplicate["resolved_url"] = incoming_url
+                duplicate["canonical_url"] = _canonical_url(incoming_url)
             if len(clean_space(record.get("excerpt"))) > len(clean_space(duplicate.get("excerpt"))):
                 duplicate["excerpt"] = record.get("excerpt")
+                duplicate["rss_summary_html"] = record.get("rss_summary_html") or duplicate.get("rss_summary_html")
+            if not duplicate.get("publisher") and record.get("publisher"):
+                duplicate["publisher"] = record.get("publisher")
             continue
         copied = dict(record)
         copied["canonical_url"] = canonical
+        copied["candidate_urls"] = unique_strings(
+            (record.get("candidate_urls") or [])
+            + [record.get("url"), record.get("resolved_url"), record.get("canonical_url")]
+        )
         copied["news_id"] = "news-" + sha256_text(title + "|" + clean_space(record.get("published_date")))[:16]
         copied["duplicate_sources"] = []
         out.append(copied)

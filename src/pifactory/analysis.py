@@ -9,7 +9,7 @@ from .llm import LLMError, LLMRouter
 from .utils import clean_space, split_sentences, truncate
 
 
-ANALYSIS_POLICY_VERSION = "v8-typed-evidence-analysis-1"
+ANALYSIS_POLICY_VERSION = "v9-role-aligned-close-reading-1"
 
 REVIEW_HINTS = re.compile(
     r"\b(review|systematic review|meta-analysis|narrative review|scoping review|umbrella review|viewpoint|perspective|commentary|consensus statement)\b",
@@ -52,11 +52,58 @@ def classify_paper(work: dict[str, Any]) -> str:
     return "research"
 
 
-def _evidence_payload(text: str, prefix: str, max_sentences: int) -> list[dict[str, str]]:
-    return [
-        {"id": f"{prefix}{idx}", "text": sentence}
-        for idx, sentence in enumerate(split_sentences(text, max_sentences), 1)
-    ]
+ROLE_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
+    ("background", re.compile(r"^(background|introduction|importance|rationale)\b|\b(knowledge gap|remains unclear|is unknown|has emerged)\b", re.I)),
+    ("objective", re.compile(r"^(objective|objectives|aim|aims|purpose)\b|\b(we aimed|this study aimed|we sought|we investigated)\b", re.I)),
+    ("design_population", re.compile(r"^(design|setting|participants|patients|population|samples|materials)\b|\b(cross-sectional|cohort|case-control|randomized|non-randomized|multicentre|multicenter|participants were|patients were|samples were)\b", re.I)),
+    ("methods", re.compile(r"^(methods|methodology|procedures|statistical analysis)\b|\b(we used|we performed|was measured|were tested|sequencing|assay|regression|model was)\b", re.I)),
+    ("results", re.compile(r"^(results|findings)\b|\b(we found|showed|demonstrated|was associated|were detected|increased|decreased|odds ratio|hazard ratio|confidence interval|p[ =<])\b", re.I)),
+    ("interpretation", re.compile(r"^(interpretation|discussion)\b|\b(we interpret|these findings suggest|authors suggest|may indicate)\b", re.I)),
+    ("conclusion", re.compile(r"^(conclusion|conclusions)\b|\b(in conclusion|we conclude|supports the)\b", re.I)),
+    ("limitations", re.compile(r"^(limitations|limitation)\b|\b(limited by|small sample|selection bias|confounding|cannot establish|generalizability)\b", re.I)),
+    ("implications", re.compile(r"^(implications|significance|recommendations)\b|\b(public health|surveillance|clinical practice|future research|prevention)\b", re.I)),
+]
+
+
+def _strip_heading(sentence: str) -> tuple[str, str | None]:
+    value = clean_space(sentence)
+    match = re.match(r"^(BACKGROUND|INTRODUCTION|OBJECTIVE|OBJECTIVES|AIM|AIMS|PURPOSE|DESIGN|SETTING|PARTICIPANTS|PATIENTS|METHODS|METHODOLOGY|RESULTS|FINDINGS|INTERPRETATION|DISCUSSION|CONCLUSION|CONCLUSIONS|LIMITATIONS|IMPLICATIONS)\s*[:.-]\s*", value, flags=re.I)
+    if not match:
+        return value, None
+    heading = match.group(1).lower()
+    role_map = {
+        "background": "background", "introduction": "background",
+        "objective": "objective", "objectives": "objective", "aim": "objective", "aims": "objective", "purpose": "objective",
+        "design": "design_population", "setting": "design_population", "participants": "design_population", "patients": "design_population",
+        "methods": "methods", "methodology": "methods",
+        "results": "results", "findings": "results",
+        "interpretation": "interpretation", "discussion": "interpretation",
+        "conclusion": "conclusion", "conclusions": "conclusion",
+        "limitations": "limitations", "implications": "implications",
+    }
+    return clean_space(value[match.end():]), role_map.get(heading)
+
+
+def _sentence_role(sentence: str, default_role: str = "general") -> str:
+    cleaned, heading_role = _strip_heading(sentence)
+    if heading_role:
+        return heading_role
+    for role, pattern in ROLE_PATTERNS:
+        if pattern.search(cleaned):
+            return role
+    return default_role
+
+
+def _evidence_payload(text: str, prefix: str, max_sentences: int, default_role: str = "general") -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    current_role = default_role
+    for idx, sentence in enumerate(split_sentences(text, max_sentences), 1):
+        cleaned, heading_role = _strip_heading(sentence)
+        if heading_role:
+            current_role = heading_role
+        role = _sentence_role(sentence, current_role)
+        rows.append({"id": f"{prefix}{idx}", "role": role, "text": cleaned or clean_space(sentence)})
+    return rows
 
 
 def _section_evidence(work: dict[str, Any]) -> list[dict[str, str]]:
@@ -86,13 +133,13 @@ def _section_evidence(work: dict[str, Any]) -> list[dict[str, str]]:
         text = clean_space(sections.get(name))
         if not text:
             continue
-        output.extend(_evidence_payload(text, prefixes[name], budgets[name]))
+        output.extend(_evidence_payload(text, prefixes[name], budgets[name], default_role={"methods":"methods","results":"results","discussion":"interpretation","conclusion":"conclusion","abstract":"general","full_text":"general","other":"general"}.get(name,"general")))
     return output
 
 
 def build_paper_evidence(work: dict[str, Any]) -> dict[str, Any]:
     abstract = clean_space(work.get("abstract"))
-    evidence = _evidence_payload(abstract, "A", 28)
+    evidence = _evidence_payload(abstract, "A", 36, default_role="general")
     existing = {row["text"] for row in evidence}
     for row in _section_evidence(work):
         if row["text"] not in existing:
@@ -100,7 +147,7 @@ def build_paper_evidence(work: dict[str, Any]) -> dict[str, Any]:
             existing.add(row["text"])
     if not evidence:
         full = clean_space(work.get("full_text"))
-        evidence = _evidence_payload(full, "F", 36)
+        evidence = _evidence_payload(full, "F", 48, default_role="general")
     return {
         "policy_version": ANALYSIS_POLICY_VERSION,
         "paper_id": work.get("paper_id"),
@@ -113,6 +160,20 @@ def build_paper_evidence(work: dict[str, Any]) -> dict[str, Any]:
             "doi": work.get("doi"),
             "publication_types": work.get("publication_types") or [],
             "evidence_level": work.get("evidence_level"),
+        },
+        "field_evidence_hints": {
+            "research_question_and_background": ["background", "objective", "general"],
+            "study_design_and_population": ["design_population", "methods", "general"],
+            "methods": ["methods", "design_population"],
+            "main_results": ["results"],
+            "interpretation_and_novelty": ["interpretation", "conclusion", "results"],
+            "scientific_and_public_health_significance": ["implications", "conclusion", "interpretation"],
+            "limitations_and_evidence_strength": ["limitations", "methods", "conclusion", "general"],
+            "scope_and_question": ["background", "objective", "general"],
+            "evidence_base_and_review_method": ["methods", "design_population", "general"],
+            "consensus_and_key_conclusions": ["results", "conclusion", "interpretation"],
+            "controversies_and_evidence_gaps": ["limitations", "interpretation", "general"],
+            "research_and_practice_implications": ["implications", "conclusion", "interpretation"],
         },
         "evidence": evidence,
         "evidence_scope": (
@@ -134,7 +195,7 @@ def build_news_evidence(article: dict[str, Any]) -> dict[str, Any]:
         "url": article.get("resolved_url") or article.get("url"),
         "content_status": article.get("content_status"),
         "content_method": article.get("content_method"),
-        "evidence": _evidence_payload(content, "N", 55),
+        "evidence": _evidence_payload(content, "N", 70, default_role="general"),
     }
 
 
@@ -156,7 +217,27 @@ def _contains_bad_placeholder(value: Any) -> bool:
     )
 
 
-def _paper_validator(kind: str, valid_ids: set[str]):
+def _evidence_role_map(payload: dict[str, Any]) -> dict[str, str]:
+    return {clean_space(row.get("id")): clean_space(row.get("role")) or "general" for row in payload.get("evidence") or []}
+
+
+FIELD_ALLOWED_ROLES = {
+    "research_question_and_background": {"background", "objective", "general"},
+    "study_design_and_population": {"design_population", "methods", "general"},
+    "methods": {"methods", "design_population"},
+    "main_results": {"results"},
+    "interpretation_and_novelty": {"interpretation", "conclusion", "results", "general"},
+    "scientific_and_public_health_significance": {"implications", "conclusion", "interpretation", "general"},
+    "limitations_and_evidence_strength": {"limitations", "methods", "conclusion", "general"},
+    "scope_and_question": {"background", "objective", "general"},
+    "evidence_base_and_review_method": {"methods", "design_population", "general"},
+    "consensus_and_key_conclusions": {"results", "conclusion", "interpretation", "general"},
+    "controversies_and_evidence_gaps": {"limitations", "interpretation", "general"},
+    "research_and_practice_implications": {"implications", "conclusion", "interpretation", "general"},
+}
+
+
+def _paper_validator(kind: str, valid_ids: set[str], role_map: dict[str, str] | None = None):
     required = RESEARCH_FIELDS if kind == "research" else REVIEW_FIELDS
 
     def validator(data: Any) -> tuple[bool, str]:
@@ -180,6 +261,11 @@ def _paper_validator(kind: str, valid_ids: set[str]):
             unknown = [ref for ref in refs if clean_space(ref) not in valid_ids]
             if unknown:
                 return False, f"{key} contains unknown evidence ids"
+            if role_map:
+                allowed = FIELD_ALLOWED_ROLES.get(key, {"general"})
+                cited_roles = {role_map.get(clean_space(ref), "general") for ref in refs}
+                if not cited_roles.intersection(allowed):
+                    return False, f"{key} cites evidence assigned to the wrong rhetorical role: {sorted(cited_roles)}"
         summary = clean_space(data.get("summary_en"))
         if len(summary) < 80 or len(summary.split()) > 260:
             return False, "summary_en length invalid"
@@ -226,26 +312,67 @@ def _news_validator(valid_ids: set[str]):
     return validator
 
 
+def _role_sentences(payload: dict[str, Any]) -> dict[str, list[tuple[str, str]]]:
+    groups: dict[str, list[tuple[str, str]]] = {}
+    for row in payload.get("evidence") or []:
+        role = clean_space(row.get("role")) or "general"
+        text = clean_space(row.get("text"))
+        evidence_id = clean_space(row.get("id"))
+        if text and evidence_id:
+            groups.setdefault(role, []).append((evidence_id, text))
+    return groups
+
+
+def _pick_role_text(groups: dict[str, list[tuple[str, str]]], roles: list[str], default: str, limit: int = 520) -> tuple[str, list[str]]:
+    selected: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for role in roles:
+        for evidence_id, text in groups.get(role, []):
+            if text in seen:
+                continue
+            seen.add(text)
+            selected.append((evidence_id, text))
+            if len(selected) >= 3:
+                break
+        if selected:
+            break
+    if not selected:
+        return default, []
+    value = truncate(" ".join(text for _, text in selected), limit)
+    return value, [evidence_id for evidence_id, _ in selected]
+
+
 def _fallback_research(payload: dict[str, Any], error: str) -> dict[str, Any]:
-    rows = payload.get("evidence") or []
-    texts = [clean_space(row.get("text")) for row in rows if clean_space(row.get("text"))]
-    ids = [row.get("id") for row in rows if row.get("id")]
-
-    def value(index: int, default: str) -> str:
-        return truncate(texts[index] if index < len(texts) else default, 360)
-
-    analysis = {
-        "research_question_and_background": value(0, "The supplied evidence does not clearly report the research question."),
-        "study_design_and_population": value(1, "Study design, setting, or population was not clearly reported in the supplied evidence."),
-        "methods": value(2, "Core methods were not clearly reported in the supplied evidence."),
-        "main_results": truncate(" ".join(texts[3:6]) or "Main results were not clearly reported in the supplied evidence.", 520),
-        "interpretation_and_novelty": value(6, "The authors' interpretation or novelty could not be reliably determined from the supplied evidence."),
-        "scientific_and_public_health_significance": value(7, "Scientific or public-health significance requires cautious interpretation from the available evidence."),
-        "limitations_and_evidence_strength": "This deterministic fallback is based only on the supplied abstract or open-text fragments; unreported details were not inferred.",
+    groups = _role_sentences(payload)
+    field_roles = {
+        "research_question_and_background": ["background", "objective", "general"],
+        "study_design_and_population": ["design_population", "methods", "general"],
+        "methods": ["methods", "design_population"],
+        "main_results": ["results"],
+        "interpretation_and_novelty": ["interpretation", "conclusion", "results"],
+        "scientific_and_public_health_significance": ["implications", "conclusion", "interpretation"],
+        "limitations_and_evidence_strength": ["limitations", "methods", "general"],
     }
-    refs = {key: [ids[min(index, len(ids) - 1)]] if ids else [] for index, key in enumerate(RESEARCH_FIELDS)}
+    defaults = {
+        "research_question_and_background": "The supplied evidence does not clearly report the research question or background.",
+        "study_design_and_population": "Study design, setting, and population were not clearly reported in the supplied evidence.",
+        "methods": "Core methods were not clearly reported in the supplied evidence.",
+        "main_results": "Main results were not clearly reported in the supplied evidence.",
+        "interpretation_and_novelty": "The authors' interpretation and novelty were not clearly reported in the supplied evidence.",
+        "scientific_and_public_health_significance": "Scientific and public-health significance could not be determined beyond the supplied evidence.",
+        "limitations_and_evidence_strength": "The fallback uses only supplied abstract or open-text evidence; unreported limitations were not inferred.",
+    }
+    analysis: dict[str, str] = {}
+    refs: dict[str, list[str]] = {}
+    for field in RESEARCH_FIELDS:
+        analysis[field], refs[field] = _pick_role_text(groups, field_roles[field], defaults[field])
+        if not refs[field]:
+            all_rows = [pair for rows in groups.values() for pair in rows]
+            if all_rows:
+                refs[field] = [all_rows[0][0]]
     return {
         "status": "fallback_source_extract",
+        "fallback_policy": "role_aligned",
         "kind": "research",
         "analysis": analysis,
         "summary_en": " ".join(analysis.values()),
@@ -257,23 +384,32 @@ def _fallback_research(payload: dict[str, Any], error: str) -> dict[str, Any]:
 
 
 def _fallback_review(payload: dict[str, Any], error: str) -> dict[str, Any]:
-    rows = payload.get("evidence") or []
-    texts = [clean_space(row.get("text")) for row in rows if clean_space(row.get("text"))]
-    ids = [row.get("id") for row in rows if row.get("id")]
-
-    def value(index: int, default: str) -> str:
-        return truncate(texts[index] if index < len(texts) else default, 420)
-
-    analysis = {
-        "scope_and_question": value(0, "The review scope and central question were not clearly reported in the supplied evidence."),
-        "evidence_base_and_review_method": value(1, "The review method, databases, or evidence base were not clearly reported."),
-        "consensus_and_key_conclusions": truncate(" ".join(texts[2:5]) or "The main consensus could not be reliably determined from the supplied evidence.", 560),
-        "controversies_and_evidence_gaps": value(5, "Evidence gaps and controversies require assessment from the full review."),
-        "research_and_practice_implications": value(6, "Research and practice implications require cautious interpretation from the available evidence."),
+    groups = _role_sentences(payload)
+    field_roles = {
+        "scope_and_question": ["background", "objective", "general"],
+        "evidence_base_and_review_method": ["methods", "design_population", "general"],
+        "consensus_and_key_conclusions": ["results", "conclusion", "interpretation"],
+        "controversies_and_evidence_gaps": ["limitations", "interpretation", "general"],
+        "research_and_practice_implications": ["implications", "conclusion", "interpretation"],
     }
-    refs = {key: [ids[min(index, len(ids) - 1)]] if ids else [] for index, key in enumerate(REVIEW_FIELDS)}
+    defaults = {
+        "scope_and_question": "The review scope and central question were not clearly reported in the supplied evidence.",
+        "evidence_base_and_review_method": "The review method, databases, and evidence base were not clearly reported.",
+        "consensus_and_key_conclusions": "The main consensus could not be reliably determined from the supplied evidence.",
+        "controversies_and_evidence_gaps": "Controversies and evidence gaps were not clearly reported in the supplied evidence.",
+        "research_and_practice_implications": "Research and practice implications require cautious interpretation from the available evidence.",
+    }
+    analysis: dict[str, str] = {}
+    refs: dict[str, list[str]] = {}
+    for field in REVIEW_FIELDS:
+        analysis[field], refs[field] = _pick_role_text(groups, field_roles[field], defaults[field], limit=560)
+        if not refs[field]:
+            all_rows = [pair for rows in groups.values() for pair in rows]
+            if all_rows:
+                refs[field] = [all_rows[0][0]]
     return {
         "status": "fallback_source_extract",
+        "fallback_policy": "role_aligned",
         "kind": "review",
         "analysis": analysis,
         "summary_en": " ".join(analysis.values()),
@@ -305,7 +441,7 @@ def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> di
         result = llm.json_task(
             system=system,
             prompt=json.dumps(payload, ensure_ascii=False),
-            validator=_paper_validator(kind, valid_ids),
+            validator=_paper_validator(kind, valid_ids, _evidence_role_map(payload)),
             max_models_per_provider=2,
             temperature=0.05,
         )

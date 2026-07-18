@@ -1,29 +1,28 @@
-# pathogen-intelligence-factory v8
+# pathogen-intelligence-factory v9
 
-公开仓每天按北京时间 02:00 顺序处理 3 个病原 profile，检索过去 7 天文献与新闻，完成相关性复核、去重、排序、最终展示内容补全、类型化单篇分析、免费翻译链、分离式文献/新闻汇总、GitHub Pages 和 `wechat-package/v2`。
+面向 21 个病毒主题的每周文献与公共卫生新闻情报系统。公开仓负责：五核心概念检索、多数据库元数据汇总、全候选相关性复核、去重、展示候选内容补全、逐篇双语分析、文献/新闻分离汇总、GitHub Pages 和 `wechat-package/v2`。
 
-## v8 重点
+## v9 修复重点
 
-- 每个病毒约 5 个核心检索概念，避免重复和长查询。
-- 只有 Top 50 与最多 20 条补位候选进行全文/新闻正文获取。
-- 文献汇总和新闻汇总完全分离，各使用 15～25 条。
-- 原始研究七要素、综述五要素、新闻五要素。
-- 新闻必须获得正文；RSS 摘要或标题不能冒充正文。
-- 微信单条新闻中文摘要不超过 500 字符。
-- 翻译顺序为免费 Python 翻译器，Gemini/Groq 最终兜底；不使用 Google Cloud Translation。
-- 翻译失败记录不以占位符进入最终页面。
+- 翻译失败不再把 50 篇候选直接压缩为更少条目：展示候选池保持到翻译结束，最终从所有翻译就绪记录中重新排序并补足 Top 50。
+- 新闻不再只依赖聚合器页面：保留 RSS 中的原站候选链接、合并 GDELT 等直接发布者 URL、解析 canonical/JSON-LD/脚本链接，并允许通过质量门禁的实质性转载摘要作为降级证据。
+- 文献汇总和新闻汇总完全分开；中文汇总必须通过中文比例、完整句、无省略号和来源 ID 校验。
+- 研究七要素与综述五要素加入修辞角色约束。背景、设计、方法、结果、解释、意义和局限分别绑定对应证据句。
+- 封面和页面标题统一为“每周情报”。
 
-## 快速验证
+## 本地验证
 
 ```bash
 python -m pip install -r requirements.txt
 python scripts/validate_all_profiles.py
-python scripts/audit_query_coverage.py
+python scripts/audit_query_coverage.py --output /tmp/query-coverage-v9.json
 python -m pytest -q
-python scripts/run_daily.py --profile hantavirus --demo --output-dir /tmp/pif-v8-demo
+python -m compileall -q src scripts tests
+python scripts/run_daily.py --profile hantavirus --demo --output-dir /tmp/pif-v9-demo
+python scripts/validate_wechat_package.py /tmp/pif-v9-demo/wechat-package
 ```
 
-## 工作流手工运行
+## 日常手工运行
 
 ```bash
 gh workflow run daily-intelligence.yml \
@@ -36,16 +35,4 @@ gh workflow run daily-intelligence.yml \
   -f review_mode=balanced
 ```
 
-## 计划
-
-| 星期（北京时间） | profile 1 | profile 2 | profile 3 |
-|---|---|---|---|
-| 周一 | seasonal_influenza | sars_cov_2 | respiratory_syncytial_virus |
-| 周二 | human_metapneumovirus | human_adenovirus | human_enterovirus |
-| 周三 | norovirus | measles_virus | human_papillomavirus |
-| 周四 | dengue_virus | chikungunya_virus | avian_influenza |
-| 周五 | hantavirus | sftsv | mpox_virus |
-| 周六 | nipah_virus | arenaviridae | ebola_viruses |
-| 周日 | marburg_virus | rabies_virus | hepatitis_b_virus |
-
-详细文档位于 `docs/`。完整双仓部署命令位于交付包根目录。
+完整安装、升级、Secrets、Pages、Runner 和公众号草稿命令见 `docs/INSTALL_ZH.md` 与完整双仓包根目录文档。

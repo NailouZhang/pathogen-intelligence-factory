@@ -7,6 +7,7 @@ from typing import Any
 from urllib.parse import quote_plus
 
 import feedparser
+from bs4 import BeautifulSoup
 
 from .http import HttpClient
 from .source_status import SourceAudit
@@ -25,6 +26,28 @@ def _feed_date(entry: Any) -> str | None:
             if parsed:
                 return parsed
     return None
+
+
+def _rss_candidate_urls(entry: Any) -> list[str]:
+    """Collect article candidates before RSS HTML is stripped.
+
+    Google/Bing entries may expose the publisher article in entry.links or in
+    the summary HTML. Keeping every candidate lets the later content resolver
+    escape aggregator URLs instead of treating the aggregator page as the
+    original report.
+    """
+    urls: list[str] = []
+    for link in entry.get("links") or []:
+        if isinstance(link, dict) and link.get("href"):
+            urls.append(clean_space(link.get("href")))
+    summary_html = entry.get("summary") or entry.get("description") or ""
+    try:
+        soup = BeautifulSoup(summary_html, "lxml")
+        for anchor in soup.find_all("a", href=True):
+            urls.append(clean_space(anchor.get("href")))
+    except Exception:
+        pass
+    return unique_strings(urls)
 
 
 def search_google_news(
@@ -56,13 +79,17 @@ def search_google_news(
                     if published and not (start.isoformat() <= published <= end.isoformat()):
                         continue
                     source = entry.get("source") or {}
+                    source_url = clean_space(source.get("href") if isinstance(source, dict) else "")
                     output.append({
                         "source": source_name,
                         "title": clean_space(entry.get("title")),
                         "url": clean_space(entry.get("link")),
                         "published_date": published,
                         "excerpt": strip_tags(entry.get("summary")),
+                        "rss_summary_html": entry.get("summary") or "",
+                        "candidate_urls": _rss_candidate_urls(entry),
                         "publisher": clean_space(source.get("title") if isinstance(source, dict) else ""),
+                        "publisher_url": source_url,
                         "language": language,
                         "retrieval_queries": [query],
                     })
@@ -99,6 +126,8 @@ def search_bing_news(
                     "url": clean_space(entry.get("link")),
                     "published_date": published,
                     "excerpt": strip_tags(entry.get("summary")),
+                    "rss_summary_html": entry.get("summary") or "",
+                    "candidate_urls": _rss_candidate_urls(entry),
                     "publisher": clean_space(entry.get("author")),
                     "language": "unknown",
                     "retrieval_queries": [query],
