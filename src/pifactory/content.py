@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import re
 import xml.etree.ElementTree as ET
 from typing import Any
-from urllib.parse import parse_qs, unquote, urljoin, urlparse
+from urllib.parse import parse_qs, unquote, urlencode, urljoin, urlparse, urlunparse
 
 import fitz
 import trafilatura
@@ -13,6 +14,7 @@ from bs4 import BeautifulSoup
 from rapidfuzz.fuzz import partial_ratio, ratio, token_set_ratio
 
 from .http import HttpClient
+from .browser_fetch import browser_enabled, fetch_rendered_html
 from .utils import clean_space, extract_doi, normalize_title, sha256_text, split_sentences, strip_tags, truncate, unique_strings, utc_now_iso
 
 
@@ -94,6 +96,33 @@ def _is_aggregator_url(value: str | None) -> bool:
     ))
 
 
+TRACKING_QUERY_KEYS = {
+    "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content",
+    "gclid", "fbclid", "mc_cid", "mc_eid", "ocid", "cmpid", "ref",
+    "ref_src", "src", "guccounter", "guce_referrer", "guce_referrer_sig",
+}
+
+
+def clean_news_url(value: str | None) -> str:
+    url = _decode_embedded_url(clean_space(value))
+    if not url:
+        return ""
+    try:
+        parsed = urlparse(url)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            return ""
+        query = []
+        for key, values in parse_qs(parsed.query, keep_blank_values=False).items():
+            if key.casefold() in TRACKING_QUERY_KEYS or key.casefold().startswith("utm_"):
+                continue
+            for item in values:
+                query.append((key, item))
+        cleaned = parsed._replace(fragment="", query=urlencode(query, doseq=True))
+        return urlunparse(cleaned)
+    except Exception:
+        return url
+
+
 def _candidate_news_urls(record: dict[str, Any]) -> list[str]:
     urls: list[str] = []
     for value in (
@@ -101,14 +130,19 @@ def _candidate_news_urls(record: dict[str, Any]) -> list[str]:
         record.get("canonical_url"), record.get("link"), record.get("original_url"),
         record.get("publisher_url"),
     ):
-        if value:
-            urls.append(clean_space(value))
-    urls.extend(clean_space(x) for x in (record.get("candidate_urls") or []) if clean_space(x))
+        cleaned = clean_news_url(value)
+        if cleaned:
+            urls.append(cleaned)
+    for value in record.get("candidate_urls") or []:
+        cleaned = clean_news_url(value)
+        if cleaned:
+            urls.append(cleaned)
     for duplicate in record.get("duplicate_sources") or []:
-        if isinstance(duplicate, dict) and duplicate.get("url"):
-            urls.append(clean_space(duplicate.get("url")))
-    # Prefer direct publisher URLs over aggregators while retaining the latter
-    # as discovery pages that may expose canonical/article links.
+        if isinstance(duplicate, dict):
+            cleaned = clean_news_url(duplicate.get("url"))
+            if cleaned:
+                urls.append(cleaned)
+    # Direct publisher URLs are tried before Google/Bing aggregation pages.
     return sorted(unique_strings(urls), key=lambda x: (1 if _is_aggregator_url(x) else 0, len(x)))
 
 
@@ -241,10 +275,10 @@ def _news_summary_quality(text: str, title: str) -> tuple[bool, dict[str, Any]]:
     tokens = re.findall(r"[A-Za-z0-9\u4e00-\u9fff]+", value)
     sentences = split_sentences(value, max_sentences=20)
     valid = (
-        len(value) >= 140
-        and len(tokens) >= 24
+        len(value) >= int(os.getenv("PIF_NEWS_EXCERPT_MIN_CHARS", "100"))
+        and len(tokens) >= 18
         and similarity < 0.90
-        and (len(sentences) >= 2 or len(value) >= 260)
+        and (len(sentences) >= 2 or len(value) >= 220)
     )
     return valid, {
         "chars": len(value),
@@ -255,27 +289,44 @@ def _news_summary_quality(text: str, title: str) -> tuple[bool, dict[str, Any]]:
     }
 
 
-def _extract_news_candidates(raw: str, soup: BeautifulSoup) -> list[tuple[str, str]]:
-    jsonld_title, jsonld_body = _extract_jsonld(soup)
+def _extract_news_candidates(raw: str, soup: BeautifulSoup, url: str = "") -> list[tuple[str, str]]:
+    _, jsonld_body = _extract_jsonld(soup)
     candidates: list[tuple[str, str]] = []
     if jsonld_body:
         candidates.append(("jsonld_articleBody", jsonld_body))
+
     precision = trafilatura.extract(
-        raw,
-        include_comments=False,
-        include_tables=False,
-        favor_precision=True,
+        raw, url=url or None, include_comments=False, include_tables=False, favor_precision=True,
     ) or ""
     if precision:
         candidates.append(("trafilatura_precision", precision))
     recall = trafilatura.extract(
-        raw,
-        include_comments=False,
-        include_tables=False,
-        favor_recall=True,
+        raw, url=url or None, include_comments=False, include_tables=False, favor_recall=True,
     ) or ""
     if recall:
         candidates.append(("trafilatura_recall", recall))
+
+    # Readability and newspaper3k use different layout heuristics, which is
+    # useful when news sites change templates. They are lazy imports so a
+    # missing optional dependency is recorded rather than breaking the cycle.
+    try:
+        from readability import Document
+        readable = Document(raw).summary(html_partial=True)
+        readable_text = BeautifulSoup(readable, "lxml").get_text(" ")
+        if readable_text:
+            candidates.append(("readability_lxml", readable_text))
+    except Exception:
+        pass
+    try:
+        from newspaper import Article
+        article_obj = Article(url or "https://local.invalid/", language="en")
+        article_obj.set_html(raw)
+        article_obj.parse()
+        if article_obj.text:
+            candidates.append(("newspaper3k", article_obj.text))
+    except Exception:
+        pass
+
     article = soup.find("article") or soup.find("main") or soup.find(attrs={"role": "main"})
     if article:
         candidates.append(("article_or_main", article.get_text(" ")))
@@ -295,7 +346,9 @@ def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars
     audit: dict[str, Any] = {
         "attempted_urls": [],
         "extraction_attempts": [],
+        "browser_attempts": [],
         "retrieved_at": utc_now_iso(),
+        "policy_version": "v10-static-then-browser-multi-extractor-1",
     }
     queue = _candidate_news_urls(record)
     visited: set[str] = set()
@@ -304,63 +357,80 @@ def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars
     best_method = "none"
     best_score = float("-inf")
     best_quality: dict[str, Any] = {}
-    final_url = clean_space(record.get("url"))
+    best_url = ""
+    final_url = clean_news_url(record.get("url"))
+    static_limit = max(1, int(os.getenv("PIF_NEWS_STATIC_MAX_URLS", "8")))
 
-    while queue and len(visited) < 10:
-        url = queue.pop(0)
+    def evaluate_html(raw: str, page_url: str, title_hint: str = "", channel: str = "static") -> None:
+        nonlocal best_text, best_title, best_method, best_score, best_quality, best_url
+        soup = BeautifulSoup(raw, "lxml")
+        jsonld_title, _ = _extract_jsonld(soup)
+        candidate_title = jsonld_title or _meta_content(
+            soup, [("property", "og:title"), ("name", "twitter:title"), ("name", "citation_title")],
+        ) or title_hint
+        if candidate_title:
+            best_title = candidate_title
+        canonical = soup.find("link", rel=lambda x: x and "canonical" in str(x).lower())
+        canonical_url = clean_news_url(urljoin(page_url, canonical.get("href"))) if canonical and canonical.get("href") else ""
+        if canonical_url:
+            record["canonical_url"] = canonical_url
+        discovered = [clean_news_url(x) for x in _external_news_urls(soup, raw, page_url)]
+        for candidate_url in discovered:
+            if candidate_url and candidate_url not in visited and candidate_url not in queue:
+                queue.append(candidate_url)
+        if discovered:
+            audit.setdefault("discovered_urls", []).extend([x for x in discovered if x])
+        for method, extracted in _extract_news_candidates(raw, soup, page_url):
+            valid, score, quality = _news_text_quality(extracted, best_title or record.get("title"))
+            audit["extraction_attempts"].append({
+                "url": page_url, "channel": channel, "method": method,
+                "status": "valid" if valid else "rejected", **quality,
+            })
+            if valid and score > best_score:
+                best_text = extracted
+                best_method = f"{channel}:{method}"
+                best_score = score
+                best_quality = quality
+                best_url = canonical_url or page_url
+
+    while queue and len(visited) < static_limit:
+        url = clean_news_url(queue.pop(0))
         if not url or url in visited:
             continue
         visited.add(url)
         audit["attempted_urls"].append(url)
         try:
             response = http.request("GET", url, allow_redirects=True, timeout=25, retry_attempts=2)
-            final_url = response.url
+            final_url = clean_news_url(response.url) or url
+            if final_url and final_url != url and final_url not in visited and final_url not in queue:
+                # Aggregator endpoints frequently redirect to the publisher.
+                # Preserve that resolved address as a first-class candidate so
+                # another extractor/browser attempt can use it directly.
+                queue.insert(0, final_url)
             content_type = response.headers.get("Content-Type", "").lower()
             if "html" not in content_type and "text" not in content_type:
                 audit["extraction_attempts"].append({"url": url, "status": "unsupported_content_type", "content_type": content_type})
                 continue
-            raw = response.text
-            soup = BeautifulSoup(raw, "lxml")
-            jsonld_title, _ = _extract_jsonld(soup)
-            candidate_title = jsonld_title or _meta_content(
-                soup,
-                [("property", "og:title"), ("name", "twitter:title"), ("name", "citation_title")],
-            )
-            if candidate_title:
-                best_title = candidate_title
-            canonical = soup.find("link", rel=lambda x: x and "canonical" in str(x).lower())
-            canonical_url = ""
-            if canonical and canonical.get("href"):
-                canonical_url = urljoin(final_url, canonical.get("href"))
-                record["canonical_url"] = canonical_url
-                if canonical_url not in visited and canonical_url not in queue:
-                    queue.append(canonical_url)
-            discovered = _external_news_urls(soup, raw, final_url)
-            for candidate_url in discovered:
-                if candidate_url not in visited and candidate_url not in queue:
-                    queue.append(candidate_url)
-            if discovered:
-                audit.setdefault("discovered_urls", []).extend(discovered)
-            for method, extracted in _extract_news_candidates(raw, soup):
-                valid, score, quality = _news_text_quality(extracted, best_title or record.get("title"))
-                audit["extraction_attempts"].append(
-                    {
-                        "url": final_url,
-                        "method": method,
-                        "status": "valid" if valid else "rejected",
-                        **quality,
-                    }
-                )
-                if valid and score > best_score:
-                    best_text = extracted
-                    best_method = method
-                    best_score = score
-                    best_quality = quality
-                    record["canonical_url"] = canonical_url or final_url
+            evaluate_html(response.text, final_url, channel="static")
             if best_text and len(best_text) >= 2200:
                 break
         except Exception as exc:
-            audit.setdefault("errors", []).append({"url": url, "error": clean_space(exc)[:400]})
+            audit.setdefault("errors", []).append({"url": url, "channel": "static", "error": clean_space(exc)[:400]})
+
+    # Only candidates that failed static extraction are escalated. Browser
+    # rendering is bounded and prefers direct publisher URLs.
+    if not best_text and browser_enabled():
+        browser_limit = max(1, int(os.getenv("PIF_NEWS_BROWSER_MAX_PAGES", "3")))
+        browser_urls = sorted(unique_strings(list(visited) + queue), key=lambda x: (1 if _is_aggregator_url(x) else 0, len(x)))[:browser_limit]
+        for url in browser_urls:
+            rendered = fetch_rendered_html(url)
+            audit["browser_attempts"].append({k: v for k, v in rendered.items() if k != "html"})
+            if rendered.get("status") != "success" or not rendered.get("html"):
+                continue
+            final_url = clean_news_url(rendered.get("url")) or url
+            evaluate_html(rendered["html"], final_url, title_hint=rendered.get("title") or "", channel="playwright")
+            if best_text and len(best_text) >= 1200:
+                break
 
     rss_excerpt = remove_boilerplate(record.get("excerpt") or "")
     summary_valid, summary_quality = _news_summary_quality(rss_excerpt, record.get("title"))
@@ -368,14 +438,11 @@ def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars
         content_status = "full" if len(best_text) >= 1500 else "partial"
         content = truncate(best_text, max_chars)
     elif summary_valid:
-        # A substantive syndicated summary is useful evidence when the original
-        # site blocks automated extraction. It is clearly labelled and never
-        # represented as full original body text. This prevents a complete news
-        # blackout while preserving provenance and uncertainty.
         content_status = "syndicated_summary"
         content = truncate(rss_excerpt, min(max_chars, 6000))
         best_method = "rss_syndicated_summary"
         best_quality = summary_quality
+        best_url = final_url or clean_news_url(record.get("url"))
     elif rss_excerpt:
         content_status = "title_only_rejected" if summary_quality.get("title_only") else "excerpt_only"
         content = ""
@@ -385,7 +452,7 @@ def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars
         content_status = "unavailable"
         content = ""
 
-    record["resolved_url"] = final_url
+    record["resolved_url"] = best_url or final_url or clean_news_url(record.get("url"))
     record["retrieved_at"] = audit["retrieved_at"]
     record["content_title"] = best_title
     record["content"] = content

@@ -2,58 +2,54 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import date, datetime
 from typing import Any
 
 from .llm import LLMError, LLMRouter
+from .postprocess import BANNED_EDITORIAL_SENTENCES, sanitize_editorial_block, sentence_similarity
 from .utils import clean_space, split_sentences, unique_strings
 
 
-OVERVIEW_POLICY_VERSION = "v9-editorial-chinese-no-ellipsis-1"
+OVERVIEW_POLICY_VERSION = "v10-recent-editorial-statistics-1"
 PLACEHOLDER_MARKERS = (
     "翻译暂不可用",
     "translation unavailable",
     "中文标题暂不可用",
     "internal error",
 )
-ELLIPSIS_MARKERS = ("...", "…", "......")
+ELLIPSIS_MARKERS = ("...", "…", "......", "……")
 
 
 def _clean_for_overview(value: Any) -> str:
     text = clean_space(value)
     if any(marker.casefold() in text.casefold() for marker in PLACEHOLDER_MARKERS):
         return ""
+    if any(marker.casefold() in text.casefold() for marker in BANNED_EDITORIAL_SENTENCES):
+        return ""
     return text
 
 
 def _clip_complete_sentences(value: Any, limit: int) -> str:
-    """Clip without an ellipsis or an incomplete trailing sentence."""
     text = _clean_for_overview(value)
+    for marker in ELLIPSIS_MARKERS:
+        text = text.replace(marker, "")
     if len(text) <= limit:
-        return text
+        if text and text[-1] not in "。.!?！？":
+            text += "。" if re.search(r"[\u4e00-\u9fff]", text) else "."
+        return clean_space(text)
     output: list[str] = []
     used = 0
     for sentence in split_sentences(text, max_sentences=200):
-        sentence = clean_space(sentence)
+        sentence = clean_space(sentence).strip(" ,;，；:：")
         if not sentence:
             continue
-        if used + len(sentence) > limit:
+        if sentence[-1] not in "。.!?！？":
+            sentence += "。" if re.search(r"[\u4e00-\u9fff]", sentence) else "."
+        if output and used + len(sentence) > limit:
             break
         output.append(sentence)
         used += len(sentence)
-    if output:
-        return clean_space(" ".join(output))
-    # For a single very long sentence, use a complete clause boundary and add a
-    # terminal stop rather than an ellipsis.
-    piece = text[:limit]
-    for delimiter in ("。", ". ", "；", "; ", "，", ", "):
-        index = piece.rfind(delimiter)
-        if index >= max(40, limit // 2):
-            piece = piece[: index + len(delimiter)].strip()
-            break
-    piece = piece.rstrip(" ,;，；:：")
-    if piece and piece[-1] not in "。.!?！？":
-        piece += "。" if re.search(r"[\u4e00-\u9fff]", piece) else "."
-    return piece
+    return clean_space(" ".join(output))
 
 
 def _published_date(item: dict[str, Any]) -> str:
@@ -62,8 +58,27 @@ def _published_date(item: dict[str, Any]) -> str:
         or item.get("first_publication_date")
         or item.get("availability_date")
         or item.get("published_date")
+        or item.get("print_date")
         or item.get("year")
     )
+
+
+def _parse_date(value: Any) -> date | None:
+    text = clean_space(value)
+    if not text:
+        return None
+    match = re.search(r"(19|20)\d{2}(?:[-/]\d{1,2}(?:[-/]\d{1,2})?)?", text)
+    if not match:
+        return None
+    token = match.group(0).replace("/", "-")
+    try:
+        if len(token) == 4:
+            return date(int(token), 1, 1)
+        if len(token) == 7:
+            return datetime.strptime(token, "%Y-%m").date()
+        return datetime.strptime(token[:10], "%Y-%m-%d").date()
+    except ValueError:
+        return None
 
 
 def _contains_ellipsis(value: Any) -> bool:
@@ -78,22 +93,96 @@ def _is_chinese(value: Any, minimum_chars: int = 12, ratio: float = 0.28) -> boo
     return chinese >= minimum_chars and (not letters or chinese / letters >= ratio)
 
 
-def select_overview_items(items: list[dict[str, Any]], *, minimum: int = 15, maximum: int = 25) -> list[dict[str, Any]]:
-    """Select 15-25 ranked items while limiting one-source dominance."""
+def _selection_score(item: dict[str, Any], window_start: date | None, window_end: date | None, kind: str) -> float:
+    score = float(item.get("quality_score") or 0)
+    tier = clean_space(item.get("priority_tier")).upper()
+    score += {"A": 55, "B": 25, "C": 5}.get(tier, 0)
+    published = _parse_date(_published_date(item))
+    if published and window_start and window_end:
+        if window_start <= published <= window_end:
+            age = max(0, (window_end - published).days)
+            score += 120 - age * 8
+        elif published > window_end:
+            score -= 70
+        else:
+            score -= min(80, max(0, (window_start - published).days) * 2)
+    elif published:
+        score += min(25, max(0, published.year - 2020))
+    else:
+        score -= 35
+    evidence = clean_space(item.get("evidence_level"))
+    score += {"E2": 22, "E1": 12, "E0": -12}.get(evidence, 0)
+    score += min(24, 6 * len(unique_strings(item.get("sources") or item.get("retrieval_sources") or [])))
+    score += min(20, 5 * len(unique_strings(item.get("retrieval_concepts") or [])))
+    if kind == "literature":
+        ptype = clean_space(item.get("paper_type")).casefold()
+        publication_types = " ".join(item.get("publication_types") or []).casefold()
+        if "meta-analysis" in publication_types or "systematic review" in publication_types:
+            score += 25
+        elif ptype == "research":
+            score += 12
+    else:
+        if item.get("official"):
+            score += 35
+        status = clean_space(item.get("content_status"))
+        score += {"full": 24, "partial": 14, "syndicated_summary": 6}.get(status, 0)
+    return score
+
+
+def select_overview_items(
+    items: list[dict[str, Any]],
+    *,
+    minimum: int = 15,
+    maximum: int = 25,
+    window_start: date | str | None = None,
+    window_end: date | str | None = None,
+    kind: str = "literature",
+) -> list[dict[str, Any]]:
+    """Select 15-25 recent, high-quality and source-diverse records.
+
+    Selection is never based on incoming order. Papers published inside the
+    active reporting window receive the strongest editorial weight. Older or
+    undated records can only fill a shortfall when fewer than ``minimum`` recent
+    records are available.
+    """
     maximum = max(1, min(25, maximum))
     minimum = max(1, min(maximum, minimum))
-    if len(items) <= maximum:
-        return list(items)
+    start = _parse_date(window_start) if not isinstance(window_start, date) else window_start
+    end = _parse_date(window_end) if not isinstance(window_end, date) else window_end
+    ranked = sorted(
+        items,
+        key=lambda item: (
+            _selection_score(item, start, end, kind),
+            _parse_date(_published_date(item)) or date(1900, 1, 1),
+            clean_space(item.get("title")),
+        ),
+        reverse=True,
+    )
+    if len(ranked) <= maximum:
+        output = []
+        for item in ranked:
+            enriched = dict(item)
+            enriched["overview_selection_score"] = round(_selection_score(item, start, end, kind), 3)
+            published = _parse_date(_published_date(item))
+            enriched["overview_recent_window"] = bool(start and end and published and start <= published <= end)
+            output.append(enriched)
+        return output
 
+    recent = [item for item in ranked if start and end and (d := _parse_date(_published_date(item))) and start <= d <= end]
+    fallback = [item for item in ranked if item not in recent]
+    pool = recent + fallback
     selected: list[dict[str, Any]] = []
     deferred: list[dict[str, Any]] = []
     source_counts: dict[str, int] = {}
     type_counts: dict[str, int] = {}
-    for item in items:
+    for item in pool:
         source = clean_space(item.get("journal") or item.get("publisher") or item.get("source") or "unknown").casefold()
         item_type = clean_space(item.get("paper_type") or item.get("source_assessment") or "other").casefold()
-        if source_counts.get(source, 0) < 3 and type_counts.get(item_type, 0) < max(8, maximum):
-            selected.append(item)
+        if source_counts.get(source, 0) < 4 and type_counts.get(item_type, 0) < max(10, maximum):
+            enriched = dict(item)
+            enriched["overview_selection_score"] = round(_selection_score(item, start, end, kind), 3)
+            enriched["overview_recent_window"] = bool(item in recent)
+            selected.append(enriched)
             source_counts[source] = source_counts.get(source, 0) + 1
             type_counts[item_type] = type_counts.get(item_type, 0) + 1
         else:
@@ -102,10 +191,12 @@ def select_overview_items(items: list[dict[str, Any]], *, minimum: int = 15, max
             break
     if len(selected) < minimum:
         for item in deferred:
-            if item not in selected:
-                selected.append(item)
             if len(selected) >= minimum:
                 break
+            enriched = dict(item)
+            enriched["overview_selection_score"] = round(_selection_score(item, start, end, kind), 3)
+            enriched["overview_recent_window"] = bool(item in recent)
+            selected.append(enriched)
     return selected[:maximum]
 
 
@@ -117,15 +208,17 @@ def _paper_payload(item: dict[str, Any]) -> dict[str, Any]:
         "paper_type": item.get("paper_type") or "research",
         "priority_tier": item.get("priority_tier"),
         "quality_score": item.get("quality_score"),
+        "editorial_selection_score": item.get("overview_selection_score"),
+        "published_inside_window": item.get("overview_recent_window"),
         "title_en": _clean_for_overview(item.get("title")),
         "title_zh": _clean_for_overview(item.get("title_zh")),
         "authors": (item.get("authors") or [])[:12],
         "journal": item.get("journal"),
         "published_date": _published_date(item),
-        "abstract_en": _clip_complete_sentences(item.get("abstract"), 2600),
-        "abstract_zh": _clip_complete_sentences(item.get("abstract_zh"), 1800),
-        "analysis_en": {key: _clip_complete_sentences(value, 520) for key, value in analysis_en.items()},
-        "analysis_zh": {key: _clip_complete_sentences(value, 520) for key, value in analysis_zh.items()},
+        "abstract_en": _clip_complete_sentences(item.get("abstract"), 3000),
+        "abstract_zh": _clip_complete_sentences(item.get("abstract_zh"), 2200),
+        "analysis_en": {key: _clip_complete_sentences(value, 620) for key, value in analysis_en.items()},
+        "analysis_zh": {key: _clip_complete_sentences(value, 620) for key, value in analysis_zh.items()},
         "evidence_level": item.get("evidence_level"),
         "publication_types": item.get("publication_types") or [],
     }
@@ -139,16 +232,18 @@ def _news_payload(item: dict[str, Any]) -> dict[str, Any]:
         "news_id": item.get("news_id"),
         "priority_tier": item.get("priority_tier"),
         "quality_score": item.get("quality_score"),
+        "editorial_selection_score": item.get("overview_selection_score"),
+        "published_inside_window": item.get("overview_recent_window"),
         "title_en": _clean_for_overview(item.get("title")),
         "title_zh": _clean_for_overview(item.get("title_zh")),
         "publisher": item.get("publisher") or item.get("source"),
         "published_date": item.get("published_date"),
         "source_assessment": analysis_block.get("source_assessment"),
         "content_status": item.get("content_status"),
-        "brief_en": _clip_complete_sentences(analysis_block.get("brief_en"), 1400),
-        "brief_zh": _clip_complete_sentences(item.get("content_zh"), 900),
-        "analysis_en": {key: _clip_complete_sentences(value, 480) for key, value in analysis_en.items()},
-        "analysis_zh": {key: _clip_complete_sentences(value, 480) for key, value in analysis_zh.items()},
+        "brief_en": _clip_complete_sentences(analysis_block.get("brief_en"), 1600),
+        "brief_zh": _clip_complete_sentences(item.get("content_zh"), 1100),
+        "analysis_en": {key: _clip_complete_sentences(value, 560) for key, value in analysis_en.items()},
+        "analysis_zh": {key: _clip_complete_sentences(value, 560) for key, value in analysis_zh.items()},
     }
 
 
@@ -177,10 +272,16 @@ def _overview_validator(valid_ids: set[str], kind: str):
         if not _is_chinese(data.get("caveats_zh"), 15, 0.35):
             return False, "caveats_zh is not sufficiently Chinese"
         all_text = json.dumps(data, ensure_ascii=False)
-        if any(marker.casefold() in all_text.casefold() for marker in PLACEHOLDER_MARKERS):
-            return False, "placeholder leaked into overview"
+        if any(marker.casefold() in all_text.casefold() for marker in PLACEHOLDER_MARKERS + BANNED_EDITORIAL_SENTENCES):
+            return False, "internal reservation or placeholder leaked into overview"
         if _contains_ellipsis(all_text):
             return False, "ellipsis or incomplete compression is not allowed"
+        if any(clean_space(value).endswith(("，", ",", "；", ";", "：", ":")) for value in [data.get("lead_zh"), data.get("trend_or_risk_zh"), data.get("caveats_zh")]):
+            return False, "incomplete trailing clause"
+        for index, left in enumerate(findings):
+            for right in findings[index + 1:]:
+                if sentence_similarity(left, right) >= 0.90:
+                    return False, "key findings are duplicated"
         source_ids = unique_strings(data.get("source_ids") or [])
         if len(source_ids) < min(3, len(valid_ids)):
             return False, "not enough source ids"
@@ -191,7 +292,6 @@ def _overview_validator(valid_ids: set[str], kind: str):
         if kind == "news" and len(clean_space(data.get("brief_en"))) < 80:
             return False, "news English brief too short"
         return True, "ok"
-
     return validator
 
 
@@ -199,17 +299,14 @@ def _compose_zh(data: dict[str, Any]) -> str:
     parts = [clean_space(data.get("lead_zh"))]
     findings = [clean_space(x) for x in data.get("key_findings_zh") or [] if clean_space(x)]
     if findings:
-        parts.append("核心发现：" + "；".join(findings))
+        parts.append("核心进展：" + "；".join(findings))
     trend = clean_space(data.get("trend_or_risk_zh"))
     caveats = clean_space(data.get("caveats_zh"))
     if trend:
         parts.append(trend)
     if caveats:
-        parts.append("证据提醒：" + caveats)
-    value = clean_space(" ".join(parts))
-    for marker in ELLIPSIS_MARKERS:
-        value = value.replace(marker, "")
-    return value
+        parts.append("证据边界：" + caveats)
+    return clean_space(" ".join(parts))
 
 
 def _literature_fallback(profile: dict[str, Any], papers: list[dict[str, Any]]) -> dict[str, Any]:
@@ -221,36 +318,28 @@ def _literature_fallback(profile: dict[str, Any], papers: list[dict[str, Any]]) 
         key = "main_results" if paper.get("paper_type") != "review" else "consensus_and_key_conclusions"
         text = _clean_for_overview(analysis_zh.get(key) or paper.get("summary_zh") or paper.get("abstract_zh"))
         if text and _is_chinese(text, 12, 0.30):
-            findings.append(_clip_complete_sentences(text, 190))
-            ids.append(clean_space(paper.get("paper_id")))
+            clipped = _clip_complete_sentences(text, 230)
+            if clipped and not any(sentence_similarity(clipped, x) >= 0.90 for x in findings):
+                findings.append(clipped + (f" [{paper.get('paper_id')}]" if paper.get("paper_id") else ""))
+                ids.append(clean_space(paper.get("paper_id")))
         if len(findings) >= 5:
             break
-    if not findings:
-        findings = [
-            "本期入选文献均已完成相关性核验，但现有中文证据不足以形成可靠的跨研究综合结论。",
-            "研究方向覆盖流行病学、临床、宿主生态或分子监测，具体结果应结合下方单篇精读查看。",
-            "本期综合报道未使用未翻译英文内容，也未用占位文本替代中文结论。",
-        ]
-    literature_fillers = [
-        "现有证据数量有限，暂不将单篇发现扩大解释为稳定趋势。",
-        "不同研究设计和人群之间仍需更多可比数据，当前结论应结合证据等级理解。",
-        "本期研究热点不能替代长期监测，后续仍需关注独立验证和多中心证据。",
-    ]
-    for filler in literature_fillers:
-        if len(findings) >= 3:
-            break
-        if filler not in findings:
-            findings.append(filler)
+    while len(findings) < 3 and papers:
+        paper = papers[len(findings) % len(papers)]
+        title = _clean_for_overview(paper.get("title_zh") or paper.get("title"))
+        date_text = _published_date(paper)
+        findings.append(f"{date_text or '本期'}发表的《{title}》进入本期重点文献清单，详细证据见下方单篇解读。 [{paper.get('paper_id')}]" )
+        ids.append(clean_space(paper.get("paper_id")))
     data = {
-        "headline_zh": f"{name}本期文献研究呈现多方向进展",
-        "lead_zh": f"本期文献简报综合{len(papers)}篇研究与综述，按照科研新闻报道方式提炼证据最强的结果、共同趋势及需要谨慎解释的结论。",
-        "key_findings_zh": findings[:5],
-        "trend_or_risk_zh": "单周文献可反映近期研究热点，但不能单独代表长期流行趋势或直接改变临床与公共卫生决策。",
-        "caveats_zh": "部分条目仅有摘要，观察性研究、非随机研究和预印本的证据强度应低于经过充分验证的研究。",
-        "headline_en": f"Recent literature on {profile.get('display_name_en') or profile.get('profile_id')}",
-        "brief_en": f"This literature briefing integrates {len(papers)} selected papers and separates primary findings, review-level consensus, research trends, and evidence limitations.",
-        "source_ids": [x for x in unique_strings(ids) if x],
-        "status": "deterministic_chinese_fallback",
+        "headline_zh": f"{name}本期文献呈现多方向研究进展",
+        "lead_zh": f"本期重点文献按发表日期、相关性、证据等级和研究质量综合排序，研究结果与综述证据分别核验后形成以下进展。",
+        "key_findings_zh": findings[:5] or ["本期未形成可公开发布的重点文献结论。"],
+        "trend_or_risk_zh": "本期研究方向以入选文献实际覆盖的临床、流行病学、宿主生态、诊断或分子监测主题为准。",
+        "caveats_zh": "部分证据来自摘要、观察性研究或叙述性综述，结论应结合研究设计和证据等级理解。",
+        "headline_en": f"Recent {profile.get('display_name_en') or profile.get('profile_id')} literature",
+        "brief_en": "The literature brief prioritizes papers published in the active reporting window and ranks them by relevance, evidence availability, study quality, recency, and independent-source convergence. Detailed study-specific evidence is retained in the article cards below.",
+        "source_ids": unique_strings(ids),
+        "status": "deterministic_editorial_fallback",
         "input_count": len(papers),
         "policy_version": OVERVIEW_POLICY_VERSION,
     }
@@ -266,37 +355,23 @@ def _news_fallback(profile: dict[str, Any], news: list[dict[str, Any]]) -> dict[
     for article in news:
         analysis_zh = article.get("analysis_zh") or {}
         text = _clean_for_overview(analysis_zh.get("event") or article.get("content_zh"))
-        if text and _is_chinese(text, 10, 0.30):
-            findings.append(_clip_complete_sentences(text, 180))
-            ids.append(clean_space(article.get("news_id")))
+        if text and _is_chinese(text, 12, 0.30):
+            clipped = _clip_complete_sentences(text, 230)
+            if clipped and not any(sentence_similarity(clipped, x) >= 0.90 for x in findings):
+                findings.append(clipped + (f" [{article.get('news_id')}]" if article.get("news_id") else ""))
+                ids.append(clean_space(article.get("news_id")))
         if len(findings) >= 5:
             break
-    if not findings:
-        findings = [
-            "本期尚未获得足够的可核验新闻正文或实质性新闻摘要，因此未根据标题扩写事件。",
-            "新闻来源抓取状态已单独记录，接口或网页解析失败不会被误报为没有公共卫生事件。",
-            "后续风险判断应以卫生主管部门、实验室确认和原始报道更新为准。",
-        ]
-    news_fillers = [
-        "可核验新闻数量有限，暂不扩大解释传播范围或风险变化。",
-        "报道之间的病例口径和事件时间可能不同，最终信息应以主管部门更新为准。",
-        "当前材料不足以确认新增传播链，风险等级不因单条媒体报道自动上调。",
-    ]
-    for filler in news_fillers:
-        if len(findings) >= 3:
-            break
-        if filler not in findings:
-            findings.append(filler)
     data = {
         "headline_zh": f"{name}本期公共卫生新闻动态",
-        "lead_zh": f"本期新闻简报综合{len(news)}条获得有效正文或实质性摘要的报道，按照官方新闻通报方式区分已确认事件、风险影响、应对措施和未决信息。",
-        "key_findings_zh": findings[:5],
-        "trend_or_risk_zh": "风险判断只采用原始报道或实质性摘要中的明确信息，疑似事件、媒体推测和尚未证实的传播链均单独标记。",
-        "caveats_zh": "同一事件可能被多个媒体转载，最终病例数、地点和传播状态应以主管部门后续通报为准。",
-        "headline_en": f"Recent public-health reporting on {profile.get('display_name_en') or profile.get('profile_id')}",
-        "brief_en": f"This news briefing integrates {len(news)} reports with verified body text or substantive syndicated summaries and separates confirmed developments from unresolved claims.",
-        "source_ids": [x for x in unique_strings(ids) if x],
-        "status": "deterministic_chinese_fallback",
+        "lead_zh": "本期新闻简报仅纳入获得有效正文或实质性来源摘要、并通过病原相关性和翻译门禁的报道。",
+        "key_findings_zh": findings[:5] or ["本期未获得足以形成公开新闻通报的有效正文或实质性来源摘要。"],
+        "trend_or_risk_zh": "风险判断仅依据入选来源已经确认的信息，不把媒体推测升级为官方结论。",
+        "caveats_zh": "动态网页、登录限制或来源更新可能影响正文完整度，具体事实以原始发布机构后续通报为准。",
+        "headline_en": f"Recent {profile.get('display_name_en') or profile.get('profile_id')} news",
+        "brief_en": "This news brief includes only reports with an extracted article body or a substantive source summary that passed relevance and translation checks. It separates confirmed developments from unresolved information and source limitations.",
+        "source_ids": unique_strings(ids),
+        "status": "deterministic_editorial_fallback",
         "input_count": len(news),
         "policy_version": OVERVIEW_POLICY_VERSION,
     }
@@ -306,45 +381,32 @@ def _news_fallback(profile: dict[str, Any], news: list[dict[str, Any]]) -> dict[
 
 
 def build_literature_overview(
-    profile: dict[str, Any],
-    papers: list[dict[str, Any]],
-    llm: LLMRouter,
-    prompts_dir: Any,
-    *,
-    minimum: int = 15,
-    maximum: int = 25,
+    profile: dict[str, Any], papers: list[dict[str, Any]], llm: LLMRouter, prompts_dir: Any,
+    *, minimum: int = 15, maximum: int = 25, window_start: date | str | None = None, window_end: date | str | None = None,
 ) -> dict[str, Any]:
-    selected = select_overview_items(papers, minimum=minimum, maximum=maximum)
+    selected = select_overview_items(papers, minimum=minimum, maximum=maximum, window_start=window_start, window_end=window_end, kind="literature")
     fallback = _literature_fallback(profile, selected)
     if not selected or not llm.available:
         return fallback
     records = [_paper_payload(item) for item in selected]
     valid_ids = {clean_space(item.get("paper_id")) for item in records if clean_space(item.get("paper_id"))}
     system = (prompts_dir / "literature_overview.md").read_text(encoding="utf-8")
-    prompt = json.dumps(
-        {
-            "policy_version": OVERVIEW_POLICY_VERSION,
-            "pathogen_zh": profile.get("display_name_zh"),
-            "pathogen_en": profile.get("display_name_en"),
-            "input_count": len(records),
-            "records": records,
-        },
-        ensure_ascii=False,
-    )
+    prompt = json.dumps({
+        "policy_version": OVERVIEW_POLICY_VERSION,
+        "pathogen_zh": profile.get("display_name_zh"),
+        "pathogen_en": profile.get("display_name_en"),
+        "window_start": str(window_start or ""),
+        "window_end": str(window_end or ""),
+        "selection_rule": "recent-publication-first, then quality, evidence, relevance, source diversity and hotspot significance; never input order",
+        "input_count": len(records),
+        "records": records,
+    }, ensure_ascii=False)
     try:
-        result = llm.json_task(
-            system=system,
-            prompt=prompt,
-            validator=_overview_validator(valid_ids, "literature"),
-            temperature=0.05,
-            max_models_per_provider=2,
-        )
-        data = dict(result.data)
-        data.update({
-            "status": f"{result.provider}:{result.model}",
-            "input_count": len(records),
-            "policy_version": OVERVIEW_POLICY_VERSION,
-        })
+        result = llm.json_task(system=system, prompt=prompt, validator=_overview_validator(valid_ids, "literature"), temperature=0.03, max_models_per_provider=2)
+        data = sanitize_editorial_block(dict(result.data))
+        if len(data.get("key_findings_zh") or []) < 3:
+            return fallback
+        data.update({"status": f"{result.provider}:{result.model}", "input_count": len(records), "policy_version": OVERVIEW_POLICY_VERSION})
         data["zh"] = _compose_zh(data)
         data["en"] = clean_space(data.get("brief_en"))
         return data
@@ -353,46 +415,33 @@ def build_literature_overview(
 
 
 def build_news_overview(
-    profile: dict[str, Any],
-    news: list[dict[str, Any]],
-    llm: LLMRouter,
-    prompts_dir: Any,
-    *,
-    minimum: int = 15,
-    maximum: int = 25,
+    profile: dict[str, Any], news: list[dict[str, Any]], llm: LLMRouter, prompts_dir: Any,
+    *, minimum: int = 15, maximum: int = 25, window_start: date | str | None = None, window_end: date | str | None = None,
 ) -> dict[str, Any]:
     eligible = [item for item in news if item.get("content_status") in {"full", "partial", "syndicated_summary"}]
-    selected = select_overview_items(eligible, minimum=minimum, maximum=maximum)
+    selected = select_overview_items(eligible, minimum=minimum, maximum=maximum, window_start=window_start, window_end=window_end, kind="news")
     fallback = _news_fallback(profile, selected)
     if not selected or not llm.available:
         return fallback
     records = [_news_payload(item) for item in selected]
     valid_ids = {clean_space(item.get("news_id")) for item in records if clean_space(item.get("news_id"))}
     system = (prompts_dir / "news_overview.md").read_text(encoding="utf-8")
-    prompt = json.dumps(
-        {
-            "policy_version": OVERVIEW_POLICY_VERSION,
-            "pathogen_zh": profile.get("display_name_zh"),
-            "pathogen_en": profile.get("display_name_en"),
-            "input_count": len(records),
-            "records": records,
-        },
-        ensure_ascii=False,
-    )
+    prompt = json.dumps({
+        "policy_version": OVERVIEW_POLICY_VERSION,
+        "pathogen_zh": profile.get("display_name_zh"),
+        "pathogen_en": profile.get("display_name_en"),
+        "window_start": str(window_start or ""),
+        "window_end": str(window_end or ""),
+        "selection_rule": "recent-event and publication first, then official status, body completeness, risk significance and source diversity",
+        "input_count": len(records),
+        "records": records,
+    }, ensure_ascii=False)
     try:
-        result = llm.json_task(
-            system=system,
-            prompt=prompt,
-            validator=_overview_validator(valid_ids, "news"),
-            temperature=0.05,
-            max_models_per_provider=2,
-        )
-        data = dict(result.data)
-        data.update({
-            "status": f"{result.provider}:{result.model}",
-            "input_count": len(records),
-            "policy_version": OVERVIEW_POLICY_VERSION,
-        })
+        result = llm.json_task(system=system, prompt=prompt, validator=_overview_validator(valid_ids, "news"), temperature=0.03, max_models_per_provider=2)
+        data = sanitize_editorial_block(dict(result.data))
+        if len(data.get("key_findings_zh") or []) < 3:
+            return fallback
+        data.update({"status": f"{result.provider}:{result.model}", "input_count": len(records), "policy_version": OVERVIEW_POLICY_VERSION})
         data["zh"] = _compose_zh(data)
         data["en"] = clean_space(data.get("brief_en"))
         return data
@@ -401,17 +450,11 @@ def build_news_overview(
 
 
 def build_overviews(
-    profile: dict[str, Any],
-    papers: list[dict[str, Any]],
-    news: list[dict[str, Any]],
-    llm: LLMRouter,
-    prompts_dir: Any,
-    *,
-    minimum: int = 15,
-    maximum: int = 25,
+    profile: dict[str, Any], papers: list[dict[str, Any]], news: list[dict[str, Any]], llm: LLMRouter, prompts_dir: Any,
+    *, minimum: int = 15, maximum: int = 25, window_start: date | str | None = None, window_end: date | str | None = None,
 ) -> dict[str, Any]:
-    literature = build_literature_overview(profile, papers, llm, prompts_dir, minimum=minimum, maximum=maximum)
-    news_brief = build_news_overview(profile, news, llm, prompts_dir, minimum=minimum, maximum=maximum)
+    literature = build_literature_overview(profile, papers, llm, prompts_dir, minimum=minimum, maximum=maximum, window_start=window_start, window_end=window_end)
+    news_brief = build_news_overview(profile, news, llm, prompts_dir, minimum=minimum, maximum=maximum, window_start=window_start, window_end=window_end)
     return {
         "literature": literature,
         "news": news_brief,

@@ -1,47 +1,46 @@
-weekly21 v9 双仓系统离线验证报告
-生成日期：2026-07-18
+weekly21 v10 offline validation report
+Generated: 2026-07-18
 
-一、针对用户运行日志确认的偏差
+Scope
+- Public repository: pathogen-intelligence-factory 10.0.0
+- Private repository: pathogen-wechat-publisher 2.7.0
+- Cross-repository package: wechat-package/v2
 
-- 学术候选：2608 原始记录，636 条去重候选，227 条通过相关性复核；说明前期检索并未导致只有35篇。
-- v8 内容处理：70篇文献均保留，但34条新闻全部因正文门禁被删除。
-- v8 翻译门禁：50篇完成单篇分析，翻译后仅35篇就绪；旧流程没有从补位候选重新补足。
+Validated locally
+- 21/21 profiles status=ready.
+- 105 lean core retrieval concepts (5 per profile).
+- 945 provider-adapted query records (45 per profile).
+- 56 qualified abbreviation rules.
+- Public pytest: 88 passed.
+- Private pytest: 4 passed.
+- Python compileall: passed for public src/scripts/tests and private src/tests.
+- YAML/YML parse: 25 files passed.
+- Shell syntax: all packaged .sh files passed bash -n.
+- Playwright CLI dry-run: chromium-headless-shell installation target resolved.
+- Hantavirus demo pipeline: passed.
+- Demo schema: 5.0.
+- Demo GitHub Pages HTML: generated with weekly title and separate prominent statistics lines.
+- Literature and news overviews: separated; policy v10-recent-editorial-statistics-1.
+- Internal reservation phrase regression: passed.
+- Ellipsis/incomplete-text regression: passed.
+- Current-window literature selection regression: passed.
+- Cross-field semantic duplicate removal and evidence-role replacement: passed.
+- Static-failure to Playwright news fallback regression: passed with mocked rendered public HTML.
+- Tracking-parameter URL cleanup regression: passed.
+- wechat-package/v2 validation: passed.
+- WeChat package contains article.html, cover.jpg and manifest.json.
 
-二、v9 代码修复
+Not executed in packaging environment
+- Live PubMed, Europe PMC, Crossref, Semantic Scholar, OpenAlex, bioRxiv/medRxiv requests.
+- Live Google News, Bing News, GDELT, ReliefWeb or WHO retrieval.
+- Live Playwright visits to third-party news publishers.
+- Live Gemini/Groq calls and current quotas.
+- Live free translation-provider availability.
+- GitHub Actions, GitHub Pages deployment and repository_dispatch.
+- User's self-hosted Runner.
+- WeChat token, permanent-media upload and draft/add.
 
-1. 文献和新闻补位池从 20 增至 30；最多 80 条展示候选保持到内容、分析和翻译完成。
-2. 最终 Top 50 在 translation_ready/content_ready 之后重新排序选择，不再在翻译前锁死50条。
-3. 新闻保留 RSS entry links、summary 外链、GDELT/发布者直接 URL、canonical、OpenGraph、JSON-LD、mainEntityOfPage 和脚本内 URL。
-4. 原始正文失败时，仅通过严格质量门禁的实质性转载摘要可标记 syndicated_summary；标题重复仍拒绝。
-5. 文献/新闻汇总分离；中文字段执行中文比例、无省略号、完整句、来源ID和占位符校验。
-6. 研究七要素、综述五要素使用修辞角色对齐，Python 回退也按角色选句。
-7. 批量翻译缺项时逐字段重新走免费 Python 翻译器与 LLM 最终兜底。
-8. 封面、网页、RSS 和微信标题改为每周情报。
-
-三、实际完成的离线测试
-
-- 21/21 profile：ready。
-- 每个 profile：5 个核心检索概念、45 条 provider 适配查询。
-- 21 个 profile 查询覆盖审计：通过。
-- 公开仓 pytest：81 passed。
-- 私有仓 pytest：4 passed。
-- 公开仓 Python compileall：通过。
-- 私有仓 Python compileall：通过。
-- 公开仓 YAML/YML：24 个解析通过。
-- 私有仓 YAML/YML：1 个解析通过。
-- 全部 Shell 脚本 bash -n：通过。
-- 汉坦病毒 Demo：成功生成每周标题、分离式中文汇总、研究/综述/新闻卡片、Pages 和 wechat-package/v2。
-- Demo 中“每日情报”：0；汇总省略号：0；翻译不可用占位符：0。
-- ZIP CRC：在最终打包后验证。
-
-四、没有在打包环境中冒充完成的在线测试
-
-- 真实 PubMed、Europe PMC、Crossref、Semantic Scholar、OpenAlex、bioRxiv/medRxiv 在线请求。
-- Google/Bing/GDELT/WHO/ReliefWeb 对当天新闻页面的真实解析。
-- ReliefWeb appname 审核状态。
-- Gemini/Groq 实际调用、额度和限流。
-- GitHub Actions、GitHub Pages 和 intelligence-data 推送。
-- 本地 Ubuntu self-hosted Runner。
-- 微信 stable token、素材上传和 draft/add。
-
-首次在线验收应使用 hantavirus、dispatch_wechat=false、cover_image_mode=deterministic，并重点查看 news content_audit、paper_ready_pool、news_ready_pool 和最终 displayed 数量。
+Important runtime boundaries
+- News extraction uses static methods first and bounded standard Playwright rendering second.
+- No stealth plugins, CAPTCHA solving, login automation, proxy rotation, paywall bypass or access-control bypass are included.
+- Blocked or unavailable pages are audited and replaced by another candidate or a quality-gated substantive source summary.

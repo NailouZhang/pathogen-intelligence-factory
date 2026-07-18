@@ -7,9 +7,10 @@ from typing import Any
 
 from .llm import LLMError, LLMRouter
 from .utils import clean_space, split_sentences, truncate
+from .postprocess import contains_cross_field_overlap, deduplicate_structured_analysis, complete_text
 
 
-ANALYSIS_POLICY_VERSION = "v9-role-aligned-close-reading-1"
+ANALYSIS_POLICY_VERSION = "v10-exclusive-role-close-reading-1"
 
 REVIEW_HINTS = re.compile(
     r"\b(review|systematic review|meta-analysis|narrative review|scoping review|umbrella review|viewpoint|perspective|commentary|consensus statement)\b",
@@ -223,14 +224,14 @@ def _evidence_role_map(payload: dict[str, Any]) -> dict[str, str]:
 
 FIELD_ALLOWED_ROLES = {
     "research_question_and_background": {"background", "objective", "general"},
-    "study_design_and_population": {"design_population", "methods", "general"},
+    "study_design_and_population": {"design_population", "methods"},
     "methods": {"methods", "design_population"},
     "main_results": {"results"},
     "interpretation_and_novelty": {"interpretation", "conclusion", "results", "general"},
     "scientific_and_public_health_significance": {"implications", "conclusion", "interpretation", "general"},
-    "limitations_and_evidence_strength": {"limitations", "methods", "conclusion", "general"},
+    "limitations_and_evidence_strength": {"limitations", "conclusion", "general"},
     "scope_and_question": {"background", "objective", "general"},
-    "evidence_base_and_review_method": {"methods", "design_population", "general"},
+    "evidence_base_and_review_method": {"methods", "design_population"},
     "consensus_and_key_conclusions": {"results", "conclusion", "interpretation", "general"},
     "controversies_and_evidence_gaps": {"limitations", "interpretation", "general"},
     "research_and_practice_implications": {"implications", "conclusion", "interpretation", "general"},
@@ -266,6 +267,9 @@ def _paper_validator(kind: str, valid_ids: set[str], role_map: dict[str, str] | 
                 cited_roles = {role_map.get(clean_space(ref), "general") for ref in refs}
                 if not cited_roles.intersection(allowed):
                     return False, f"{key} cites evidence assigned to the wrong rhetorical role: {sorted(cited_roles)}"
+        overlap, reason = contains_cross_field_overlap(analysis, required)
+        if overlap:
+            return False, reason
         summary = clean_space(data.get("summary_en"))
         if len(summary) < 80 or len(summary.split()) > 260:
             return False, "summary_en length invalid"
@@ -293,6 +297,9 @@ def _news_validator(valid_ids: set[str]):
                 return False, f"{key} lacks evidence ids"
             if any(clean_space(ref) not in valid_ids for ref in refs):
                 return False, f"{key} contains unknown evidence ids"
+        overlap, reason = contains_cross_field_overlap(analysis, NEWS_FIELDS, threshold=0.92)
+        if overlap:
+            return False, reason
         brief = clean_space(data.get("brief_en"))
         words = len(brief.split())
         if words < 55 or words > 170:
@@ -338,7 +345,7 @@ def _pick_role_text(groups: dict[str, list[tuple[str, str]]], roles: list[str], 
             break
     if not selected:
         return default, []
-    value = truncate(" ".join(text for _, text in selected), limit)
+    value, _ = complete_text(" ".join(text for _, text in selected), max_chars=limit)
     return value, [evidence_id for evidence_id, _ in selected]
 
 
@@ -456,14 +463,16 @@ def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> di
                 "policy_version": ANALYSIS_POLICY_VERSION,
             }
         )
+        data = deduplicate_structured_analysis(data, payload, kind)
         work["analysis"] = data
         work["analysis_ready"] = True
     except LLMError as exc:
-        work["analysis"] = (
+        fallback = (
             _fallback_research(payload, clean_space(exc)[:600])
             if kind == "research"
             else _fallback_review(payload, clean_space(exc)[:600])
         )
+        work["analysis"] = deduplicate_structured_analysis(fallback, payload, kind)
         work["analysis_ready"] = True
     return work
 
@@ -529,9 +538,12 @@ def analyze_news(article: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> 
                 "policy_version": ANALYSIS_POLICY_VERSION,
             }
         )
+        data = deduplicate_structured_analysis(data, payload, "news")
         article["analysis"] = data
         article["analysis_ready"] = True
     except LLMError as exc:
-        article["analysis"] = _fallback_news(payload, clean_space(exc)[:600])
+        article["analysis"] = deduplicate_structured_analysis(
+            _fallback_news(payload, clean_space(exc)[:600]), payload, "news"
+        )
         article["analysis_ready"] = True
     return article

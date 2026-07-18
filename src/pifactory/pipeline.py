@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections import Counter
 from datetime import date, timedelta
 from pathlib import Path
+import os
 from typing import Any
 
 from .analysis import ANALYSIS_POLICY_VERSION, analyze_news, analyze_paper
@@ -469,10 +470,11 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
 
         news_targets = list(news)
         progress("display_content_enrichment", "start", kind="news", selected=len(news_targets), cap=settings.max_news_fetches)
+        news_workers = max(1, min(6, int(os.getenv("PIF_NEWS_ENRICH_WORKERS", "4"))))
         fetched_news = _parallel_map(
             news_targets,
             lambda item: resolve_and_extract_news(http, item),
-            workers=8,
+            workers=news_workers,
         )
         fetched_by_id = {item.get("news_id"): item for item in fetched_news}
         news = [fetched_by_id.get(item.get("news_id"), item) for item in news]
@@ -683,6 +685,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         profile, papers, news, llm, prompts_dir,
         minimum=settings.overview_min_items,
         maximum=settings.overview_max_items,
+        window_start=start.isoformat(),
+        window_end=end.isoformat(),
     )
     source_status = source_audit.summary()
     anchor_coverage = _anchor_coverage(profile, query_sets, source_audit.entries)
@@ -714,7 +718,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     }
 
     issue = {
-        "schema_version": "4.0",
+        "schema_version": "5.0",
         "issue_id": f"{settings.profile_id}-{issue_date}",
         "profile_id": settings.profile_id,
         "issue_date": issue_date,

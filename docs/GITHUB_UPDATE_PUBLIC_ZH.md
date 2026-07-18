@@ -1,26 +1,27 @@
-# 公开仓 GitHub 升级命令 v9
+# 公开仓 GitHub 升级命令 v10
 
 ```bash
 cd "$HOME/下载"
-chmod +x pathogen-weekly21-v9_public_manager.sh
-bash pathogen-weekly21-v9_public_manager.sh extract
-bash pathogen-weekly21-v9_public_manager.sh tag
-bash pathogen-weekly21-v9_public_manager.sh sync
-bash pathogen-weekly21-v9_public_manager.sh test
-bash pathogen-weekly21-v9_public_manager.sh commit
-bash pathogen-weekly21-v9_public_manager.sh configure-secrets
-bash pathogen-weekly21-v9_public_manager.sh configure-vars
+chmod +x pathogen-weekly21-v10_public_manager.sh
+bash pathogen-weekly21-v10_public_manager.sh extract
+bash pathogen-weekly21-v10_public_manager.sh tag
+bash pathogen-weekly21-v10_public_manager.sh sync
+bash pathogen-weekly21-v10_public_manager.sh install-browser
+bash pathogen-weekly21-v10_public_manager.sh test
+bash pathogen-weekly21-v10_public_manager.sh commit
+bash pathogen-weekly21-v10_public_manager.sh configure-vars
+```
 
-bash pathogen-weekly21-v9_public_manager.sh \
-  run-one hantavirus false true deterministic balanced
+测试汉坦病毒：
+
+```bash
+bash pathogen-weekly21-v10_public_manager.sh run-one hantavirus false false deterministic balanced
 sleep 5
-bash pathogen-weekly21-v9_public_manager.sh watch
+bash pathogen-weekly21-v10_public_manager.sh watch
+```
 
-# 成功后日常运行
-bash pathogen-weekly21-v9_public_manager.sh \
-  run-one hantavirus false false deterministic balanced
+确认后推微信：
 
-# 全部21个，不推微信
-bash pathogen-weekly21-v9_public_manager.sh \
-  run-all false true deterministic balanced
+```bash
+bash pathogen-weekly21-v10_public_manager.sh run-one hantavirus true false auto balanced
 ```

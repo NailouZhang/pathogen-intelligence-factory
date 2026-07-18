@@ -1,4 +1,4 @@
-name: Weekly 21-Virus Intelligence Cycle v9
+name: Weekly 21-Virus Intelligence Cycle v10
 
 on:
   schedule:
@@ -81,6 +81,9 @@ jobs:
           sudo apt-get install -y --no-install-recommends fonts-noto-cjk
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
+          # Install only the headless Chromium shell used by the bounded news
+          # fallback. Static requests/Trafilatura extraction still runs first.
+          python -m playwright install --with-deps --only-shell chromium
 
       - name: Resolve today's ordered profile queue
         id: plan
@@ -153,6 +156,15 @@ jobs:
           PIF_MAX_NEWS_CANDIDATES: "0"
           PIF_MAX_NEWS_FETCHES: "80"
           PIF_MAX_FULLTEXTS: "80"
+          # News extraction: RSS metadata -> cleaned publisher URL -> static
+          # multi-extractor -> bounded Playwright rendering -> source-summary
+          # fallback. No CAPTCHA solving, login automation or access bypass.
+          PIF_NEWS_BROWSER_ENABLED: ${{ vars.PIF_NEWS_BROWSER_ENABLED || 'true' }}
+          PIF_NEWS_BROWSER_MAX_PAGES: ${{ vars.PIF_NEWS_BROWSER_MAX_PAGES || '3' }}
+          PIF_NEWS_BROWSER_TIMEOUT_MS: ${{ vars.PIF_NEWS_BROWSER_TIMEOUT_MS || '18000' }}
+          PIF_NEWS_STATIC_MAX_URLS: ${{ vars.PIF_NEWS_STATIC_MAX_URLS || '8' }}
+          PIF_NEWS_ENRICH_WORKERS: ${{ vars.PIF_NEWS_ENRICH_WORKERS || '4' }}
+          PIF_NEWS_EXCERPT_MIN_CHARS: ${{ vars.PIF_NEWS_EXCERPT_MIN_CHARS || '100' }}
           PIF_PUBMED_PER_QUERY: "250"
           PIF_PUBMED_TOTAL_LIMIT: "2000"
           PIF_EUROPE_PMC_PER_QUERY: "250"

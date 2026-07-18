@@ -25,7 +25,7 @@ COLORS = {
 
 SITE_CSS = """
 :root{--navy:#2c3e50;--green:#27ae60;--red:#c53030;--amber:#c05621;--line:#e2e8f0;--muted:#718096}
-*{box-sizing:border-box}body{margin:0;background:#f4f7f9;color:#333;font-family:Arial,'Noto Sans CJK SC',sans-serif}a{color:#0366d6;text-decoration:none}.page{max-width:1040px;margin:24px auto;background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1)}.hero{position:relative;background:var(--navy);color:white;text-align:center}.hero img{width:100%;display:block;max-height:442px;object-fit:cover}.hero-text{padding:20px 30px 26px}.hero h1{margin:0;font-size:30px}.hero p{margin:8px 0 0;opacity:.82}.overview{padding:25px;background:#fffcf0;border-bottom:5px solid #fbd38d}.overview h2{color:var(--amber);margin:0 0 12px;font-size:19px}.overview p{margin:7px 0;line-height:1.75}.stats{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line)}.stats div{padding:16px;text-align:center;border-right:1px solid var(--line)}.stats div:last-child{border-right:0}.stats strong{font-size:27px;color:var(--red);display:block}.content{padding:30px}section{margin-top:34px}section:first-child{margin-top:0}.section-title{font-size:22px;padding-left:15px;margin:0 0 18px;border-left:6px solid}.section-title.research,.section-title.review{color:var(--green);border-color:var(--green)}.section-title.news{color:var(--red);border-color:var(--red)}.card{margin-bottom:28px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:white}.meta-strip{padding:10px 15px;background:#f8fafc;border-bottom:1px solid var(--line);font-size:12px;color:#666;line-height:1.65}.card-body{padding:20px}.card h3{font-size:19px;color:#1a365d;line-height:1.45;margin:0}.title-en{font-size:14px;color:var(--muted);font-style:italic;margin-top:6px;line-height:1.5}.authors{font-size:13px;color:#586069;margin:10px 0}.translated-body{font-size:15px;line-height:1.75;margin:15px 0;padding:15px;border-radius:6px;background:#f0fff4}.news .translated-body{background:#fff5f5}.translated-body strong{display:block;margin-bottom:6px;color:#1e7e34}.news .translated-body strong{color:var(--red)}details{margin-top:12px;border-top:1px dotted var(--line);border-bottom:1px dotted var(--line);padding:9px 0}summary{cursor:pointer;font-weight:700;color:var(--amber)}.five-grid{display:grid;grid-template-columns:88px 1fr;gap:7px 10px;margin-top:10px;font-size:14px;line-height:1.55}.five-grid dt{font-weight:700;color:var(--amber)}.five-grid dd{margin:0}.original{font-size:13px;line-height:1.65;color:#666;background:#f8fafc;padding:12px;margin-top:10px;border-radius:6px}.links{text-align:right;font-size:13px;margin-top:14px;font-weight:700}.tier-badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:700;margin-right:6px}.tier-A{background:#e6fffa;color:#06735f}.tier-B{background:#ebf8ff;color:#2b6cb0}.tier-C{background:#f7fafc;color:#718096;border:1px solid #e2e8f0}.audit{margin-top:8px;color:#a0aec0;font-size:11px}.toolbar{display:flex;justify-content:flex-end;gap:8px;padding:12px 30px;border-bottom:1px solid var(--line)}button{font:inherit;border:1px solid var(--line);background:white;padding:6px 10px;cursor:pointer}footer{background:var(--navy);color:white;padding:20px;text-align:center;font-size:11px;line-height:1.6}[hidden]{display:none!important}@media(max-width:700px){.page{margin:0;border-radius:0}.content{padding:18px}.stats{grid-template-columns:repeat(2,1fr)}.five-grid{grid-template-columns:70px 1fr}.toolbar{justify-content:center;padding:10px}}
+*{box-sizing:border-box}body{margin:0;background:#f4f7f9;color:#333;font-family:Arial,'Noto Sans CJK SC',sans-serif}a{color:#0366d6;text-decoration:none}.page{max-width:1040px;margin:24px auto;background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1)}.hero{position:relative;background:var(--navy);color:white;text-align:center}.hero img{width:100%;display:block;max-height:442px;object-fit:cover}.hero-text{padding:20px 30px 26px}.hero h1{margin:0;font-size:30px}.hero p{margin:8px 0 0;opacity:.82}.overview{padding:25px;background:#fffcf0;border-bottom:5px solid #fbd38d}.overview h2{color:var(--amber);margin:0 0 12px;font-size:19px}.overview p{margin:7px 0;line-height:1.75}.overview-statline{padding:14px 25px;background:#edf2f7;border-bottom:1px solid var(--line);font-size:14px;line-height:1.75;font-weight:700;color:#2d3748}.overview-statline p{margin:3px 0}.overview-statline strong{color:var(--red)}.stats{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line)}.stats div{padding:16px;text-align:center;border-right:1px solid var(--line)}.stats div:last-child{border-right:0}.stats strong{font-size:27px;color:var(--red);display:block}.content{padding:30px}section{margin-top:34px}section:first-child{margin-top:0}.section-title{font-size:22px;padding-left:15px;margin:0 0 18px;border-left:6px solid}.section-title.research,.section-title.review{color:var(--green);border-color:var(--green)}.section-title.news{color:var(--red);border-color:var(--red)}.card{margin-bottom:28px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:white}.meta-strip{padding:10px 15px;background:#f8fafc;border-bottom:1px solid var(--line);font-size:12px;color:#666;line-height:1.65}.card-body{padding:20px}.card h3{font-size:19px;color:#1a365d;line-height:1.45;margin:0}.title-en{font-size:14px;color:var(--muted);font-style:italic;margin-top:6px;line-height:1.5}.authors{font-size:13px;color:#586069;margin:10px 0}.translated-body{font-size:15px;line-height:1.75;margin:15px 0;padding:15px;border-radius:6px;background:#f0fff4}.news .translated-body{background:#fff5f5}.translated-body strong{display:block;margin-bottom:6px;color:#1e7e34}.news .translated-body strong{color:var(--red)}details{margin-top:12px;border-top:1px dotted var(--line);border-bottom:1px dotted var(--line);padding:9px 0}summary{cursor:pointer;font-weight:700;color:var(--amber)}.five-grid{display:grid;grid-template-columns:88px 1fr;gap:7px 10px;margin-top:10px;font-size:14px;line-height:1.55}.five-grid dt{font-weight:700;color:var(--amber)}.five-grid dd{margin:0}.original{font-size:13px;line-height:1.65;color:#666;background:#f8fafc;padding:12px;margin-top:10px;border-radius:6px}.links{text-align:right;font-size:13px;margin-top:14px;font-weight:700}.tier-badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:700;margin-right:6px}.tier-A{background:#e6fffa;color:#06735f}.tier-B{background:#ebf8ff;color:#2b6cb0}.tier-C{background:#f7fafc;color:#718096;border:1px solid #e2e8f0}.audit{margin-top:8px;color:#a0aec0;font-size:11px}.toolbar{display:flex;justify-content:flex-end;gap:8px;padding:12px 30px;border-bottom:1px solid var(--line)}button{font:inherit;border:1px solid var(--line);background:white;padding:6px 10px;cursor:pointer}footer{background:var(--navy);color:white;padding:20px;text-align:center;font-size:11px;line-height:1.6}[hidden]{display:none!important}@media(max-width:700px){.page{margin:0;border-radius:0}.content{padding:18px}.stats{grid-template-columns:repeat(2,1fr)}.five-grid{grid-template-columns:70px 1fr}.toolbar{justify-content:center;padding:10px}}
 """
 
 SITE_JS = r"""
@@ -231,6 +231,32 @@ def _overview_html(block: dict[str, Any], title: str, *, wechat: bool = False) -
 </section>"""
 
 
+def _overview_statlines(issue: dict[str, Any], *, wechat: bool = False) -> str:
+    funnel = issue.get("retrieval_funnel") or {}
+    papers = funnel.get("papers") or {}
+    news = funnel.get("news") or {}
+    metrics = issue.get("metrics") or {}
+    paper_duplicates = max(0, int(papers.get("after_candidate_gate") or 0) - int(papers.get("after_dedup") or 0))
+    news_duplicates = max(0, int(news.get("after_candidate_gate") or 0) - int(news.get("after_dedup") or 0))
+    paper_line = (
+        f"文献概览：数据库记录 {int(papers.get('raw') or 0):,} 条；时间窗内 {int(papers.get('after_window') or 0):,} 条；"
+        f"候选筛选后 {int(papers.get('after_candidate_gate') or 0):,} 条；去除重复 {paper_duplicates:,} 条；"
+        f"相关性复核通过 {int(papers.get('after_final_gate') or 0):,} 条；最终纳入 {int(papers.get('displayed') or 0):,} 篇"
+        f"（研究 {int(metrics.get('research') or 0)}、综述 {int(metrics.get('reviews') or 0)}）。"
+    )
+    news_line = (
+        f"新闻概览：检索到 {int(news.get('raw') or 0):,} 条；时间窗内 {int(news.get('after_window') or 0):,} 条；"
+        f"候选筛选后 {int(news.get('after_candidate_gate') or 0):,} 条；去除重复 {news_duplicates:,} 条；"
+        f"相关性复核通过 {int(news.get('after_final_gate') or 0):,} 条；最终纳入 {int(news.get('displayed') or 0):,} 条有效新闻。"
+    )
+    if wechat:
+        return (
+            f'<section style="padding:12px 16px;background:#edf2f7;border-bottom:1px solid #e2e8f0;font-size:13px;line-height:1.7;font-weight:700;color:#2d3748;">'
+            f'<p style="margin:2px 0;">{html_escape(paper_line)}</p><p style="margin:2px 0;">{html_escape(news_line)}</p></section>'
+        )
+    return f'<div class="overview-statline"><p>{html_escape(paper_line)}</p><p>{html_escape(news_line)}</p></div>'
+
+
 def _source_health(issue: dict[str, Any]) -> str:
     status = issue.get("source_status") or {}
     rows = status.get("sources") or []
@@ -317,6 +343,7 @@ def render_site(issue: dict[str, Any], output_dir: Path) -> None:
     )
     html = f"""<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html_escape(issue['title_zh'])}</title><style>{SITE_CSS}</style></head><body><main class="page">
 <header class="hero"><img src="assets/cover.jpg" alt="{html_escape(issue['title_zh'])}"><div class="hero-text"><h1>{html_escape(issue['title_zh'])}</h1><p>{html_escape(issue['issue_date'])} | 文献简报 + 公共卫生新闻简报 | {html_escape(issue['window_start'])}—{html_escape(issue['window_end'])}</p></div></header>
+{_overview_statlines(issue)}
 {overview_html}
 <div class="toolbar"><button class="language-toggle" data-language="zh">zh</button><button class="language-toggle" data-language="en">en</button></div>
 <div class="stats"><div><strong>{len(research)}</strong><span>研究文献</span></div><div><strong>{len(reviews)}</strong><span>综述文献</span></div><div><strong>{len(news)}</strong><span>有效正文/实质摘要新闻</span></div><div><strong>{issue.get('metrics',{}).get('translated',0)}</strong><span>完整中文记录</span></div></div>
@@ -351,6 +378,7 @@ def render_wechat_package(issue: dict[str, Any], output_dir: Path, cover_meta: d
     <h1 style="margin:0;font-size:24px;">{html_escape(issue['title_zh'])}</h1>
     <p style="margin:8px 0 0;font-size:13px;opacity:.85;">{html_escape(issue['issue_date'])} | 文献简报 + 公共卫生新闻简报</p>
   </section>
+  {_overview_statlines(issue, wechat=True)}
   {_overview_html(literature_overview, '📚 本期文献进展', wechat=True)}
   {_overview_html(news_overview, '📰 本期新闻动态', wechat=True)}
   <h2 style="border-left:6px solid {COLORS['paper_green']};padding-left:12px;color:{COLORS['paper_green']};font-size:20px;">📘 学术前沿</h2>
