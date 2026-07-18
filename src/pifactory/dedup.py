@@ -243,7 +243,7 @@ def llm_review_ambiguous_duplicates(
             "abstract_or_excerpt": clean_space(items[idx].get("abstract") or items[idx].get("excerpt"))[:1200],
         } for idx in group]
         try:
-            result = llm.json_task(system=prompt_text, prompt=json.dumps(payload, ensure_ascii=False), max_models_per_provider=1)
+            result = llm.json_task(system=prompt_text, prompt=json.dumps(payload, ensure_ascii=False), provider_order=getattr(llm, "provider_order", lambda purpose: None)("relevance"), max_models_per_provider=1)
         except LLMError:
             continue
         for cluster in result.data.get("duplicate_clusters", []) if isinstance(result.data, dict) else []:

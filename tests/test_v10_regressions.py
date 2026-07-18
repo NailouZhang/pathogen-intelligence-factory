@@ -121,16 +121,21 @@ def test_overview_statistics_are_rendered_as_prominent_separate_lines():
     issue = {
         "metrics": {"research": 37, "reviews": 13},
         "retrieval_funnel": {
-            "papers": {"raw": 2208, "after_window": 1800, "after_candidate_gate": 1200, "after_dedup": 224, "after_final_gate": 100, "displayed": 50},
-            "news": {"raw": 111, "after_window": 90, "after_candidate_gate": 70, "after_dedup": 54, "after_final_gate": 28, "displayed": 20},
+            "papers": {"raw": 2208, "after_window": 1800, "after_candidate_gate": 1200, "after_dedup": 224, "after_final_gate": 100, "ready_before_top_n": 82, "top_n_limit": 50, "top_n_excluded": 32, "displayed": 50},
+            "news": {"raw": 111, "after_window": 90, "after_candidate_gate": 70, "after_dedup": 54, "after_final_gate": 28, "ready_before_top_n": 23, "top_n_limit": 20, "top_n_excluded": 3, "displayed": 20},
         },
     }
     html = _overview_statlines(issue)
     assert 'class="overview-statline"' in html
     assert "数据库记录 2,208 条" in html
     assert "去除重复 976 条" in html
-    assert "最终纳入 50 篇（研究 37、综述 13）" in html
-    assert "最终纳入 20 条有效新闻" in html
+    assert "相关性复核通过 100 条" in html
+    assert "正文、分析与翻译门禁后可展示 82 条" in html
+    assert "PIF_MAX_PAPERS=50" in html
+    assert "取前 50 篇展示（研究 37、综述 13；其余 32 篇保留在审计数据中）" in html
+    assert "PIF_MAX_NEWS=20" in html
+    assert "取前 20 条展示（其余 3 条保留在审计数据中）" in html
+    assert "统计口径" in html
 
 
 def test_news_url_cleaning_removes_tracking_parameters():

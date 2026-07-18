@@ -1,46 +1,21 @@
-weekly21 v10 offline validation report
-Generated: 2026-07-18
+pathogen-intelligence-factory v13 validation targets
 
-Scope
-- Public repository: pathogen-intelligence-factory 10.0.0
-- Private repository: pathogen-wechat-publisher 2.7.0
-- Cross-repository package: wechat-package/v2
+Required checks:
+- Python compileall for src, scripts and tests
+- YAML parsing for every workflow and configuration file
+- 21 profile validation
+- query coverage audit
+- full pytest suite
+- demo pipeline and wechat-package validation
+- repair 01 publication-date hard gate
+- repair 02 news body identity and circuit breaker
+- repair 03 structured-analysis observability and fallback warning
+- repair 04 multi-provider quota routing and low-token evidence selection
+- repair 05 transparent relevance/content/Top-N counting
 
-Validated locally
-- 21/21 profiles status=ready.
-- 105 lean core retrieval concepts (5 per profile).
-- 945 provider-adapted query records (45 per profile).
-- 56 qualified abbreviation rules.
-- Public pytest: 88 passed.
-- Private pytest: 4 passed.
-- Python compileall: passed for public src/scripts/tests and private src/tests.
-- YAML/YML parse: 25 files passed.
-- Shell syntax: all packaged .sh files passed bash -n.
-- Playwright CLI dry-run: chromium-headless-shell installation target resolved.
-- Hantavirus demo pipeline: passed.
-- Demo schema: 5.0.
-- Demo GitHub Pages HTML: generated with weekly title and separate prominent statistics lines.
-- Literature and news overviews: separated; policy v10-recent-editorial-statistics-1.
-- Internal reservation phrase regression: passed.
-- Ellipsis/incomplete-text regression: passed.
-- Current-window literature selection regression: passed.
-- Cross-field semantic duplicate removal and evidence-role replacement: passed.
-- Static-failure to Playwright news fallback regression: passed with mocked rendered public HTML.
-- Tracking-parameter URL cleanup regression: passed.
-- wechat-package/v2 validation: passed.
-- WeChat package contains article.html, cover.jpg and manifest.json.
-
-Not executed in packaging environment
-- Live PubMed, Europe PMC, Crossref, Semantic Scholar, OpenAlex, bioRxiv/medRxiv requests.
-- Live Google News, Bing News, GDELT, ReliefWeb or WHO retrieval.
-- Live Playwright visits to third-party news publishers.
-- Live Gemini/Groq calls and current quotas.
-- Live free translation-provider availability.
-- GitHub Actions, GitHub Pages deployment and repository_dispatch.
-- User's self-hosted Runner.
-- WeChat token, permanent-media upload and draft/add.
-
-Important runtime boundaries
-- News extraction uses static methods first and bounded standard Playwright rendering second.
-- No stealth plugins, CAPTCHA solving, login automation, proxy rotation, paywall bypass or access-control bypass are included.
-- Blocked or unavailable pages are audited and replaced by another candidate or a quality-gated substantive source summary.
+Production-only checks that require the user's credentials/network:
+- live PubMed/Crossref/news retrieval
+- Gemini/Groq/OpenRouter/Mistral/SiliconFlow preflight
+- GitHub Pages deployment
+- repository_dispatch to the private publisher
+- local WeChat stable_token, permanent material and draft/add calls

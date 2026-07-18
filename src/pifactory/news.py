@@ -42,7 +42,10 @@ def _rss_candidate_urls(entry: Any) -> list[str]:
             urls.append(clean_space(link.get("href")))
     summary_html = entry.get("summary") or entry.get("description") or ""
     try:
-        soup = BeautifulSoup(summary_html, "lxml")
+        # feedparser already parses the RSS/XML document. This value is only an
+        # HTML fragment inside one entry, so use the HTML parser explicitly and
+        # avoid XMLParsedAsHTMLWarning-driven ambiguity.
+        soup = BeautifulSoup(summary_html, "html.parser")
         for anchor in soup.find_all("a", href=True):
             urls.append(clean_space(anchor.get("href")))
     except Exception:

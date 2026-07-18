@@ -121,5 +121,5 @@ def test_cover_and_issue_titles_are_weekly():
 def test_final_top_n_is_selected_after_translation_ready_pool():
     pipeline = Path("src/pifactory/pipeline.py").read_text(encoding="utf-8")
     assert "paper_ready_pool" in pipeline
-    assert "papers = rank_papers(paper_ready_pool)[: settings.max_papers]" in pipeline
+    assert "papers = ranked_paper_ready_pool[: settings.max_papers]" in pipeline
     assert pipeline.index("paper_ready_pool") > pipeline.index('progress("translation", "start"')

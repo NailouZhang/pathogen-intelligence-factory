@@ -36,7 +36,18 @@ class HttpClient:
                 response.raise_for_status()
                 return response
             except (requests.RequestException, OSError) as exc:
-                last_error = exc
+                response = getattr(exc, "response", None)
+                if response is not None:
+                    try:
+                        body = " ".join(str(response.text or "").split())[:700]
+                    except Exception:
+                        body = ""
+                    status = getattr(response, "status_code", "unknown")
+                    last_error = RuntimeError(
+                        f"HTTP status {status}: {exc}; response={body or '<empty>'}"
+                    )
+                else:
+                    last_error = exc
                 if attempt + 1 < retry_attempts:
                     time.sleep((2 ** attempt) + random.random())
         raise RuntimeError(f"HTTP request failed: {url}: {last_error}")

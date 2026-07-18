@@ -13,7 +13,7 @@ def test_demo_pipeline(tmp_path: Path):
     assert (tmp_path / "site/index.html").exists()
     html = (tmp_path / "site/index.html").read_text(encoding="utf-8")
     assert 'class="language-toggle"' in html
-    assert ">en</button>" in html
+    assert ">English</button>" in html
     assert "研究对371名林业工作者开展汉坦病毒抗体检测" in html
     assert "本期文献进展" in html
     assert "本期新闻动态" in html

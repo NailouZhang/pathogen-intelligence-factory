@@ -54,9 +54,9 @@ def _clip_complete_sentences(value: Any, limit: int) -> str:
 
 def _published_date(item: dict[str, Any]) -> str:
     return clean_space(
-        item.get("online_date")
+        item.get("availability_date")
+        or item.get("online_date")
         or item.get("first_publication_date")
-        or item.get("availability_date")
         or item.get("published_date")
         or item.get("print_date")
         or item.get("year")
@@ -402,7 +402,7 @@ def build_literature_overview(
         "records": records,
     }, ensure_ascii=False)
     try:
-        result = llm.json_task(system=system, prompt=prompt, validator=_overview_validator(valid_ids, "literature"), temperature=0.03, max_models_per_provider=2)
+        result = llm.json_task(system=system, prompt=prompt, provider_order=getattr(llm, "provider_order", lambda purpose: None)("overview"), validator=_overview_validator(valid_ids, "literature"), temperature=0.03, max_models_per_provider=2)
         data = sanitize_editorial_block(dict(result.data))
         if len(data.get("key_findings_zh") or []) < 3:
             return fallback
@@ -437,7 +437,7 @@ def build_news_overview(
         "records": records,
     }, ensure_ascii=False)
     try:
-        result = llm.json_task(system=system, prompt=prompt, validator=_overview_validator(valid_ids, "news"), temperature=0.03, max_models_per_provider=2)
+        result = llm.json_task(system=system, prompt=prompt, provider_order=getattr(llm, "provider_order", lambda purpose: None)("overview"), validator=_overview_validator(valid_ids, "news"), temperature=0.03, max_models_per_provider=2)
         data = sanitize_editorial_block(dict(result.data))
         if len(data.get("key_findings_zh") or []) < 3:
             return fallback

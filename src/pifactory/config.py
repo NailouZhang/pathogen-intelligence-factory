@@ -28,6 +28,16 @@ def env_bool(name: str, default: bool = False) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def env_float(name: str, default: float) -> float:
+    value = os.getenv(name)
+    if value is None or not value.strip():
+        return default
+    try:
+        return float(value)
+    except ValueError as exc:
+        raise RuntimeError(f"{name} must be a number") from exc
+
+
 @dataclass
 class Settings:
     profile_id: str
@@ -35,6 +45,10 @@ class Settings:
     output_dir: Path
     state_dir: Path
     window_days: int = field(default_factory=lambda: env_int("PIF_WINDOW_DAYS", 7))
+    # Some journals assign a future issue/print date to papers already visible
+    # this week. Search is allowed to extend a bounded number of days forward,
+    # but admission still requires a real publication field.
+    publication_future_days: int = field(default_factory=lambda: env_int("PIF_PUBLICATION_FUTURE_DAYS", 90))
     max_papers: int = field(default_factory=lambda: env_int("PIF_MAX_PAPERS", 50))
     max_news: int = field(default_factory=lambda: env_int("PIF_MAX_NEWS", 50))
     # Candidate metadata is kept through deduplication and relevance review.
@@ -48,7 +62,7 @@ class Settings:
     pubmed_total_limit: int = field(default_factory=lambda: env_int("PIF_PUBMED_TOTAL_LIMIT", 2000))
     europe_pmc_per_query: int = field(default_factory=lambda: env_int("PIF_EUROPE_PMC_PER_QUERY", 150))
     crossref_per_query: int = field(default_factory=lambda: env_int("PIF_CROSSREF_PER_QUERY", 45))
-    crossref_include_indexed: bool = field(default_factory=lambda: env_bool("PIF_CROSSREF_INCLUDE_INDEXED", True))
+    crossref_include_indexed: bool = field(default_factory=lambda: env_bool("PIF_CROSSREF_INCLUDE_INDEXED", False))
     semantic_per_query: int = field(default_factory=lambda: env_int("PIF_SEMANTIC_PER_QUERY", 80))
     semantic_anonymous_query_limit: int = field(default_factory=lambda: env_int("PIF_SEMANTIC_ANONYMOUS_QUERY_LIMIT", 5))
     semantic_anonymous_delay_ms: int = field(default_factory=lambda: env_int("PIF_SEMANTIC_ANONYMOUS_DELAY_MS", 500))
@@ -62,6 +76,16 @@ class Settings:
     llm_escalation_batch_tokens: int = field(default_factory=lambda: env_int("PIF_LLM_ESCALATION_BATCH_TOKENS", 10000))
     relevance_review_cache_enabled: bool = field(default_factory=lambda: env_bool("PIF_RELEVANCE_REVIEW_CACHE", True))
     analysis_cache_enabled: bool = field(default_factory=lambda: env_bool("PIF_ANALYSIS_CACHE", True))
+    analysis_fallback_warning_ratio: float = field(default_factory=lambda: env_float("PIF_ANALYSIS_FALLBACK_WARNING_RATIO", 0.20))
+    analysis_fallback_critical_ratio: float = field(default_factory=lambda: env_float("PIF_ANALYSIS_FALLBACK_CRITICAL_RATIO", 0.50))
+    analysis_require_llm: bool = field(default_factory=lambda: env_bool("PIF_ANALYSIS_REQUIRE_LLM", False))
+    # Low-token tiering: every paper receives abstract analysis; only the top
+    # subset receives locally selected full-text evidence and cross-provider verification.
+    analysis_fulltext_top_n: int = field(default_factory=lambda: env_int("PIF_ANALYSIS_FULLTEXT_TOP_N", 12))
+    analysis_crosscheck_top_n: int = field(default_factory=lambda: env_int("PIF_ANALYSIS_CROSSCHECK_TOP_N", 5))
+    analysis_evidence_max_chars: int = field(default_factory=lambda: env_int("PIF_ANALYSIS_EVIDENCE_MAX_CHARS", 9000))
+    analysis_cache_success_only: bool = field(default_factory=lambda: env_bool("PIF_LLM_CACHE_SUCCESS_ONLY", True))
+    llm_preflight_file: str = field(default_factory=lambda: os.getenv("PIF_LLM_PREFLIGHT_FILE", "").strip())
     news_context_query_limit: int = field(default_factory=lambda: env_int("PIF_NEWS_CONTEXT_QUERY_LIMIT", 0))
     profile_runtime_minutes: int = field(default_factory=lambda: env_int("PIF_PROFILE_RUNTIME_MINUTES", 90))
     overview_min_items: int = field(default_factory=lambda: env_int("PIF_OVERVIEW_MIN_ITEMS", 15))
@@ -77,6 +101,9 @@ class Settings:
             "NCBI_API_KEY",
             "GEMINI_API_KEY",
             "GROQ_API_KEY",
+            "OPENROUTER_API_KEY",
+            "MISTRAL_API_KEY",
+            "SILICONFLOW_API_KEY",
             "SEMANTIC_SCHOLAR_API_KEY",
             "OPENALEX_API_KEY",
             "RELIEFWEB_APPNAME",

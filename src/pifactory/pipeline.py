@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections import Counter
 from datetime import date, timedelta
@@ -7,22 +8,23 @@ from pathlib import Path
 import os
 from typing import Any
 
-from .analysis import ANALYSIS_POLICY_VERSION, analyze_news, analyze_paper
+from .analysis import ANALYSIS_POLICY_VERSION, analyze_news, analyze_paper, build_paper_evidence
+from .analysis_quality import summarize_analysis_quality
 from .bootstrap import _fallback_profile, build_profile
 from .config import Settings, load_profile, load_seed
-from .content import enrich_scholarly_work, resolve_and_extract_news
-from .dates import date_window
+from .content import apply_news_content_circuit_breaker, enrich_scholarly_work, resolve_and_extract_news
+from .dates import date_window, publication_search_end
 from .dedup import attach_news_to_papers, dedup_news, dedup_papers
 from .http import HttpClient
 from .llm import LLMRouter
 from .news import filter_news_window, search_bing_news, search_gdelt, search_google_news, search_reliefweb, search_who
 from .query_plan import build_query_plan, compile_query_sets
-from .relevance import candidate_filter_news, candidate_filter_papers, final_filter, relevance_assessment
+from .relevance import candidate_filter_news, candidate_filter_papers, filter_post_enrichment, final_filter
 from .source_status import SourceAudit
 from .ranking import rank_news, rank_papers
 from .render import render_site, render_wechat_package
 from .scholarly import (
-    filter_window,
+    filter_publication_window,
     search_crossref,
     search_europe_pmc,
     search_openalex,
@@ -37,7 +39,7 @@ from .translation import TRANSLATION_CACHE_VERSION, translate_record
 from .overview import build_overviews
 from .progress import progress
 from .cover import ensure_profile_cover
-from .utils import append_jsonl, clean_space, dump_json, sha256_text, utc_now_iso, unique_strings
+from .utils import append_jsonl, clean_space, dump_json, load_json, sha256_text, utc_now_iso, unique_strings
 
 
 def _demo_records() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
@@ -176,7 +178,28 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     settings.state_dir.mkdir(parents=True, exist_ok=True)
     http = HttpClient(settings.user_agent)
     secrets = settings.secrets
-    llm = LLMRouter(http, gemini_key=secrets.get("GEMINI_API_KEY", ""), groq_key=secrets.get("GROQ_API_KEY", ""))
+    llm = LLMRouter(
+        http,
+        gemini_key=secrets.get("GEMINI_API_KEY", ""),
+        groq_key=secrets.get("GROQ_API_KEY", ""),
+        openrouter_key=secrets.get("OPENROUTER_API_KEY", ""),
+        mistral_key=secrets.get("MISTRAL_API_KEY", ""),
+        siliconflow_key=secrets.get("SILICONFLOW_API_KEY", ""),
+    )
+    for provider_name in llm.configured_providers():
+        if provider_name in {"openrouter", "siliconflow"}:
+            llm.provider_account_info(provider_name)
+    llm_preflight = (
+        load_json(settings.llm_preflight_file, {})
+        if settings.llm_preflight_file and Path(settings.llm_preflight_file).exists()
+        else {"status": "not_run", "reason": "PIF_LLM_PREFLIGHT_FILE not available"}
+    )
+    if settings.analysis_require_llm:
+        preflight_status = clean_space((llm_preflight or {}).get("status"))
+        if not llm.available or preflight_status in {"failed", "unavailable"}:
+            raise RuntimeError(
+                "PIF_ANALYSIS_REQUIRE_LLM=true but no configured LLM analysis provider passed preflight"
+            )
     state = load_state(settings.state_dir)
     profile = load_profile(settings)
     seed = load_seed(settings.project_root, settings.profile_id)
@@ -209,6 +232,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         query_counts={key: len(value) for key, value in query_sets.items() if isinstance(value, list)},
     )
     start, end = date_window(settings.window_days, timezone_name=settings.timezone)
+    scholarly_search_end = publication_search_end(end, settings.publication_future_days)
     source_audit = SourceAudit()
 
     if demo:
@@ -219,25 +243,25 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         raw_papers: list[dict[str, Any]] = []
         scholarly_calls = [
             ("PubMed", lambda: search_pubmed(
-                http, query_sets.get("pubmed_core") or [], start, end,
+                http, query_sets.get("pubmed_core") or [], start, scholarly_search_end,
                 secrets.get("NCBI_API_KEY", ""),
                 per_query=settings.pubmed_per_query,
                 max_total=settings.pubmed_total_limit,
                 audit=source_audit,
             )),
             ("Europe PMC", lambda: search_europe_pmc(
-                http, query_sets.get("europe_pmc_core") or [], start, end,
+                http, query_sets.get("europe_pmc_core") or [], start, scholarly_search_end,
                 per_query=settings.europe_pmc_per_query, audit=source_audit,
             )),
             ("Crossref", lambda: search_crossref(
-                http, query_sets.get("crossref_core") or [], start, end,
+                http, query_sets.get("crossref_core") or [], start, scholarly_search_end,
                 secrets.get("CROSSREF_MAILTO", ""),
                 per_query=settings.crossref_per_query,
                 include_indexed=settings.crossref_include_indexed,
                 audit=source_audit,
             )),
             ("Semantic Scholar", lambda: search_semantic_scholar(
-                http, query_sets.get("semantic_scholar_core") or [], start, end,
+                http, query_sets.get("semantic_scholar_core") or [], start, scholarly_search_end,
                 secrets.get("SEMANTIC_SCHOLAR_API_KEY", ""),
                 per_query=settings.semantic_per_query,
                 anonymous_query_limit=settings.semantic_anonymous_query_limit,
@@ -245,11 +269,11 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
                 audit=source_audit,
             )),
             ("OpenAlex", lambda: search_openalex(
-                http, [], query_sets.get("openalex_core") or [], start, end,
+                http, [], query_sets.get("openalex_core") or [], start, scholarly_search_end,
                 secrets.get("OPENALEX_API_KEY", ""),
                 per_query=settings.openalex_per_query, audit=source_audit,
             )),
-            ("bioRxiv/medRxiv", lambda: search_biorxiv_medrxiv(http, start, end, audit=source_audit)),
+            ("bioRxiv/medRxiv", lambda: search_biorxiv_medrxiv(http, start, scholarly_search_end, audit=source_audit)),
         ]
         progress("scholarly_retrieval", "start", providers=[name for name, _ in scholarly_calls], core_concepts=len(query_sets.get("core_concepts") or []))
         with ThreadPoolExecutor(max_workers=len(scholarly_calls)) as executor:
@@ -332,11 +356,58 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     _annotate_retrieval_concepts(raw_news, query_sets)
 
     raw_papers_before_window = len(raw_papers)
-    raw_papers = filter_window(raw_papers, start, end)
+    raw_papers, paper_date_rejections = filter_publication_window(
+        raw_papers,
+        start,
+        end,
+        future_days=settings.publication_future_days,
+    )
     papers_after_window = len(raw_papers)
+    paper_date_gate_summary = {
+        "window_start": start.isoformat(),
+        "window_end": end.isoformat(),
+        "future_grace_days": settings.publication_future_days,
+        "search_end": scholarly_search_end.isoformat(),
+        "raw": raw_papers_before_window,
+        "accepted": papers_after_window,
+        "accepted_by_status": dict(Counter(
+            clean_space(item.get("publication_date_status")) or "unknown"
+            for item in raw_papers
+        )),
+        "rejected": len(paper_date_rejections),
+        "rejected_by_reason": dict(Counter(
+            clean_space((item.get("publication_date_gate") or {}).get("reason")) or "unknown"
+            for item in paper_date_rejections
+        )),
+        "rejected_records": [
+            {
+                "source": item.get("source"),
+                "doi": item.get("doi"),
+                "title": item.get("title"),
+                "online_date": item.get("online_date"),
+                "first_publication_date": item.get("first_publication_date"),
+                "published_date": item.get("published_date"),
+                "print_date": item.get("print_date"),
+                "created_date": item.get("created_date"),
+                "indexed_date": item.get("indexed_date"),
+                "decision": item.get("publication_date_gate"),
+            }
+            for item in paper_date_rejections
+        ],
+    }
     paper_candidates = candidate_filter_papers(raw_papers, profile)
     papers_after_candidate_gate = len(paper_candidates)
-    progress("paper_candidate_gate", "complete", raw=raw_papers_before_window, after_window=papers_after_window, candidates=papers_after_candidate_gate)
+    progress(
+        "paper_publication_date_gate",
+        "complete",
+        raw=raw_papers_before_window,
+        accepted=papers_after_window,
+        rejected=len(paper_date_rejections),
+        accepted_by_status=paper_date_gate_summary["accepted_by_status"],
+        rejected_by_reason=paper_date_gate_summary["rejected_by_reason"],
+        search_end=scholarly_search_end.isoformat(),
+    )
+    progress("paper_candidate_gate", "complete", raw=papers_after_window, after_window=papers_after_window, candidates=papers_after_candidate_gate)
     papers = dedup_papers(paper_candidates)
     papers_after_dedup = len(papers)
     papers = rank_papers(papers)
@@ -444,6 +515,9 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         replacement_buffer=settings.display_candidate_buffer,
     )
 
+    paper_content_rejected = 0
+    news_content_rejected = 0
+    news_resolver_rejected_records: list[dict[str, Any]] = []
     if not demo:
         oa_email = secrets.get("UNPAYWALL_EMAIL") or secrets.get("CROSSREF_MAILTO", "")
         paper_targets = list(papers)
@@ -473,15 +547,26 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         news_workers = max(1, min(6, int(os.getenv("PIF_NEWS_ENRICH_WORKERS", "4"))))
         fetched_news = _parallel_map(
             news_targets,
-            lambda item: resolve_and_extract_news(http, item),
+            lambda item: resolve_and_extract_news(http, item, profile),
             workers=news_workers,
         )
         fetched_by_id = {item.get("news_id"): item for item in fetched_news}
         news = [fetched_by_id.get(item.get("news_id"), item) for item in news]
-        news_content_rejected = sum(
-            1 for item in news
+        news_resolver_rejected_records = [
+            {
+                "news_id": item.get("news_id"),
+                "title": item.get("title"),
+                "source": item.get("source"),
+                "url": item.get("url"),
+                "resolved_url": item.get("resolved_url"),
+                "content_status": item.get("content_status"),
+                "content_identity": item.get("content_identity"),
+                "content_audit": item.get("content_audit"),
+            }
+            for item in news
             if item.get("content_status") not in {"full", "partial", "syndicated_summary"} or not clean_space(item.get("content"))
-        )
+        ]
+        news_content_rejected = len(news_resolver_rejected_records)
         news = [
             item for item in news
             if item.get("content_status") in {"full", "partial", "syndicated_summary"} and clean_space(item.get("content"))
@@ -491,33 +576,53 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             enriched=len(fetched_news), retained=len(news), rejected_no_body=news_content_rejected,
         )
 
-        # Content-aware audit is intentionally non-expansive: it cannot pull in
-        # new candidates after Top-N selection. It flags explicit mismatches and
-        # improves transparency without triggering another retrieval cycle.
-        for paper in papers:
-            paper["relevance_post_enrichment"] = relevance_assessment(
-                paper.get("title", ""),
-                clean_space(paper.get("full_text") or paper.get("abstract")),
-                profile,
-            )
-        for article in news:
-            article["relevance_post_enrichment"] = relevance_assessment(
-                article.get("title", ""),
-                clean_space(article.get("content") or article.get("excerpt")),
-                profile,
-            )
-        # Keep the bounded replacement pool through analysis and translation.
-        # Final Top-N selection occurs only after translation/content gates so
-        # failed translations cannot reduce a healthy 50-item literature set.
-        papers = rank_papers(papers)
-        news = rank_news(news)
+    # Shared URL/body circuit breaker runs after parallel extraction, when the
+    # complete set can reveal a common error page reused by unrelated headlines.
+    news, news_circuit_summary = apply_news_content_circuit_breaker(news)
 
-    if demo:
-        # Keep the bounded replacement pool through analysis and translation.
-        # Final Top-N selection occurs only after translation/content gates so
-        # failed translations cannot reduce a healthy 50-item literature set.
-        papers = rank_papers(papers)
-        news = rank_news(news)
+    # The post-enrichment assessment is a hard gate, not a passive audit. News
+    # is evaluated from the body alone so the RSS title cannot rescue unrelated
+    # navigation or standards text. Papers are also dropped when their enriched
+    # evidence is explicitly irrelevant.
+    papers, paper_post_enrichment_summary = filter_post_enrichment(papers, profile, "paper")
+    news, news_post_enrichment_summary = filter_post_enrichment(news, profile, "news")
+    paper_post_enrichment_rejected = paper_post_enrichment_summary["rejected"]
+    news_post_enrichment_rejected = news_post_enrichment_summary["rejected"]
+    news_circuit_rejected = news_circuit_summary["rejected"]
+    news_content_gate_summary = {
+        "policy_version": "v11-news-content-hard-gates-1",
+        "resolver": {
+            "input": locals().get("news_enrichment_selected", len(news)),
+            "rejected": news_content_rejected,
+            "rejected_records": news_resolver_rejected_records,
+        },
+        "circuit_breaker": news_circuit_summary,
+        "post_enrichment": news_post_enrichment_summary,
+    }
+    progress(
+        "post_enrichment_gate", "complete",
+        papers_retained=len(papers), papers_rejected=paper_post_enrichment_rejected,
+        news_retained=len(news), news_resolver_rejected=news_content_rejected,
+        news_circuit_rejected=news_circuit_rejected,
+        news_relevance_rejected=news_post_enrichment_rejected,
+    )
+
+    # Keep the bounded replacement pool through analysis and translation.
+    # Final Top-N selection occurs only after translation/content gates so
+    # failed translations cannot reduce a healthy result set.
+    papers = rank_papers(papers)
+    news = rank_news(news)
+
+    # Token-aware analysis tiers are assigned after final relevance/content ranking.
+    # L1 uses abstract only; L2 uses a locally selected <= evidence-char budget;
+    # L3 is the small top subset independently checked by a second provider.
+    for paper_index, paper in enumerate(papers, start=1):
+        if paper_index <= max(0, settings.analysis_crosscheck_top_n):
+            paper["analysis_level"] = "L3_cross_provider_verified"
+        elif paper_index <= max(0, settings.analysis_fulltext_top_n):
+            paper["analysis_level"] = "L2_retrieved_fulltext_evidence"
+        else:
+            paper["analysis_level"] = "L1_abstract_only"
 
     prompts_dir = settings.project_root / "prompts"
     analysis_cache = state.setdefault("analysis_cache", {})
@@ -531,14 +636,12 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             or item.get("news_id")
             or item.get("title")
         )
-        evidence = clean_space(
-            item.get("full_text")
-            or item.get("abstract")
-            or item.get("content")
-            or item.get("excerpt")
-        )
+        if kind == "paper":
+            evidence_material = json.dumps(build_paper_evidence(item), ensure_ascii=False, sort_keys=True)
+        else:
+            evidence_material = clean_space(item.get("content") or item.get("excerpt"))
         policy = ANALYSIS_POLICY_VERSION
-        return f"{kind}:{policy}:{sha256_text(identity + '|' + evidence)}"
+        return f"{kind}:{policy}:{sha256_text(identity + '|' + evidence_material)}"
 
     progress("deep_analysis", "start", papers=len(papers), news=len(news))
     for paper_index, paper in enumerate(papers, start=1):
@@ -546,14 +649,19 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             progress("deep_analysis", "paper_progress", completed=paper_index-1, total=len(papers))
         key = analysis_cache_key("paper", paper)
         cached = analysis_cache.get(key) if settings.analysis_cache_enabled else None
-        if isinstance(cached, dict):
-            paper["analysis"] = cached.get("analysis") or {}
+        cached_analysis = (cached or {}).get("analysis") if isinstance(cached, dict) else None
+        if isinstance(cached_analysis, dict) and (
+            not settings.analysis_cache_success_only or cached_analysis.get("status") == "passed"
+        ):
+            paper["analysis"] = cached_analysis
             paper["paper_type"] = cached.get("paper_type") or paper.get("paper_type") or "research"
             paper["analysis_cache"] = "hit"
         else:
             analyze_paper(paper, llm, prompts_dir)
             paper["analysis_cache"] = "miss"
-            if settings.analysis_cache_enabled:
+            if settings.analysis_cache_enabled and (
+                not settings.analysis_cache_success_only or (paper.get("analysis") or {}).get("status") == "passed"
+            ):
                 analysis_cache[key] = {"analysis": paper.get("analysis") or {}, "paper_type": paper.get("paper_type")}
 
     for news_index, article in enumerate(news, start=1):
@@ -561,16 +669,40 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             progress("deep_analysis", "news_progress", completed=news_index-1, total=len(news))
         key = analysis_cache_key("news", article)
         cached = analysis_cache.get(key) if settings.analysis_cache_enabled else None
-        if isinstance(cached, dict):
-            article["analysis"] = cached.get("analysis") or {}
+        cached_analysis = (cached or {}).get("analysis") if isinstance(cached, dict) else None
+        if isinstance(cached_analysis, dict) and (
+            not settings.analysis_cache_success_only or cached_analysis.get("status") == "passed"
+        ):
+            article["analysis"] = cached_analysis
             article["analysis_cache"] = "hit"
         else:
             analyze_news(article, llm, prompts_dir)
             article["analysis_cache"] = "miss"
-            if settings.analysis_cache_enabled:
+            if settings.analysis_cache_enabled and (
+                not settings.analysis_cache_success_only or (article.get("analysis") or {}).get("status") == "passed"
+            ):
                 analysis_cache[key] = {"analysis": article.get("analysis") or {}}
 
     progress("deep_analysis", "complete", papers=len(papers), news=len(news))
+    analysis_quality_pool = summarize_analysis_quality(
+        papers,
+        news,
+        warning_ratio=settings.analysis_fallback_warning_ratio,
+        critical_ratio=settings.analysis_fallback_critical_ratio,
+        preflight=llm_preflight,
+        scope="candidate_pool",
+    )
+    if analysis_quality_pool.get("severity") in {"warning", "critical", "unavailable"}:
+        progress(
+            "analysis_quality",
+            "degraded",
+            severity=analysis_quality_pool.get("severity"),
+            message=analysis_quality_pool.get("message_zh"),
+            fallback_ratio=(analysis_quality_pool.get("combined") or {}).get("fallback_ratio"),
+            top_failures=analysis_quality_pool.get("top_failure_categories"),
+        )
+        if os.getenv("GITHUB_ACTIONS", "").lower() == "true":
+            print(f"::warning title=Structured analysis degraded::{analysis_quality_pool.get('message_zh')}", flush=True)
     # Keep the persistent state bounded across long-running weekly cycles.
     if len(analysis_cache) > 5000:
         for stale_key in list(analysis_cache)[: len(analysis_cache) - 5000]:
@@ -663,13 +795,26 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     # directly prevents translation failures in the original Top 50 from
     # shrinking the published literature count when lower-ranked valid records
     # are available.
-    papers = rank_papers(paper_ready_pool)[: settings.max_papers]
-    news = rank_news(news_ready_pool)[: settings.max_news]
+    ranked_paper_ready_pool = rank_papers(paper_ready_pool)
+    ranked_news_ready_pool = rank_news(news_ready_pool)
+    for display_rank, item in enumerate(ranked_paper_ready_pool, start=1):
+        item["display_rank"] = display_rank
+        item["selected_for_display"] = display_rank <= settings.max_papers
+    for display_rank, item in enumerate(ranked_news_ready_pool, start=1):
+        item["display_rank"] = display_rank
+        item["selected_for_display"] = display_rank <= settings.max_news
+    papers = ranked_paper_ready_pool[: settings.max_papers]
+    news = ranked_news_ready_pool[: settings.max_news]
+    paper_top_n_excluded = max(0, len(ranked_paper_ready_pool) - len(papers))
+    news_top_n_excluded = max(0, len(ranked_news_ready_pool) - len(news))
     progress(
         "translation_gate", "complete",
         paper_ready_pool=len(paper_ready_pool), papers_retained=len(papers), papers_rejected=translation_rejected_papers,
+        paper_top_n_limit=settings.max_papers, paper_top_n_excluded=paper_top_n_excluded,
         news_ready_pool=len(news_ready_pool), news_retained=len(news), news_rejected=translation_rejected_news,
+        news_top_n_limit=settings.max_news, news_top_n_excluded=news_top_n_excluded,
         paper_target=settings.max_papers, news_target=settings.max_news,
+        selection_policy="priority_evidence_recency_source_quality",
     )
 
     def has_real_title_translation(item: dict[str, Any]) -> bool:
@@ -680,6 +825,27 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         return status not in {"translation_unavailable", "empty_source"}
 
     translated = sum(1 for item in papers + news if has_real_title_translation(item))
+    analysis_quality_displayed = summarize_analysis_quality(
+        papers,
+        news,
+        warning_ratio=settings.analysis_fallback_warning_ratio,
+        critical_ratio=settings.analysis_fallback_critical_ratio,
+        preflight=llm_preflight,
+        scope="displayed",
+    )
+    # The run-level alert is based on the complete analyzed candidate pool, not
+    # only the final translated Top-N. This prevents downstream filtering from
+    # hiding a broad multi-provider LLM outage. Keep the public issue summary compact;
+    # full per-record attempts remain in data/audit/analysis_quality.json.
+    analysis_quality = {
+        key: value for key, value in analysis_quality_pool.items()
+        if key != "fallback_records"
+    }
+    analysis_quality["scope"] = "run"
+    analysis_quality["displayed"] = {
+        key: value for key, value in analysis_quality_displayed.items()
+        if key not in {"fallback_records", "preflight"}
+    }
     issue_date = end.isoformat()
     overview = build_overviews(
         profile, papers, news, llm, prompts_dir,
@@ -700,7 +866,12 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "after_final_gate": papers_after_final_gate,
             "selected_for_content_enrichment": locals().get("paper_enrichment_selected", len(papers)),
             "content_rejected": locals().get("paper_content_rejected", 0),
+            "post_enrichment_rejected": locals().get("paper_post_enrichment_rejected", 0),
             "translation_rejected": translation_rejected_papers,
+            "ready_before_top_n": len(ranked_paper_ready_pool),
+            "top_n_limit": settings.max_papers,
+            "top_n_excluded": paper_top_n_excluded,
+            "selection_policy": "priority_evidence_recency_source_quality",
             "displayed": len(papers),
         },
         "news": {
@@ -712,7 +883,13 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "after_final_gate": news_after_final_gate,
             "selected_for_content_enrichment": locals().get("news_enrichment_selected", len(news)),
             "content_rejected": locals().get("news_content_rejected", 0),
+            "content_circuit_rejected": locals().get("news_circuit_rejected", 0),
+            "post_enrichment_rejected": locals().get("news_post_enrichment_rejected", 0),
             "translation_rejected": translation_rejected_news,
+            "ready_before_top_n": len(ranked_news_ready_pool),
+            "top_n_limit": settings.max_news,
+            "top_n_excluded": news_top_n_excluded,
+            "selection_policy": "priority_evidence_recency_source_quality",
             "displayed": len(news),
         },
     }
@@ -724,6 +901,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         "issue_date": issue_date,
         "window_start": start.isoformat(),
         "window_end": end.isoformat(),
+        "publication_search_end": scholarly_search_end.isoformat(),
+        "publication_future_days": settings.publication_future_days,
         "generated_at": utc_now_iso(),
         "title_zh": f"{profile.get('display_name_zh') or settings.profile_id}每周情报",
         "title_en": f"{profile.get('display_name_en') or settings.profile_id} Weekly Intelligence",
@@ -732,7 +911,18 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         "source_status": source_status,
         "anchor_coverage": anchor_coverage,
         "relevance_review": relevance_review_summary,
+        "analysis_quality": analysis_quality,
+        "llm_usage": llm.usage_snapshot(),
         "retrieval_funnel": retrieval_funnel,
+        "publication_date_gate": {
+            key: value for key, value in paper_date_gate_summary.items()
+            if key != "rejected_records"
+        },
+        "news_content_gate": {
+            "resolver_rejected": news_content_gate_summary["resolver"]["rejected"],
+            "circuit_rejected": news_content_gate_summary["circuit_breaker"]["rejected"],
+            "post_enrichment_rejected": news_content_gate_summary["post_enrichment"]["rejected"],
+        },
         "overview": overview,
         "papers": papers,
         "news": news,
@@ -744,6 +934,15 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "raw_news": raw_news_before_window,
             "news": len(news),
             "translated": translated,
+            "analysis_passed": (analysis_quality_displayed.get("combined") or {}).get("passed", 0),
+            "analysis_fallback": (analysis_quality_displayed.get("combined") or {}).get("fallback", 0),
+            "analysis_fallback_ratio": (analysis_quality_displayed.get("combined") or {}).get("fallback_ratio", 0.0),
+            "paper_ready_before_top_n": len(ranked_paper_ready_pool),
+            "paper_top_n_limit": settings.max_papers,
+            "paper_top_n_excluded": paper_top_n_excluded,
+            "news_ready_before_top_n": len(ranked_news_ready_pool),
+            "news_top_n_limit": settings.max_news,
+            "news_top_n_excluded": news_top_n_excluded,
         },
     }
     write_issue(settings.output_dir, issue)
@@ -759,7 +958,68 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     dump_json(audit_dir / "source_status.json", source_status)
     dump_json(audit_dir / "anchor_coverage.json", anchor_coverage)
     dump_json(audit_dir / "relevance_review.json", relevance_review_summary)
+    dump_json(audit_dir / "analysis_quality.json", {
+        "run": analysis_quality_pool,
+        "displayed": analysis_quality_displayed,
+    })
+    dump_json(audit_dir / "llm_provider_usage.json", llm.usage_snapshot())
     dump_json(audit_dir / "retrieval_funnel.json", retrieval_funnel)
+    dump_json(audit_dir / "publication_date_gate.json", paper_date_gate_summary)
+    dump_json(audit_dir / "news_content_gate.json", news_content_gate_summary)
+    dump_json(audit_dir / "paper_post_enrichment_gate.json", paper_post_enrichment_summary)
+    dump_json(audit_dir / "display_selection.json", {
+        "policy_version": "v13-transparent-top-n-1",
+        "selection_policy": "priority_evidence_recency_source_quality",
+        "papers": {
+            "ready_before_top_n": len(ranked_paper_ready_pool),
+            "top_n_limit": settings.max_papers,
+            "displayed": len(papers),
+            "excluded_by_top_n": paper_top_n_excluded,
+            "selected_ids": [item.get("paper_id") for item in papers],
+            "excluded_ids": [item.get("paper_id") for item in ranked_paper_ready_pool[settings.max_papers:]],
+        },
+        "news": {
+            "ready_before_top_n": len(ranked_news_ready_pool),
+            "top_n_limit": settings.max_news,
+            "displayed": len(news),
+            "excluded_by_top_n": news_top_n_excluded,
+            "selected_ids": [item.get("news_id") for item in news],
+            "excluded_ids": [item.get("news_id") for item in ranked_news_ready_pool[settings.max_news:]],
+        },
+    })
+    jsonl_paths = [
+        audit_dir / "papers.jsonl",
+        audit_dir / "news.jsonl",
+        audit_dir / "eligible_papers.jsonl",
+        audit_dir / "eligible_news.jsonl",
+    ]
+    for jsonl_path in jsonl_paths:
+        jsonl_path.unlink(missing_ok=True)
+    for candidate in ranked_paper_ready_pool:
+        append_jsonl(audit_dir / "eligible_papers.jsonl", {
+            "paper_id": candidate.get("paper_id"),
+            "doi": candidate.get("doi"),
+            "title": candidate.get("title"),
+            "availability_date": candidate.get("availability_date"),
+            "priority_tier": candidate.get("priority_tier"),
+            "quality_score": candidate.get("quality_score"),
+            "quality_reasons": candidate.get("quality_reasons"),
+            "display_rank": candidate.get("display_rank"),
+            "selected_for_display": candidate.get("selected_for_display"),
+        })
+    for candidate in ranked_news_ready_pool:
+        append_jsonl(audit_dir / "eligible_news.jsonl", {
+            "news_id": candidate.get("news_id"),
+            "title": candidate.get("title"),
+            "publisher": candidate.get("publisher") or candidate.get("source"),
+            "published_date": candidate.get("published_date"),
+            "resolved_url": candidate.get("resolved_url") or candidate.get("url"),
+            "priority_tier": candidate.get("priority_tier"),
+            "quality_score": candidate.get("quality_score"),
+            "quality_reasons": candidate.get("quality_reasons"),
+            "display_rank": candidate.get("display_rank"),
+            "selected_for_display": candidate.get("selected_for_display"),
+        })
     for paper in papers:
         append_jsonl(audit_dir / "papers.jsonl", {
             "paper_id": paper.get("paper_id"),
@@ -776,6 +1036,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "analysis": article.get("analysis"),
             "translation_audit": article.get("translation_audit"),
             "content_audit": article.get("content_audit"),
+            "content_identity": article.get("content_identity"),
+            "relevance_post_enrichment": article.get("relevance_post_enrichment"),
         })
     save_state(settings.state_dir, state)
     progress("pipeline", "complete", profile=settings.profile_id, issue_id=issue.get("issue_id"), metrics=issue.get("metrics"))

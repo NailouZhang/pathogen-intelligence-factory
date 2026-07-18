@@ -71,7 +71,8 @@ def fetch_rendered_html(
                 "verify you are human", "access denied", "captcha", "enable cookies",
                 "subscribe to continue", "sign in to continue", "temporarily unavailable",
             )
-            blocked = any(marker in lower for marker in blocked_markers)
+            blocked_http = bool(status_code and (status_code in {401, 403, 407, 408, 409, 429, 451} or status_code >= 500))
+            blocked = blocked_http or any(marker in lower for marker in blocked_markers)
             context.close()
             browser.close()
             browser = None
@@ -83,6 +84,7 @@ def fetch_rendered_html(
                 "html": html if not blocked else "",
                 "http_status": status_code,
                 "blocked": blocked,
+                "blocked_http": blocked_http,
             }
     except Exception as exc:
         try:

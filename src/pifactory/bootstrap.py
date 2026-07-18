@@ -89,6 +89,7 @@ def build_profile(settings: Settings, http: HttpClient, llm: LLMRouter) -> dict[
         try:
             result = llm.json_task(
                 system=system,
+                provider_order=getattr(llm, "provider_order", lambda purpose: None)("extract"),
                 prompt=json.dumps(prompt_payload, ensure_ascii=False),
                 validator=_llm_validator,
                 max_models_per_provider=2,

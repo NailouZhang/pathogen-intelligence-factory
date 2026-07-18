@@ -1,4 +1,4 @@
-name: Weekly 21-Virus Intelligence Cycle v10
+name: Weekly 21-Virus Intelligence Cycle v13
 
 on:
   schedule:
@@ -133,6 +133,9 @@ jobs:
           NCBI_API_KEY: ${{ secrets.NCBI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
           SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
           OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
           UNPAYWALL_EMAIL: ${{ secrets.UNPAYWALL_EMAIL || secrets.CROSSREF_MAILTO }}
@@ -141,6 +144,9 @@ jobs:
           PUBLISHER_REPO: ${{ vars.PUBLISHER_REPO || 'NailouZhang/pathogen-wechat-publisher' }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           GROQ_MODEL: ${{ vars.GROQ_MODEL }}
+          OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL || 'openrouter/free' }}
+          MISTRAL_MODEL: ${{ vars.MISTRAL_MODEL || 'mistral-small-latest' }}
+          SILICONFLOW_MODEL: ${{ vars.SILICONFLOW_MODEL }}
           GEMINI_IMAGE_MODEL: ${{ vars.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-image' }}
           PIF_USER_AGENT: ${{ vars.PIF_USER_AGENT }}
           PIF_REFRESH_PROFILE: ${{ github.event_name == 'schedule' && 'false' || inputs.refresh_profile || 'false' }}
@@ -151,7 +157,7 @@ jobs:
           PIF_MAX_NEWS: ${{ steps.plan.outputs.max_news }}
           # Metadata retrieval is not truncated locally. Only five distinct
           # core concepts are sent to each provider. Full text/news bodies are
-          # fetched only after relevance review and Top-50 selection.
+          # fetched only after relevance review and a bounded replacement queue. Final Top-N selection occurs after content, analysis and translation gates.
           PIF_MAX_PAPER_CANDIDATES: "0"
           PIF_MAX_NEWS_CANDIDATES: "0"
           PIF_MAX_NEWS_FETCHES: "80"
@@ -169,7 +175,11 @@ jobs:
           PIF_PUBMED_TOTAL_LIMIT: "2000"
           PIF_EUROPE_PMC_PER_QUERY: "250"
           PIF_CROSSREF_PER_QUERY: "80"
-          PIF_CROSSREF_INCLUDE_INDEXED: "true"
+          # Indexed/re-indexed timestamps are metadata events, not publication dates.
+          PIF_CROSSREF_INCLUDE_INDEXED: "false"
+          # Allow bounded future issue/print dates while still requiring a real
+          # publication field at the post-retrieval hard gate.
+          PIF_PUBLICATION_FUTURE_DAYS: ${{ vars.PIF_PUBLICATION_FUTURE_DAYS || '90' }}
           PIF_SEMANTIC_PER_QUERY: "100"
           # Semantic Scholar is supplementary. Without a key, the five lean
           # plain-text queries run with conservative anonymous pacing.
@@ -184,6 +194,27 @@ jobs:
           PIF_LLM_ESCALATION_BATCH_TOKENS: "10000"
           PIF_RELEVANCE_REVIEW_CACHE: "true"
           PIF_ANALYSIS_CACHE: "true"
+          # Structured-analysis observability and bounded provider rescue.
+          PIF_ANALYSIS_FALLBACK_WARNING_RATIO: ${{ vars.PIF_ANALYSIS_FALLBACK_WARNING_RATIO || '0.20' }}
+          PIF_ANALYSIS_FALLBACK_CRITICAL_RATIO: ${{ vars.PIF_ANALYSIS_FALLBACK_CRITICAL_RATIO || '0.50' }}
+          PIF_ANALYSIS_REQUIRE_LLM: ${{ vars.PIF_ANALYSIS_REQUIRE_LLM || 'false' }}
+          PIF_LLM_MAX_MODELS_PER_PROVIDER: ${{ vars.PIF_LLM_MAX_MODELS_PER_PROVIDER || '2' }}
+          PIF_LLM_ATTEMPTS_PER_MODEL: ${{ vars.PIF_LLM_ATTEMPTS_PER_MODEL || '1' }}
+          PIF_LLM_MAX_OUTPUT_TOKENS: ${{ vars.PIF_LLM_MAX_OUTPUT_TOKENS || '1400' }}
+          PIF_ANALYSIS_MAX_PROMPT_CHARS: ${{ vars.PIF_ANALYSIS_MAX_PROMPT_CHARS || '14000' }}
+          PIF_ANALYSIS_EVIDENCE_MAX_CHARS: ${{ vars.PIF_ANALYSIS_EVIDENCE_MAX_CHARS || '9000' }}
+          PIF_ANALYSIS_FULLTEXT_TOP_N: ${{ vars.PIF_ANALYSIS_FULLTEXT_TOP_N || '12' }}
+          PIF_ANALYSIS_CROSSCHECK_TOP_N: ${{ vars.PIF_ANALYSIS_CROSSCHECK_TOP_N || '5' }}
+          PIF_LLM_CACHE_SUCCESS_ONLY: ${{ vars.PIF_LLM_CACHE_SUCCESS_ONLY || 'true' }}
+          PIF_LLM_DISABLE_THINKING: ${{ vars.PIF_LLM_DISABLE_THINKING || 'true' }}
+          PIF_LLM_PROVIDER_COOLDOWN_SECONDS: ${{ vars.PIF_LLM_PROVIDER_COOLDOWN_SECONDS || '60' }}
+          PIF_LLM_EXTRACT_PROVIDER_ORDER: ${{ vars.PIF_LLM_EXTRACT_PROVIDER_ORDER || 'siliconflow,groq,mistral,openrouter,gemini' }}
+          PIF_LLM_RESCUE_PROVIDER_ORDER: ${{ vars.PIF_LLM_RESCUE_PROVIDER_ORDER || 'gemini,mistral,openrouter,groq,siliconflow' }}
+          PIF_LLM_OVERVIEW_PROVIDER_ORDER: ${{ vars.PIF_LLM_OVERVIEW_PROVIDER_ORDER || 'gemini,mistral,openrouter,groq,siliconflow' }}
+          PIF_LLM_RELEVANCE_PROVIDER_ORDER: ${{ vars.PIF_LLM_RELEVANCE_PROVIDER_ORDER || 'groq,siliconflow,mistral,gemini,openrouter' }}
+          PIF_OPENROUTER_FREE_ONLY: ${{ vars.PIF_OPENROUTER_FREE_ONLY || 'true' }}
+          PIF_OPENROUTER_HTTP_REFERER: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          PIF_OPENROUTER_APP_TITLE: Pathogen Intelligence Factory
           PIF_NEWS_CONTEXT_QUERY_LIMIT: "0"
           PIF_OVERVIEW_MIN_ITEMS: "15"
           PIF_OVERVIEW_MAX_ITEMS: "25"
@@ -192,12 +223,28 @@ jobs:
           PIF_HTTP_TIMEOUT: "18"
           PIF_HTTP_RETRIES: "2"
           PIF_LLM_HTTP_TIMEOUT: "55"
-          PIF_LLM_MAX_MODELS_PER_PROVIDER: "1"
           PIF_PROFILE_RUNTIME_MINUTES: ${{ vars.PIF_PROFILE_RUNTIME_MINUTES || '90' }}
           PYTHONUNBUFFERED: "1"
           SHOULD_DISPATCH: ${{ github.event_name == 'schedule' || inputs.dispatch_wechat }}
         run: |
           set -Eeuo pipefail
+          LLM_PREFLIGHT="/tmp/pif_llm_preflight.json"
+          set +e
+          python scripts/check_credentials.py \
+            --analysis-only \
+            --probe-llm \
+            --json-out "$LLM_PREFLIGHT"
+          LLM_PREFLIGHT_STATUS=$?
+          set -e
+          export PIF_LLM_PREFLIGHT_FILE="$LLM_PREFLIGHT"
+          if [[ $LLM_PREFLIGHT_STATUS -ne 0 ]]; then
+            echo "::warning title=LLM preflight failed::None of Gemini/Groq/OpenRouter/Mistral/SiliconFlow passed the minimal JSON probe. Structured analysis may use low-confidence fallback."
+            if [[ "${PIF_ANALYSIS_REQUIRE_LLM:-false}" == "true" ]]; then
+              echo "::error::PIF_ANALYSIS_REQUIRE_LLM=true and no LLM provider passed preflight."
+              exit 3
+            fi
+          fi
+
           mapfile -t PROFILES < <(python -c 'import json,os; print("\n".join(json.loads(os.environ["PROFILES_JSON"])))')
           printf 'Ordered queue: %s\n' "${PROFILES[*]}"
           : > /tmp/pif_cycle_results.tsv
@@ -235,6 +282,7 @@ jobs:
             fi
 
             python scripts/validate_wechat_package.py "$OUT/wechat-package"
+            python scripts/issue_summary.py "$OUT/data/latest.json" --github-summary "$GITHUB_STEP_SUMMARY"
             ISSUE_DATE="$(python -c 'import json,sys; print(json.load(open(sys.argv[1],encoding="utf-8"))["issue_date"])' "$OUT/data/latest.json")"
 
             BASE="/tmp/pif_data_repo/profiles/$PROFILE_ID"
@@ -262,13 +310,21 @@ jobs:
                 SOURCE_REPO="$GITHUB_REPOSITORY" SOURCE_SHA="$DATA_SHA" PACKAGE_PATH="$PACKAGE_PATH" PROFILE_ID="$PROFILE_ID" ISSUE_DATE="$ISSUE_DATE" \
                 python -c 'import json,os; print(json.dumps({"event_type":"wechat-package-ready","client_payload":{"source_repo":os.environ["SOURCE_REPO"],"source_sha":os.environ["SOURCE_SHA"],"package_path":os.environ["PACKAGE_PATH"],"profile_id":os.environ["PROFILE_ID"],"publish_key":os.environ["PROFILE_ID"]+":"+os.environ["ISSUE_DATE"],"force":False,"refresh_cover":False}},ensure_ascii=False))' \
                   >/tmp/dispatch.json
-                curl --fail-with-body --silent --show-error \
+                # WeChat is a downstream independent repository. A dispatch
+                # failure must never roll back the already-published data or
+                # prevent GitHub Pages from being built for this profile.
+                if curl --fail-with-body --silent --show-error \
                   -X POST \
                   -H "Accept: application/vnd.github+json" \
                   -H "Authorization: Bearer $PUBLISHER_REPO_TOKEN" \
                   -H "X-GitHub-Api-Version: 2022-11-28" \
                   "https://api.github.com/repos/$PUBLISHER_REPO/dispatches" \
-                  --data-binary @/tmp/dispatch.json
+                  --data-binary @/tmp/dispatch.json; then
+                  echo "WeChat dispatch accepted for $PROFILE_ID at $DATA_SHA"
+                else
+                  DISPATCH_STATUS=$?
+                  echo "::warning title=WeChat dispatch failed::$PROFILE_ID was published to intelligence-data, but the private publisher dispatch failed with exit $DISPATCH_STATUS. Pages generation will continue."
+                fi
               fi
             fi
 

@@ -212,6 +212,62 @@ def candidate_filter_news(records: list[dict[str, Any]], profile: dict[str, Any]
     return _candidate_filter(records, profile, "news")
 
 
+def filter_post_enrichment(
+    records: list[dict[str, Any]],
+    profile: dict[str, Any],
+    kind: str,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Make the existing post-enrichment relevance result enforceable.
+
+    News is assessed with an empty title so an RSS headline cannot rescue an
+    unrelated extracted body. Papers retain title-plus-evidence assessment,
+    because a valid abstract may be short but remains tied to a scholarly title.
+    """
+    if kind not in {"paper", "news"}:
+        raise ValueError(f"Unsupported post-enrichment kind: {kind}")
+    retained: list[dict[str, Any]] = []
+    rejected: list[dict[str, Any]] = []
+    for record in records:
+        body = _record_body(record, kind)
+        title = "" if kind == "news" else clean_space(record.get("title"))
+        assessment = relevance_assessment(title, body, profile)
+        record["relevance_post_enrichment"] = assessment
+        record["relevance_decision"] = assessment.get("decision")
+        content_identity = record.get("content_identity") or {}
+        content_identity_rejected = bool(kind == "news" and content_identity and not content_identity.get("accepted", False))
+        accepted = bool(
+            clean_space(body)
+            and assessment.get("decision") in {"accept", "review"}
+            and not content_identity_rejected
+        )
+        if accepted:
+            retained.append(record)
+            continue
+        reason = (
+            "content_identity_rejected"
+            if content_identity_rejected
+            else "post_enrichment_relevance_rejected"
+            if assessment.get("decision") == "reject"
+            else "missing_enriched_evidence"
+        )
+        rejected.append({
+            "record_id": record.get("news_id") or record.get("paper_id"),
+            "title": record.get("title"),
+            "source": record.get("source"),
+            "reason": reason,
+            "assessment": assessment,
+            "content_identity": content_identity,
+        })
+    return retained, {
+        "kind": kind,
+        "input": len(records),
+        "retained": len(retained),
+        "rejected": len(rejected),
+        "rejected_records": rejected,
+        "policy_version": "v11-post-enrichment-hard-gate-1",
+    }
+
+
 def _deterministic_medium_accept(record: dict[str, Any], assessment: dict[str, Any], kind: str) -> bool:
     body = _record_body(record, kind)
     return bool(

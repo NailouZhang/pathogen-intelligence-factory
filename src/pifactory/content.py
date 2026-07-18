@@ -15,6 +15,7 @@ from rapidfuzz.fuzz import partial_ratio, ratio, token_set_ratio
 
 from .http import HttpClient
 from .browser_fetch import browser_enabled, fetch_rendered_html
+from .relevance import relevance_assessment
 from .utils import clean_space, extract_doi, normalize_title, sha256_text, split_sentences, strip_tags, truncate, unique_strings, utc_now_iso
 
 
@@ -103,6 +104,46 @@ TRACKING_QUERY_KEYS = {
 }
 
 
+BLOCKED_NEWS_DESTINATION_HOSTS = {
+    "w3.org",
+    "www.w3.org",
+    "schema.org",
+    "www.schema.org",
+    "xml.org",
+    "www.xml.org",
+}
+
+
+def _host(value: str | None) -> str:
+    try:
+        return urlparse(clean_space(value)).netloc.casefold().split(":", 1)[0]
+    except Exception:
+        return ""
+
+
+def _site_key(value: str | None) -> str:
+    host = _host(value)
+    if host.startswith("www."):
+        host = host[4:]
+    labels = [x for x in host.split(".") if x]
+    if len(labels) <= 2:
+        return host
+    # Keep the common country-code second-level suffixes together without
+    # adding a heavy public-suffix dependency to the runtime.
+    if labels[-2] in {"co", "com", "org", "net", "gov", "ac"} and len(labels[-1]) == 2:
+        return ".".join(labels[-3:])
+    return ".".join(labels[-2:])
+
+
+def _same_site(left: str | None, right: str | None) -> bool:
+    return bool(_site_key(left) and _site_key(left) == _site_key(right))
+
+
+def _blocked_news_destination(value: str | None) -> bool:
+    host = _host(value)
+    return host in BLOCKED_NEWS_DESTINATION_HOSTS
+
+
 def clean_news_url(value: str | None) -> str:
     url = _decode_embedded_url(clean_space(value))
     if not url:
@@ -143,7 +184,10 @@ def _candidate_news_urls(record: dict[str, Any]) -> list[str]:
             if cleaned:
                 urls.append(cleaned)
     # Direct publisher URLs are tried before Google/Bing aggregation pages.
-    return sorted(unique_strings(urls), key=lambda x: (1 if _is_aggregator_url(x) else 0, len(x)))
+    # Standards/documentation sites are never valid news destinations and were
+    # a recurring source of false full text.
+    urls = [x for x in unique_strings(urls) if not _blocked_news_destination(x)]
+    return sorted(urls, key=lambda x: (1 if _is_aggregator_url(x) else 0, len(x)))
 
 
 def _decode_embedded_url(value: str) -> str:
@@ -163,16 +207,34 @@ def _decode_embedded_url(value: str) -> str:
     return url
 
 
-def _external_news_urls(soup: BeautifulSoup, raw: str, base_url: str) -> list[str]:
-    """Discover publisher article URLs from aggregator/landing pages."""
-    candidates: list[str] = []
+def _external_news_urls(
+    soup: BeautifulSoup,
+    raw: str,
+    base_url: str,
+    record: dict[str, Any],
+) -> tuple[list[str], list[dict[str, Any]]]:
+    """Discover plausible article URLs without crawling arbitrary navigation.
+
+    Publisher pages expose only same-site canonical/meta/JSON-LD URLs. Arbitrary
+    anchors and escaped script URLs are considered only on known aggregators,
+    then checked against the expected publisher or headline.
+    """
+    candidates: list[dict[str, str]] = []
     for attr, value in (("property", "og:url"), ("name", "twitter:url"), ("name", "citation_public_url")):
         tag = soup.find("meta", attrs={attr: value})
         if tag and tag.get("content"):
-            candidates.append(urljoin(base_url, clean_space(tag.get("content"))))
+            candidates.append({
+                "url": urljoin(base_url, clean_space(tag.get("content"))),
+                "provenance": f"meta:{value}",
+                "label": "",
+            })
     canonical = soup.find("link", rel=lambda x: x and "canonical" in str(x).lower())
     if canonical and canonical.get("href"):
-        candidates.append(urljoin(base_url, clean_space(canonical.get("href"))))
+        candidates.append({
+            "url": urljoin(base_url, clean_space(canonical.get("href"))),
+            "provenance": "canonical",
+            "label": "",
+        })
     for script in soup.find_all("script", attrs={"type": "application/ld+json"}):
         try:
             data = json.loads(script.string or script.get_text(" "))
@@ -186,45 +248,122 @@ def _external_news_urls(soup: BeautifulSoup, raw: str, base_url: str) -> list[st
             for item in graph:
                 if not isinstance(item, dict):
                     continue
+                label = clean_space(item.get("headline") or item.get("name"))
                 for key in ("url", "mainEntityOfPage"):
                     value = item.get(key)
                     if isinstance(value, dict):
                         value = value.get("@id") or value.get("url")
                     if isinstance(value, str):
-                        candidates.append(urljoin(base_url, value))
-    for anchor in soup.find_all("a", href=True):
-        href = _decode_embedded_url(urljoin(base_url, anchor.get("href")))
-        if href.startswith(("http://", "https://")):
-            candidates.append(href)
-    # Some aggregators embed escaped article URLs in scripts. Keep only normal
-    # HTTP URLs and filter obvious assets/social/navigation domains.
-    for found in re.findall(r'https?://[^"\'<>\s]+', raw):
-        candidates.append(found.replace("\u0026", "&").replace("\\/", "/"))
+                        candidates.append({
+                            "url": urljoin(base_url, value),
+                            "provenance": "jsonld",
+                            "label": label,
+                        })
+
+    aggregator = _is_aggregator_url(base_url)
+    if aggregator:
+        for anchor in soup.find_all("a", href=True):
+            href = _decode_embedded_url(urljoin(base_url, anchor.get("href")))
+            if href.startswith(("http://", "https://")):
+                candidates.append({
+                    "url": href,
+                    "provenance": "aggregator_anchor",
+                    "label": clean_space(anchor.get_text(" ")),
+                })
+        for found in re.findall(r'https?://[^"\'<>\s]+', raw):
+            candidates.append({
+                "url": found.replace("\u0026", "&").replace("\\/", "/"),
+                "provenance": "aggregator_script",
+                "label": "",
+            })
+
     blocked = (
         "news.google.", "google.com/", "googleusercontent.com", "gstatic.com",
         "bing.com/", "microsoft.com/", "facebook.com/", "twitter.com/",
         "x.com/", "youtube.com/", "doubleclick.net/",
     )
-    base_host = urlparse(base_url).netloc.lower()
+    expected_title = clean_space(record.get("title"))
+    expected_sites = unique_strings(
+        _site_key(value)
+        for value in (
+            record.get("publisher_url"), record.get("source_url"), record.get("original_url"),
+            record.get("resolved_url"), record.get("url"),
+        )
+        if value and not _is_aggregator_url(value)
+    )
+    trusted_metadata = {
+        "canonical", "jsonld", "meta:og:url", "meta:twitter:url", "meta:citation_public_url",
+    }
     output: list[str] = []
-    for candidate in unique_strings(candidates):
-        decoded = _decode_embedded_url(candidate)
+    decisions: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in candidates:
+        decoded = clean_news_url(_decode_embedded_url(item.get("url", "")))
+        if not decoded or decoded in seen:
+            continue
+        seen.add(decoded)
+        decision: dict[str, Any] = {
+            "url": decoded,
+            "provenance": item.get("provenance"),
+            "label": truncate(clean_space(item.get("label")), 180),
+            "accepted": False,
+            "reason": "",
+        }
         try:
             parsed = urlparse(decoded)
         except Exception:
+            decision["reason"] = "invalid_url"
+            decisions.append(decision)
             continue
         if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            decision["reason"] = "invalid_url"
+            decisions.append(decision)
             continue
         lower = decoded.lower()
-        if any(token in lower for token in blocked):
+        if any(token in lower for token in blocked) or _blocked_news_destination(decoded):
+            decision["reason"] = "blocked_destination"
+            decisions.append(decision)
             continue
         if parsed.path.lower().endswith((".jpg", ".jpeg", ".png", ".gif", ".svg", ".css", ".js")):
+            decision["reason"] = "asset_url"
+            decisions.append(decision)
             continue
-        # Prefer external publisher pages; same-host links are still useful for
-        # non-aggregator source sites.
-        if parsed.netloc.lower() != base_host or not _is_aggregator_url(base_url):
-            output.append(decoded)
-    return unique_strings(output)[:20]
+
+        if not aggregator:
+            if not _same_site(decoded, base_url):
+                decision["reason"] = "publisher_page_external_link"
+                decisions.append(decision)
+                continue
+            if item.get("provenance") not in trusted_metadata:
+                decision["reason"] = "publisher_navigation_not_discoverable"
+                decisions.append(decision)
+                continue
+        else:
+            candidate_site = _site_key(decoded)
+            publisher_match = bool(expected_sites and candidate_site in expected_sites)
+            label_score = (
+                token_set_ratio(normalize_title(expected_title), normalize_title(item.get("label"))) / 100
+                if expected_title and item.get("label") else 0.0
+            )
+            decision["headline_similarity"] = round(label_score, 3)
+            if item.get("provenance") == "aggregator_script" and not publisher_match:
+                decision["reason"] = "unverified_script_url"
+                decisions.append(decision)
+                continue
+            if expected_sites and not publisher_match and label_score < 0.55:
+                decision["reason"] = "publisher_or_headline_mismatch"
+                decisions.append(decision)
+                continue
+            if not expected_sites and item.get("provenance") == "aggregator_anchor" and label_score < 0.55:
+                decision["reason"] = "headline_mismatch"
+                decisions.append(decision)
+                continue
+
+        decision["accepted"] = True
+        decision["reason"] = "trusted_discovery"
+        decisions.append(decision)
+        output.append(decoded)
+    return unique_strings(output)[:20], decisions
 
 
 def _news_text_quality(text: str, title: str) -> tuple[bool, float, dict[str, Any]]:
@@ -289,6 +428,84 @@ def _news_summary_quality(text: str, title: str) -> tuple[bool, dict[str, Any]]:
     }
 
 
+def _news_content_identity(
+    record: dict[str, Any],
+    text: str,
+    page_title: str,
+    candidate_url: str,
+    profile: dict[str, Any] | None,
+) -> tuple[bool, dict[str, Any]]:
+    """Require the extracted body itself to identify the target pathogen.
+
+    Candidate relevance was previously computed from the RSS headline and could
+    therefore rescue a completely unrelated body. The hard gate deliberately
+    calls ``relevance_assessment`` with an empty title so only body evidence can
+    satisfy the identity requirement.
+    """
+    value = remove_boilerplate(text)
+    expected_title = clean_space(record.get("title"))
+    page_title = clean_space(page_title)
+    title_similarity = (
+        max(
+            token_set_ratio(normalize_title(expected_title), normalize_title(page_title)),
+            partial_ratio(normalize_title(expected_title), normalize_title(page_title)),
+        ) / 100
+        if expected_title and page_title else 0.0
+    )
+    if not profile:
+        return True, {
+            "accepted": True,
+            "reason": "profile_not_supplied_legacy_mode",
+            "page_title_similarity": round(title_similarity, 3),
+            "candidate_url": candidate_url,
+        }
+
+    body_assessment = relevance_assessment("", value, profile)
+    identity_frequency = int(body_assessment.get("identity_frequency") or 0)
+    identity_hits = unique_strings(
+        (body_assessment.get("body_identity_hits") or [])
+        + (body_assessment.get("qualified_identity_hits") or [])
+    )
+    context_hits = unique_strings(body_assessment.get("context_hits") or [])
+    identity_sentences = unique_strings(
+        sentence
+        for sentence in split_sentences(value, max_sentences=250)
+        if any(_term.casefold() in sentence.casefold() for _term in identity_hits)
+    )
+    # Repetition of one sidebar headline must not become "strong evidence".
+    # Require multiple distinct identity-bearing sentences, multiple distinct
+    # pathogen identities, or a pathogen identity plus relevant event context.
+    strong_body = len(identity_sentences) >= 2 or len(identity_hits) >= 2
+    body_identity = bool(body_assessment.get("identity_present") and identity_hits)
+
+    accepted = bool(
+        body_identity
+        and body_assessment.get("decision") in {"accept", "review"}
+        and (strong_body or title_similarity >= 0.55)
+    )
+    if not body_identity:
+        reason = "body_missing_pathogen_identity"
+    elif body_assessment.get("decision") == "reject":
+        reason = "body_relevance_rejected"
+    elif not strong_body and page_title and title_similarity < 0.55:
+        reason = "weak_body_identity_and_headline_mismatch"
+    else:
+        reason = "body_identity_confirmed"
+    return accepted, {
+        "accepted": accepted,
+        "reason": reason,
+        "candidate_url": candidate_url,
+        "page_title": truncate(page_title, 300),
+        "page_title_similarity": round(title_similarity, 3),
+        "body_relevance": body_assessment,
+        "body_identity_hits": identity_hits,
+        "body_identity_frequency": identity_frequency,
+        "body_context_hits": context_hits,
+        "identity_sentence_count": len(identity_sentences),
+        "strong_body_identity": strong_body,
+    }
+
+
 def _extract_news_candidates(raw: str, soup: BeautifulSoup, url: str = "") -> list[tuple[str, str]]:
     _, jsonld_body = _extract_jsonld(soup)
     candidates: list[tuple[str, str]] = []
@@ -342,13 +559,18 @@ def _extract_news_candidates(raw: str, soup: BeautifulSoup, url: str = "") -> li
     return [(method, remove_boilerplate(value)) for method, value in candidates if clean_space(value)]
 
 
-def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars: int = 18000) -> dict[str, Any]:
+def resolve_and_extract_news(
+    http: HttpClient,
+    record: dict[str, Any],
+    profile: dict[str, Any] | None = None,
+    max_chars: int = 18000,
+) -> dict[str, Any]:
     audit: dict[str, Any] = {
         "attempted_urls": [],
         "extraction_attempts": [],
         "browser_attempts": [],
         "retrieved_at": utc_now_iso(),
-        "policy_version": "v10-static-then-browser-multi-extractor-1",
+        "policy_version": "v11-news-identity-gate-circuit-breaker-1",
     }
     queue = _candidate_news_urls(record)
     visited: set[str] = set()
@@ -357,40 +579,46 @@ def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars
     best_method = "none"
     best_score = float("-inf")
     best_quality: dict[str, Any] = {}
+    best_identity: dict[str, Any] = {}
     best_url = ""
     final_url = clean_news_url(record.get("url"))
     static_limit = max(1, int(os.getenv("PIF_NEWS_STATIC_MAX_URLS", "8")))
 
     def evaluate_html(raw: str, page_url: str, title_hint: str = "", channel: str = "static") -> None:
-        nonlocal best_text, best_title, best_method, best_score, best_quality, best_url
+        nonlocal best_text, best_title, best_method, best_score, best_quality, best_identity, best_url
         soup = BeautifulSoup(raw, "lxml")
         jsonld_title, _ = _extract_jsonld(soup)
         candidate_title = jsonld_title or _meta_content(
             soup, [("property", "og:title"), ("name", "twitter:title"), ("name", "citation_title")],
-        ) or title_hint
-        if candidate_title:
-            best_title = candidate_title
+        ) or clean_space(soup.title.get_text(" ") if soup.title else "") or title_hint or clean_space(record.get("title"))
         canonical = soup.find("link", rel=lambda x: x and "canonical" in str(x).lower())
         canonical_url = clean_news_url(urljoin(page_url, canonical.get("href"))) if canonical and canonical.get("href") else ""
-        if canonical_url:
-            record["canonical_url"] = canonical_url
-        discovered = [clean_news_url(x) for x in _external_news_urls(soup, raw, page_url)]
+        discovered, discovery_audit = _external_news_urls(soup, raw, page_url, record)
         for candidate_url in discovered:
             if candidate_url and candidate_url not in visited and candidate_url not in queue:
                 queue.append(candidate_url)
-        if discovered:
-            audit.setdefault("discovered_urls", []).extend([x for x in discovered if x])
+        if discovery_audit:
+            audit.setdefault("url_discovery", []).extend(discovery_audit)
         for method, extracted in _extract_news_candidates(raw, soup, page_url):
-            valid, score, quality = _news_text_quality(extracted, best_title or record.get("title"))
+            valid, score, quality = _news_text_quality(extracted, record.get("title"))
+            identity_ok, identity = _news_content_identity(
+                record, extracted, candidate_title, canonical_url or page_url, profile,
+            )
             audit["extraction_attempts"].append({
                 "url": page_url, "channel": channel, "method": method,
-                "status": "valid" if valid else "rejected", **quality,
+                "status": "valid" if valid and identity_ok else "rejected",
+                "structural_valid": valid,
+                "identity_valid": identity_ok,
+                "identity": identity,
+                **quality,
             })
-            if valid and score > best_score:
+            if valid and identity_ok and score > best_score:
                 best_text = extracted
+                best_title = candidate_title
                 best_method = f"{channel}:{method}"
                 best_score = score
                 best_quality = quality
+                best_identity = identity
                 best_url = canonical_url or page_url
 
     while queue and len(visited) < static_limit:
@@ -434,25 +662,43 @@ def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars
 
     rss_excerpt = remove_boilerplate(record.get("excerpt") or "")
     summary_valid, summary_quality = _news_summary_quality(rss_excerpt, record.get("title"))
+    summary_identity_ok, summary_identity = _news_content_identity(
+        record,
+        rss_excerpt,
+        clean_space(record.get("title")),
+        clean_news_url(record.get("url")),
+        profile,
+    )
     if best_text:
         content_status = "full" if len(best_text) >= 1500 else "partial"
         content = truncate(best_text, max_chars)
-    elif summary_valid:
+    elif summary_valid and summary_identity_ok:
         content_status = "syndicated_summary"
         content = truncate(rss_excerpt, min(max_chars, 6000))
         best_method = "rss_syndicated_summary"
         best_quality = summary_quality
-        best_url = final_url or clean_news_url(record.get("url"))
+        best_identity = summary_identity
+        # A rejected landing page must never replace the source URL of a valid
+        # syndicated summary.
+        best_url = clean_news_url(record.get("url"))
     elif rss_excerpt:
-        content_status = "title_only_rejected" if summary_quality.get("title_only") else "excerpt_only"
+        if summary_quality.get("title_only"):
+            content_status = "title_only_rejected"
+        elif not summary_identity_ok:
+            content_status = "identity_rejected"
+        else:
+            content_status = "excerpt_only"
         content = ""
         best_method = "rss_excerpt_not_substantive"
         best_quality = summary_quality
+        best_identity = summary_identity
     else:
         content_status = "unavailable"
         content = ""
 
     record["resolved_url"] = best_url or final_url or clean_news_url(record.get("url"))
+    if best_url:
+        record["canonical_url"] = best_url
     record["retrieved_at"] = audit["retrieved_at"]
     record["content_title"] = best_title
     record["content"] = content
@@ -460,8 +706,122 @@ def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars
     record["content_method"] = best_method
     record["content_hash"] = sha256_text(content) if content else None
     record["title_body_similarity"] = best_quality.get("title_body_similarity")
-    record["content_audit"] = {**audit, "selected_quality": best_quality, "provenance": content_status}
+    record["content_identity"] = best_identity
+    record["content_audit"] = {
+        **audit,
+        "selected_quality": best_quality,
+        "selected_identity": best_identity,
+        "provenance": content_status,
+    }
     return record
+
+
+def apply_news_content_circuit_breaker(
+    records: list[dict[str, Any]],
+    *,
+    title_similarity_threshold: float = 0.62,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Reject shared error pages and collapse true post-fetch duplicates.
+
+    Different RSS records resolving to the same URL or identical body is a
+    strong signal that extraction landed on a home page, standards document, or
+    another common fallback page. If the headlines are dissimilar, every member
+    of the group is rejected. If the headlines describe the same story, one
+    highest-quality representative is retained and the rest are deduplicated.
+    """
+    indexed = list(enumerate(records))
+    groups: list[tuple[str, str, list[int]]] = []
+    for field in ("resolved_url", "content_hash"):
+        buckets: dict[str, list[int]] = {}
+        for index, record in indexed:
+            value = clean_space(record.get(field))
+            if not value:
+                continue
+            buckets.setdefault(value, []).append(index)
+        for value, members in buckets.items():
+            if len(members) >= 2:
+                groups.append((field, value, members))
+
+    rejected: dict[int, dict[str, Any]] = {}
+    group_audit: list[dict[str, Any]] = []
+    for field, value, members in groups:
+        active = [index for index in members if index not in rejected]
+        if len(active) < 2:
+            continue
+        similarities: list[float] = []
+        for left_pos, left in enumerate(active):
+            for right in active[left_pos + 1:]:
+                similarities.append(
+                    token_set_ratio(
+                        normalize_title(records[left].get("title")),
+                        normalize_title(records[right].get("title")),
+                    ) / 100
+                )
+        maximum_similarity = max(similarities or [0.0])
+        shared_error = maximum_similarity < title_similarity_threshold
+        audit = {
+            "group_by": field,
+            "value": truncate(value, 500),
+            "record_ids": [records[index].get("news_id") for index in active],
+            "titles": [records[index].get("title") for index in active],
+            "maximum_title_similarity": round(maximum_similarity, 3),
+            "action": "reject_all_shared_error_page" if shared_error else "keep_one_duplicate_story",
+        }
+        group_audit.append(audit)
+        if shared_error:
+            for index in active:
+                rejected[index] = {
+                    "reason": "shared_error_page_suspected",
+                    "group_by": field,
+                    "group_value": value,
+                    "maximum_title_similarity": round(maximum_similarity, 3),
+                }
+            continue
+
+        def quality_key(index: int) -> tuple[int, int, int]:
+            record = records[index]
+            status_rank = {"full": 3, "partial": 2, "syndicated_summary": 1}.get(record.get("content_status"), 0)
+            quality = (record.get("content_audit") or {}).get("selected_quality") or {}
+            chars = int(quality.get("chars") or len(clean_space(record.get("content"))))
+            direct = 0 if _is_aggregator_url(record.get("resolved_url")) else 1
+            return status_rank, chars, direct
+
+        keeper = max(active, key=quality_key)
+        for index in active:
+            if index == keeper:
+                continue
+            rejected[index] = {
+                "reason": "duplicate_content_after_enrichment",
+                "group_by": field,
+                "group_value": value,
+                "kept_news_id": records[keeper].get("news_id"),
+                "maximum_title_similarity": round(maximum_similarity, 3),
+            }
+
+    retained: list[dict[str, Any]] = []
+    rejected_records: list[dict[str, Any]] = []
+    for index, record in indexed:
+        decision = rejected.get(index)
+        if not decision:
+            retained.append(record)
+            continue
+        record["content_circuit_breaker"] = {"accepted": False, **decision}
+        rejected_records.append({
+            "news_id": record.get("news_id"),
+            "title": record.get("title"),
+            "source": record.get("source"),
+            "resolved_url": record.get("resolved_url"),
+            "content_hash": record.get("content_hash"),
+            "decision": decision,
+        })
+    return retained, {
+        "input": len(records),
+        "retained": len(retained),
+        "rejected": len(rejected_records),
+        "groups": group_audit,
+        "rejected_records": rejected_records,
+        "policy_version": "v11-shared-url-content-circuit-breaker-1",
+    }
 
 
 def _jats_sections(xml_text: str) -> dict[str, str]:

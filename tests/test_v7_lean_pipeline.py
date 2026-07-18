@@ -66,6 +66,6 @@ def test_workflow_and_pipeline_enrich_only_bounded_display_candidates():
     pipeline = (ROOT / "src/pifactory/pipeline.py").read_text(encoding="utf-8")
     selection = pipeline.index("paper_queue = rank_papers(papers)")
     enrichment = pipeline.index("lambda item: enrich_scholarly_work", selection)
-    final_slice = pipeline.index("papers = rank_papers(paper_ready_pool)[: settings.max_papers]", enrichment)
+    final_slice = pipeline.index("papers = ranked_paper_ready_pool[: settings.max_papers]", enrichment)
     translation = pipeline.index('progress("translation", "start"', enrichment)
     assert selection < enrichment < translation < final_slice

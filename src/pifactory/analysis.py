@@ -1,16 +1,19 @@
 from __future__ import annotations
 
 import json
+import os
 import re
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 
-from .llm import LLMError, LLMRouter
+from .llm import LLMError, LLMRouter, classify_llm_failure, summarize_attempt_categories
+from .evidence_selector import select_evidence_rows
 from .utils import clean_space, split_sentences, truncate
 from .postprocess import contains_cross_field_overlap, deduplicate_structured_analysis, complete_text
 
 
-ANALYSIS_POLICY_VERSION = "v10-exclusive-role-close-reading-1"
+ANALYSIS_POLICY_VERSION = "v12-multillm-low-token-analysis-1"
 
 REVIEW_HINTS = re.compile(
     r"\b(review|systematic review|meta-analysis|narrative review|scoping review|umbrella review|viewpoint|perspective|commentary|consensus statement)\b",
@@ -54,16 +57,69 @@ def classify_paper(work: dict[str, Any]) -> str:
 
 
 ROLE_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
-    ("background", re.compile(r"^(background|introduction|importance|rationale)\b|\b(knowledge gap|remains unclear|is unknown|has emerged)\b", re.I)),
-    ("objective", re.compile(r"^(objective|objectives|aim|aims|purpose)\b|\b(we aimed|this study aimed|we sought|we investigated)\b", re.I)),
-    ("design_population", re.compile(r"^(design|setting|participants|patients|population|samples|materials)\b|\b(cross-sectional|cohort|case-control|randomized|non-randomized|multicentre|multicenter|participants were|patients were|samples were)\b", re.I)),
-    ("methods", re.compile(r"^(methods|methodology|procedures|statistical analysis)\b|\b(we used|we performed|was measured|were tested|sequencing|assay|regression|model was)\b", re.I)),
-    ("results", re.compile(r"^(results|findings)\b|\b(we found|showed|demonstrated|was associated|were detected|increased|decreased|odds ratio|hazard ratio|confidence interval|p[ =<])\b", re.I)),
-    ("interpretation", re.compile(r"^(interpretation|discussion)\b|\b(we interpret|these findings suggest|authors suggest|may indicate)\b", re.I)),
-    ("conclusion", re.compile(r"^(conclusion|conclusions)\b|\b(in conclusion|we conclude|supports the)\b", re.I)),
-    ("limitations", re.compile(r"^(limitations|limitation)\b|\b(limited by|small sample|selection bias|confounding|cannot establish|generalizability)\b", re.I)),
-    ("implications", re.compile(r"^(implications|significance|recommendations)\b|\b(public health|surveillance|clinical practice|future research|prevention)\b", re.I)),
+    ("background", re.compile(
+        r"^(background|introduction|importance|rationale)\b|"
+        r"\b(knowledge gap|remains unclear|is unknown|has emerged|is poorly understood|little is known|lack of)\b",
+        re.I,
+    )),
+    ("objective", re.compile(
+        r"^(objective|objectives|aim|aims|purpose)\b|"
+        r"\b(we aimed|this study aimed|the study aimed|we sought|we investigated|we evaluated|we assessed|our objective)\b",
+        re.I,
+    )),
+    # Methods and results are evaluated before generic population cues so a
+    # sentence such as "12 participants were seropositive" is not mislabeled
+    # merely because it contains the word participants.
+    ("methods", re.compile(
+        r"^(methods|methodology|procedures|statistical analysis)\b|"
+        r"\b(we used|we performed|we conducted|we analy[sz]ed|we measured|we tested|we sequenced|we modeled|"
+        r"was measured|were measured|were tested|was assessed|were assessed|data were collected|samples were collected|"
+        r"sequencing|assay|elisa|pcr|rt-pcr|serolog|immunoassay|regression|phylogen|variant calling|machine learning|"
+        r"force[- ]of[- ]infection|meta-analysis|systematic search|databases were searched|prisma|model was|using a|using an)\b",
+        re.I,
+    )),
+    ("results", re.compile(
+        r"^(results|findings)\b|"
+        r"\b(we found|we observed|we identified|showed|demonstrated|revealed|reported|was associated|were associated|"
+        r"were detected|was detected|were seropositive|was seropositive|increased|decreased|survived|died|accounted for|"
+        r"compared with|compared to|odds ratio|hazard ratio|risk ratio|confidence interval|p\s*[=<]|"
+        r"\d+(?:\.\d+)?%|\d+\s+of\s+\d+)\b",
+        re.I,
+    )),
+    ("design_population", re.compile(
+        r"^(design|setting|participants|patients|population|samples|materials)\b|"
+        r"\b(cross-sectional|cohort|case-control|randomi[sz]ed|non-randomi[sz]ed|retrospective|prospective|"
+        r"multicentre|multicenter|case series|case report|animal model|participants were|patients were|samples were|"
+        r"individuals were|subjects were|enrolled|included|recruited|hospitali[sz]ed|specimens from|samples from|"
+        r"n\s*[=:]\s*\d+|\d+\s+(patients|participants|subjects|samples|animals|cases|records|studies))\b",
+        re.I,
+    )),
+    ("interpretation", re.compile(
+        r"^(interpretation|discussion)\b|"
+        r"\b(we interpret|these findings suggest|these results suggest|authors suggest|authors stated|may indicate|"
+        r"indicates that|supports the hypothesis|to our knowledge|first report|first nationwide|novel)\b",
+        re.I,
+    )),
+    ("conclusion", re.compile(
+        r"^(conclusion|conclusions)\b|"
+        r"\b(in conclusion|we conclude|we suggest|the study concludes|supports the|highlight(?:s|ed) the need)\b",
+        re.I,
+    )),
+    ("limitations", re.compile(
+        r"^(limitations|limitation)\b|"
+        r"\b(limited by|small sample|selection bias|recall bias|confounding|cannot establish|could not establish|"
+        r"generalizability|generalisability|single[- ]cent(?:er|re)|abstract only|further studies are needed|"
+        r"evidence remains limited|heterogeneity|data were unavailable)\b",
+        re.I,
+    )),
+    ("implications", re.compile(
+        r"^(implications|significance|recommendations)\b|"
+        r"\b(public health|surveillance|clinical practice|future research|further study|prevention|preparedness|risk assessment|"
+        r"diagnosis|vaccination|treatment|monitoring|control measures|policy)\b",
+        re.I,
+    )),
 ]
+
 
 
 def _strip_heading(sentence: str) -> tuple[str, str | None]:
@@ -139,24 +195,59 @@ def _section_evidence(work: dict[str, Any]) -> list[dict[str, str]]:
 
 
 def build_paper_evidence(work: dict[str, Any]) -> dict[str, Any]:
+    """Build a bounded evidence pack; full text is locally selected, never sent wholesale."""
+
     abstract = clean_space(work.get("abstract"))
+    analysis_level = clean_space(work.get("analysis_level")) or (
+        "L2_retrieved_fulltext_evidence" if work.get("full_text") or work.get("full_text_sections") else "L1_abstract_only"
+    )
     evidence = _evidence_payload(abstract, "A", 36, default_role="general")
-    existing = {row["text"] for row in evidence}
-    for row in _section_evidence(work):
-        if row["text"] not in existing:
-            evidence.append(row)
-            existing.add(row["text"])
-    if not evidence:
-        full = clean_space(work.get("full_text"))
-        evidence = _evidence_payload(full, "F", 48, default_role="general")
+    selector_audit: dict[str, Any] = {
+        "selector": "abstract_only",
+        "original_rows": len(evidence),
+        "selected_rows": len(evidence),
+        "original_chars": sum(len(row["text"]) for row in evidence),
+        "selected_chars": sum(len(row["text"]) for row in evidence),
+    }
+
+    if analysis_level.startswith(("L2", "L3")):
+        existing = {row["text"] for row in evidence}
+        for row in _section_evidence(work):
+            if row["text"] not in existing:
+                evidence.append(row)
+                existing.add(row["text"])
+        if not evidence:
+            # Last-resort local parsing is still bounded before any remote call.
+            full = clean_space(work.get("full_text"))
+            evidence = _evidence_payload(full, "F", 160, default_role="general")
+        evidence, selector_audit = select_evidence_rows(
+            evidence,
+            max_chars=max(2500, int(os.getenv("PIF_ANALYSIS_EVIDENCE_MAX_CHARS", "9000"))),
+        )
+    elif not evidence:
+        # A paper without an abstract is allowed to use a tiny locally selected
+        # full-text pack, but never the whole document.
+        full_rows = _evidence_payload(clean_space(work.get("full_text")), "F", 120, default_role="general")
+        evidence, selector_audit = select_evidence_rows(
+            full_rows,
+            max_chars=max(2500, int(os.getenv("PIF_ANALYSIS_EVIDENCE_MAX_CHARS", "9000"))),
+        )
+        analysis_level = "L2_retrieved_fulltext_evidence" if evidence else "L1_abstract_only"
+
+    evidence_scope = (
+        "retrieved_fulltext_evidence"
+        if analysis_level.startswith(("L2", "L3")) and evidence
+        else ("abstract_only" if abstract else "metadata_only")
+    )
     return {
         "policy_version": ANALYSIS_POLICY_VERSION,
+        "analysis_level": analysis_level,
         "paper_id": work.get("paper_id"),
         "title": work.get("title"),
         "bibliography": {
             "authors": (work.get("authors") or [])[:20],
             "journal": work.get("journal"),
-            "published_date": work.get("online_date") or work.get("first_publication_date") or work.get("availability_date"),
+            "published_date": work.get("availability_date") or work.get("online_date") or work.get("first_publication_date"),
             "year": work.get("year"),
             "doi": work.get("doi"),
             "publication_types": work.get("publication_types") or [],
@@ -177,11 +268,8 @@ def build_paper_evidence(work: dict[str, Any]) -> dict[str, Any]:
             "research_and_practice_implications": ["implications", "conclusion", "interpretation"],
         },
         "evidence": evidence,
-        "evidence_scope": (
-            "abstract_and_open_fulltext_sections"
-            if work.get("full_text") or work.get("full_text_sections")
-            else ("abstract_only" if abstract else "metadata_only")
-        ),
+        "evidence_scope": evidence_scope,
+        "evidence_selector": selector_audit,
     }
 
 
@@ -199,6 +287,67 @@ def build_news_evidence(article: dict[str, Any]) -> dict[str, Any]:
         "evidence": _evidence_payload(content, "N", 70, default_role="general"),
     }
 
+
+
+def compact_analysis_payload(payload: dict[str, Any], max_chars: int | None = None) -> dict[str, Any]:
+    """Bound LLM input while retaining role-diverse evidence and stable IDs."""
+
+    limit = max(4000, int(max_chars or os.getenv("PIF_ANALYSIS_MAX_PROMPT_CHARS", "14000")))
+    raw_text = json.dumps(payload, ensure_ascii=False)
+    if len(raw_text) <= limit:
+        output = dict(payload)
+        output["prompt_compaction"] = {
+            "applied": False,
+            "original_chars": len(raw_text),
+            "final_chars": len(raw_text),
+            "original_evidence": len(payload.get("evidence") or []),
+            "retained_evidence": len(payload.get("evidence") or []),
+        }
+        return output
+
+    rows = [row for row in payload.get("evidence") or [] if isinstance(row, dict)]
+    selected_ids: set[str] = set()
+    selected: list[dict[str, Any]] = []
+    # First reserve two sentences per rhetorical role so methods/results are not
+    # lost when long open-text sections dominate the payload.
+    role_counts: dict[str, int] = {}
+    for row in rows:
+        role = clean_space(row.get("role")) or "general"
+        if role_counts.get(role, 0) >= 2:
+            continue
+        evidence_id = clean_space(row.get("id"))
+        if evidence_id:
+            selected.append(row)
+            selected_ids.add(evidence_id)
+            role_counts[role] = role_counts.get(role, 0) + 1
+
+    base = {key: value for key, value in payload.items() if key != "evidence"}
+    # Fill the remaining budget in source order.
+    for row in rows:
+        evidence_id = clean_space(row.get("id"))
+        if not evidence_id or evidence_id in selected_ids:
+            continue
+        trial = dict(base)
+        trial["evidence"] = selected + [row]
+        if len(json.dumps(trial, ensure_ascii=False)) > limit:
+            continue
+        selected.append(row)
+        selected_ids.add(evidence_id)
+
+    positions = {clean_space(row.get("id")): index for index, row in enumerate(rows)}
+    selected.sort(key=lambda row: positions.get(clean_space(row.get("id")), 10**9))
+    output = dict(base)
+    output["evidence"] = selected
+    final_chars = len(json.dumps(output, ensure_ascii=False))
+    output["prompt_compaction"] = {
+        "applied": True,
+        "original_chars": len(raw_text),
+        "final_chars": final_chars,
+        "original_evidence": len(rows),
+        "retained_evidence": len(selected),
+        "limit_chars": limit,
+    }
+    return output
 
 def _valid_evidence_ids(payload: dict[str, Any]) -> set[str]:
     return {clean_space(row.get("id")) for row in payload.get("evidence") or [] if clean_space(row.get("id"))}
@@ -330,102 +479,268 @@ def _role_sentences(payload: dict[str, Any]) -> dict[str, list[tuple[str, str]]]
     return groups
 
 
-def _pick_role_text(groups: dict[str, list[tuple[str, str]]], roles: list[str], default: str, limit: int = 520) -> tuple[str, list[str]]:
-    selected: list[tuple[str, str]] = []
-    seen: set[str] = set()
-    for role in roles:
-        for evidence_id, text in groups.get(role, []):
-            if text in seen:
-                continue
-            seen.add(text)
-            selected.append((evidence_id, text))
-            if len(selected) >= 3:
-                break
-        if selected:
-            break
-    if not selected:
-        return default, []
-    value, _ = complete_text(" ".join(text for _, text in selected), max_chars=limit)
-    return value, [evidence_id for evidence_id, _ in selected]
+def _ordered_evidence(payload: dict[str, Any]) -> list[dict[str, str]]:
+    return [
+        {
+            "id": clean_space(row.get("id")),
+            "role": clean_space(row.get("role")) or "general",
+            "text": clean_space(row.get("text")),
+        }
+        for row in payload.get("evidence") or []
+        if clean_space(row.get("id")) and clean_space(row.get("text"))
+    ]
 
 
-def _fallback_research(payload: dict[str, Any], error: str) -> dict[str, Any]:
-    groups = _role_sentences(payload)
-    field_roles = {
-        "research_question_and_background": ["background", "objective", "general"],
-        "study_design_and_population": ["design_population", "methods", "general"],
-        "methods": ["methods", "design_population"],
-        "main_results": ["results"],
-        "interpretation_and_novelty": ["interpretation", "conclusion", "results"],
-        "scientific_and_public_health_significance": ["implications", "conclusion", "interpretation"],
-        "limitations_and_evidence_strength": ["limitations", "methods", "general"],
-    }
+FALLBACK_FIELD_CUES: dict[str, re.Pattern[str]] = {
+    "research_question_and_background": re.compile(
+        r"\b(aim|objective|purpose|investigat|evaluat|assess|knowledge gap|unknown|unclear|risk|burden|causes?)\b",
+        re.I,
+    ),
+    "study_design_and_population": re.compile(
+        r"\b(retrospective|prospective|cross-sectional|cohort|case-control|randomi[sz]ed|study|survey|patients?|"
+        r"participants?|subjects?|workers?|samples?|specimens?|animals?|records?|cases?|between\s+\w+\s+and|"
+        r"\bn\s*[=:]\s*\d+|\d+\s+(patients?|participants?|samples?|animals?|cases?|records?))\b",
+        re.I,
+    ),
+    "methods": re.compile(
+        r"\b(using|used|performed|conducted|analy[sz]ed|measured|tested|sequenced|assay|elisa|pcr|rt-pcr|"
+        r"regression|model|phylogen|variant calling|sampling|collected|questionnaire|database|machine learning|"
+        r"meta-analysis|systematic search|force[- ]of[- ]infection)\b",
+        re.I,
+    ),
+    "main_results": re.compile(
+        r"\b(found|observed|identified|detected|showed|demonstrated|revealed|associated|increased|decreased|"
+        r"survived|died|significant|confidence interval|odds ratio|hazard ratio|risk ratio|\d+(?:\.\d+)?%|"
+        r"\d+\s+of\s+\d+|p\s*[=<])\b",
+        re.I,
+    ),
+    "interpretation_and_novelty": re.compile(
+        r"\b(suggest|indicat|interpret|conclude|supports?|to our knowledge|first|novel|driven by|unlikely)\b",
+        re.I,
+    ),
+    "scientific_and_public_health_significance": re.compile(
+        r"\b(surveillance|public health|prevention|preparedness|diagnos|treat|vaccin|monitor|risk assessment|"
+        r"clinical practice|future research|control|policy|need for)\b",
+        re.I,
+    ),
+    "limitations_and_evidence_strength": re.compile(
+        r"\b(limit|bias|confound|small sample|single[- ]cent|generaliz|heterogeneity|cannot establish|"
+        r"further studies|abstract only|uncertain|evidence remains)\b",
+        re.I,
+    ),
+    "scope_and_question": re.compile(
+        r"\b(review|overview|summari[sz]|scope|aim|focus|examines?|addresses?|virology|clinical|epidemiology)\b",
+        re.I,
+    ),
+    "evidence_base_and_review_method": re.compile(
+        r"\b(systematic|meta-analysis|database|search|prisma|eligibility|included|studies|reports|screened|"
+        r"literature review|narrative review|scoping review)\b",
+        re.I,
+    ),
+    "consensus_and_key_conclusions": re.compile(
+        r"\b(conclude|consensus|evidence shows|studies show|associated|consistent|most common|pooled|"
+        r"increased|decreased|characterized|indicates?)\b",
+        re.I,
+    ),
+    "controversies_and_evidence_gaps": re.compile(
+        r"\b(gap|unclear|unknown|conflict|heterogeneity|limited|lack|insufficient|controvers|few studies|"
+        r"future studies|remains to be)\b",
+        re.I,
+    ),
+    "research_and_practice_implications": re.compile(
+        r"\b(should|need|recommend|surveillance|practice|prevention|diagnosis|treatment|vaccination|future research|"
+        r"preparedness|policy|monitoring|priority)\b",
+        re.I,
+    ),
+}
+
+
+FALLBACK_ALLOWED_ROLES: dict[str, set[str]] = {
+    key: set(value) for key, value in FIELD_ALLOWED_ROLES.items()
+}
+
+
+FALLBACK_POSITION_TARGETS: dict[str, float] = {
+    "research_question_and_background": 0.08,
+    "study_design_and_population": 0.25,
+    "methods": 0.38,
+    "main_results": 0.62,
+    "interpretation_and_novelty": 0.82,
+    "scientific_and_public_health_significance": 0.92,
+    "limitations_and_evidence_strength": 0.95,
+    "scope_and_question": 0.12,
+    "evidence_base_and_review_method": 0.32,
+    "consensus_and_key_conclusions": 0.62,
+    "controversies_and_evidence_gaps": 0.82,
+    "research_and_practice_implications": 0.93,
+}
+
+
+def _fallback_candidate_score(field: str, row: dict[str, str], index: int, total: int) -> float:
+    role = row["role"]
+    text = row["text"]
+    allowed = FALLBACK_ALLOWED_ROLES.get(field, {"general"})
+    score = 0.0
+    if role in allowed:
+        score += 80.0 if role != "general" else 28.0
+    cue = FALLBACK_FIELD_CUES.get(field)
+    if cue and cue.search(text):
+        score += 58.0
+    position = index / max(1, total - 1) if total > 1 else 0.5
+    target = FALLBACK_POSITION_TARGETS.get(field, 0.5)
+    score += max(0.0, 24.0 - abs(position - target) * 38.0)
+    if field == "main_results" and re.search(r"\d", text):
+        score += 18.0
+    if field in {"study_design_and_population", "evidence_base_and_review_method"} and re.search(r"\d", text):
+        score += 8.0
+    if field in {"interpretation_and_novelty", "scientific_and_public_health_significance", "research_and_practice_implications"} and position > 0.65:
+        score += 8.0
+    return score
+
+
+def _fallback_default(field: str, payload: dict[str, Any]) -> str:
+    scope = clean_space(payload.get("evidence_scope"))
     defaults = {
-        "research_question_and_background": "The supplied evidence does not clearly report the research question or background.",
-        "study_design_and_population": "Study design, setting, and population were not clearly reported in the supplied evidence.",
-        "methods": "Core methods were not clearly reported in the supplied evidence.",
-        "main_results": "Main results were not clearly reported in the supplied evidence.",
-        "interpretation_and_novelty": "The authors' interpretation and novelty were not clearly reported in the supplied evidence.",
-        "scientific_and_public_health_significance": "Scientific and public-health significance could not be determined beyond the supplied evidence.",
-        "limitations_and_evidence_strength": "The fallback uses only supplied abstract or open-text evidence; unreported limitations were not inferred.",
+        "research_question_and_background": "The supplied evidence does not clearly state the research question or its rationale.",
+        "study_design_and_population": "The supplied evidence does not clearly state the study design, setting, or study population.",
+        "methods": "The supplied evidence does not clearly state the core experimental, analytical, or statistical methods.",
+        "main_results": "The supplied evidence does not clearly state a directly observed main result.",
+        "interpretation_and_novelty": "The supplied evidence does not clearly distinguish the authors' interpretation or the study's novelty.",
+        "scientific_and_public_health_significance": "The supplied evidence does not clearly state a specific scientific or public-health implication.",
+        "limitations_and_evidence_strength": (
+            f"This deterministic extraction is based on {scope.replace('_', ' ') or 'the supplied evidence'}. "
+            "The source does not explicitly report enough limitations for an independent appraisal, so confidence is low."
+        ),
+        "scope_and_question": "The supplied evidence does not clearly state the review scope or central question.",
+        "evidence_base_and_review_method": "The supplied evidence does not clearly state the review method, databases, eligibility process, or evidence base.",
+        "consensus_and_key_conclusions": "The supplied evidence does not clearly state a stable consensus or central conclusion.",
+        "controversies_and_evidence_gaps": "The supplied evidence does not clearly state controversies or evidence gaps.",
+        "research_and_practice_implications": "The supplied evidence does not clearly state a specific research or practice implication.",
     }
-    analysis: dict[str, str] = {}
-    refs: dict[str, list[str]] = {}
-    for field in RESEARCH_FIELDS:
-        analysis[field], refs[field] = _pick_role_text(groups, field_roles[field], defaults[field])
-        if not refs[field]:
-            all_rows = [pair for rows in groups.values() for pair in rows]
-            if all_rows:
-                refs[field] = [all_rows[0][0]]
+    return defaults[field]
+
+
+def _fallback_extract_fields(payload: dict[str, Any], fields: list[str], *, limit: int) -> tuple[dict[str, str], dict[str, list[str]], dict[str, str]]:
+    rows = _ordered_evidence(payload)
+    used: set[str] = set()
+    extracted: dict[str, str] = {}
+    extracted_refs: dict[str, list[str]] = {}
+    extracted_sources: dict[str, str] = {}
+    # Reserve the most diagnostic method/result sentences before broader fields
+    # such as design/background can consume them.
+    if fields == RESEARCH_FIELDS:
+        selection_order = [
+            "methods", "main_results", "study_design_and_population",
+            "research_question_and_background", "interpretation_and_novelty",
+            "scientific_and_public_health_significance", "limitations_and_evidence_strength",
+        ]
+    else:
+        selection_order = [
+            "evidence_base_and_review_method", "consensus_and_key_conclusions",
+            "scope_and_question", "controversies_and_evidence_gaps",
+            "research_and_practice_implications",
+        ]
+
+    for field in selection_order:
+        ranked: list[tuple[float, int, dict[str, str]]] = []
+        for index, row in enumerate(rows):
+            if row["id"] in used:
+                continue
+            ranked.append((_fallback_candidate_score(field, row, index, len(rows)), index, row))
+        ranked.sort(key=lambda item: (-item[0], item[1]))
+        selected: list[dict[str, str]] = []
+        for score, _, row in ranked:
+            if score < 36.0:
+                continue
+            selected.append(row)
+            # One strong sentence is safer than consuming evidence that belongs
+            # to another element; structured headings already preserve complete
+            # method/result sentences before this rescue path is used.
+            break
+        if selected:
+            # Preserve source order after semantic scoring selected the candidate set.
+            positions = {row["id"]: index for index, row in enumerate(rows)}
+            selected.sort(key=lambda row: positions[row["id"]])
+            value, _ = complete_text(" ".join(row["text"] for row in selected), max_chars=limit)
+            extracted[field] = value
+            extracted_refs[field] = [row["id"] for row in selected]
+            used.update(extracted_refs[field])
+            extracted_sources[field] = "role_cue_position"
+        else:
+            extracted[field] = _fallback_default(field, payload)
+            extracted_refs[field] = []
+            extracted_sources[field] = "explicit_absence_statement"
+    analysis = {field: extracted[field] for field in fields}
+    refs = {field: extracted_refs[field] for field in fields}
+    sources = {field: extracted_sources[field] for field in fields}
+    return analysis, refs, sources
+
+
+def _llm_failure_details(exc: LLMError) -> tuple[list[dict[str, Any]], str, str]:
+    attempts = list(getattr(exc, "attempts", []) or [])
+    if not attempts:
+        raw = clean_space(exc)
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, list):
+                attempts = [row for row in parsed if isinstance(row, dict)]
+        except (TypeError, ValueError, json.JSONDecodeError):
+            pass
+    category = clean_space(getattr(exc, "category", "")) or summarize_attempt_categories(attempts)
+    if category in {"", "unknown"}:
+        category = classify_llm_failure(exc)
+    summary = clean_space(exc)[:1000]
+    return attempts, category, summary
+
+
+def _fallback_research(payload: dict[str, Any], error: str, *, attempts: list[dict[str, Any]] | None = None, failure_category: str = "unknown") -> dict[str, Any]:
+    analysis, refs, field_sources = _fallback_extract_fields(payload, RESEARCH_FIELDS, limit=560)
     return {
         "status": "fallback_source_extract",
-        "fallback_policy": "role_aligned",
+        "fallback_policy": "role_cue_position_rescue",
+        "fallback_field_sources": field_sources,
         "kind": "research",
         "analysis": analysis,
         "summary_en": " ".join(analysis.values()),
         "evidence_ids": refs,
         "confidence": "low",
+        "failure_category": failure_category,
+        "attempts": list(attempts or []),
         "error": error,
         "policy_version": ANALYSIS_POLICY_VERSION,
     }
 
 
-def _fallback_review(payload: dict[str, Any], error: str) -> dict[str, Any]:
-    groups = _role_sentences(payload)
-    field_roles = {
-        "scope_and_question": ["background", "objective", "general"],
-        "evidence_base_and_review_method": ["methods", "design_population", "general"],
-        "consensus_and_key_conclusions": ["results", "conclusion", "interpretation"],
-        "controversies_and_evidence_gaps": ["limitations", "interpretation", "general"],
-        "research_and_practice_implications": ["implications", "conclusion", "interpretation"],
-    }
-    defaults = {
-        "scope_and_question": "The review scope and central question were not clearly reported in the supplied evidence.",
-        "evidence_base_and_review_method": "The review method, databases, and evidence base were not clearly reported.",
-        "consensus_and_key_conclusions": "The main consensus could not be reliably determined from the supplied evidence.",
-        "controversies_and_evidence_gaps": "Controversies and evidence gaps were not clearly reported in the supplied evidence.",
-        "research_and_practice_implications": "Research and practice implications require cautious interpretation from the available evidence.",
-    }
-    analysis: dict[str, str] = {}
-    refs: dict[str, list[str]] = {}
-    for field in REVIEW_FIELDS:
-        analysis[field], refs[field] = _pick_role_text(groups, field_roles[field], defaults[field], limit=560)
-        if not refs[field]:
-            all_rows = [pair for rows in groups.values() for pair in rows]
-            if all_rows:
-                refs[field] = [all_rows[0][0]]
+def _fallback_review(payload: dict[str, Any], error: str, *, attempts: list[dict[str, Any]] | None = None, failure_category: str = "unknown") -> dict[str, Any]:
+    analysis, refs, field_sources = _fallback_extract_fields(payload, REVIEW_FIELDS, limit=590)
     return {
         "status": "fallback_source_extract",
-        "fallback_policy": "role_aligned",
+        "fallback_policy": "role_cue_position_rescue",
+        "fallback_field_sources": field_sources,
         "kind": "review",
         "analysis": analysis,
         "summary_en": " ".join(analysis.values()),
         "evidence_ids": refs,
         "confidence": "low",
+        "failure_category": failure_category,
+        "attempts": list(attempts or []),
         "error": error,
         "policy_version": ANALYSIS_POLICY_VERSION,
     }
 
+
+
+def _crosscheck_agreement(primary: dict[str, Any], secondary: dict[str, Any], kind: str) -> float:
+    fields = RESEARCH_FIELDS if kind == "research" else REVIEW_FIELDS
+    first = primary.get("analysis") or {}
+    second = secondary.get("analysis") or {}
+    scores: list[float] = []
+    for field in fields:
+        left = clean_space(first.get(field)).lower()
+        right = clean_space(second.get(field)).lower()
+        if left and right:
+            scores.append(SequenceMatcher(None, left, right).ratio())
+    return round(sum(scores) / len(scores), 3) if scores else 0.0
 
 def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> dict[str, Any]:
     kind = classify_paper(work)
@@ -437,20 +752,25 @@ def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> di
             "kind": kind,
             "analysis": {},
             "summary_en": "",
+            "attempts": [],
+            "failure_category": "no_evidence",
             "policy_version": ANALYSIS_POLICY_VERSION,
         }
         work["analysis_ready"] = False
         return work
     prompt_file = "research_analysis.md" if kind == "research" else "review_analysis.md"
     system = (prompts_dir / prompt_file).read_text(encoding="utf-8")
-    valid_ids = _valid_evidence_ids(payload)
+    prompt_payload = compact_analysis_payload(payload)
+    valid_ids = _valid_evidence_ids(prompt_payload)
     try:
         result = llm.json_task(
             system=system,
-            prompt=json.dumps(payload, ensure_ascii=False),
-            validator=_paper_validator(kind, valid_ids, _evidence_role_map(payload)),
+            prompt=json.dumps(prompt_payload, ensure_ascii=False),
+            provider_order=getattr(llm, "provider_order", lambda purpose: None)("extract"),
+            validator=_paper_validator(kind, valid_ids, _evidence_role_map(prompt_payload)),
             max_models_per_provider=2,
             temperature=0.05,
+            task_name=f"paper_{kind}_analysis",
         )
         data = result.data if isinstance(result.data, dict) else {}
         data.update(
@@ -460,47 +780,123 @@ def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> di
                 "provider": result.provider,
                 "model": result.model,
                 "attempts": result.attempts,
+                "failure_category": "",
+                "prompt_compaction": prompt_payload.get("prompt_compaction") or {},
                 "policy_version": ANALYSIS_POLICY_VERSION,
             }
         )
         data = deduplicate_structured_analysis(data, payload, kind)
+        data["analysis_level"] = payload.get("analysis_level")
+        data["evidence_scope"] = payload.get("evidence_scope")
+        data["evidence_selector"] = payload.get("evidence_selector") or {}
+        if clean_space(payload.get("analysis_level")).startswith("L3"):
+            rescue_order = tuple(name for name in getattr(llm, "provider_order", lambda purpose: ())("rescue") if name != result.provider)
+            try:
+                cross = llm.json_task(
+                    system=system,
+                    prompt=json.dumps(prompt_payload, ensure_ascii=False),
+                    provider_order=rescue_order,
+                    validator=_paper_validator(kind, valid_ids, _evidence_role_map(prompt_payload)),
+                    max_models_per_provider=1,
+                    temperature=0.0,
+                    task_name=f"paper_{kind}_crosscheck",
+                )
+                cross_data = cross.data if isinstance(cross.data, dict) else {}
+                agreement = _crosscheck_agreement(data, cross_data, kind)
+                data["crosscheck"] = {
+                    "status": "passed" if agreement >= 0.35 else "disagreement",
+                    "provider": cross.provider,
+                    "model": cross.model,
+                    "agreement": agreement,
+                    "attempts": cross.attempts,
+                }
+                if agreement < 0.35:
+                    data["confidence"] = "low"
+            except LLMError as cross_exc:
+                data["crosscheck"] = {
+                    "status": "failed",
+                    "failure_category": getattr(cross_exc, "category", "unknown"),
+                    "attempts": getattr(cross_exc, "attempts", []) or [],
+                    "error": clean_space(cross_exc)[:700],
+                }
         work["analysis"] = data
         work["analysis_ready"] = True
     except LLMError as exc:
+        attempts, category, error = _llm_failure_details(exc)
         fallback = (
-            _fallback_research(payload, clean_space(exc)[:600])
+            _fallback_research(payload, error, attempts=attempts, failure_category=category)
             if kind == "research"
-            else _fallback_review(payload, clean_space(exc)[:600])
+            else _fallback_review(payload, error, attempts=attempts, failure_category=category)
         )
+        fallback["prompt_compaction"] = prompt_payload.get("prompt_compaction") or {}
         work["analysis"] = deduplicate_structured_analysis(fallback, payload, kind)
         work["analysis_ready"] = True
     return work
 
 
-def _fallback_news(payload: dict[str, Any], error: str) -> dict[str, Any]:
-    rows = payload.get("evidence") or []
-    texts = [clean_space(row.get("text")) for row in rows if clean_space(row.get("text"))]
-    ids = [row.get("id") for row in rows if row.get("id")]
+NEWS_FALLBACK_CUES: dict[str, re.Pattern[str]] = {
+    "time": re.compile(r"\b(20\d{2}|monday|tuesday|wednesday|thursday|friday|saturday|sunday|today|yesterday|this week|on \w+ \d{1,2})\b", re.I),
+    "location_and_population": re.compile(r"\b(in|at|from|across|residents?|patients?|passengers?|workers?|children|adults?|contacts?|community|county|province|state|city|country|hospital|ship)\b", re.I),
+    "event": re.compile(r"\b(reported|confirmed|announced|detected|identified|investigating|outbreak|case|cases|infection|exposure|death|hospitali[sz]ed|quarantine)\b", re.I),
+    "scale_impact_and_risk": re.compile(r"\b(\d+|risk|spread|transmission|severe|fatal|deaths?|cases?|affected|stable|no additional|increase|decrease)\b", re.I),
+    "response_status_and_uncertainty": re.compile(r"\b(officials?|authority|authorities|testing|investigation|advised|recommended|monitoring|tracing|response|pending|unclear|unknown|confirmatory|prevention)\b", re.I),
+}
+
+
+def _fallback_news(payload: dict[str, Any], error: str, *, attempts: list[dict[str, Any]] | None = None, failure_category: str = "unknown") -> dict[str, Any]:
+    rows = _ordered_evidence(payload)
+    used: set[str] = set()
+    analysis: dict[str, str] = {}
+    refs: dict[str, list[str]] = {}
+    published = clean_space(payload.get("published_date"))
     title = clean_space(payload.get("title"))
-    published = clean_space(payload.get("published_date")) or "not reported"
-    event_text = truncate(" ".join(texts[:4]) or title, 650)
-    analysis = {
-        "time": published,
-        "location_and_population": "The location or affected population was not reliably extracted by the deterministic fallback.",
-        "event": event_text or "The event could not be reliably described from the supplied body text.",
-        "scale_impact_and_risk": "Case counts, impacts, and risk were not inferred beyond the supplied body text.",
-        "response_status_and_uncertainty": "Official response and unresolved information require confirmation from the original source.",
+    defaults = {
+        "time": published or "The supplied source does not clearly report when the event occurred.",
+        "location_and_population": "The supplied source does not clearly identify the location or affected population.",
+        "event": title or "The supplied source does not clearly describe the event.",
+        "scale_impact_and_risk": "The supplied source does not clearly report the scale, impact, or risk.",
+        "response_status_and_uncertainty": "The supplied source does not clearly report the response status or unresolved information.",
     }
-    refs = {key: [ids[min(index, len(ids) - 1)]] if ids else [] for index, key in enumerate(NEWS_FIELDS)}
-    brief = truncate(" ".join(texts[:7]) or title, 1200)
+    position_targets = {
+        "time": 0.10,
+        "location_and_population": 0.20,
+        "event": 0.28,
+        "scale_impact_and_risk": 0.58,
+        "response_status_and_uncertainty": 0.85,
+    }
+    for field in NEWS_FIELDS:
+        ranked: list[tuple[float, int, dict[str, str]]] = []
+        for index, row in enumerate(rows):
+            if row["id"] in used:
+                continue
+            position = index / max(1, len(rows) - 1) if len(rows) > 1 else 0.5
+            score = max(0.0, 24.0 - abs(position - position_targets[field]) * 38.0)
+            if NEWS_FALLBACK_CUES[field].search(row["text"]):
+                score += 60.0
+            if field in {"event", "scale_impact_and_risk"} and re.search(r"\d", row["text"]):
+                score += 10.0
+            ranked.append((score, index, row))
+        ranked.sort(key=lambda item: (-item[0], item[1]))
+        selected = next((row for score, _, row in ranked if score >= 38.0), None)
+        if selected:
+            analysis[field], _ = complete_text(selected["text"], max_chars=520)
+            refs[field] = [selected["id"]]
+            used.add(selected["id"])
+        else:
+            analysis[field] = defaults[field]
+            refs[field] = []
+    brief = truncate(" ".join(row["text"] for row in rows[:7]) or title, 1200)
     return {
         "status": "fallback_source_extract",
+        "fallback_policy": "cue_and_position_rescue",
         "analysis": analysis,
         "brief_en": brief,
         "summary_en": brief,
         "evidence_ids": refs,
         "source_assessment": "unclear",
         "confidence": "low",
+        "failure_category": failure_category,
+        "attempts": list(attempts or []),
         "error": error,
         "policy_version": ANALYSIS_POLICY_VERSION,
     }
@@ -513,19 +909,24 @@ def analyze_news(article: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> 
             "status": "not_run_no_content",
             "analysis": {},
             "brief_en": "",
+            "attempts": [],
+            "failure_category": "no_evidence",
             "policy_version": ANALYSIS_POLICY_VERSION,
         }
         article["analysis_ready"] = False
         return article
     system = (prompts_dir / "news_analysis.md").read_text(encoding="utf-8")
-    valid_ids = _valid_evidence_ids(payload)
+    prompt_payload = compact_analysis_payload(payload)
+    valid_ids = _valid_evidence_ids(prompt_payload)
     try:
         result = llm.json_task(
             system=system,
-            prompt=json.dumps(payload, ensure_ascii=False),
+            prompt=json.dumps(prompt_payload, ensure_ascii=False),
+            provider_order=getattr(llm, "provider_order", lambda purpose: None)("extract"),
             validator=_news_validator(valid_ids),
             max_models_per_provider=2,
             temperature=0.05,
+            task_name="news_analysis",
         )
         data = result.data if isinstance(result.data, dict) else {}
         data["summary_en"] = clean_space(data.get("brief_en"))
@@ -535,6 +936,8 @@ def analyze_news(article: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> 
                 "provider": result.provider,
                 "model": result.model,
                 "attempts": result.attempts,
+                "failure_category": "",
+                "prompt_compaction": prompt_payload.get("prompt_compaction") or {},
                 "policy_version": ANALYSIS_POLICY_VERSION,
             }
         )
@@ -542,8 +945,9 @@ def analyze_news(article: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> 
         article["analysis"] = data
         article["analysis_ready"] = True
     except LLMError as exc:
-        article["analysis"] = deduplicate_structured_analysis(
-            _fallback_news(payload, clean_space(exc)[:600]), payload, "news"
-        )
+        attempts, category, error = _llm_failure_details(exc)
+        fallback = _fallback_news(payload, error, attempts=attempts, failure_category=category)
+        fallback["prompt_compaction"] = prompt_payload.get("prompt_compaction") or {}
+        article["analysis"] = deduplicate_structured_analysis(fallback, payload, "news")
         article["analysis_ready"] = True
     return article

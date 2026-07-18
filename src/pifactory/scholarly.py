@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from datetime import date
 from typing import Any
 
-from .dates import choose_availability_date
+from .dates import assess_publication_date
 from .http import HttpClient
 from .source_status import SourceAudit
 from .utils import clean_space, safe_date_string, strip_tags, unique_strings
@@ -18,26 +18,33 @@ def _xml_text(node: ET.Element | None) -> str:
     return clean_space("".join(node.itertext())) if node is not None else ""
 
 
-def _date_from_parts(year: Any, month: Any = 1, day: Any = 1) -> str | None:
+def _date_from_parts(year: Any, month: Any = None, day: Any = None) -> str | None:
+    """Preserve source precision instead of silently coercing missing parts to Jan 1."""
     months = {name.lower(): i for i, name in enumerate(
         ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     )}
     try:
         y = int(str(year))
-        raw = str(month or 1)
+        if month in (None, ""):
+            return f"{y:04d}"
+        raw = str(month)
         m = months.get(raw[:3].lower(), int(raw) if raw.isdigit() else 1)
-        d = int(str(day or 1))
+        if day in (None, ""):
+            date(y, m, 1)  # validate year/month
+            return f"{y:04d}-{m:02d}"
+        d = int(str(day))
         return date(y, m, d).isoformat()
     except (TypeError, ValueError):
         return None
 
 
 def _pubmed_term(query: str, start: date, end: date) -> str:
+    # Publication fields only. CRDT/EDAT describe PubMed record processing
+    # and must never be allowed to make an old paper look newly published.
     date_exprs = [
         f'("{start:%Y/%m/%d}"[EPDAT] : "{end:%Y/%m/%d}"[EPDAT])',
+        f'("{start:%Y/%m/%d}"[PPDAT] : "{end:%Y/%m/%d}"[PPDAT])',
         f'("{start:%Y/%m/%d}"[PDAT] : "{end:%Y/%m/%d}"[PDAT])',
-        f'("{start:%Y/%m/%d}"[CRDT] : "{end:%Y/%m/%d}"[CRDT])',
-        f'("{start:%Y/%m/%d}"[EDAT] : "{end:%Y/%m/%d}"[EDAT])',
     ]
     return f"({query}) AND ({' OR '.join(date_exprs)})"
 
@@ -255,7 +262,7 @@ def probe_europe_pmc_anchor_counts(
     counts: dict[str, int] = {}
     endpoint = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
     for query in unique_strings(queries):
-        epmc_query = f"({query}) AND (FIRST_PDATE:[{start.isoformat()} TO {end.isoformat()}] OR CREATION_DATE:[{start.isoformat()} TO {end.isoformat()}])"
+        epmc_query = f"({query}) AND FIRST_PDATE:[{start.isoformat()} TO {end.isoformat()}]"
         try:
             payload = http.get_json(endpoint, params={
                 "query": epmc_query, "format": "json", "resultType": "lite", "pageSize": 1,
@@ -288,7 +295,7 @@ def search_europe_pmc(
     output: list[dict[str, Any]] = []
     endpoint = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
     for query in unique_strings(queries):
-        epmc_query = f"({query}) AND (FIRST_PDATE:[{start.isoformat()} TO {end.isoformat()}] OR CREATION_DATE:[{start.isoformat()} TO {end.isoformat()}])"
+        epmc_query = f"({query}) AND FIRST_PDATE:[{start.isoformat()} TO {end.isoformat()}]"
         cursor = "*"
         collected = 0
         pages = 0
@@ -355,7 +362,7 @@ def search_crossref(
     end: date,
     mailto: str,
     per_query: int = 45,
-    include_indexed: bool = True,
+    include_indexed: bool = False,
     audit: SourceAudit | None = None,
 ) -> list[dict[str, Any]]:
     """Search Crossref with provider-native simple identity queries.
@@ -610,21 +617,44 @@ def search_openalex(
                 audit.add(source="OpenAlex", query=query, mode=channel, status="failed" if failed else "success", records=collected, pages=pages, endpoint=endpoint, error=failed)
     return output
 
-def filter_window(records: list[dict[str, Any]], start: date, end: date) -> list[dict[str, Any]]:
-    output: list[dict[str, Any]] = []
-    for record in records:
-        availability, basis = choose_availability_date(record, start, end)
-        if not availability:
+def filter_publication_window(
+    records: list[dict[str, Any]],
+    start: date,
+    end: date,
+    *,
+    future_days: int = 0,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Hard-gate scholarly records by real publication dates.
+
+    created_date/indexed_date remain available for provenance but never count as
+    publication evidence. Rejected records are returned for audit/quarantine.
+    """
+    accepted: list[dict[str, Any]] = []
+    rejected: list[dict[str, Any]] = []
+    for original in records:
+        record = dict(original)
+        decision = assess_publication_date(record, start, end, future_days=future_days)
+        record["publication_date_gate"] = decision.to_dict()
+        if not decision.accepted:
+            rejected.append(record)
             continue
-        try:
-            parsed = date.fromisoformat(availability[:10])
-        except ValueError:
-            continue
-        if start <= parsed <= end:
-            record["availability_date"] = availability
-            record["availability_date_basis"] = basis
-            output.append(record)
-    return output
+        record["availability_date"] = decision.canonical_date
+        record["availability_date_basis"] = decision.canonical_basis
+        record["publication_date_status"] = decision.status
+        accepted.append(record)
+    return accepted, rejected
+
+
+def filter_window(
+    records: list[dict[str, Any]],
+    start: date,
+    end: date,
+    *,
+    future_days: int = 0,
+) -> list[dict[str, Any]]:
+    """Backward-compatible wrapper returning only accepted records."""
+    accepted, _ = filter_publication_window(records, start, end, future_days=future_days)
+    return accepted
 
 
 def search_biorxiv_medrxiv(

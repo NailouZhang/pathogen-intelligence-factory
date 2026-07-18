@@ -22,8 +22,8 @@ def test_pipeline_keeps_bounded_replacement_pool_until_translation_gate():
     news_call = text.index("lambda item: resolve_and_extract_news", news_queue_selection)
     analysis = text.index('progress("deep_analysis", "start"', paper_call)
     translation_gate = text.index('"translation_gate", "complete"', analysis)
-    final_paper_slice = text.index("papers = rank_papers(paper_ready_pool)[: settings.max_papers]", analysis)
-    final_news_slice = text.index("news = rank_news(news_ready_pool)[: settings.max_news]", analysis)
+    final_paper_slice = text.index("papers = ranked_paper_ready_pool[: settings.max_papers]", analysis)
+    final_news_slice = text.index("news = ranked_news_ready_pool[: settings.max_news]", analysis)
     assert queue_selection < paper_call < analysis < final_paper_slice < translation_gate
     assert news_queue_selection < news_call < analysis < final_news_slice < translation_gate
     assert "settings.max_papers + max(0, settings.display_candidate_buffer)" in text

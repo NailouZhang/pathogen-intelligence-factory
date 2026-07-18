@@ -10,3 +10,11 @@ def test_workflow_runs_at_beijing_0200_and_has_no_google_cse():
     assert "intelligence-data" in text
     assert "GOOGLE_CSE" not in text
     assert "for PROFILE_ID" in text
+
+
+def test_wechat_dispatch_is_best_effort_and_cannot_block_pages():
+    text = (ROOT / ".github/workflows/daily-intelligence.yml").read_text(encoding="utf-8")
+    assert "if curl --fail-with-body" in text
+    assert "WeChat dispatch failed" in text
+    assert "Pages generation will continue" in text
+    assert text.index("if curl --fail-with-body") < text.index("Build multi-profile Pages portal")
