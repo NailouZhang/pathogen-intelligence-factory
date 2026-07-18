@@ -1,0 +1,2884 @@
+{
+  "run": {
+    "policy_version": "v11-analysis-quality-observability-1",
+    "scope": "candidate_pool",
+    "severity": "critical",
+    "warning_ratio": 0.2,
+    "critical_ratio": 0.5,
+    "message_zh": "本期分析质量严重降级：16/61 条（26.2%）使用低置信规则兜底。主要原因：模型 JSON 未通过结构/证据校验。七/五要素仅可作为来源文本的辅助摘录，不应视为完整的模型精读。",
+    "message_en": "Analysis quality is critically degraded: 16/61 items (26.2%) used low-confidence deterministic extraction. Main causes: model JSON failed schema or evidence validation.",
+    "papers": {
+      "total_items": 21,
+      "analyzable": 21,
+      "passed": 5,
+      "fallback": 16,
+      "fallback_ratio": 0.7619,
+      "statuses": {
+        "fallback_source_extract": 16,
+        "passed": 5
+      }
+    },
+    "news": {
+      "total_items": 40,
+      "analyzable": 40,
+      "passed": 40,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 40
+      }
+    },
+    "combined": {
+      "total_items": 61,
+      "analyzable": 61,
+      "passed": 45,
+      "fallback": 16,
+      "fallback_ratio": 0.2623,
+      "statuses": {
+        "fallback_source_extract": 16,
+        "passed": 45
+      }
+    },
+    "top_failure_categories": [
+      {
+        "category": "validation_failed",
+        "count": 16,
+        "label_zh": "模型 JSON 未通过结构/证据校验",
+        "label_en": "model JSON failed schema or evidence validation"
+      }
+    ],
+    "provider_attempts": {
+      "gemini:skipped": 16,
+      "groq:skipped": 61,
+      "mistral:failed": 37,
+      "mistral:success": 45,
+      "openrouter:failed": 6,
+      "openrouter:skipped": 26,
+      "siliconflow:skipped": 61
+    },
+    "model_attempts": {
+      "gemini/not_selected:skipped": 16,
+      "groq/not_selected:skipped": 61,
+      "mistral/mistral-small-2506:failed": 16,
+      "mistral/mistral-small-2506:success": 5,
+      "mistral/mistral-small-latest:failed": 21,
+      "mistral/mistral-small-latest:success": 40,
+      "openrouter/cohere/north-mini-code:free:failed": 3,
+      "openrouter/cohere/north-mini-code:free:skipped": 13,
+      "openrouter/openrouter/free:failed": 3,
+      "openrouter/openrouter/free:skipped": 13,
+      "siliconflow/not_selected:skipped": 61
+    },
+    "attempt_failure_categories": {
+      "rate_limited": 6,
+      "validation_failed": 37
+    },
+    "preflight": {
+      "schema_version": 2,
+      "generated_at": "2026-07-18T18:54:06+00:00",
+      "status": "ready",
+      "analysis_provider_configured": [
+        "gemini",
+        "groq",
+        "openrouter",
+        "mistral",
+        "siliconflow"
+      ],
+      "analysis_provider_passed": [
+        "groq",
+        "mistral"
+      ],
+      "live_probe_performed": true,
+      "provider_orders": {
+        "extract": [
+          "siliconflow",
+          "groq",
+          "mistral",
+          "openrouter",
+          "gemini"
+        ],
+        "rescue": [
+          "gemini",
+          "mistral",
+          "openrouter",
+          "groq",
+          "siliconflow"
+        ]
+      },
+      "providers": [
+        {
+          "provider": "gemini",
+          "status": "failed",
+          "failure_category": "authentication_failed",
+          "error": "All configured LLM attempts failed (authentication_failed)",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-2.5-flash",
+              "retry_index": 0,
+              "at": "2026-07-18T18:54:03+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: HTTP status 403: 403 Client Error: Forbidden for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=[REDACTED] response={ \"error\": { \"code\": 403, \"message\": \"Your API key was reported as leaked. Please use another API key.\", \"status\": \"PERMISSION_DENIED\" } }",
+              "elapsed_ms": 113
+            }
+          ]
+        },
+        {
+          "provider": "groq",
+          "status": "passed",
+          "model": "llama-3.1-8b-instant",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "groq",
+              "model": "llama-3.1-8b-instant",
+              "retry_index": 0,
+              "at": "2026-07-18T18:54:04+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "llama-3.1-8b-instant",
+              "elapsed_ms": 84,
+              "usage": {
+                "prompt_tokens": 68,
+                "completion_tokens": 9,
+                "total_tokens": 77
+              }
+            }
+          ]
+        },
+        {
+          "provider": "openrouter",
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "error": "All configured LLM attempts failed (rate_limited)",
+          "account": {
+            "status": "ok",
+            "is_free_tier": true,
+            "limit": null,
+            "limit_remaining": null,
+            "usage_daily": 0,
+            "usage_weekly": 0,
+            "usage_monthly": 0
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "openrouter",
+              "model": "openrouter/free",
+              "retry_index": 0,
+              "at": "2026-07-18T18:54:04+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "rate_limited",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Provider returned error\",\"provider_name\":\"Venice\",\"raw\":\"cognitivecomputations/dolphin-mistral-24b-venice-edition:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/inte",
+              "elapsed_ms": 112
+            }
+          ]
+        },
+        {
+          "provider": "mistral",
+          "status": "passed",
+          "model": "mistral-small-latest",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "mistral",
+              "model": "mistral-small-latest",
+              "retry_index": 0,
+              "at": "2026-07-18T18:54:05+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "mistral-small-latest",
+              "elapsed_ms": 353,
+              "usage": {
+                "prompt_tokens": 22,
+                "completion_tokens": 6,
+                "total_tokens": 28
+              }
+            }
+          ]
+        },
+        {
+          "provider": "siliconflow",
+          "status": "failed",
+          "failure_category": "authentication_failed",
+          "error": "All configured LLM attempts failed (authentication_failed)",
+          "account": {
+            "status": "ok",
+            "account_status": "normal",
+            "balance": "1",
+            "charge_balance": "0",
+            "total_balance": "1"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "siliconflow",
+              "model": "Qwen/Qwen3-8B",
+              "retry_index": 0,
+              "at": "2026-07-18T18:54:06+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://api.siliconflow.com/v1/chat/completions: HTTP status 403: 403 Client Error: Forbidden for url: https://api.siliconflow.com/v1/chat/completions; response={\"code\":30001,\"message\":\"Sorry, your account balance is insufficient\",\"data\":null}",
+              "elapsed_ms": 14
+            }
+          ]
+        }
+      ],
+      "credentials": [
+        {
+          "name": "CROSSREF_MAILTO",
+          "level": "recommended",
+          "purpose": "Crossref polite pool and contact identity",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "UNPAYWALL_EMAIL",
+          "level": "recommended",
+          "purpose": "legal open-access location lookup; may equal CROSSREF_MAILTO",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "NCBI_API_KEY",
+          "level": "recommended",
+          "purpose": "higher PubMed E-utilities request allowance",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GEMINI_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Gemini structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GROQ_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Groq OpenAI-compatible structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENROUTER_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "OpenRouter free-model router and rescue provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "MISTRAL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Mistral structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SILICONFLOW_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "SiliconFlow structured-analysis provider with balance check",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENALEX_API_KEY",
+          "level": "required_for_openalex",
+          "purpose": "OpenAlex currently requires an API key",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SEMANTIC_SCHOLAR_API_KEY",
+          "level": "optional_but_recommended",
+          "purpose": "anonymous retrieval remains enabled with conservative pacing",
+          "configured": false,
+          "note": "not configured"
+        },
+        {
+          "name": "RELIEFWEB_APPNAME",
+          "level": "pending_approval",
+          "purpose": "pre-approved ReliefWeb appname; a bundled default is available",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "PUBLISHER_REPO_TOKEN",
+          "level": "required_for_wechat_dispatch",
+          "purpose": "repository_dispatch to the private publisher repository",
+          "configured": true,
+          "note": "configured"
+        }
+      ]
+    },
+    "fallback_records": [
+      {
+        "type": "paper",
+        "id": "paper-cbd8d7810b72f83a",
+        "title": "Analysis of health anxiety trajectories in rabies exposure patients based on machine learning",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:11:24+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:11:24+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:11:24+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5791,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['methods']",
+            "elapsed_ms": 4336
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:11:29+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5791,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps contains unknown evidence ids",
+            "elapsed_ms": 4147
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T19:11:33+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5791,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Provider returned error\",\"provider_name\":\"Venice\",\"raw\":\"cognitivecomputations/dolphin-mistral-24b-venice-edition:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\"},{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests",
+            "elapsed_ms": 178
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T19:11:33+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5791,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 151
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:11:33+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-784af4221daac0f4",
+        "title": "Characterization of an Arctic-like 1a rabies virus from a 54-day-old puppy with atypical presentation, Pune, India, 2026",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:11:38+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:11:38+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:11:38+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 5608,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4835
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:11:43+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 5608,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 6174
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:11:49+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:11:49+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:11:49+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-b139cbe74aa69add",
+        "title": "CAMKV is an ISG and facilitates the degradation of rabies virus phosphoprotein via SQSTM1-mediated selective autophagy",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:12:07+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:12:07+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:07+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4795,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4848
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:12+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4795,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5248
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:12:17+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:12:17+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:12:17+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-ed60d3c48689146d",
+        "title": "Regulatory role of noncoding RNAs in infections caused by Rhabdoviridae family viruses",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:12:17+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:12:17+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:17+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3667,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 3924
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:21+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3667,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general', 'interpretation']",
+            "elapsed_ms": 5711
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:12:27+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:12:27+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:12:27+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-74746d6677a739cf",
+        "title": "Stability analysis of rabies virus in the environment",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:12:27+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:12:27+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:27+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3942,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5485
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:33+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3942,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5532
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:38+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3942,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"}]}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy",
+            "elapsed_ms": 168
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:38+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3942,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 114
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:12:38+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-71883496d61a59ea",
+        "title": "A post-marketing surveillance study of a human rabies vaccine in China (2020–2024)",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:12:38+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:12:38+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:38+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 7250,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: methods cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5205
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:44+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 7250,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: methods cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5740
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:12:49+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:12:49+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:12:49+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-3d3e3fdf4348ef40",
+        "title": "Rabies and emerging infections: a one health review of the oldest zoonosis in an age of new spillovers",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:12:49+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:12:49+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:49+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3848,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 3931
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:53+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3848,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method contains unknown evidence ids",
+            "elapsed_ms": 3759
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:12:57+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:12:57+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:12:57+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-2e8f47dbd5eab055",
+        "title": "Recombinant adeno-associated virus serotype 2-mediated RNA interference inhibits rabies virus replication",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:12:57+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:12:57+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:57+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6486,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5992
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:03+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6486,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general', 'results']",
+            "elapsed_ms": 7305
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:13:10+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:13:10+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:13:10+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-92f2b8e2f4e35787",
+        "title": "Correction: Amanova et al. Efficient Serum-Free Rabies Virus Propagation Using BSR and Vero Cell Lines: A Comparative Evaluation of BioNOC II® Macrocarriers in the BelloStageTM-3000 Bioreactor Versus Conventional Microcarriers. Biology 2025, 14, 1455",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:13:10+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:13:10+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:10+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2241,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4172
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:15+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2241,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 1775
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:13:16+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:13:16+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:13:16+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-d4460c2146ff116f",
+        "title": "Profile of Rabies Vaccination Administration for Patients Bitten by Dogs at the Natarandang Community Health Centre, Wolomeze Sub-district, East Nusa Tenggara, Indonesia",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:13:16+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:13:16+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:16+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3505,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: scientific_and_public_health_significance cites evidence assigned to the wrong rhetorical role: ['results']",
+            "elapsed_ms": 5305
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:22+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3505,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: limitations_and_evidence_strength cites evidence assigned to the wrong rhetorical role: ['methods']",
+            "elapsed_ms": 4596
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:13:26+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:13:26+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:13:26+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-3972a70bb25efbcb",
+        "title": "Analisis Spasio Temporal Kejadian Gigitan Hewan Penular Rabies (GHPR) Berdasarkan Aspek Hewan dan Lingkungan di Provinsi Sumatera Barat Tahun 2021-2025",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:13:26+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:13:26+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:26+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3557,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5728
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:32+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3557,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5606
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:13:38+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:13:38+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:13:38+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-9d2c1aa472405f5d",
+        "title": "Dataset for \"Barcoded Rabies In Situ Connectomics for high-throughput reconstruction of neural circuits\"",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:13:38+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:13:38+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:38+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 7831,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: main_results cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5464
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:43+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 7831,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: main_results cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 3643
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:47+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 7831,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Provider returned error\",\"provider_name\":\"Venice\",\"raw\":\"cognitivecomputations/dolphin-mistral-24b-venice-edition:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\"},{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests",
+            "elapsed_ms": 180
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:47+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 7831,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 131
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:13:47+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-42976500ddd817af",
+        "title": "PERFIL EPIDEMIOLÓGICO E TENDÊNCIA TEMPORAL DOS ATENDIMENTOS ANTIRRÁBICOS HUMANOS NO ESTADO DO CEARÁ: Uma análise descritiva EPIDEMIOLOGICAL PROFILE AND TEMPORAL TREND OF HUMAN ANTI-RABIES CARE IN THE STATE OF CEARÁ: A descriptive analysis PERFIL EPIDEMIOLÓGICO Y TENDENCIA TEMPORAL DE LA ATENCIÓN ANTIRRÁBICA HUMANA EN EL ESTADO DE CEARÁ: Un análisis descriptivo",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:13:47+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:13:47+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:47+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3247,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5300
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:52+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3247,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 6684
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:13:59+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:13:59+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:13:59+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-6dddd3104f0e1e14",
+        "title": "World Zoonoses Day 2026: Community Action Through One Health Is the Foundation for Preventing Future Outbreaks",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:14:04+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:14:04+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:14:04+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2655,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population lacks evidence ids",
+            "elapsed_ms": 3166
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:14:07+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2655,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population lacks evidence ids",
+            "elapsed_ms": 2821
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:14:10+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:14:10+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:14:10+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-32afc64438fa9714",
+        "title": "RVG-functionalized microglial membrane–coated cerium–gallic acid metal–organic frameworks for multi-target Alzheimer's therapy",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:14:10+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:14:10+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:14:10+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3641,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4261
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:14:14+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3641,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4771
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:14:19+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:14:19+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:14:19+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-a16e17c2abd1e738",
+        "title": "Alphavirus madariaga-associated encephalomyelitis in equines from the Brazilian Pantanal reveals arbovirus circulation in a peri-urban environment",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:14:19+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:14:19+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:14:19+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4000,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4705
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:14:24+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4000,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 3988
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:14:28+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:14:28+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:14:28+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      }
+    ]
+  },
+  "displayed": {
+    "policy_version": "v11-analysis-quality-observability-1",
+    "scope": "displayed",
+    "severity": "critical",
+    "warning_ratio": 0.2,
+    "critical_ratio": 0.5,
+    "message_zh": "本期分析质量严重降级：10/42 条（23.8%）使用低置信规则兜底。主要原因：模型 JSON 未通过结构/证据校验。七/五要素仅可作为来源文本的辅助摘录，不应视为完整的模型精读。",
+    "message_en": "Analysis quality is critically degraded: 10/42 items (23.8%) used low-confidence deterministic extraction. Main causes: model JSON failed schema or evidence validation.",
+    "papers": {
+      "total_items": 13,
+      "analyzable": 13,
+      "passed": 3,
+      "fallback": 10,
+      "fallback_ratio": 0.7692,
+      "statuses": {
+        "fallback_source_extract": 10,
+        "passed": 3
+      }
+    },
+    "news": {
+      "total_items": 29,
+      "analyzable": 29,
+      "passed": 29,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 29
+      }
+    },
+    "combined": {
+      "total_items": 42,
+      "analyzable": 42,
+      "passed": 32,
+      "fallback": 10,
+      "fallback_ratio": 0.2381,
+      "statuses": {
+        "fallback_source_extract": 10,
+        "passed": 32
+      }
+    },
+    "top_failure_categories": [
+      {
+        "category": "validation_failed",
+        "count": 10,
+        "label_zh": "模型 JSON 未通过结构/证据校验",
+        "label_en": "model JSON failed schema or evidence validation"
+      }
+    ],
+    "provider_attempts": {
+      "gemini:skipped": 10,
+      "groq:skipped": 42,
+      "mistral:failed": 25,
+      "mistral:success": 32,
+      "openrouter:failed": 4,
+      "openrouter:skipped": 16,
+      "siliconflow:skipped": 42
+    },
+    "model_attempts": {
+      "gemini/not_selected:skipped": 10,
+      "groq/not_selected:skipped": 42,
+      "mistral/mistral-small-2506:failed": 10,
+      "mistral/mistral-small-2506:success": 5,
+      "mistral/mistral-small-latest:failed": 15,
+      "mistral/mistral-small-latest:success": 27,
+      "openrouter/cohere/north-mini-code:free:failed": 2,
+      "openrouter/cohere/north-mini-code:free:skipped": 8,
+      "openrouter/openrouter/free:failed": 2,
+      "openrouter/openrouter/free:skipped": 8,
+      "siliconflow/not_selected:skipped": 42
+    },
+    "attempt_failure_categories": {
+      "rate_limited": 4,
+      "validation_failed": 25
+    },
+    "preflight": {
+      "schema_version": 2,
+      "generated_at": "2026-07-18T18:54:06+00:00",
+      "status": "ready",
+      "analysis_provider_configured": [
+        "gemini",
+        "groq",
+        "openrouter",
+        "mistral",
+        "siliconflow"
+      ],
+      "analysis_provider_passed": [
+        "groq",
+        "mistral"
+      ],
+      "live_probe_performed": true,
+      "provider_orders": {
+        "extract": [
+          "siliconflow",
+          "groq",
+          "mistral",
+          "openrouter",
+          "gemini"
+        ],
+        "rescue": [
+          "gemini",
+          "mistral",
+          "openrouter",
+          "groq",
+          "siliconflow"
+        ]
+      },
+      "providers": [
+        {
+          "provider": "gemini",
+          "status": "failed",
+          "failure_category": "authentication_failed",
+          "error": "All configured LLM attempts failed (authentication_failed)",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-2.5-flash",
+              "retry_index": 0,
+              "at": "2026-07-18T18:54:03+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: HTTP status 403: 403 Client Error: Forbidden for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=[REDACTED] response={ \"error\": { \"code\": 403, \"message\": \"Your API key was reported as leaked. Please use another API key.\", \"status\": \"PERMISSION_DENIED\" } }",
+              "elapsed_ms": 113
+            }
+          ]
+        },
+        {
+          "provider": "groq",
+          "status": "passed",
+          "model": "llama-3.1-8b-instant",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "groq",
+              "model": "llama-3.1-8b-instant",
+              "retry_index": 0,
+              "at": "2026-07-18T18:54:04+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "llama-3.1-8b-instant",
+              "elapsed_ms": 84,
+              "usage": {
+                "prompt_tokens": 68,
+                "completion_tokens": 9,
+                "total_tokens": 77
+              }
+            }
+          ]
+        },
+        {
+          "provider": "openrouter",
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "error": "All configured LLM attempts failed (rate_limited)",
+          "account": {
+            "status": "ok",
+            "is_free_tier": true,
+            "limit": null,
+            "limit_remaining": null,
+            "usage_daily": 0,
+            "usage_weekly": 0,
+            "usage_monthly": 0
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "openrouter",
+              "model": "openrouter/free",
+              "retry_index": 0,
+              "at": "2026-07-18T18:54:04+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "rate_limited",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Provider returned error\",\"provider_name\":\"Venice\",\"raw\":\"cognitivecomputations/dolphin-mistral-24b-venice-edition:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/inte",
+              "elapsed_ms": 112
+            }
+          ]
+        },
+        {
+          "provider": "mistral",
+          "status": "passed",
+          "model": "mistral-small-latest",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "mistral",
+              "model": "mistral-small-latest",
+              "retry_index": 0,
+              "at": "2026-07-18T18:54:05+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "mistral-small-latest",
+              "elapsed_ms": 353,
+              "usage": {
+                "prompt_tokens": 22,
+                "completion_tokens": 6,
+                "total_tokens": 28
+              }
+            }
+          ]
+        },
+        {
+          "provider": "siliconflow",
+          "status": "failed",
+          "failure_category": "authentication_failed",
+          "error": "All configured LLM attempts failed (authentication_failed)",
+          "account": {
+            "status": "ok",
+            "account_status": "normal",
+            "balance": "1",
+            "charge_balance": "0",
+            "total_balance": "1"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "siliconflow",
+              "model": "Qwen/Qwen3-8B",
+              "retry_index": 0,
+              "at": "2026-07-18T18:54:06+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://api.siliconflow.com/v1/chat/completions: HTTP status 403: 403 Client Error: Forbidden for url: https://api.siliconflow.com/v1/chat/completions; response={\"code\":30001,\"message\":\"Sorry, your account balance is insufficient\",\"data\":null}",
+              "elapsed_ms": 14
+            }
+          ]
+        }
+      ],
+      "credentials": [
+        {
+          "name": "CROSSREF_MAILTO",
+          "level": "recommended",
+          "purpose": "Crossref polite pool and contact identity",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "UNPAYWALL_EMAIL",
+          "level": "recommended",
+          "purpose": "legal open-access location lookup; may equal CROSSREF_MAILTO",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "NCBI_API_KEY",
+          "level": "recommended",
+          "purpose": "higher PubMed E-utilities request allowance",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GEMINI_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Gemini structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GROQ_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Groq OpenAI-compatible structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENROUTER_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "OpenRouter free-model router and rescue provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "MISTRAL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Mistral structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SILICONFLOW_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "SiliconFlow structured-analysis provider with balance check",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENALEX_API_KEY",
+          "level": "required_for_openalex",
+          "purpose": "OpenAlex currently requires an API key",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SEMANTIC_SCHOLAR_API_KEY",
+          "level": "optional_but_recommended",
+          "purpose": "anonymous retrieval remains enabled with conservative pacing",
+          "configured": false,
+          "note": "not configured"
+        },
+        {
+          "name": "RELIEFWEB_APPNAME",
+          "level": "pending_approval",
+          "purpose": "pre-approved ReliefWeb appname; a bundled default is available",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "PUBLISHER_REPO_TOKEN",
+          "level": "required_for_wechat_dispatch",
+          "purpose": "repository_dispatch to the private publisher repository",
+          "configured": true,
+          "note": "configured"
+        }
+      ]
+    },
+    "fallback_records": [
+      {
+        "type": "paper",
+        "id": "paper-cbd8d7810b72f83a",
+        "title": "Analysis of health anxiety trajectories in rabies exposure patients based on machine learning",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:11:24+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:11:24+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:11:24+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5791,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['methods']",
+            "elapsed_ms": 4336
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:11:29+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5791,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps contains unknown evidence ids",
+            "elapsed_ms": 4147
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T19:11:33+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5791,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Provider returned error\",\"provider_name\":\"Venice\",\"raw\":\"cognitivecomputations/dolphin-mistral-24b-venice-edition:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\"},{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests",
+            "elapsed_ms": 178
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T19:11:33+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5791,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 151
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:11:33+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-784af4221daac0f4",
+        "title": "Characterization of an Arctic-like 1a rabies virus from a 54-day-old puppy with atypical presentation, Pune, India, 2026",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:11:38+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:11:38+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:11:38+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 5608,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4835
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:11:43+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 5608,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 6174
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:11:49+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:11:49+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:11:49+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-b139cbe74aa69add",
+        "title": "CAMKV is an ISG and facilitates the degradation of rabies virus phosphoprotein via SQSTM1-mediated selective autophagy",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:12:07+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:12:07+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:07+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4795,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4848
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:12+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4795,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5248
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:12:17+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:12:17+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:12:17+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-ed60d3c48689146d",
+        "title": "Regulatory role of noncoding RNAs in infections caused by Rhabdoviridae family viruses",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:12:17+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:12:17+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:17+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3667,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 3924
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:21+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3667,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general', 'interpretation']",
+            "elapsed_ms": 5711
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:12:27+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:12:27+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:12:27+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-3d3e3fdf4348ef40",
+        "title": "Rabies and emerging infections: a one health review of the oldest zoonosis in an age of new spillovers",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:12:49+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:12:49+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:49+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3848,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 3931
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:12:53+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3848,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method contains unknown evidence ids",
+            "elapsed_ms": 3759
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:12:57+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:12:57+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:12:57+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-d4460c2146ff116f",
+        "title": "Profile of Rabies Vaccination Administration for Patients Bitten by Dogs at the Natarandang Community Health Centre, Wolomeze Sub-district, East Nusa Tenggara, Indonesia",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:13:16+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:13:16+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:16+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3505,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: scientific_and_public_health_significance cites evidence assigned to the wrong rhetorical role: ['results']",
+            "elapsed_ms": 5305
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:22+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3505,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: limitations_and_evidence_strength cites evidence assigned to the wrong rhetorical role: ['methods']",
+            "elapsed_ms": 4596
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:13:26+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:13:26+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:13:26+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-9d2c1aa472405f5d",
+        "title": "Dataset for \"Barcoded Rabies In Situ Connectomics for high-throughput reconstruction of neural circuits\"",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:13:38+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:13:38+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:38+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 7831,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: main_results cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5464
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:43+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 7831,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: main_results cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 3643
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:47+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 7831,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Provider returned error\",\"provider_name\":\"Venice\",\"raw\":\"cognitivecomputations/dolphin-mistral-24b-venice-edition:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\"},{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests",
+            "elapsed_ms": 180
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T19:13:47+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 7831,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 131
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:13:47+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-6dddd3104f0e1e14",
+        "title": "World Zoonoses Day 2026: Community Action Through One Health Is the Foundation for Preventing Future Outbreaks",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:14:04+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:14:04+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:14:04+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2655,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population lacks evidence ids",
+            "elapsed_ms": 3166
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:14:07+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2655,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population lacks evidence ids",
+            "elapsed_ms": 2821
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:14:10+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:14:10+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:14:10+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-32afc64438fa9714",
+        "title": "RVG-functionalized microglial membrane–coated cerium–gallic acid metal–organic frameworks for multi-target Alzheimer's therapy",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:14:10+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:14:10+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:14:10+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3641,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4261
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:14:14+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3641,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4771
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:14:19+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:14:19+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:14:19+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-a16e17c2abd1e738",
+        "title": "Alphavirus madariaga-associated encephalomyelitis in equines from the Brazilian Pantanal reveals arbovirus circulation in a peri-urban environment",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T19:14:19+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T19:14:19+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T19:14:19+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4000,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4705
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T19:14:24+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4000,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 3988
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T19:14:28+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T19:14:28+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T19:14:28+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      }
+    ]
+  }
+}
