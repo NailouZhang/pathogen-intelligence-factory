@@ -6,7 +6,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
-from .analysis import analyze_news, analyze_paper
+from .analysis import ANALYSIS_POLICY_VERSION, analyze_news, analyze_paper
 from .bootstrap import _fallback_profile, build_profile
 from .config import Settings, load_profile, load_seed
 from .content import enrich_scholarly_work, resolve_and_extract_news
@@ -32,8 +32,8 @@ from .scholarly import (
     probe_europe_pmc_anchor_counts,
 )
 from .storage import load_state, save_state, write_issue
-from .translation import translate_record
-from .overview import build_overview
+from .translation import TRANSLATION_CACHE_VERSION, translate_record
+from .overview import build_overviews
 from .progress import progress
 from .cover import ensure_profile_cover
 from .utils import append_jsonl, clean_space, dump_json, sha256_text, utc_now_iso, unique_strings
@@ -414,15 +414,38 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     }
     news, papers = attach_news_to_papers(news, papers)
 
-    # Rank using metadata, API abstracts, provider convergence, study design,
-    # recency and hotspot signals. Only the final display set is enriched.
-    papers = rank_papers(papers)[: settings.max_papers]
-    news = rank_news(news)[: settings.max_news]
-    progress("display_selection", "complete", papers=len(papers), news=len(news), max_papers=settings.max_papers, max_news=settings.max_news)
+    # Rank all accepted metadata first. Enrichment is delayed until this stage.
+    # A small bounded replacement buffer is included so records with no usable
+    # abstract/full text or no extractable news body do not leave avoidable gaps
+    # in the final Top-N. The buffer is never used for broad corpus enrichment.
+    paper_queue = rank_papers(papers)
+    news_queue = rank_news(news)
+    paper_queue_cap = min(
+        len(paper_queue),
+        settings.max_fulltexts,
+        settings.max_papers + max(0, settings.display_candidate_buffer),
+    )
+    news_queue_cap = min(
+        len(news_queue),
+        settings.max_news_fetches,
+        settings.max_news + max(0, settings.display_candidate_buffer),
+    )
+    papers = paper_queue[:paper_queue_cap]
+    news = news_queue[:news_queue_cap]
+    paper_enrichment_selected = len(papers)
+    news_enrichment_selected = len(news)
+    progress(
+        "display_selection", "complete",
+        paper_queue=len(paper_queue), news_queue=len(news_queue),
+        paper_enrichment_candidates=paper_enrichment_selected,
+        news_enrichment_candidates=news_enrichment_selected,
+        max_papers=settings.max_papers, max_news=settings.max_news,
+        replacement_buffer=settings.display_candidate_buffer,
+    )
 
     if not demo:
         oa_email = secrets.get("UNPAYWALL_EMAIL") or secrets.get("CROSSREF_MAILTO", "")
-        paper_targets = papers[: max(0, min(len(papers), settings.max_fulltexts))]
+        paper_targets = list(papers)
         progress("display_content_enrichment", "start", kind="paper", selected=len(paper_targets), cap=settings.max_fulltexts)
         deep_enriched = _parallel_map(
             paper_targets,
@@ -431,9 +454,20 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         )
         deep_by_id = {item.get("paper_id"): item for item in deep_enriched}
         papers = [deep_by_id.get(item.get("paper_id"), item) for item in papers]
-        progress("display_content_enrichment", "complete", kind="paper", enriched=len(deep_enriched), total=len(papers))
+        paper_content_rejected = sum(
+            1 for item in papers
+            if not clean_space(item.get("abstract") or item.get("full_text"))
+        )
+        papers = [
+            item for item in papers
+            if clean_space(item.get("abstract") or item.get("full_text"))
+        ]
+        progress(
+            "display_content_enrichment", "complete", kind="paper",
+            enriched=len(deep_enriched), retained=len(papers), rejected_no_evidence=paper_content_rejected,
+        )
 
-        news_targets = news[: max(0, min(len(news), settings.max_news_fetches))]
+        news_targets = list(news)
         progress("display_content_enrichment", "start", kind="news", selected=len(news_targets), cap=settings.max_news_fetches)
         fetched_news = _parallel_map(
             news_targets,
@@ -442,7 +476,18 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         )
         fetched_by_id = {item.get("news_id"): item for item in fetched_news}
         news = [fetched_by_id.get(item.get("news_id"), item) for item in news]
-        progress("display_content_enrichment", "complete", kind="news", enriched=len(fetched_news), total=len(news))
+        news_content_rejected = sum(
+            1 for item in news
+            if item.get("content_status") not in {"full", "partial"} or not clean_space(item.get("content"))
+        )
+        news = [
+            item for item in news
+            if item.get("content_status") in {"full", "partial"} and clean_space(item.get("content"))
+        ]
+        progress(
+            "display_content_enrichment", "complete", kind="news",
+            enriched=len(fetched_news), retained=len(news), rejected_no_body=news_content_rejected,
+        )
 
         # Content-aware audit is intentionally non-expansive: it cannot pull in
         # new candidates after Top-N selection. It flags explicit mismatches and
@@ -459,8 +504,12 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
                 clean_space(article.get("content") or article.get("excerpt")),
                 profile,
             )
-        papers = rank_papers(papers)
-        news = rank_news(news)
+        papers = rank_papers(papers)[: settings.max_papers]
+        news = rank_news(news)[: settings.max_news]
+
+    if demo:
+        papers = rank_papers(papers)[: settings.max_papers]
+        news = rank_news(news)[: settings.max_news]
 
     prompts_dir = settings.project_root / "prompts"
     analysis_cache = state.setdefault("analysis_cache", {})
@@ -480,7 +529,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             or item.get("content")
             or item.get("excerpt")
         )
-        return f"{kind}:{sha256_text(identity + '|' + evidence)}"
+        policy = ANALYSIS_POLICY_VERSION
+        return f"{kind}:{policy}:{sha256_text(identity + '|' + evidence)}"
 
     progress("deep_analysis", "start", papers=len(papers), news=len(news))
     for paper_index, paper in enumerate(papers, start=1):
@@ -525,58 +575,51 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "Hantavirus infections in a changing world: a narrative review": "变化世界中的汉坦病毒感染：叙述性综述",
             "Health authority reports a suspected hantavirus case": "卫生部门报告一例疑似汉坦病毒病例",
         }
-        demo_analysis = {
-            "Serologic evidence of hantavirus exposure in forest workers": {
-                "background": "林业工作者经常接触啮齿动物，可能存在未识别的汉坦病毒暴露风险。",
-                "methods": "采用横断面设计，对371名林业工作者检测汉坦病毒抗体并评估啮齿动物接触史。",
-                "results": "7.3%的参与者检出汉坦病毒IgG；频繁接触啮齿动物与血清阳性相关。",
-                "contribution": "结果提示职业人群应加强啮齿动物暴露监测和针对性防护。",
-                "limitations": "研究仅覆盖单一区域，且缺少纵向随访，不能直接推断感染时间和因果关系。",
-            },
-            "Hantavirus infections in a changing world: a narrative review": {
-                "background": "环境变化与人兽接触增加正在改变汉坦病毒的传播和溢出风险。",
-                "main_directions": "综述流行病学、储存宿主生态、致病机制、诊断和预防等主要方向。",
-                "current_state": "现有证据支持环境与宿主生态变化会影响人群暴露，但不同地区的监测能力不均。",
-                "gaps": "前瞻性监测、标准化临床研究和获批干预措施仍然不足。",
-                "future_research": "应推进一体化健康监测、长期宿主生态研究和可比的临床队列研究。",
-            },
-            "Health authority reports a suspected hantavirus case": {
-                "time": "本周二报告。",
-                "location": "A县。",
-                "event": "地区卫生部门报告1例疑似汉坦病毒病例，正在进行确证检测。",
-                "impact": "患者病情稳定；部门同时提醒居民避免接触啮齿动物排泄物。",
-                "status": "截至报道时未发现新增病例，事件仍处于调查和实验室确认阶段。",
-            },
+        demo_research = {
+            "research_question_and_background": "林业工作者经常接触啮齿动物，研究评估其未识别的汉坦病毒暴露风险。",
+            "study_design_and_population": "采用横断面设计，纳入371名林业工作者。",
+            "methods": "检测汉坦病毒抗体，并结合职业性啮齿动物接触史评估相关因素。",
+            "main_results": "7.3%的参与者检出汉坦病毒IgG；频繁接触啮齿动物与血清阳性相关。",
+            "interpretation_and_novelty": "结果提示职业暴露可能是该人群血清阳性的相关因素，但不能据此推断因果关系。",
+            "scientific_and_public_health_significance": "研究支持在高暴露职业人群中加强啮齿动物接触监测和针对性防护。",
+            "limitations_and_evidence_strength": "研究仅覆盖单一区域且缺少纵向随访，证据强度有限。",
         }
-        for item in papers + news:
+        demo_review = {
+            "scope_and_question": "综述环境变化背景下汉坦病毒流行病学、宿主生态、致病机制、诊断和预防。",
+            "evidence_base_and_review_method": "现有证据仅表明其为叙述性综述，未报告系统检索流程。",
+            "consensus_and_key_conclusions": "环境和人兽接触变化可能重塑汉坦病毒溢出风险，但地区监测能力不均衡。",
+            "controversies_and_evidence_gaps": "前瞻性监测、标准化临床研究和获批干预措施仍不足。",
+            "research_and_practice_implications": "应推进一体化健康监测、长期宿主生态研究和可比的临床队列研究。",
+        }
+        demo_news = {
+            "time": "本周二报告。",
+            "location_and_population": "A县一名疑似患者。",
+            "event": "地区卫生部门报告1例疑似汉坦病毒病例，正在进行确证检测。",
+            "scale_impact_and_risk": "患者病情稳定，截至报道时未发现新增病例。",
+            "response_status_and_uncertainty": "卫生部门提醒居民避免接触啮齿动物排泄物，事件仍待实验室确认。",
+        }
+        for item in papers:
             item["title_zh"] = demo_titles.get(item.get("title"), item.get("title"))
-            analysis = (item.get("analysis") or {}).get("analysis") or {}
-            if item in papers and item.get("paper_type") == "review":
-                labels = [("背景", "background"), ("主要方向", "main_directions"), ("研究现状", "current_state"), ("不足", "gaps"), ("后续研究", "future_research")]
-            elif item in papers:
-                labels = [("背景", "background"), ("方法", "methods"), ("结果", "results"), ("贡献", "contribution"), ("局限", "limitations")]
+            if item.get("paper_type") == "review":
+                item["analysis_zh"] = dict(demo_review)
+                body = "该综述总结了环境变化背景下汉坦病毒的流行病学、储存宿主生态、致病机制、诊断和预防研究。现有证据表明，气候、土地利用和人兽接触变化可能重塑病毒溢出风险，但区域监测能力和临床研究质量仍不均衡。"
             else:
-                labels = [("时间", "time"), ("地点", "location"), ("事件", "event"), ("影响", "impact"), ("状态", "status")]
-            zh_source = demo_analysis.get(item.get("title"), {})
-            item["analysis_zh"] = {key: clean_space(zh_source.get(key)) or clean_space(analysis.get(key)) or "未报告" for _, key in labels}
-            if item in papers:
-                demo_body = {
-                    "Serologic evidence of hantavirus exposure in forest workers": "研究对371名林业工作者开展汉坦病毒抗体检测，并结合职业性啮齿动物接触史评估暴露风险。结果显示7.3%的参与者检出汉坦病毒IgG，频繁接触啮齿动物与血清阳性相关，提示职业人群需要加强暴露监测和针对性防护。",
-                    "Hantavirus infections in a changing world: a narrative review": "该综述总结了环境变化背景下汉坦病毒的流行病学、储存宿主生态、致病机制、诊断和预防研究。现有证据表明，气候、土地利用和人兽接触变化可能重塑病毒溢出风险，但区域监测能力和临床研究质量仍不均衡。",
-                }.get(item.get("title"), "原始记录未提供可展示的摘要译文。")
-                item["abstract_zh"] = demo_body
-                item["summary_zh"] = demo_body
-            else:
-                demo_body = "地区卫生部门报告1例疑似汉坦病毒病例，患者病情稳定，正在进行实验室确认；截至报道时未发现新增病例。"
-                item["content_zh"] = demo_body
-                item["summary_zh"] = demo_body
-            item["translation_audit"] = {
-                "title": {"status": "demo", "provider": "deterministic_demo"},
-                "abstract_or_body": {"status": "demo", "provider": "deterministic_demo"},
-                "fields": {},
-            }
+                item["analysis_zh"] = dict(demo_research)
+                body = "研究对371名林业工作者开展汉坦病毒抗体检测，并结合职业性啮齿动物接触史评估暴露风险。结果显示7.3%的参与者检出汉坦病毒IgG，频繁接触啮齿动物与血清阳性相关。"
+            item["abstract_zh"] = body
+            item["summary_zh"] = body
+            item["translation_ready"] = True
+            item["translation_audit"] = {"policy_version": TRANSLATION_CACHE_VERSION, "ready": True, "title": {"status": "demo"}, "abstract_or_body": {"status": "demo"}, "fields": {}}
+        for item in news:
+            item["title_zh"] = demo_titles.get(item.get("title"), item.get("title"))
+            item["analysis_zh"] = dict(demo_news)
+            item["content_zh"] = "地区卫生部门报告1例疑似汉坦病毒病例，患者病情稳定，正在进行实验室确认；截至报道时未发现新增病例。"
+            item["wechat_summary_zh"] = "时间：本周二；地点与对象：A县一名疑似患者；事件：卫生部门报告1例疑似汉坦病毒病例；影响与风险：患者稳定且未发现新增病例；应对与不确定性：正在确证检测并提示避免接触啮齿动物排泄物。"
+            item["summary_zh"] = item["content_zh"]
+            item["translation_ready"] = True
+            item["translation_audit"] = {"policy_version": TRANSLATION_CACHE_VERSION, "ready": True, "title": {"status": "demo"}, "abstract_or_body": {"status": "demo"}, "fields": {}}
     else:
-        progress("translation", "start", papers=len(papers), news=len(news))
+        progress("translation", "start", papers=len(papers), news=len(news), policy=TRANSLATION_CACHE_VERSION)
         for paper_index, paper in enumerate(papers, start=1):
             if paper_index == 1 or paper_index % 5 == 0 or paper_index == len(papers):
                 progress("translation", "paper_progress", completed=paper_index-1, total=len(papers))
@@ -587,12 +630,27 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
                 prompts_dir=prompts_dir,
                 cache=translation_cache,
                 kind=paper.get("paper_type") or "research",
+                wechat_news_max_zh_chars=settings.wechat_news_max_zh_chars,
             )
         for news_index, article in enumerate(news, start=1):
             if news_index == 1 or news_index % 5 == 0 or news_index == len(news):
                 progress("translation", "news_progress", completed=news_index-1, total=len(news))
-            translate_record(article, profile=profile, llm=llm, prompts_dir=prompts_dir, cache=translation_cache, kind="news")
+            translate_record(
+                article, profile=profile, llm=llm, prompts_dir=prompts_dir,
+                cache=translation_cache, kind="news",
+                wechat_news_max_zh_chars=settings.wechat_news_max_zh_chars,
+            )
         progress("translation", "complete", papers=len(papers), news=len(news))
+
+    translation_rejected_papers = sum(not bool(item.get("translation_ready")) for item in papers)
+    translation_rejected_news = sum(not bool(item.get("translation_ready")) for item in news)
+    papers = [item for item in papers if item.get("translation_ready")]
+    news = [item for item in news if item.get("translation_ready") and len(clean_space(item.get("wechat_summary_zh"))) <= settings.wechat_news_max_zh_chars]
+    progress(
+        "translation_gate", "complete",
+        papers_retained=len(papers), papers_rejected=translation_rejected_papers,
+        news_retained=len(news), news_rejected=translation_rejected_news,
+    )
 
     def has_real_title_translation(item: dict[str, Any]) -> bool:
         title = clean_space(item.get("title_zh"))
@@ -603,7 +661,11 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
 
     translated = sum(1 for item in papers + news if has_real_title_translation(item))
     issue_date = end.isoformat()
-    overview = build_overview(profile, papers, news, llm)
+    overview = build_overviews(
+        profile, papers, news, llm, prompts_dir,
+        minimum=settings.overview_min_items,
+        maximum=settings.overview_max_items,
+    )
     source_status = source_audit.summary()
     anchor_coverage = _anchor_coverage(profile, query_sets, source_audit.entries)
     retrieval_funnel = {
@@ -614,7 +676,9 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "after_dedup": papers_after_dedup,
             "before_final_gate": papers_before_final_gate,
             "after_final_gate": papers_after_final_gate,
-            "selected_for_content_enrichment": min(len(papers), settings.max_fulltexts),
+            "selected_for_content_enrichment": locals().get("paper_enrichment_selected", len(papers)),
+            "content_rejected": locals().get("paper_content_rejected", 0),
+            "translation_rejected": translation_rejected_papers,
             "displayed": len(papers),
         },
         "news": {
@@ -624,13 +688,15 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "after_dedup": news_after_dedup,
             "before_final_gate": news_before_final_gate,
             "after_final_gate": news_after_final_gate,
-            "selected_for_content_enrichment": min(len(news), settings.max_news_fetches),
+            "selected_for_content_enrichment": locals().get("news_enrichment_selected", len(news)),
+            "content_rejected": locals().get("news_content_rejected", 0),
+            "translation_rejected": translation_rejected_news,
             "displayed": len(news),
         },
     }
 
     issue = {
-        "schema_version": "3.1",
+        "schema_version": "4.0",
         "issue_id": f"{settings.profile_id}-{issue_date}",
         "profile_id": settings.profile_id,
         "issue_date": issue_date,

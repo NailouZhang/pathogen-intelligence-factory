@@ -1,4 +1,4 @@
-# v7 数据源健康、核心概念覆盖和检索漏斗
+# v8 数据源健康、核心概念覆盖和检索漏斗
 
 每次运行输出：
 
@@ -22,7 +22,7 @@ data/audit/retrieval_funnel.json
 
 ## anchor_coverage.json
 
-v7 中的“锚点覆盖”指 5 个核心检索概念在 PubMed、Europe PMC、Crossref、Semantic Scholar、OpenAlex 和新闻通道中的执行与返回数量，不再表示完整富词库逐词查询。
+v8 中的“锚点覆盖”指 5 个核心检索概念在 PubMed、Europe PMC、Crossref、Semantic Scholar、OpenAlex 和新闻通道中的执行与返回数量，不再表示完整富词库逐词查询。
 
 ## retrieval_funnel.json
 
@@ -43,5 +43,5 @@ raw
 
 ```bash
 python scripts/audit_query_coverage.py \
-  --output /tmp/query-coverage-v7.json
+  --output /tmp/query-coverage-v8.json
 ```

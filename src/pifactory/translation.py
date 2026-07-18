@@ -14,7 +14,7 @@ from .llm import LLMError, LLMRouter
 from .utils import clean_space, extract_numbers, sha256_text, split_sentences, truncate
 
 
-TRANSLATION_CACHE_VERSION = "v2.1-abstract-google-fallback"
+TRANSLATION_CACHE_VERSION = "v3.0-python-first-llm-last"
 
 DEFAULT_REPAIRS = {
     "汉塔病毒": "汉坦病毒",
@@ -283,6 +283,7 @@ def _cache_key(source: str, glossary: list[dict[str, str]], field_kind: str) -> 
     )
 
 
+
 def translate_text(
     text: str,
     *,
@@ -290,10 +291,10 @@ def translate_text(
     llm: LLMRouter,
     prompt_text: str,
     cache: dict[str, Any],
-    max_chars: int = 6500,
+    max_chars: int = 30000,
     field_kind: str = "body",
 ) -> tuple[str, dict[str, Any]]:
-    source = truncate(text, max_chars)
+    source = truncate(text, max_chars) if max_chars > 0 else clean_space(text)
     if not source:
         return "", {"status": "empty_source", "provider": "none", "attempts": []}
     if re.search(r"[\u4e00-\u9fff]", source) and len(re.findall(r"[\u4e00-\u9fff]", source)) > len(source) * 0.2:
@@ -309,11 +310,27 @@ def translate_text(
             return cached_text, {**cached.get("audit", {}), "from_cache": True}
 
     attempts: list[dict[str, Any]] = []
+    protected, mapping = _protect(source, glossary)
 
-    # Professional LLM translation remains first. A rejected or omitted field never
-    # ends the chain; it always enters the independent Google/Python fallback.
+    # Free Python translation providers are always tried first.  The direct
+    # requests-based Google route is independent of deep-translator, and
+    # MyMemory is retained as another no-key provider.
+    try:
+        raw, provider, python_attempts = _python_translate(protected)
+        attempts.extend(python_attempts)
+        candidate = _repair_zh(_restore(raw, mapping), glossary)
+        valid, reason = _looks_chinese(candidate, source, field_kind)
+        if valid:
+            audit = {"status": "passed_python", "provider": provider, "attempts": attempts}
+            cache[key] = {"text": candidate, "audit": audit}
+            return candidate, audit
+        attempts.append({"provider": provider, "status": "quality_rejected", "reason": reason})
+    except Exception as exc:
+        attempts.append({"provider": "python_translation", "status": "failed", "error": clean_space(exc)[:800]})
+
+    # LLM translation is the final free fallback. It is called only after all
+    # Python routes have failed or failed quality validation.
     if llm.available:
-        protected, mapping = _protect(source, glossary)
         prompt = json.dumps(
             {
                 "source_language": "English",
@@ -322,11 +339,12 @@ def translate_text(
                 "text": protected,
                 "protected_tokens": list(mapping),
                 "glossary": glossary,
+                "instruction": "Translate completely. Preserve all numbers and return a non-empty translation_zh field.",
             },
             ensure_ascii=False,
         )
         try:
-            result = llm.json_task(system=prompt_text, prompt=prompt, max_models_per_provider=3)
+            result = llm.json_task(system=prompt_text, prompt=prompt, max_models_per_provider=2, temperature=0.05)
             attempts.extend(result.attempts)
             raw = ""
             if isinstance(result.data, dict):
@@ -335,39 +353,16 @@ def translate_text(
             valid, reason = _looks_chinese(candidate, source, field_kind)
             if valid:
                 audit = {
-                    "status": "passed_llm",
+                    "status": "passed_llm_final_fallback",
                     "provider": result.provider,
                     "model": result.model,
                     "attempts": attempts,
                 }
                 cache[key] = {"text": candidate, "audit": audit}
                 return candidate, audit
-            attempts.append(
-                {
-                    "provider": result.provider,
-                    "model": result.model,
-                    "status": "quality_rejected",
-                    "reason": reason,
-                }
-            )
+            attempts.append({"provider": result.provider, "model": result.model, "status": "quality_rejected", "reason": reason})
         except LLMError as exc:
-            attempts.append({"provider": "llm_router", "status": "failed", "error": clean_space(exc)[:600]})
-
-    # Google translation is a real, multi-route fallback. It is retried, chunked,
-    # and followed by terminology repair. The direct endpoint is independent of
-    # deep-translator, so one Google path failing does not end translation.
-    try:
-        raw, provider, python_attempts = _python_translate(source)
-        attempts.extend(python_attempts)
-        candidate = _repair_zh(raw, glossary)
-        valid, reason = _looks_chinese(candidate, source, field_kind)
-        if valid:
-            audit = {"status": "passed_python_fallback", "provider": provider, "attempts": attempts}
-            cache[key] = {"text": candidate, "audit": audit}
-            return candidate, audit
-        attempts.append({"provider": provider, "status": "quality_rejected", "reason": reason})
-    except Exception as exc:
-        attempts.append({"provider": "python_translation", "status": "failed", "error": clean_space(exc)[:800]})
+            attempts.append({"provider": "llm_router", "status": "failed", "error": clean_space(exc)[:700]})
 
     audit = {"status": "translation_unavailable", "provider": "none", "attempts": attempts}
     cache[key] = {"text": "", "audit": audit}
@@ -376,10 +371,44 @@ def translate_text(
 
 def _analysis_fields(kind: str) -> tuple[list[str], list[str]]:
     if kind == "research":
-        return ["background", "methods", "results", "contribution", "limitations"], ["背景", "方法", "结果", "贡献", "局限"]
+        return [
+            "research_question_and_background",
+            "study_design_and_population",
+            "methods",
+            "main_results",
+            "interpretation_and_novelty",
+            "scientific_and_public_health_significance",
+            "limitations_and_evidence_strength",
+        ], ["问题与背景", "设计与对象", "核心方法", "主要结果", "解释与创新", "科研与公卫意义", "局限与证据强度"]
     if kind == "review":
-        return ["background", "main_directions", "current_state", "gaps", "future_research"], ["背景", "主要方向", "研究现状", "不足", "后续研究"]
-    return ["time", "location", "event", "impact", "status"], ["时间", "地点", "事件", "影响", "状态"]
+        return [
+            "scope_and_question",
+            "evidence_base_and_review_method",
+            "consensus_and_key_conclusions",
+            "controversies_and_evidence_gaps",
+            "research_and_practice_implications",
+        ], ["范围与问题", "证据基础与方法", "共识与结论", "争议与缺口", "科研与实践启示"]
+    return [
+        "time",
+        "location_and_population",
+        "event",
+        "scale_impact_and_risk",
+        "response_status_and_uncertainty",
+    ], ["时间", "地点与对象", "事件", "规模影响与风险", "应对状态与不确定性"]
+
+
+def _python_translate_protected(
+    source: str,
+    glossary: list[dict[str, str]],
+    field_kind: str,
+) -> tuple[str, dict[str, Any]]:
+    protected, mapping = _protect(source, glossary)
+    raw, provider, attempts = _python_translate(protected)
+    candidate = _repair_zh(_restore(raw, mapping), glossary)
+    valid, reason = _looks_chinese(candidate, source, field_kind)
+    if not valid:
+        raise RuntimeError(json.dumps({"provider": provider, "reason": reason, "attempts": attempts}, ensure_ascii=False))
+    return candidate, {"status": "passed_python", "provider": provider, "attempts": attempts}
 
 
 def _translate_field_map(
@@ -391,12 +420,7 @@ def _translate_field_map(
     prompt_text: str,
     cache: dict[str, Any],
 ) -> tuple[dict[str, str], dict[str, Any]]:
-    """Translate one record in one LLM call, then fallback field by field.
-
-    This preserves v2.0's speed while preventing one malformed/missing model field
-    from invalidating the other fields. Google/Python fallback is always executed for
-    every unresolved field.
-    """
+    """Translate every field with free Python providers first and LLM last."""
     glossary = _glossary(profile)
     translated: dict[str, str] = {}
     audits: dict[str, Any] = {}
@@ -423,9 +447,21 @@ def _translate_field_map(
                 translated[key] = candidate
                 audits[key] = {**cached.get("audit", {}), "from_cache": True}
                 continue
-        unresolved[key] = source
+        try:
+            candidate, audit = _python_translate_protected(source, glossary, field_kind)
+            translated[key] = candidate
+            audits[key] = audit
+            cache[cache_key] = {"text": candidate, "audit": audit}
+        except Exception as exc:
+            audits[key] = {
+                "status": "python_failed",
+                "provider": "python_translation",
+                "attempts": [{"provider": "python_translation", "status": "failed", "error": clean_space(exc)[:800]}],
+            }
+            unresolved[key] = source
 
-    llm_attempts: list[dict[str, Any]] = []
+    # A single structured LLM request resolves all fields still missing after
+    # the Python chain. This is intentionally the final fallback.
     if unresolved and llm.available:
         protected_fields: dict[str, str] = {}
         mappings: dict[str, dict[str, str]] = {}
@@ -440,13 +476,12 @@ def _translate_field_map(
                 "fields": protected_fields,
                 "field_kinds": {key: field_kinds.get(key, "body") for key in unresolved},
                 "glossary": glossary,
-                "instruction": "Translate every field faithfully. Do not omit any key and do not summarize the abstract/body.",
+                "instruction": "Translate every field completely. Preserve every key and every number. Never return an empty field.",
             },
             ensure_ascii=False,
         )
         try:
-            result = llm.json_task(system=prompt_text, prompt=prompt, max_models_per_provider=3)
-            llm_attempts = result.attempts
+            result = llm.json_task(system=prompt_text, prompt=prompt, max_models_per_provider=2, temperature=0.05)
             response_fields = result.data.get("translations") if isinstance(result.data, dict) else {}
             if not isinstance(response_fields, dict):
                 response_fields = {}
@@ -454,57 +489,74 @@ def _translate_field_map(
                 raw = clean_space(response_fields.get(key))
                 candidate = _repair_zh(_restore(raw, mappings.get(key, {})), glossary)
                 valid, reason = _looks_chinese(candidate, source, field_kinds.get(key, "body"))
+                attempts = list((audits.get(key) or {}).get("attempts") or []) + list(result.attempts)
                 if valid:
                     audit = {
-                        "status": "passed_llm",
+                        "status": "passed_llm_final_fallback",
                         "provider": result.provider,
                         "model": result.model,
-                        "attempts": llm_attempts,
+                        "attempts": attempts,
                     }
                     translated[key] = candidate
                     audits[key] = audit
                     cache[cache_keys[key]] = {"text": candidate, "audit": audit}
                     unresolved.pop(key, None)
-                elif raw:
+                else:
                     audits[key] = {
-                        "status": "llm_quality_rejected",
+                        "status": "translation_unavailable",
                         "provider": result.provider,
                         "model": result.model,
                         "reason": reason,
-                        "attempts": llm_attempts,
+                        "attempts": attempts,
                     }
         except LLMError as exc:
-            llm_attempts = [{"provider": "llm_router", "status": "failed", "error": clean_space(exc)[:700]}]
+            for key in unresolved:
+                attempts = list((audits.get(key) or {}).get("attempts") or [])
+                attempts.append({"provider": "llm_router", "status": "failed", "error": clean_space(exc)[:700]})
+                audits[key] = {"status": "translation_unavailable", "provider": "none", "attempts": attempts}
 
-    # Every field omitted or rejected by the LLM receives the full Google/Python
-    # fallback. This is the essential v2.1 coverage guarantee.
-    for key, source in list(unresolved.items()):
-        try:
-            raw, provider, python_attempts = _python_translate(source)
-            candidate = _repair_zh(raw, glossary)
-            valid, reason = _looks_chinese(candidate, source, field_kinds.get(key, "body"))
-            attempts = llm_attempts + python_attempts
-            if valid:
-                audit = {"status": "passed_python_fallback", "provider": provider, "attempts": attempts}
-                translated[key] = candidate
-                audits[key] = audit
-                cache[cache_keys[key]] = {"text": candidate, "audit": audit}
-                unresolved.pop(key, None)
-            else:
-                audits[key] = {
-                    "status": "translation_unavailable",
-                    "provider": provider,
-                    "reason": reason,
-                    "attempts": attempts + [{"provider": provider, "status": "quality_rejected", "reason": reason}],
-                }
-        except Exception as exc:
-            audits[key] = {
-                "status": "translation_unavailable",
-                "provider": "none",
-                "attempts": llm_attempts + [{"provider": "python_translation", "status": "failed", "error": clean_space(exc)[:800]}],
-            }
-
+    for key in unresolved:
+        audits.setdefault(key, {"status": "translation_unavailable", "provider": "none", "attempts": []})
     return translated, audits
+
+
+def _clip_piece(text: str, limit: int) -> str:
+    value = clean_space(text)
+    if len(value) <= limit:
+        return value
+    sentences = split_sentences(value, max_sentences=30)
+    output = ""
+    for sentence in sentences:
+        candidate = clean_space(f"{output}{sentence}")
+        if len(candidate) > limit:
+            break
+        output = candidate
+    return output or truncate(value, limit)
+
+
+def build_wechat_news_summary(analysis_zh: dict[str, str], body_zh: str, limit: int = 500) -> str:
+    labels = [
+        ("时间", "time", 65),
+        ("地点与对象", "location_and_population", 85),
+        ("事件", "event", 125),
+        ("影响与风险", "scale_impact_and_risk", 105),
+        ("应对与不确定性", "response_status_and_uncertainty", 105),
+    ]
+    parts: list[str] = []
+    for label, key, budget in labels:
+        value = _clip_piece(analysis_zh.get(key, ""), budget)
+        if value:
+            parts.append(f"{label}：{value}")
+    result = clean_space("；".join(parts)).replace(":", "：").replace(";", "；")
+    if not result:
+        result = _clip_piece(body_zh, limit)
+    if len(result) > limit:
+        result = _clip_piece(result, limit)
+    # clean_space() applies NFKC normalization, which converts Chinese full-width
+    # punctuation to ASCII. Restore Chinese punctuation only after every clipping
+    # operation so the final WeChat text remains natural and predictable.
+    result = result[:limit].replace(":", "：").replace(";", "；").replace(",", "，")
+    return result
 
 
 def translate_record(
@@ -515,18 +567,23 @@ def translate_record(
     prompts_dir: Path,
     cache: dict[str, Any],
     kind: str,
+    wechat_news_max_zh_chars: int = 500,
 ) -> dict[str, Any]:
     prompt_text = (prompts_dir / "translate_zh.md").read_text(encoding="utf-8")
-    analysis = (record.get("analysis") or {}).get("analysis") or {}
+    analysis_block = record.get("analysis") or {}
+    analysis = analysis_block.get("analysis") or {}
     fields, _labels = _analysis_fields(kind)
 
-    title_source = truncate(clean_space(record.get("title")), 900)
+    title_source = clean_space(record.get("title"))
     if kind in {"research", "review"}:
-        body_source = truncate(clean_space(record.get("abstract")), 9000)
+        body_source = clean_space(record.get("abstract"))
         body_kind = "abstract"
     else:
-        body_source = truncate(clean_space(record.get("content") or record.get("excerpt")), 7000)
-        body_kind = "news_body"
+        # News cards use the body-grounded compact brief generated during the
+        # single-record analysis. Full original text remains available in the
+        # English details panel and is not sent through expensive translation.
+        body_source = clean_space(analysis_block.get("brief_en"))
+        body_kind = "news_brief"
 
     source_fields: dict[str, str] = {"title": title_source}
     field_kinds: dict[str, str] = {"title": "title"}
@@ -534,7 +591,7 @@ def translate_record(
         source_fields["abstract_or_body"] = body_source
         field_kinds["abstract_or_body"] = body_kind
     for field in fields:
-        source = truncate(clean_space(analysis.get(field)), 1500)
+        source = clean_space(analysis.get(field))
         if source:
             source_fields[field] = source
             field_kinds[field] = "analysis"
@@ -548,31 +605,36 @@ def translate_record(
         cache=cache,
     )
 
-    record["title_zh"] = translated.get("title") or "中文标题翻译暂不可用"
+    title_zh = clean_space(translated.get("title"))
+    body_zh = clean_space(translated.get("abstract_or_body"))
+    if kind in {"research", "review"} and not body_source and clean_space(record.get("full_text")):
+        body_zh = "原始记录未提供摘要；结构化解读依据已获取的合法开放正文证据生成。"
+        audits["abstract_or_body"] = {"status": "no_abstract_open_text_available", "provider": "deterministic", "attempts": []}
+    elif kind in {"research", "review"} and not body_source:
+        body_zh = "原始数据库记录未提供摘要。"
+        audits["abstract_or_body"] = {"status": "no_source_abstract", "provider": "deterministic", "attempts": []}
+
+    analysis_zh = {field: clean_space(translated.get(field)) for field in fields}
+    title_ready = bool(title_zh)
+    body_ready = bool(body_zh)
+    analysis_ready = all(bool(analysis_zh.get(field)) for field in fields)
+    translation_ready = title_ready and body_ready and analysis_ready
+
+    record["title_zh"] = title_zh
     record["source_body_en"] = body_source
-
-    if body_source:
-        body_zh = translated.get("abstract_or_body")
-        if not body_zh:
-            body_zh = "摘要中文翻译暂不可用；可切换 en 查看英文摘要。" if kind in {"research", "review"} else "新闻正文中文翻译暂不可用；可切换 en 查看原文。"
-        body_audit = audits.get("abstract_or_body", {})
-    elif kind in {"research", "review"} and clean_space(record.get("full_text")):
-        body_zh = "原始记录未提供摘要；下方五要素根据已获取的正文证据生成。"
-        body_audit = {"status": "no_abstract_fulltext_available", "provider": "deterministic", "attempts": []}
-    elif kind in {"research", "review"}:
-        body_zh = "原始记录未提供摘要或可分析正文；当前仅展示书目信息。"
-        body_audit = {"status": "no_abstract_or_fulltext", "provider": "deterministic", "attempts": []}
-    else:
-        body_zh = "未抓获新闻正文，当前仅提供中文标题；不根据标题扩写内容。"
-        body_audit = {"status": "no_news_body", "provider": "deterministic", "attempts": []}
-
-    analysis_zh = {field: translated.get(field) or "未报告" for field in fields}
     record["abstract_zh" if kind in {"research", "review"} else "content_zh"] = body_zh
     record["summary_zh"] = body_zh
     record["analysis_zh"] = analysis_zh
+    if kind == "news":
+        record["wechat_summary_zh"] = build_wechat_news_summary(analysis_zh, body_zh, limit=wechat_news_max_zh_chars)
+        translation_ready = translation_ready and bool(record["wechat_summary_zh"]) and len(record["wechat_summary_zh"]) <= wechat_news_max_zh_chars
+    record["translation_ready"] = translation_ready
     record["translation_audit"] = {
+        "policy_version": TRANSLATION_CACHE_VERSION,
+        "order": ["deep_translator_google", "google_direct_python", "mymemory", "llm_final_fallback"],
         "title": audits.get("title", {}),
-        "abstract_or_body": body_audit,
+        "abstract_or_body": audits.get("abstract_or_body", {}),
         "fields": {field: audits.get(field, {"status": "empty_source", "provider": "none", "attempts": []}) for field in fields},
+        "ready": translation_ready,
     }
     return record

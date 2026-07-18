@@ -65,24 +65,36 @@ def _paper_meta(work: dict[str, Any]) -> str:
 def _paper_fields(kind: str) -> list[tuple[str, str]]:
     if kind == "review":
         return [
-            ("背景", "background"),
-            ("主要方向", "main_directions"),
-            ("研究现状", "current_state"),
-            ("不足", "gaps"),
-            ("后续研究", "future_research"),
+            ("范围与问题", "scope_and_question"),
+            ("证据基础与方法", "evidence_base_and_review_method"),
+            ("共识与结论", "consensus_and_key_conclusions"),
+            ("争议与缺口", "controversies_and_evidence_gaps"),
+            ("科研与实践启示", "research_and_practice_implications"),
         ]
     return [
-        ("背景", "background"),
-        ("方法", "methods"),
-        ("结果", "results"),
-        ("贡献", "contribution"),
-        ("局限", "limitations"),
+        ("问题与背景", "research_question_and_background"),
+        ("设计与对象", "study_design_and_population"),
+        ("核心方法", "methods"),
+        ("主要结果", "main_results"),
+        ("解释与创新", "interpretation_and_novelty"),
+        ("科研与公卫意义", "scientific_and_public_health_significance"),
+        ("局限与证据强度", "limitations_and_evidence_strength"),
+    ]
+
+
+def _news_fields() -> list[tuple[str, str]]:
+    return [
+        ("时间", "time"),
+        ("地点与对象", "location_and_population"),
+        ("事件", "event"),
+        ("规模、影响与风险", "scale_impact_and_risk"),
+        ("应对、状态与不确定性", "response_status_and_uncertainty"),
     ]
 
 
 def _five_elements(data: dict[str, Any], fields: list[tuple[str, str]]) -> str:
     return "".join(
-        f"<dt>{html_escape(label)}</dt><dd>{html_escape(data.get(key) or '未报告')}</dd>"
+        f"<dt>{html_escape(label)}</dt><dd>{html_escape(data.get(key) or '原始证据未报告')}</dd>"
         for label, key in fields
     )
 
@@ -106,8 +118,8 @@ def _tier_badge(item: dict[str, Any], *, wechat: bool = False) -> str:
 
 def paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
     kind = work.get("paper_type") or "research"
-    title_zh = work.get("title_zh") or "中文标题翻译暂不可用"
-    translated = work.get("abstract_zh") or work.get("summary_zh") or "原始记录未提供可翻译摘要；本卡片不根据标题编造研究发现。"
+    title_zh = work.get("title_zh") or work.get("title") or "Untitled"
+    translated = work.get("abstract_zh") or work.get("summary_zh") or "原始数据库记录未提供摘要。"
     original = work.get("abstract") or "Original abstract is unavailable."
     authors = ", ".join((work.get("authors") or [])[:10]) or "Authors unavailable"
     analysis = work.get("analysis_zh") or {}
@@ -123,6 +135,7 @@ def paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
     elif work.get("url"):
         links.append(f'<a href="{html_escape(work["url"])}">来源</a>')
 
+    analysis_label = "综述五要素" if kind == "review" else "研究七要素"
     if wechat:
         return f"""
 <section style="margin:0 0 28px;border:1px solid {COLORS['line']};border-radius:10px;overflow:hidden;background:#fff;">
@@ -133,7 +146,7 @@ def paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
     <p style="margin:6px 0 10px;color:{COLORS['muted']};font-size:13px;font-style:italic;line-height:1.5;">{html_escape(work.get('title'))}</p>
     <p style="margin:8px 0;color:#586069;font-size:13px;"><strong>Authors:</strong> {html_escape(authors)}</p>
     <section style="margin:14px 0;padding:14px;border-radius:6px;background:{COLORS['paper_green_bg']};font-size:15px;line-height:1.75;"><strong style="display:block;margin-bottom:6px;color:{COLORS['paper_green_dark']};">摘要中文翻译</strong>{html_escape(translated)}</section>
-    <section style="margin-top:12px;padding:12px 14px;border-left:4px solid {COLORS['amber_line']};background:{COLORS['amber_bg']};font-size:14px;line-height:1.65;"><strong style="color:{COLORS['amber']};">五要素解读</strong><dl>{_five_elements(analysis, _paper_fields(kind))}</dl></section>
+    <section style="margin-top:12px;padding:12px 14px;border-left:4px solid {COLORS['amber_line']};background:{COLORS['amber_bg']};font-size:14px;line-height:1.65;"><strong style="color:{COLORS['amber']};">{analysis_label}</strong><dl>{_five_elements(analysis, _paper_fields(kind))}</dl></section>
     <p style="margin-top:13px;text-align:right;font-size:13px;font-weight:bold;">{' · '.join(links)}</p>
   </section>
 </section>"""
@@ -145,7 +158,7 @@ def paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
     <div style="font-size:12px;color:{COLORS['paper_green']};font-weight:700;margin-bottom:7px;">{_tier_badge(work)}学术文献 · {'综述' if kind == 'review' else '研究'} · {html_escape(work.get('evidence_level') or 'E0')}</div>
     <div class="lang-zh"><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(work.get('title'))}</div><div class="authors"><strong>Authors:</strong> {html_escape(authors)}</div><div class="translated-body"><strong>摘要中文翻译</strong>{html_escape(translated)}</div></div>
     <div class="lang-en" hidden><h3>{html_escape(work.get('title'))}</h3><div class="authors"><strong>Authors:</strong> {html_escape(authors)}</div><div class="original"><strong>Original Abstract</strong><br>{html_escape(original)}</div></div>
-    <details><summary>查看五要素解读</summary><dl class="five-grid">{_five_elements(analysis, _paper_fields(kind))}</dl></details>
+    <details><summary>查看{analysis_label}</summary><dl class="five-grid">{_five_elements(analysis, _paper_fields(kind))}</dl></details>
     <div class="links">{' · '.join(links)}</div>
     <div class="audit">标题翻译：{_attempt_label(audit.get('title') or {})}；摘要翻译：{_attempt_label(audit.get('abstract_or_body') or {})}；分析：{html_escape((work.get('analysis') or {}).get('status') or 'unknown')}</div>
   </div>
@@ -153,10 +166,13 @@ def paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
 
 
 def news_card(article: dict[str, Any], *, wechat: bool = False) -> str:
-    title_zh = article.get("title_zh") or "中文标题翻译暂不可用"
-    translated = article.get("content_zh") or article.get("summary_zh") or "未抓获可分析正文，当前仅保留标题、来源与发布时间；不根据标题扩写新闻内容。"
+    title_zh = article.get("title_zh") or article.get("title") or "Untitled"
+    translated = (
+        article.get("wechat_summary_zh")
+        if wechat
+        else article.get("content_zh") or article.get("summary_zh")
+    ) or ""
     original = article.get("content") or article.get("excerpt") or "Original news body is unavailable."
-    fields = [("时间", "time"), ("地点", "location"), ("事件", "event"), ("影响", "impact"), ("状态", "status")]
     analysis = article.get("analysis_zh") or {}
     link = html_escape(article.get("resolved_url") or article.get("url"))
     meta = " &nbsp;|&nbsp; ".join(
@@ -164,6 +180,7 @@ def news_card(article: dict[str, Any], *, wechat: bool = False) -> str:
             _date_label("Source", article.get("publisher") or article.get("source")),
             _date_label("Published", article.get("published_date")),
             _date_label("Fetched", article.get("retrieved_at")),
+            _date_label("Body", f"{article.get('content_status') or 'unknown'} / {article.get('content_method') or 'unknown'}"),
         ] if x
     )
     if wechat:
@@ -173,8 +190,8 @@ def news_card(article: dict[str, Any], *, wechat: bool = False) -> str:
   <section style="padding:17px;">
     <p style="margin:0 0 6px;">{_tier_badge(article, wechat=True)}</p><h3 style="margin:0;color:#9b2c2c;font-size:18px;line-height:1.45;">{html_escape(title_zh)}</h3>
     <p style="margin:5px 0;color:{COLORS['muted']};font-size:13px;line-height:1.5;">{html_escape(article.get('title'))}</p>
-    <section style="margin:13px 0;padding:14px;border-radius:6px;background:{COLORS['news_red_bg']};font-size:15px;line-height:1.75;"><strong style="display:block;margin-bottom:6px;color:{COLORS['news_red']};">新闻正文/简要中文翻译</strong>{html_escape(translated)}</section>
-    <section style="padding:12px 14px;border-left:4px solid {COLORS['amber_line']};background:{COLORS['amber_bg']};font-size:14px;line-height:1.65;"><strong style="color:{COLORS['amber']};">新闻五要素</strong><dl>{_five_elements(analysis, fields)}</dl></section>
+    <section style="margin:13px 0;padding:14px;border-radius:6px;background:{COLORS['news_red_bg']};font-size:15px;line-height:1.75;"><strong style="display:block;margin-bottom:6px;color:{COLORS['news_red']};">新闻精炼（不超过500字）</strong>{html_escape(translated)}</section>
+    <section style="padding:12px 14px;border-left:4px solid {COLORS['amber_line']};background:{COLORS['amber_bg']};font-size:14px;line-height:1.65;"><strong style="color:{COLORS['amber']};">新闻五要素</strong><dl>{_five_elements(analysis, _news_fields())}</dl></section>
     <p style="text-align:right;font-size:13px;font-weight:bold;"><a href="{link}">查看原始报道</a></p>
   </section>
 </section>"""
@@ -183,15 +200,35 @@ def news_card(article: dict[str, Any], *, wechat: bool = False) -> str:
 <article class="card news">
   <div class="meta-strip">{meta}</div>
   <div class="card-body">
-    <div class="lang-zh">{_tier_badge(article)}<h3 style="color:#9b2c2c">{html_escape(title_zh)}</h3><div class="title-en">{html_escape(article.get('title'))}</div><div class="translated-body"><strong>新闻正文/简要中文翻译</strong>{html_escape(translated)}</div></div>
-    <div class="lang-en" hidden><h3 style="color:#9b2c2c">{html_escape(article.get('title'))}</h3><div class="original"><strong>Original Body/Excerpt</strong><br>{html_escape(original)}</div></div>
-    <details><summary>查看新闻五要素</summary><dl class="five-grid">{_five_elements(analysis, fields)}</dl></details>
+    <div class="lang-zh">{_tier_badge(article)}<h3 style="color:#9b2c2c">{html_escape(title_zh)}</h3><div class="title-en">{html_escape(article.get('title'))}</div><div class="translated-body"><strong>正文要点中文精炼</strong>{html_escape(translated)}</div></div>
+    <div class="lang-en" hidden><h3 style="color:#9b2c2c">{html_escape(article.get('title'))}</h3><div class="original"><strong>Fetched Original Body</strong><br>{html_escape(original)}</div></div>
+    <details><summary>查看新闻五要素</summary><dl class="five-grid">{_five_elements(analysis, _news_fields())}</dl></details>
     <div class="links"><a href="{link}">查看原始报道</a></div>
-    <div class="audit">标题翻译：{_attempt_label(audit.get('title') or {})}；正文翻译：{_attempt_label(audit.get('abstract_or_body') or {})}；分析：{html_escape((article.get('analysis') or {}).get('status') or 'unknown')}</div>
+    <div class="audit">标题翻译：{_attempt_label(audit.get('title') or {})}；新闻精炼翻译：{_attempt_label(audit.get('abstract_or_body') or {})}；分析：{html_escape((article.get('analysis') or {}).get('status') or 'unknown')}</div>
   </div>
 </article>"""
 
 
+def _overview_html(block: dict[str, Any], title: str, *, wechat: bool = False) -> str:
+    findings = block.get("key_findings_zh") or []
+    finding_html = "".join(f"<li>{html_escape(item)}</li>" for item in findings)
+    if wechat:
+        return f"""
+<section style="padding:18px;background:{COLORS['amber_bg']};border-bottom:4px solid {COLORS['amber_line']};">
+  <h2 style="margin:0 0 7px;color:{COLORS['amber']};font-size:18px;">{html_escape(title)}</h2>
+  <h3 style="margin:0 0 8px;font-size:17px;color:#744210;">{html_escape(block.get('headline_zh'))}</h3>
+  <p style="margin:0 0 8px;font-size:14px;line-height:1.75;">{html_escape(block.get('lead_zh'))}</p>
+  <ul style="margin:7px 0;padding-left:20px;font-size:14px;line-height:1.7;">{finding_html}</ul>
+  <p style="margin:7px 0;font-size:14px;line-height:1.7;">{html_escape(block.get('trend_or_risk_zh'))}</p>
+  <p style="margin:7px 0 0;color:#718096;font-size:12px;line-height:1.65;">证据提醒：{html_escape(block.get('caveats_zh'))}</p>
+</section>"""
+    return f"""
+<section class="overview">
+  <h2>{html_escape(title)}</h2>
+  <div class="lang-zh"><h3>{html_escape(block.get('headline_zh'))}</h3><p>{html_escape(block.get('lead_zh'))}</p><ul>{finding_html}</ul><p>{html_escape(block.get('trend_or_risk_zh'))}</p><p style="font-size:12px;color:#718096;">证据提醒：{html_escape(block.get('caveats_zh'))}</p></div>
+  <div class="lang-en" hidden><h3>{html_escape(block.get('headline_en'))}</h3><p>{html_escape(block.get('brief_en'))}</p></div>
+  <p style="font-size:11px;color:#a0aec0;">汇总输入：{int(block.get('input_count') or 0)} 条；状态：{html_escape(block.get('status'))}</p>
+</section>"""
 
 
 def _source_health(issue: dict[str, Any]) -> str:
@@ -261,6 +298,8 @@ def render_site(issue: dict[str, Any], output_dir: Path) -> None:
     reviews = [p for p in papers if p.get("paper_type") == "review"]
     news = issue.get("news") or []
     overview = issue.get("overview") or {}
+    literature_overview = overview.get("literature") or {}
+    news_overview = overview.get("news") or {}
     paper_tiers = {tier: sum(1 for x in papers if x.get("priority_tier") == tier) for tier in ("A", "B", "C")}
     news_tiers = {tier: sum(1 for x in news if x.get("priority_tier") == tier) for tier in ("A", "B", "C")}
     tier_summary = (
@@ -272,13 +311,17 @@ def render_site(issue: dict[str, Any], output_dir: Path) -> None:
         _section("📗 综述与观点 / Reviews", "review", [paper_card(x) for x in reviews]),
         _section("🚨 突发动态与新闻 / Health News", "news", [news_card(x) for x in news]),
     ]
+    overview_html = (
+        _overview_html(literature_overview, "📚 本期文献进展 / Literature Brief")
+        + _overview_html(news_overview, "📰 本期新闻动态 / News Brief")
+    )
     html = f"""<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html_escape(issue['title_zh'])}</title><style>{SITE_CSS}</style></head><body><main class="page">
-<header class="hero"><img src="assets/cover.jpg" alt="{html_escape(issue['title_zh'])}"><div class="hero-text"><h1>{html_escape(issue['title_zh'])}</h1><p>{html_escape(issue['issue_date'])} | 深度科研 + 全球新闻动态 | {html_escape(issue['window_start'])}—{html_escape(issue['window_end'])}</p></div></header>
-<section class="overview"><h2>💡 今日核心综述 / Summary</h2><p class="lang-zh">{html_escape(overview.get('zh'))}</p><p class="lang-en" hidden>{html_escape(overview.get('en'))}</p><p style="font-size:12px;color:#718096;">{html_escape(tier_summary)}</p></section>
+<header class="hero"><img src="assets/cover.jpg" alt="{html_escape(issue['title_zh'])}"><div class="hero-text"><h1>{html_escape(issue['title_zh'])}</h1><p>{html_escape(issue['issue_date'])} | 文献简报 + 公共卫生新闻简报 | {html_escape(issue['window_start'])}—{html_escape(issue['window_end'])}</p></div></header>
+{overview_html}
 <div class="toolbar"><button class="language-toggle" data-language="zh">zh</button><button class="language-toggle" data-language="en">en</button></div>
-<div class="stats"><div><strong>{len(research)}</strong><span>研究文献</span></div><div><strong>{len(reviews)}</strong><span>综述文献</span></div><div><strong>{len(news)}</strong><span>新闻报道</span></div><div><strong>{issue.get('metrics',{}).get('translated',0)}</strong><span>中文翻译</span></div></div>
-<div class="content">{_source_health(issue)}{''.join(sections)}</div>
-<footer>数据来源包括 PubMed、Europe PMC、Crossref、Semantic Scholar、OpenAlex、bioRxiv/medRxiv 与公开新闻/卫生机构网页。无摘要或正文时不生成研究发现或新闻结论；五要素解读受现有证据约束。</footer>
+<div class="stats"><div><strong>{len(research)}</strong><span>研究文献</span></div><div><strong>{len(reviews)}</strong><span>综述文献</span></div><div><strong>{len(news)}</strong><span>正文有效新闻</span></div><div><strong>{issue.get('metrics',{}).get('translated',0)}</strong><span>完整中文记录</span></div></div>
+<div class="content"><p style="font-size:12px;color:#718096;">{html_escape(tier_summary)}</p>{_source_health(issue)}{''.join(sections)}</div>
+<footer>文献与新闻分别汇总；研究论文使用七要素、综述使用五要素、新闻使用五要素。翻译按免费 Python 路径优先、LLM 最终兜底；未通过翻译或新闻正文门禁的记录不进入页面。</footer>
 </main><script>{SITE_JS}</script></body></html>"""
     (site_dir / "index.html").write_text(html, encoding="utf-8")
 
@@ -300,24 +343,30 @@ def render_wechat_package(issue: dict[str, Any], output_dir: Path, cover_meta: d
     reviews = [p for p in papers if p.get("paper_type") == "review"]
     news = issue.get("news") or []
     overview = issue.get("overview") or {}
+    literature_overview = overview.get("literature") or {}
+    news_overview = overview.get("news") or {}
     body = f"""
 <section style="font-family:Arial,'Noto Sans CJK SC',sans-serif;color:#333;line-height:1.75;">
   <section style="padding:22px;background:{COLORS['navy']};color:#fff;text-align:center;">
     <h1 style="margin:0;font-size:24px;">{html_escape(issue['title_zh'])}</h1>
-    <p style="margin:8px 0 0;font-size:13px;opacity:.85;">{html_escape(issue['issue_date'])} | 深度科研 + 全球新闻动态</p>
+    <p style="margin:8px 0 0;font-size:13px;opacity:.85;">{html_escape(issue['issue_date'])} | 文献简报 + 公共卫生新闻简报</p>
   </section>
-  <section style="padding:18px;background:{COLORS['amber_bg']};border-bottom:5px solid {COLORS['amber_line']};">
-    <h2 style="margin:0 0 8px;color:{COLORS['amber']};font-size:18px;">💡 今日核心综述</h2>
-    <p style="margin:0;font-size:15px;line-height:1.75;">{html_escape(overview.get('zh'))}</p>
-  </section>
+  {_overview_html(literature_overview, '📚 本期文献进展', wechat=True)}
+  {_overview_html(news_overview, '📰 本期新闻动态', wechat=True)}
   <h2 style="border-left:6px solid {COLORS['paper_green']};padding-left:12px;color:{COLORS['paper_green']};font-size:20px;">📘 学术前沿</h2>
-  {''.join(paper_card(x, wechat=True) for x in research + reviews) or '<p>本期无符合证据要求的学术文献。</p>'}
+  {''.join(paper_card(x, wechat=True) for x in research + reviews) or '<p>本期无同时通过证据、分析和翻译门禁的学术文献。</p>'}
   <h2 style="border-left:6px solid {COLORS['news_red']};padding-left:12px;color:{COLORS['news_red']};font-size:20px;">🚨 突发动态与新闻</h2>
-  {''.join(news_card(x, wechat=True) for x in news) or '<p>本期无抓获正文且通过相关性审核的新闻。</p>'}
-  <p style="padding:16px;background:{COLORS['navy']};color:#fff;text-align:center;font-size:11px;">监测引擎：多源学术数据库与公开卫生信息源；翻译：Gemini/Groq/Google/MyMemory 多级回退；解读受原始摘要或正文约束。</p>
+  {''.join(news_card(x, wechat=True) for x in news) or '<p>本期无抓获有效原始正文并通过翻译门禁的新闻。</p>'}
+  <p style="padding:16px;background:{COLORS['navy']};color:#fff;text-align:center;font-size:11px;">文献和新闻分别汇总；翻译使用 deep-translator、Google Python 直连接口、MyMemory，最后由 Gemini/Groq 兜底；微信公众号单条新闻精炼控制在500个中文字符以内。</p>
 </section>"""
     article_file = package / "article.html"
     article_file.write_text(body, encoding="utf-8")
+    digest_source = clean_space(
+        literature_overview.get("lead_zh")
+        or literature_overview.get("headline_zh")
+        or news_overview.get("lead_zh")
+        or issue.get("title_zh")
+    )
     manifest = {
         "schema_version": 2,
         "contract": "pathogen-wechat-package/v2",
@@ -325,7 +374,7 @@ def render_wechat_package(issue: dict[str, Any], output_dir: Path, cover_meta: d
         "profile_id": issue["profile_id"],
         "report_date": issue["issue_date"],
         "title": f"{issue['title_zh']}｜{issue['issue_date']}",
-        "digest": (overview.get("zh") or "")[:120],
+        "digest": digest_source[:120],
         "content_file": "article.html",
         "content_source_url": os.getenv("PIF_CONTENT_SOURCE_URL", "").strip(),
         "show_cover_pic": 1,

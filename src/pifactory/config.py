@@ -64,6 +64,10 @@ class Settings:
     analysis_cache_enabled: bool = field(default_factory=lambda: env_bool("PIF_ANALYSIS_CACHE", True))
     news_context_query_limit: int = field(default_factory=lambda: env_int("PIF_NEWS_CONTEXT_QUERY_LIMIT", 0))
     profile_runtime_minutes: int = field(default_factory=lambda: env_int("PIF_PROFILE_RUNTIME_MINUTES", 90))
+    overview_min_items: int = field(default_factory=lambda: env_int("PIF_OVERVIEW_MIN_ITEMS", 15))
+    overview_max_items: int = field(default_factory=lambda: env_int("PIF_OVERVIEW_MAX_ITEMS", 25))
+    wechat_news_max_zh_chars: int = field(default_factory=lambda: env_int("PIF_WECHAT_NEWS_MAX_ZH_CHARS", 500))
+    display_candidate_buffer: int = field(default_factory=lambda: env_int("PIF_DISPLAY_CANDIDATE_BUFFER", 20))
     timezone: str = "Asia/Shanghai"
 
     @property

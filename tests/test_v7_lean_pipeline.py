@@ -58,11 +58,13 @@ def test_fulltext_policy_is_legal_open_access_only():
     assert prohibited not in production
 
 
-def test_workflow_and_pipeline_enrich_only_after_top50_selection():
+def test_workflow_and_pipeline_enrich_only_bounded_display_candidates():
     workflow = (ROOT / ".github/workflows/daily-intelligence.yml").read_text(encoding="utf-8")
-    assert 'PIF_MAX_FULLTEXTS: "50"' in workflow
-    assert 'PIF_MAX_NEWS_FETCHES: "50"' in workflow
+    assert 'PIF_MAX_FULLTEXTS: "70"' in workflow
+    assert 'PIF_MAX_NEWS_FETCHES: "70"' in workflow
+    assert 'PIF_DISPLAY_CANDIDATE_BUFFER: "20"' in workflow
     pipeline = (ROOT / "src/pifactory/pipeline.py").read_text(encoding="utf-8")
-    selection = pipeline.index("papers = rank_papers(papers)[: settings.max_papers]")
+    selection = pipeline.index("paper_queue = rank_papers(papers)")
     enrichment = pipeline.index("lambda item: enrich_scholarly_work", selection)
-    assert enrichment > selection
+    final_slice = pipeline.index("papers = rank_papers(papers)[: settings.max_papers]", enrichment)
+    assert selection < enrichment < final_slice

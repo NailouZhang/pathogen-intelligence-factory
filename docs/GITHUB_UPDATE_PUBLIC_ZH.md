@@ -1,29 +1,36 @@
-# v7 公开仓 GitHub 更新命令
-
-以下命令只修改公开仓。
+# 公开仓 GitHub 升级与运行命令 v8
 
 ```bash
-rm -rf /tmp/pathogen-weekly21-v7-bundle
-unzip "$HOME/下载/pathogen-weekly21-v7-complete-bundle.zip" -d /tmp
+set -Eeuo pipefail
 
-cd "$HOME/github-projects/pathogen-intelligence-factory"
-git status
+cd "$HOME/下载"
+chmod +x pathogen-weekly21-v8_public_manager.sh
 
-git tag -a "before-weekly21-v7-$(date +%Y%m%d-%H%M%S)"   -m "Stable public version before weekly21 v7"
-git push origin --tags
+bash pathogen-weekly21-v8_public_manager.sh extract
+bash pathogen-weekly21-v8_public_manager.sh tag
+bash pathogen-weekly21-v8_public_manager.sh sync
+bash pathogen-weekly21-v8_public_manager.sh test
+bash pathogen-weekly21-v8_public_manager.sh commit
+bash pathogen-weekly21-v8_public_manager.sh configure-secrets
+bash pathogen-weekly21-v8_public_manager.sh configure-vars
 
-PUBLIC_REPO_DIR="$HOME/github-projects/pathogen-intelligence-factory"   bash /tmp/pathogen-weekly21-v7-bundle/install_public_repo_update.sh
+# 单病毒验收：不推微信、刷新词库、确定性封面、balanced 复核
+bash pathogen-weekly21-v8_public_manager.sh   run-one hantavirus false true deterministic balanced
 
-cd "$HOME/github-projects/pathogen-intelligence-factory"
-python -m pip install -r requirements.txt
-python scripts/validate_all_profiles.py
-python scripts/audit_query_coverage.py
-python -m pytest -q
-python -m compileall -q src scripts tests
+sleep 5
+bash pathogen-weekly21-v8_public_manager.sh watch
 
-git status
-git diff --stat
-git add .
-git commit -m "feat: use lean five-concept retrieval and Top-50 enrichment v7"
-git push
+# 日常重跑
+bash pathogen-weekly21-v8_public_manager.sh   run-one hantavirus false false deterministic balanced
+
+# 全部21个初始化，不推微信
+bash pathogen-weekly21-v8_public_manager.sh   run-all false true deterministic balanced
+
+# 当天3个并触发微信
+bash pathogen-weekly21-v8_public_manager.sh   run-today true auto balanced
+
+# 查看数据分支 SHA 和微信包
+bash pathogen-weekly21-v8_public_manager.sh data-sha
+bash pathogen-weekly21-v8_public_manager.sh check-package hantavirus
+bash pathogen-weekly21-v8_public_manager.sh status
 ```

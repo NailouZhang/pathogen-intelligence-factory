@@ -30,16 +30,18 @@ def test_technical_title_validation_allows_scientific_abbreviations():
     assert _looks_chinese(title, "Analysis of CASP1 and IL-6 polymorphisms in HFRS patients", "title")[0]
 
 
-def test_record_card_body_uses_abstract_translation_not_five_elements(monkeypatch, tmp_path: Path):
+def test_record_card_body_uses_abstract_translation_not_structured_analysis(monkeypatch, tmp_path: Path):
     def fake_python_translate(text: str):
         mapping = {
             "An English title": "一个英文标题",
             "This is the original abstract with 13 cases.": "这是包含13例病例的原始摘要。",
-            "research context": "研究背景",
-            "study design": "研究方法",
+            "research context": "研究问题与背景",
+            "cross-sectional study in workers": "林业工作者横断面研究",
+            "antibody testing": "抗体检测方法",
             "13 cases": "共13例病例",
-            "scientific contribution": "科学贡献",
-            "abstract only": "仅有摘要",
+            "novel occupational evidence": "新的职业暴露证据",
+            "surveillance significance": "监测意义",
+            "abstract only": "仅有摘要，证据有限",
         }
         return mapping[text], "python_google_translate", [{"provider": "python_google_translate", "status": "success"}]
 
@@ -51,11 +53,13 @@ def test_record_card_body_uses_abstract_translation_not_five_elements(monkeypatc
         "abstract": "This is the original abstract with 13 cases.",
         "analysis": {
             "analysis": {
-                "background": "research context",
-                "methods": "study design",
-                "results": "13 cases",
-                "contribution": "scientific contribution",
-                "limitations": "abstract only",
+                "research_question_and_background": "research context",
+                "study_design_and_population": "cross-sectional study in workers",
+                "methods": "antibody testing",
+                "main_results": "13 cases",
+                "interpretation_and_novelty": "novel occupational evidence",
+                "scientific_and_public_health_significance": "surveillance significance",
+                "limitations_and_evidence_strength": "abstract only",
             }
         },
     }
@@ -63,8 +67,9 @@ def test_record_card_body_uses_abstract_translation_not_five_elements(monkeypatc
     assert record["title_zh"] == "一个英文标题"
     assert record["abstract_zh"] == "这是包含13例病例的原始摘要。"
     assert record["summary_zh"] == record["abstract_zh"]
-    assert record["analysis_zh"]["background"] == "研究背景"
-    assert "背景：" not in record["summary_zh"]
+    assert record["analysis_zh"]["research_question_and_background"] == "研究问题与背景"
+    assert record["translation_ready"] is True
+    assert "问题与背景：" not in record["summary_zh"]
 
 
 def test_direct_google_endpoint_payload(monkeypatch):

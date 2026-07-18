@@ -10,7 +10,7 @@ from urllib.parse import urljoin, urlparse
 import fitz
 import trafilatura
 from bs4 import BeautifulSoup
-from rapidfuzz.fuzz import partial_ratio
+from rapidfuzz.fuzz import partial_ratio, token_set_ratio
 
 from .http import HttpClient
 from .utils import clean_space, extract_doi, normalize_title, sha256_text, split_sentences, strip_tags, truncate, unique_strings, utc_now_iso
@@ -77,60 +77,193 @@ def _extract_jsonld(soup: BeautifulSoup) -> tuple[str, str]:
     return title, body
 
 
-def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars: int = 14000) -> dict[str, Any]:
-    audit: dict[str, Any] = {"attempted_urls": [], "retrieved_at": utc_now_iso()}
-    candidates = unique_strings([record.get("url")])
-    best_text = remove_boilerplate(record.get("excerpt") or "")
-    best_title = clean_space(record.get("title"))
-    method = "rss_excerpt" if best_text else "none"
-    final_url = record.get("url")
+def _paragraph_text(soup: BeautifulSoup) -> str:
+    paragraphs: list[str] = []
+    for node in soup.select("article p, main p, [role='main'] p, .article-body p, .story-body p, .entry-content p, .post-content p"):
+        value = clean_space(node.get_text(" "))
+        if len(value) >= 35:
+            paragraphs.append(value)
+    return clean_space(" ".join(unique_strings(paragraphs)))
 
-    for url in candidates[:4]:
+
+def _candidate_news_urls(record: dict[str, Any]) -> list[str]:
+    return unique_strings(
+        [
+            record.get("resolved_url"),
+            record.get("url"),
+            record.get("source_url"),
+            record.get("canonical_url"),
+            record.get("link"),
+            record.get("original_url"),
+        ]
+    )
+
+
+def _news_text_quality(text: str, title: str) -> tuple[bool, float, dict[str, Any]]:
+    value = remove_boilerplate(text)
+    title_norm = normalize_title(title)
+    value_norm = normalize_title(value)
+    title_similarity = token_set_ratio(title_norm, value_norm) / 100 if title_norm and value_norm else 0.0
+    sentences = split_sentences(value, max_sentences=200)
+    words = re.findall(r"[A-Za-z0-9\u4e00-\u9fff]+", value.lower())
+    unique_ratio = len(set(words)) / max(1, len(words))
+    title_only = bool(
+        value
+        and len(value) <= max(260, len(clean_space(title)) * 4)
+        and title_similarity >= 0.82
+    )
+    navigation_noise = sum(
+        value.lower().count(marker)
+        for marker in (
+            "cookie",
+            "privacy policy",
+            "sign in",
+            "subscribe",
+            "all rights reserved",
+            "advertisement",
+            "accept cookies",
+        )
+    )
+    valid = len(value) >= 320 and len(sentences) >= 2 and not title_only and unique_ratio >= 0.12
+    score = min(len(value), 12000) / 50 + len(sentences) * 3 + unique_ratio * 40 - navigation_noise * 10
+    if title_only:
+        score -= 300
+    return valid, score, {
+        "chars": len(value),
+        "sentences": len(sentences),
+        "unique_word_ratio": round(unique_ratio, 3),
+        "title_body_similarity": round(title_similarity, 3),
+        "title_only": title_only,
+        "navigation_noise": navigation_noise,
+    }
+
+
+def _extract_news_candidates(raw: str, soup: BeautifulSoup) -> list[tuple[str, str]]:
+    jsonld_title, jsonld_body = _extract_jsonld(soup)
+    candidates: list[tuple[str, str]] = []
+    if jsonld_body:
+        candidates.append(("jsonld_articleBody", jsonld_body))
+    precision = trafilatura.extract(
+        raw,
+        include_comments=False,
+        include_tables=False,
+        favor_precision=True,
+    ) or ""
+    if precision:
+        candidates.append(("trafilatura_precision", precision))
+    recall = trafilatura.extract(
+        raw,
+        include_comments=False,
+        include_tables=False,
+        favor_recall=True,
+    ) or ""
+    if recall:
+        candidates.append(("trafilatura_recall", recall))
+    article = soup.find("article") or soup.find("main") or soup.find(attrs={"role": "main"})
+    if article:
+        candidates.append(("article_or_main", article.get_text(" ")))
+    paragraphs = _paragraph_text(soup)
+    if paragraphs:
+        candidates.append(("paragraph_selector", paragraphs))
+    try:
+        basic = trafilatura.html2txt(raw) or ""
+        if basic:
+            candidates.append(("trafilatura_html2txt", basic))
+    except Exception:
+        pass
+    return [(method, remove_boilerplate(value)) for method, value in candidates if clean_space(value)]
+
+
+def resolve_and_extract_news(http: HttpClient, record: dict[str, Any], max_chars: int = 18000) -> dict[str, Any]:
+    audit: dict[str, Any] = {
+        "attempted_urls": [],
+        "extraction_attempts": [],
+        "retrieved_at": utc_now_iso(),
+    }
+    queue = _candidate_news_urls(record)
+    visited: set[str] = set()
+    best_text = ""
+    best_title = clean_space(record.get("title"))
+    best_method = "none"
+    best_score = float("-inf")
+    best_quality: dict[str, Any] = {}
+    final_url = clean_space(record.get("url"))
+
+    while queue and len(visited) < 6:
+        url = queue.pop(0)
+        if not url or url in visited:
+            continue
+        visited.add(url)
+        audit["attempted_urls"].append(url)
         try:
-            audit["attempted_urls"].append(url)
-            response = http.request("GET", url, allow_redirects=True)
+            response = http.request("GET", url, allow_redirects=True, timeout=25, retry_attempts=2)
             final_url = response.url
-            content_type = response.headers.get("Content-Type", "")
+            content_type = response.headers.get("Content-Type", "").lower()
             if "html" not in content_type and "text" not in content_type:
+                audit["extraction_attempts"].append({"url": url, "status": "unsupported_content_type", "content_type": content_type})
                 continue
             raw = response.text
-            extracted = trafilatura.extract(raw, include_comments=False, include_tables=False, favor_precision=True) or ""
             soup = BeautifulSoup(raw, "lxml")
-            jsonld_title, jsonld_body = _extract_jsonld(soup)
-            if len(jsonld_body) > len(extracted):
-                extracted = jsonld_body
-                method = "jsonld_articleBody"
-            elif extracted:
-                method = "trafilatura"
-            if not extracted:
-                article = soup.find("article") or soup.find("main") or soup.find(attrs={"role": "main"})
-                if article:
-                    extracted = clean_space(article.get_text(" "))
-                    method = "article_or_main"
-            if not extracted:
-                extracted = _meta_content(soup, [("name", "description"), ("property", "og:description")])
-                method = "meta_description" if extracted else method
-            extracted = remove_boilerplate(extracted)
-            candidate_title = jsonld_title or _meta_content(soup, [("property", "og:title"), ("name", "citation_title")])
+            jsonld_title, _ = _extract_jsonld(soup)
+            candidate_title = jsonld_title or _meta_content(
+                soup,
+                [("property", "og:title"), ("name", "twitter:title"), ("name", "citation_title")],
+            )
             if candidate_title:
                 best_title = candidate_title
-            if len(extracted) > len(best_text):
-                best_text = extracted
-            canonical = soup.find("link", rel=lambda x: x and "canonical" in x)
+            canonical = soup.find("link", rel=lambda x: x and "canonical" in str(x).lower())
+            canonical_url = ""
             if canonical and canonical.get("href"):
-                final_url = urljoin(final_url, canonical.get("href"))
-            if len(best_text) >= 800:
+                canonical_url = urljoin(final_url, canonical.get("href"))
+                record["canonical_url"] = canonical_url
+                if canonical_url not in visited and canonical_url not in queue:
+                    queue.append(canonical_url)
+            for method, extracted in _extract_news_candidates(raw, soup):
+                valid, score, quality = _news_text_quality(extracted, best_title or record.get("title"))
+                audit["extraction_attempts"].append(
+                    {
+                        "url": final_url,
+                        "method": method,
+                        "status": "valid" if valid else "rejected",
+                        **quality,
+                    }
+                )
+                if valid and score > best_score:
+                    best_text = extracted
+                    best_method = method
+                    best_score = score
+                    best_quality = quality
+                    record["canonical_url"] = canonical_url or final_url
+            if best_text and len(best_text) >= 2200:
                 break
         except Exception as exc:
-            audit.setdefault("errors", []).append(clean_space(exc)[:300])
+            audit.setdefault("errors", []).append({"url": url, "error": clean_space(exc)[:400]})
+
+    rss_excerpt = remove_boilerplate(record.get("excerpt") or "")
+    excerpt_valid, _, excerpt_quality = _news_text_quality(rss_excerpt, record.get("title"))
+    if best_text:
+        content_status = "full" if len(best_text) >= 1500 else "partial"
+        content = truncate(best_text, max_chars)
+    elif rss_excerpt:
+        # RSS text remains in the audit and can support candidate ranking, but it
+        # is not accepted as a fetched original report body for final display.
+        content_status = "excerpt_only" if not excerpt_quality.get("title_only") else "title_only_rejected"
+        content = ""
+        best_method = "rss_excerpt_not_displayable"
+        best_quality = excerpt_quality
+    else:
+        content_status = "unavailable"
+        content = ""
 
     record["resolved_url"] = final_url
+    record["retrieved_at"] = audit["retrieved_at"]
     record["content_title"] = best_title
-    record["content"] = truncate(best_text, max_chars)
-    record["content_status"] = "full" if len(best_text) >= 1800 else ("partial" if len(best_text) >= 300 else "unavailable")
-    record["content_method"] = method
-    record["content_hash"] = sha256_text(best_text) if best_text else None
-    record["content_audit"] = audit
+    record["content"] = content
+    record["content_status"] = content_status
+    record["content_method"] = best_method
+    record["content_hash"] = sha256_text(content) if content else None
+    record["title_body_similarity"] = best_quality.get("title_body_similarity")
+    record["content_audit"] = {**audit, "selected_quality": best_quality}
     return record
 
 
@@ -296,10 +429,3 @@ def enrich_scholarly_work(http: HttpClient, work: dict[str, Any], mailto: str, m
     work["content_audit"] = audit
     return work
 
-
-def _meta_content(soup: BeautifulSoup, names: list[tuple[str, str]]) -> str:
-    for attr, value in names:
-        tag = soup.find("meta", attrs={attr: value})
-        if tag and tag.get("content"):
-            return clean_space(tag.get("content"))
-    return ""
