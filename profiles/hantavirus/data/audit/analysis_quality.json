@@ -1,0 +1,4353 @@
+{
+  "run": {
+    "policy_version": "v11-analysis-quality-observability-1",
+    "scope": "candidate_pool",
+    "severity": "critical",
+    "warning_ratio": 0.2,
+    "critical_ratio": 0.5,
+    "message_zh": "本期分析质量严重降级：20/33 条（60.6%）使用低置信规则兜底。主要原因：模型 JSON 未通过结构/证据校验。七/五要素仅可作为来源文本的辅助摘录，不应视为完整的模型精读。",
+    "message_en": "Analysis quality is critically degraded: 20/33 items (60.6%) used low-confidence deterministic extraction. Main causes: model JSON failed schema or evidence validation.",
+    "papers": {
+      "total_items": 21,
+      "analyzable": 21,
+      "passed": 2,
+      "fallback": 19,
+      "fallback_ratio": 0.9048,
+      "statuses": {
+        "fallback_source_extract": 19,
+        "passed": 2
+      }
+    },
+    "news": {
+      "total_items": 12,
+      "analyzable": 12,
+      "passed": 11,
+      "fallback": 1,
+      "fallback_ratio": 0.0833,
+      "statuses": {
+        "fallback_source_extract": 1,
+        "passed": 11
+      }
+    },
+    "combined": {
+      "total_items": 33,
+      "analyzable": 33,
+      "passed": 13,
+      "fallback": 20,
+      "fallback_ratio": 0.6061,
+      "statuses": {
+        "fallback_source_extract": 20,
+        "passed": 13
+      }
+    },
+    "top_failure_categories": [
+      {
+        "category": "validation_failed",
+        "count": 20,
+        "label_zh": "模型 JSON 未通过结构/证据校验",
+        "label_en": "model JSON failed schema or evidence validation"
+      }
+    ],
+    "provider_attempts": {
+      "gemini:skipped": 20,
+      "groq:skipped": 33,
+      "mistral:failed": 41,
+      "mistral:success": 13,
+      "openrouter:failed": 34,
+      "openrouter:skipped": 6,
+      "siliconflow:skipped": 33
+    },
+    "model_attempts": {
+      "gemini/not_selected:skipped": 20,
+      "groq/not_selected:skipped": 33,
+      "mistral/mistral-small-2506:failed": 20,
+      "mistral/mistral-small-2506:success": 1,
+      "mistral/mistral-small-latest:failed": 21,
+      "mistral/mistral-small-latest:success": 12,
+      "openrouter/cohere/north-mini-code:free:failed": 18,
+      "openrouter/cohere/north-mini-code:free:skipped": 2,
+      "openrouter/openrouter/free:failed": 16,
+      "openrouter/openrouter/free:skipped": 4,
+      "siliconflow/not_selected:skipped": 33
+    },
+    "attempt_failure_categories": {
+      "invalid_json": 4,
+      "rate_limited": 3,
+      "unknown": 18,
+      "validation_failed": 50
+    },
+    "preflight": {
+      "schema_version": 2,
+      "generated_at": "2026-07-18T17:51:26+00:00",
+      "status": "ready",
+      "analysis_provider_configured": [
+        "gemini",
+        "groq",
+        "openrouter",
+        "mistral",
+        "siliconflow"
+      ],
+      "analysis_provider_passed": [
+        "groq",
+        "openrouter",
+        "mistral",
+        "siliconflow"
+      ],
+      "live_probe_performed": true,
+      "provider_orders": {
+        "extract": [
+          "siliconflow",
+          "groq",
+          "mistral",
+          "openrouter",
+          "gemini"
+        ],
+        "rescue": [
+          "gemini",
+          "mistral",
+          "openrouter",
+          "groq",
+          "siliconflow"
+        ]
+      },
+      "providers": [
+        {
+          "provider": "gemini",
+          "status": "failed",
+          "failure_category": "authentication_failed",
+          "error": "All configured LLM attempts failed (authentication_failed)",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-2.5-flash",
+              "retry_index": 0,
+              "at": "2026-07-18T17:51:22+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: HTTP status 403: 403 Client Error: Forbidden for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=[REDACTED] response={ \"error\": { \"code\": 403, \"message\": \"Your API key was reported as leaked. Please use another API key.\", \"status\": \"PERMISSION_DENIED\" } }",
+              "elapsed_ms": 91
+            }
+          ]
+        },
+        {
+          "provider": "groq",
+          "status": "passed",
+          "model": "llama-3.1-8b-instant",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "groq",
+              "model": "llama-3.1-8b-instant",
+              "retry_index": 0,
+              "at": "2026-07-18T17:51:22+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "llama-3.1-8b-instant",
+              "elapsed_ms": 61,
+              "usage": {
+                "prompt_tokens": 68,
+                "completion_tokens": 9,
+                "total_tokens": 77
+              }
+            }
+          ]
+        },
+        {
+          "provider": "openrouter",
+          "status": "passed",
+          "model": "nvidia/nemotron-3-super-120b-a12b:free",
+          "account": {
+            "status": "ok",
+            "is_free_tier": true,
+            "limit": null,
+            "limit_remaining": null,
+            "usage_daily": 0,
+            "usage_weekly": 0,
+            "usage_monthly": 0
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "openrouter",
+              "model": "openrouter/free",
+              "retry_index": 0,
+              "at": "2026-07-18T17:51:22+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "elapsed_ms": 805,
+              "usage": {
+                "prompt_tokens": 33,
+                "completion_tokens": 52,
+                "total_tokens": 85
+              }
+            }
+          ]
+        },
+        {
+          "provider": "mistral",
+          "status": "passed",
+          "model": "mistral-small-latest",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "mistral",
+              "model": "mistral-small-latest",
+              "retry_index": 0,
+              "at": "2026-07-18T17:51:24+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "mistral-small-latest",
+              "elapsed_ms": 331,
+              "usage": {
+                "prompt_tokens": 22,
+                "completion_tokens": 6,
+                "total_tokens": 28
+              }
+            }
+          ]
+        },
+        {
+          "provider": "siliconflow",
+          "status": "passed",
+          "model": "Qwen/Qwen3-8B",
+          "account": {
+            "status": "ok",
+            "account_status": "normal",
+            "balance": "1",
+            "charge_balance": "0",
+            "total_balance": "1"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "siliconflow",
+              "model": "Qwen/Qwen3-8B",
+              "retry_index": 0,
+              "at": "2026-07-18T17:51:25+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "Qwen/Qwen3-8B",
+              "elapsed_ms": 1449,
+              "usage": {
+                "prompt_tokens": 34,
+                "completion_tokens": 5,
+                "total_tokens": 39
+              }
+            }
+          ]
+        }
+      ],
+      "credentials": [
+        {
+          "name": "CROSSREF_MAILTO",
+          "level": "recommended",
+          "purpose": "Crossref polite pool and contact identity",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "UNPAYWALL_EMAIL",
+          "level": "recommended",
+          "purpose": "legal open-access location lookup; may equal CROSSREF_MAILTO",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "NCBI_API_KEY",
+          "level": "recommended",
+          "purpose": "higher PubMed E-utilities request allowance",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GEMINI_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Gemini structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GROQ_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Groq OpenAI-compatible structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENROUTER_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "OpenRouter free-model router and rescue provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "MISTRAL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Mistral structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SILICONFLOW_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "SiliconFlow structured-analysis provider with balance check",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENALEX_API_KEY",
+          "level": "required_for_openalex",
+          "purpose": "OpenAlex currently requires an API key",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SEMANTIC_SCHOLAR_API_KEY",
+          "level": "optional_but_recommended",
+          "purpose": "anonymous retrieval remains enabled with conservative pacing",
+          "configured": false,
+          "note": "not configured"
+        },
+        {
+          "name": "RELIEFWEB_APPNAME",
+          "level": "pending_approval",
+          "purpose": "pre-approved ReliefWeb appname; a bundled default is available",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "PUBLISHER_REPO_TOKEN",
+          "level": "required_for_wechat_dispatch",
+          "purpose": "repository_dispatch to the private publisher repository",
+          "configured": true,
+          "note": "configured"
+        }
+      ]
+    },
+    "fallback_records": [
+      {
+        "type": "paper",
+        "id": "paper-e7f60da441e68eed",
+        "title": "Hantavirus cardiopulmonary syndrome in children: a systematic scoping review of presentation, critical care management, and outcomes",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:12:10+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:12:10+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:12:10+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4608,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['results']",
+            "elapsed_ms": 5079
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:12:15+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4608,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['background', 'results']",
+            "elapsed_ms": 6698
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:12:21+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4608,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['background', 'results']",
+            "elapsed_ms": 28564
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:12:50+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4608,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 15647
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:13:06+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-64e42dd5583b4f6f",
+        "title": "Andes Virus — A Clinical Review",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:13:06+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:13:06+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:06+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 2591,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 2771
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:08+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 2591,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5367
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:14+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 2591,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid JSON",
+            "elapsed_ms": 12716
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:26+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 2591,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 14530
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:13:41+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-429d41dae56ad7f4",
+        "title": "Hantavirus preparedness among undergraduate nursing students in the United Arab Emirates: a cross-sectional study of knowledge, risk perception and preventive practice",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:13:41+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:13:41+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:41+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4989,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['conclusion']",
+            "elapsed_ms": 11839
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:53+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4989,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['conclusion', 'implications']",
+            "elapsed_ms": 5483
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:58+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4989,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['conclusion']",
+            "elapsed_ms": 98633
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:15:37+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4989,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 9611
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:15:46+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-5e71221146a431c6",
+        "title": "Bleeding in haemorrhagic fever with renal syndrome: A systematic review characterising the loss of haemostasis in hantavirus infections",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:15:47+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:15:47+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:15:47+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5611,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['background', 'design_population']",
+            "elapsed_ms": 4662
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:15:51+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5611,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['design_population', 'methods']",
+            "elapsed_ms": 5108
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:15:56+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5611,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['background', 'design_population']",
+            "elapsed_ms": 11726
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:16:08+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5611,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 13415
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:16:21+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-c4119fa47e14d3a3",
+        "title": "Can hantaviruses cause pandemics?",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:16:21+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:16:21+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:16:21+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5419,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5981
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:16:27+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5419,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method contains unknown evidence ids",
+            "elapsed_ms": 5304
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:16:33+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5419,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 67723
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:17:40+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5419,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 14661
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:17:55+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-4d1eef53093534ee",
+        "title": "Ecological Cascades and Future Hantavirus Spillover Risk in a Changing Climate",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:17:55+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:17:55+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:17:55+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6533,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: main_results cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4894
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:18:00+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6533,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: main_results cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5978
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:18:06+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6533,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: main_results cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 58504
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:19:05+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6533,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 21855
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:19:26+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-333e49855e5fbc72",
+        "title": "Ribavirin post-exposure prophylaxis for Andes virus exposure: a viewpoint.",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:19:26+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:19:26+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:19:26+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4380,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4403
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:19:31+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4380,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4026
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:19:35+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4380,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 26778
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:02+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4380,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 24139
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:20:26+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-c9c81052bd6f7f36",
+        "title": "First nationwide full-genome characterisation of human-derived Andes virus in Chile: a retrospective genomic epidemiology study.",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:20:26+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:20:26+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:26+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6116,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: limitations_and_evidence_strength cites evidence assigned to the wrong rhetorical role: ['interpretation']",
+            "elapsed_ms": 3889
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:30+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6116,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: limitations_and_evidence_strength cites evidence assigned to the wrong rhetorical role: ['interpretation']",
+            "elapsed_ms": 5088
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:35+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6116,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"cognitivecomputations/dolphin-mistral-24b-venice-edition:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Venice\",\"is_byok\":false,\"retry_after_seconds\":2,\"retry_after_seconds_raw\":1.845,\"previous_errors\":[{\"code\":429,\"message\":\"Provider returned error\",\"provider_name\":\"Google AI Studio\",\"raw\":\"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\"}]}},\"user_id\":\"",
+            "elapsed_ms": 150
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:35+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6116,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 4785
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:20:40+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-7496dd4165f387c3",
+        "title": "Hantavirus Diseases: A Review of Virology, Clinical Features, and Therapeutic Approaches",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:20:40+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:20:40+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:40+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4300,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general', 'implications']",
+            "elapsed_ms": 4675
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:44+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4300,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general', 'implications']",
+            "elapsed_ms": 5937
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T18:20:50+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:50+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4300,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 19466
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:21:10+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-8cd10db137df072f",
+        "title": "Hantavirus and Middle East Public Health Challenges: A Subject Review",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:21:17+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:21:17+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:21:17+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4041,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['implications']",
+            "elapsed_ms": 5391
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:21:22+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4041,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method lacks evidence ids",
+            "elapsed_ms": 4455
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T18:21:26+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:21:26+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4041,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 21516
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:21:48+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-d346d9db95eb163b",
+        "title": "Expedition cruises, island hopping, and zoonotic risk: governance and operational lessons from the MV Hondius Andes hantavirus outbreak",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:21:48+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:21:48+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:21:48+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4082,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 3285
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:21:51+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4082,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4253
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:21:55+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4082,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method lacks evidence ids",
+            "elapsed_ms": 37214
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:22:33+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4082,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 17703
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:22:50+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-5e4ab42bad47de4b",
+        "title": "Modeling the Transmission Dynamics of Hantavirus with Environmental Viral Persistence",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:22:50+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:22:50+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:22:50+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4207,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5048
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:22:55+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4207,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4948
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:23:00+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4207,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 21772
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:23:22+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4207,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 23598
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:23:46+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-c5bfab3ff6a272dc",
+        "title": "HantaWatch: Federated Learning for Hantavirus Genomic Surveillance",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:23:46+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:23:46+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:23:46+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3350,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: scope_and_question cites evidence assigned to the wrong rhetorical role: ['limitations']",
+            "elapsed_ms": 2829
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:23:49+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3350,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: scope_and_question cites evidence assigned to the wrong rhetorical role: ['limitations']",
+            "elapsed_ms": 3633
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:23:52+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3350,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid JSON",
+            "elapsed_ms": 24770
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:24:17+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3350,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 22461
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:24:39+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-f8cf9317e5731430",
+        "title": "Hantavirus outbreak in a cruise departing from Argentina",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:24:39+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:24:39+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:24:39+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2825,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4479
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:24:44+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2825,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4034
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:24:48+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2825,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid JSON",
+            "elapsed_ms": 28636
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:17+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2825,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 10264
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:25:27+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-4558d01c6b1eebf9",
+        "title": "Serologic Evidence of Hantavirus Exposure in Humans, Italy, 2004–2018",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:25:27+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:25:27+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:27+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3449,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: research_question_and_background cites evidence assigned to the wrong rhetorical role: ['implications']",
+            "elapsed_ms": 5348
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:32+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3449,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: research_question_and_background lacks evidence ids",
+            "elapsed_ms": 1810
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:34+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3449,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: research_question_and_background lacks evidence ids",
+            "elapsed_ms": 8075
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:42+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3449,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 7722
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:25:50+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-e073d81bf4458fae",
+        "title": "Enfermedades transmitidas por vectores: chagas, dengue, malaria y hantavirus",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:25:50+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:25:50+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:50+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2716,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population lacks evidence ids",
+            "elapsed_ms": 3470
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:53+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2716,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 3815
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:57+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2716,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: research_question_and_background lacks evidence ids",
+            "elapsed_ms": 30567
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:26:28+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2716,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 16209
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:26:44+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-0cdc3885e08582c8",
+        "title": "Long-term storage stability of multiplex immunochromatographic assay strips for serologic monitoring of infectious diseases in laboratory rodents.",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:26:44+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:26:44+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:26:44+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3853,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: methods cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 8666
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:26:53+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3853,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: methods cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5823
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:26:58+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3853,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid JSON",
+            "elapsed_ms": 28020
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:26+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3853,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 8454
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:27:35+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-9f3335d6107ba88e",
+        "title": "Research on Mathematical Modeling of Infectious Disease Spread on Cruise Ships",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:27:35+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:27:35+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:35+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3300,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4437
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:39+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3300,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4973
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:44+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3300,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"}]}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 40
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:44+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3300,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 221
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:27:45+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-f36220c369f968f1",
+        "title": "Derived GBIF Occurrences for Pandit et al.",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:27:45+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:27:45+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:45+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 1895,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 2758
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:47+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 1895,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 2888
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T18:27:50+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T18:27:50+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:27:50+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "news",
+        "id": "news-9cc18083a47a597d",
+        "title": "Hantavirus and Ebola scares reveal cracks in public health messaging, infectious diseases experts warn - Labmate Online",
+        "failure_category": "validation_failed",
+        "fallback_policy": "cue_and_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "news_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:28:38+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:28:38+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:28:38+00:00",
+            "system_chars": 3355,
+            "prompt_chars": 14121,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: location_and_population lacks evidence ids",
+            "elapsed_ms": 3064
+          },
+          {
+            "task": "news_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:28:41+00:00",
+            "system_chars": 3355,
+            "prompt_chars": 14121,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: time lacks evidence ids",
+            "elapsed_ms": 1934
+          },
+          {
+            "task": "news_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T18:28:43+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T18:28:43+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:28:43+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      }
+    ]
+  },
+  "displayed": {
+    "policy_version": "v11-analysis-quality-observability-1",
+    "scope": "displayed",
+    "severity": "critical",
+    "warning_ratio": 0.2,
+    "critical_ratio": 0.5,
+    "message_zh": "本期分析质量严重降级：20/25 条（80.0%）使用低置信规则兜底。主要原因：模型 JSON 未通过结构/证据校验。七/五要素仅可作为来源文本的辅助摘录，不应视为完整的模型精读。",
+    "message_en": "Analysis quality is critically degraded: 20/25 items (80.0%) used low-confidence deterministic extraction. Main causes: model JSON failed schema or evidence validation.",
+    "papers": {
+      "total_items": 19,
+      "analyzable": 19,
+      "passed": 0,
+      "fallback": 19,
+      "fallback_ratio": 1.0,
+      "statuses": {
+        "fallback_source_extract": 19
+      }
+    },
+    "news": {
+      "total_items": 6,
+      "analyzable": 6,
+      "passed": 5,
+      "fallback": 1,
+      "fallback_ratio": 0.1667,
+      "statuses": {
+        "fallback_source_extract": 1,
+        "passed": 5
+      }
+    },
+    "combined": {
+      "total_items": 25,
+      "analyzable": 25,
+      "passed": 5,
+      "fallback": 20,
+      "fallback_ratio": 0.8,
+      "statuses": {
+        "fallback_source_extract": 20,
+        "passed": 5
+      }
+    },
+    "top_failure_categories": [
+      {
+        "category": "validation_failed",
+        "count": 20,
+        "label_zh": "模型 JSON 未通过结构/证据校验",
+        "label_en": "model JSON failed schema or evidence validation"
+      }
+    ],
+    "provider_attempts": {
+      "gemini:skipped": 20,
+      "groq:skipped": 25,
+      "mistral:failed": 41,
+      "mistral:success": 5,
+      "openrouter:failed": 34,
+      "openrouter:skipped": 6,
+      "siliconflow:skipped": 25
+    },
+    "model_attempts": {
+      "gemini/not_selected:skipped": 20,
+      "groq/not_selected:skipped": 25,
+      "mistral/mistral-small-2506:failed": 20,
+      "mistral/mistral-small-2506:success": 1,
+      "mistral/mistral-small-latest:failed": 21,
+      "mistral/mistral-small-latest:success": 4,
+      "openrouter/cohere/north-mini-code:free:failed": 18,
+      "openrouter/cohere/north-mini-code:free:skipped": 2,
+      "openrouter/openrouter/free:failed": 16,
+      "openrouter/openrouter/free:skipped": 4,
+      "siliconflow/not_selected:skipped": 25
+    },
+    "attempt_failure_categories": {
+      "invalid_json": 4,
+      "rate_limited": 3,
+      "unknown": 18,
+      "validation_failed": 50
+    },
+    "preflight": {
+      "schema_version": 2,
+      "generated_at": "2026-07-18T17:51:26+00:00",
+      "status": "ready",
+      "analysis_provider_configured": [
+        "gemini",
+        "groq",
+        "openrouter",
+        "mistral",
+        "siliconflow"
+      ],
+      "analysis_provider_passed": [
+        "groq",
+        "openrouter",
+        "mistral",
+        "siliconflow"
+      ],
+      "live_probe_performed": true,
+      "provider_orders": {
+        "extract": [
+          "siliconflow",
+          "groq",
+          "mistral",
+          "openrouter",
+          "gemini"
+        ],
+        "rescue": [
+          "gemini",
+          "mistral",
+          "openrouter",
+          "groq",
+          "siliconflow"
+        ]
+      },
+      "providers": [
+        {
+          "provider": "gemini",
+          "status": "failed",
+          "failure_category": "authentication_failed",
+          "error": "All configured LLM attempts failed (authentication_failed)",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-2.5-flash",
+              "retry_index": 0,
+              "at": "2026-07-18T17:51:22+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: HTTP status 403: 403 Client Error: Forbidden for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=[REDACTED] response={ \"error\": { \"code\": 403, \"message\": \"Your API key was reported as leaked. Please use another API key.\", \"status\": \"PERMISSION_DENIED\" } }",
+              "elapsed_ms": 91
+            }
+          ]
+        },
+        {
+          "provider": "groq",
+          "status": "passed",
+          "model": "llama-3.1-8b-instant",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "groq",
+              "model": "llama-3.1-8b-instant",
+              "retry_index": 0,
+              "at": "2026-07-18T17:51:22+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "llama-3.1-8b-instant",
+              "elapsed_ms": 61,
+              "usage": {
+                "prompt_tokens": 68,
+                "completion_tokens": 9,
+                "total_tokens": 77
+              }
+            }
+          ]
+        },
+        {
+          "provider": "openrouter",
+          "status": "passed",
+          "model": "nvidia/nemotron-3-super-120b-a12b:free",
+          "account": {
+            "status": "ok",
+            "is_free_tier": true,
+            "limit": null,
+            "limit_remaining": null,
+            "usage_daily": 0,
+            "usage_weekly": 0,
+            "usage_monthly": 0
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "openrouter",
+              "model": "openrouter/free",
+              "retry_index": 0,
+              "at": "2026-07-18T17:51:22+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "nvidia/nemotron-3-super-120b-a12b:free",
+              "elapsed_ms": 805,
+              "usage": {
+                "prompt_tokens": 33,
+                "completion_tokens": 52,
+                "total_tokens": 85
+              }
+            }
+          ]
+        },
+        {
+          "provider": "mistral",
+          "status": "passed",
+          "model": "mistral-small-latest",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "mistral",
+              "model": "mistral-small-latest",
+              "retry_index": 0,
+              "at": "2026-07-18T17:51:24+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "mistral-small-latest",
+              "elapsed_ms": 331,
+              "usage": {
+                "prompt_tokens": 22,
+                "completion_tokens": 6,
+                "total_tokens": 28
+              }
+            }
+          ]
+        },
+        {
+          "provider": "siliconflow",
+          "status": "passed",
+          "model": "Qwen/Qwen3-8B",
+          "account": {
+            "status": "ok",
+            "account_status": "normal",
+            "balance": "1",
+            "charge_balance": "0",
+            "total_balance": "1"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "siliconflow",
+              "model": "Qwen/Qwen3-8B",
+              "retry_index": 0,
+              "at": "2026-07-18T17:51:25+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "Qwen/Qwen3-8B",
+              "elapsed_ms": 1449,
+              "usage": {
+                "prompt_tokens": 34,
+                "completion_tokens": 5,
+                "total_tokens": 39
+              }
+            }
+          ]
+        }
+      ],
+      "credentials": [
+        {
+          "name": "CROSSREF_MAILTO",
+          "level": "recommended",
+          "purpose": "Crossref polite pool and contact identity",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "UNPAYWALL_EMAIL",
+          "level": "recommended",
+          "purpose": "legal open-access location lookup; may equal CROSSREF_MAILTO",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "NCBI_API_KEY",
+          "level": "recommended",
+          "purpose": "higher PubMed E-utilities request allowance",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GEMINI_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Gemini structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GROQ_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Groq OpenAI-compatible structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENROUTER_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "OpenRouter free-model router and rescue provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "MISTRAL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Mistral structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SILICONFLOW_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "SiliconFlow structured-analysis provider with balance check",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENALEX_API_KEY",
+          "level": "required_for_openalex",
+          "purpose": "OpenAlex currently requires an API key",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SEMANTIC_SCHOLAR_API_KEY",
+          "level": "optional_but_recommended",
+          "purpose": "anonymous retrieval remains enabled with conservative pacing",
+          "configured": false,
+          "note": "not configured"
+        },
+        {
+          "name": "RELIEFWEB_APPNAME",
+          "level": "pending_approval",
+          "purpose": "pre-approved ReliefWeb appname; a bundled default is available",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "PUBLISHER_REPO_TOKEN",
+          "level": "required_for_wechat_dispatch",
+          "purpose": "repository_dispatch to the private publisher repository",
+          "configured": true,
+          "note": "configured"
+        }
+      ]
+    },
+    "fallback_records": [
+      {
+        "type": "paper",
+        "id": "paper-e7f60da441e68eed",
+        "title": "Hantavirus cardiopulmonary syndrome in children: a systematic scoping review of presentation, critical care management, and outcomes",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:12:10+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:12:10+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:12:10+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4608,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['results']",
+            "elapsed_ms": 5079
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:12:15+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4608,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['background', 'results']",
+            "elapsed_ms": 6698
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:12:21+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4608,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['background', 'results']",
+            "elapsed_ms": 28564
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:12:50+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4608,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 15647
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:13:06+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-64e42dd5583b4f6f",
+        "title": "Andes Virus — A Clinical Review",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:13:06+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:13:06+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:06+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 2591,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 2771
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:08+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 2591,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5367
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:14+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 2591,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid JSON",
+            "elapsed_ms": 12716
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:26+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 2591,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 14530
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:13:41+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-429d41dae56ad7f4",
+        "title": "Hantavirus preparedness among undergraduate nursing students in the United Arab Emirates: a cross-sectional study of knowledge, risk perception and preventive practice",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:13:41+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:13:41+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:41+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4989,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['conclusion']",
+            "elapsed_ms": 11839
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:53+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4989,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['conclusion', 'implications']",
+            "elapsed_ms": 5483
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:13:58+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4989,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['conclusion']",
+            "elapsed_ms": 98633
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:15:37+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4989,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 9611
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:15:46+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-5e71221146a431c6",
+        "title": "Bleeding in haemorrhagic fever with renal syndrome: A systematic review characterising the loss of haemostasis in hantavirus infections",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:15:47+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:15:47+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:15:47+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5611,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['background', 'design_population']",
+            "elapsed_ms": 4662
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:15:51+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5611,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['design_population', 'methods']",
+            "elapsed_ms": 5108
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:15:56+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5611,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['background', 'design_population']",
+            "elapsed_ms": 11726
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:16:08+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5611,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 13415
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:16:21+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-c4119fa47e14d3a3",
+        "title": "Can hantaviruses cause pandemics?",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:16:21+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:16:21+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:16:21+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5419,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5981
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:16:27+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5419,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method contains unknown evidence ids",
+            "elapsed_ms": 5304
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:16:33+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5419,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 67723
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:17:40+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5419,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 14661
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:17:55+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-4d1eef53093534ee",
+        "title": "Ecological Cascades and Future Hantavirus Spillover Risk in a Changing Climate",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:17:55+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:17:55+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:17:55+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6533,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: main_results cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4894
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:18:00+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6533,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: main_results cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5978
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:18:06+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6533,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: main_results cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 58504
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:19:05+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6533,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 21855
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:19:26+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-333e49855e5fbc72",
+        "title": "Ribavirin post-exposure prophylaxis for Andes virus exposure: a viewpoint.",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:19:26+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:19:26+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:19:26+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4380,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4403
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:19:31+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4380,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4026
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:19:35+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4380,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 26778
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:02+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4380,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 24139
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:20:26+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-c9c81052bd6f7f36",
+        "title": "First nationwide full-genome characterisation of human-derived Andes virus in Chile: a retrospective genomic epidemiology study.",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:20:26+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:20:26+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:26+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6116,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: limitations_and_evidence_strength cites evidence assigned to the wrong rhetorical role: ['interpretation']",
+            "elapsed_ms": 3889
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:30+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6116,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: limitations_and_evidence_strength cites evidence assigned to the wrong rhetorical role: ['interpretation']",
+            "elapsed_ms": 5088
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:35+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6116,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"cognitivecomputations/dolphin-mistral-24b-venice-edition:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Venice\",\"is_byok\":false,\"retry_after_seconds\":2,\"retry_after_seconds_raw\":1.845,\"previous_errors\":[{\"code\":429,\"message\":\"Provider returned error\",\"provider_name\":\"Google AI Studio\",\"raw\":\"google/gemma-4-31b-it:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\"}]}},\"user_id\":\"",
+            "elapsed_ms": 150
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:35+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 6116,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 4785
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:20:40+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-7496dd4165f387c3",
+        "title": "Hantavirus Diseases: A Review of Virology, Clinical Features, and Therapeutic Approaches",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:20:40+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:20:40+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:40+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4300,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general', 'implications']",
+            "elapsed_ms": 4675
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:44+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4300,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general', 'implications']",
+            "elapsed_ms": 5937
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T18:20:50+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:20:50+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4300,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 19466
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:21:10+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-8cd10db137df072f",
+        "title": "Hantavirus and Middle East Public Health Challenges: A Subject Review",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:21:17+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:21:17+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:21:17+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4041,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['implications']",
+            "elapsed_ms": 5391
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:21:22+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4041,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method lacks evidence ids",
+            "elapsed_ms": 4455
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T18:21:26+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:21:26+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4041,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 21516
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:21:48+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-d346d9db95eb163b",
+        "title": "Expedition cruises, island hopping, and zoonotic risk: governance and operational lessons from the MV Hondius Andes hantavirus outbreak",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:21:48+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:21:48+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:21:48+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4082,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 3285
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:21:51+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4082,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4253
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:21:55+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4082,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: evidence_base_and_review_method lacks evidence ids",
+            "elapsed_ms": 37214
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:22:33+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 4082,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 17703
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:22:50+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-5e4ab42bad47de4b",
+        "title": "Modeling the Transmission Dynamics of Hantavirus with Environmental Viral Persistence",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:22:50+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:22:50+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:22:50+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4207,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5048
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:22:55+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4207,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4948
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:23:00+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4207,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 21772
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:23:22+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 4207,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 23598
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:23:46+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-c5bfab3ff6a272dc",
+        "title": "HantaWatch: Federated Learning for Hantavirus Genomic Surveillance",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:23:46+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:23:46+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:23:46+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3350,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: scope_and_question cites evidence assigned to the wrong rhetorical role: ['limitations']",
+            "elapsed_ms": 2829
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:23:49+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3350,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: scope_and_question cites evidence assigned to the wrong rhetorical role: ['limitations']",
+            "elapsed_ms": 3633
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:23:52+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3350,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid JSON",
+            "elapsed_ms": 24770
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:24:17+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 3350,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 22461
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:24:39+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-f8cf9317e5731430",
+        "title": "Hantavirus outbreak in a cruise departing from Argentina",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:24:39+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:24:39+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:24:39+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2825,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4479
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:24:44+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2825,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4034
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:24:48+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2825,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid JSON",
+            "elapsed_ms": 28636
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:17+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2825,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 10264
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:25:27+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-4558d01c6b1eebf9",
+        "title": "Serologic Evidence of Hantavirus Exposure in Humans, Italy, 2004–2018",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:25:27+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:25:27+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:27+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3449,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: research_question_and_background cites evidence assigned to the wrong rhetorical role: ['implications']",
+            "elapsed_ms": 5348
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:32+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3449,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: research_question_and_background lacks evidence ids",
+            "elapsed_ms": 1810
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:34+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3449,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: research_question_and_background lacks evidence ids",
+            "elapsed_ms": 8075
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:42+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3449,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 7722
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:25:50+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-e073d81bf4458fae",
+        "title": "Enfermedades transmitidas por vectores: chagas, dengue, malaria y hantavirus",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:25:50+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:25:50+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:50+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2716,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population lacks evidence ids",
+            "elapsed_ms": 3470
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:53+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2716,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 3815
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:25:57+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2716,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: research_question_and_background lacks evidence ids",
+            "elapsed_ms": 30567
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:26:28+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 2716,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 16209
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:26:44+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-0cdc3885e08582c8",
+        "title": "Long-term storage stability of multiplex immunochromatographic assay strips for serologic monitoring of infectious diseases in laboratory rodents.",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:26:44+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:26:44+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:26:44+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3853,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: methods cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 8666
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:26:53+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3853,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: methods cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 5823
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:26:58+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3853,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid JSON",
+            "elapsed_ms": 28020
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:26+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3853,
+            "status": "failed",
+            "failure_category": "unknown",
+            "error_type": "AttributeError",
+            "error": "'NoneType' object has no attribute 'strip'",
+            "elapsed_ms": 8454
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:27:35+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-9f3335d6107ba88e",
+        "title": "Research on Mathematical Modeling of Infectious Disease Spread on Cruise Ships",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:27:35+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:27:35+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:35+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3300,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4437
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:39+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3300,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 4973
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:44+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3300,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"}]}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 40
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:44+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 3300,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 221
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:27:45+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-f36220c369f968f1",
+        "title": "Derived GBIF Occurrences for Pandit et al.",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:27:45+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:27:45+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:45+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 1895,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 2758
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:27:47+00:00",
+            "system_chars": 5395,
+            "prompt_chars": 1895,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: study_design_and_population cites evidence assigned to the wrong rhetorical role: ['general']",
+            "elapsed_ms": 2888
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T18:27:50+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T18:27:50+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:27:50+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      },
+      {
+        "type": "news",
+        "id": "news-9cc18083a47a597d",
+        "title": "Hantavirus and Ebola scares reveal cracks in public health messaging, infectious diseases experts warn - Labmate Online",
+        "failure_category": "validation_failed",
+        "fallback_policy": "cue_and_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "news_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-18T18:28:38+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-18T18:28:38+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-18T18:28:38+00:00",
+            "system_chars": 3355,
+            "prompt_chars": 14121,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: location_and_population lacks evidence ids",
+            "elapsed_ms": 3064
+          },
+          {
+            "task": "news_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-18T18:28:41+00:00",
+            "system_chars": 3355,
+            "prompt_chars": 14121,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: time lacks evidence ids",
+            "elapsed_ms": 1934
+          },
+          {
+            "task": "news_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-18T18:28:43+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "at": "2026-07-18T18:28:43+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-18T18:28:43+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      }
+    ]
+  }
+}
