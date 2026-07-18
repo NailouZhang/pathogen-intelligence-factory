@@ -1,6 +1,6 @@
-> 当前工程版本：v14.3。GitHub Actions、本地Conda和CI使用统一Python安装器。
+> 当前工程版本：v14.4。GitHub Actions、本地Conda和CI使用统一Python安装器。
 
-# pathogen-intelligence-factory v14.3
+# pathogen-intelligence-factory v14.4
 
 公开的21种病毒每周文献与公共卫生新闻情报工厂。
 

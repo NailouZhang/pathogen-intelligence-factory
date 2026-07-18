@@ -585,3 +585,26 @@ GitHub Actions在执行editable安装时抛出`BackendUnavailable: Cannot import
 - `bootstrap_dev.sh`复用同一安装器。
 - 新增`tests/test_build_install_contract_v14_3.py`。
 - `update_from_tmp.sh`改为自动发现工程根目录。
+
+## 修复项17：HTML质量审计器空元素栈泄漏（v14.4）
+
+### 生产故障
+
+真实 GitHub Actions 流水线已经完成抓取、分析、翻译、页面生成和微信公众号发布包校验，但 `audit_rendered_html.py` 将第二张及后续中文卡片错误识别为英文内容，产生 106 条 `chinese_text_in_english_element` 并以退出码 2 阻断发布。
+
+### 根因
+
+Python `HTMLParser` 对 `<br>`、`<img>`、`<meta>` 等 void element 不会调用 `handle_endtag()`。旧审计器却把所有开始标签压入自维护栈，英文摘要中的 `<br>` 因而永久保留 `lang_en=True`。关闭外层英文容器时旧代码只删除中间一个栈元素，没有同时移除其后代，导致后续中文 `<dd>` 继承英文作用域。
+
+### 不可回退规则
+
+1. HTML void element 不得压入结构栈。
+2. 结束标签必须从栈顶弹出到目标标签，不能只删除中间单个元素。
+3. 语言作用域只继承结构父元素；同时继承中英文时必须报告 `ambiguous_language_scope`。
+4. 文献和新闻卡数量只统计 `<article class="card paper|news">`，不能把栏目包装器计入新闻卡。
+5. 成品审计必须包含至少两张卡片且第一张英文摘要含 `<br>` 的回归测试。
+
+### 回归测试
+
+- `tests/test_render_audit_void_elements_v14_4.py`
+- 保留原有字典字面量、英文占位符、仓储对象和双语渲染测试。
