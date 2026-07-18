@@ -27,11 +27,20 @@ def main() -> None:
         seed = yaml.safe_load(seed_path.read_text(encoding="utf-8"))
         docs = [{"url": x["url"], "usable": True, "sha256": "offline-audit"} for x in seed["authoritative_sources"]]
         profile = compile_profile_queries(deterministic_profile(seed, docs))
-        counts = {key: len(value or []) for key, value in profile["query_sets"].items()}
+        provider_keys = (
+            "pubmed_core", "europe_pmc_core", "crossref_core",
+            "semantic_scholar_core", "openalex_core", "general_news_en",
+            "general_news_zh", "gdelt_core", "reliefweb_core",
+        )
+        counts = {key: len(profile["query_sets"].get(key) or []) for key in provider_keys}
+        concepts = profile["query_sets"].get("core_concepts") or []
         rows.append({
             "profile_id": seed["profile_id"],
             "status": profile["status"],
             "qualified_terms": len(profile["vocabulary"]["qualified_identity_terms"]),
+            "core_concepts": concepts,
+            "core_concept_count": len(concepts),
+            "provider_query_count": sum(counts.values()),
             "query_counts": counts,
             "validation": profile["validation"],
         })

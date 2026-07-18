@@ -171,11 +171,54 @@ news_identity_terms_zh:
 - H7N9
 - H9N2
 retrieval_policy:
-  execute_all_query_chunks: true
+  execute_all_query_chunks: false
   pubmed_per_query: 120
   europe_pmc_per_query: 150
   crossref_per_term: 50
   semantic_scholar_per_term: 80
   openalex_per_term: 80
-  candidate_gate: accept_or_review
-  final_gate: accept_after_content_enrichment
+  candidate_gate: python_accept_or_llm_review
+  final_gate: accept_before_top_n_enrichment
+  strategy: lean_core_concepts_v7
+  max_core_concepts: 5
+  content_enrichment_stage: after_top_n_selection
+  content_enrichment_limit_papers: 50
+  content_enrichment_limit_news: 50
+  llm_review_mode: ambiguous_only
+  provider_expansion_first: true
+search_strategy:
+  schema_version: '1.1'
+  max_concepts: 5
+  provider_expansion_first: true
+  deduplicate_semantic_equivalents: true
+  concepts:
+  - id: avian
+    scholarly: avian influenza
+    news_en: avian influenza
+    news_zh: 禽流感
+    role: umbrella
+    priority: 1
+  - id: h5n1
+    scholarly: H5N1
+    news_en: H5N1 avian influenza
+    news_zh: H5N1禽流感
+    role: hotspot_subtype
+    priority: 2
+  - id: h5n6
+    scholarly: H5N6
+    news_en: H5N6 avian influenza
+    news_zh: H5N6禽流感
+    role: hotspot_subtype
+    priority: 3
+  - id: h7n9
+    scholarly: H7N9
+    news_en: H7N9 avian influenza
+    news_zh: H7N9禽流感
+    role: hotspot_subtype
+    priority: 4
+  - id: h9n2
+    scholarly: H9N2
+    news_en: H9N2 avian influenza
+    news_zh: H9N2禽流感
+    role: hotspot_subtype
+    priority: 5

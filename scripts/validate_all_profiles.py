@@ -20,7 +20,9 @@ def main() -> int:
         docs=[{"url":x["url"],"usable":True,"sha256":"offline-validation"} for x in seed["authoritative_sources"]]
         profile=compile_profile_queries(deterministic_profile(seed,docs))
         valid,issues=validate_profile(profile,seed)
-        print(f"{seed['profile_id']}: status={profile['status']} sources={len(seed['authoritative_sources'])} queries={sum(len(v) for v in profile['query_sets'].values())}")
+        provider_keys=("pubmed_core","europe_pmc_core","crossref_core","semantic_scholar_core","openalex_core","general_news_en","general_news_zh","gdelt_core","reliefweb_core")
+        query_count=sum(len(profile["query_sets"].get(k) or []) for k in provider_keys)
+        print(f"{seed['profile_id']}: status={profile['status']} sources={len(seed['authoritative_sources'])} core_concepts={len(profile['query_sets'].get('core_concepts') or [])} provider_queries={query_count}")
         if not valid or profile["status"] != "ready": failures.append((seed["profile_id"],issues,profile.get("blocking_issues")))
     if failures:
         print(failures,file=sys.stderr)

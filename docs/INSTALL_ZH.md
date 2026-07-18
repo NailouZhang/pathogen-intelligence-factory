@@ -1,9 +1,32 @@
-# 公开仓库 v6 安装与升级
+# v7 本地安装与验证
 
-本文件只操作 `NailouZhang/pathogen-intelligence-factory`。完整逐条命令见 `docs/GITHUB_UPDATE_PUBLIC_ZH.md`。
+## 公开仓
 
-核心顺序：公开仓打标签 → 运行完整包中的 `install_public_repo_update.sh` → 安装依赖 → 验证 21 个 profile 与查询覆盖 → pytest/compileall → 单独 commit/push → 配置 Secrets/Variables → 先运行 hantavirus 且 `dispatch_wechat=false` → 再运行全部 21 个 profile 且不推微信 → 检查 Pages 和 `data/audit`。
+```bash
+cd "$HOME/github-projects/pathogen-intelligence-factory"
+python -m pip install -r requirements.txt
+python scripts/validate_all_profiles.py
+python scripts/audit_query_coverage.py --output /tmp/query-coverage-v7.json
+python scripts/check_credentials.py || true
+python -m pytest -q
+python -m compileall -q src scripts tests
+```
 
-本版本必须设置 `OPENALEX_API_KEY`；Semantic Scholar Key 暂无时保持未设置，程序会以匿名降速模式执行全部编译查询。ReliefWeb Variable 使用 `wiv-virology-literature-tracker-42x`，审核前未授权响应会记录为 pending/skipped。
+单病毒 Demo：
 
-Pages 设置：`Settings → Pages → Build and deployment → Source → GitHub Actions`。
+```bash
+python scripts/run_daily.py   --profile hantavirus   --output-dir /tmp/pif-v7-demo   --state-dir /tmp/pif-v7-demo/data/state   --demo
+```
+
+## 私有仓
+
+```bash
+cd "$HOME/pathogen-wechat-publisher/repository"
+bash scripts/bootstrap_local.sh
+PYTHON="$HOME/pathogen-wechat-publisher/conda-env/bin/python"
+export PYTHONPATH="$PWD/src"
+"$PYTHON" -m pytest -q
+"$PYTHON" -m wechat_publisher.cli doctor
+```
+
+生产任务直接调用固定解释器，不依赖 `conda activate`。

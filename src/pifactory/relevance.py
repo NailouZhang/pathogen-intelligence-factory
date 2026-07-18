@@ -9,7 +9,7 @@ from .llm import LLMError, LLMRouter
 from .utils import clean_space, sha256_text, unique_strings
 
 
-REVIEW_POLICY_VERSION = "v6-compact-all-1"
+REVIEW_POLICY_VERSION = "v7-python-first-ambiguous-1"
 
 
 def _contains(text: str, term: str) -> bool:
@@ -20,6 +20,16 @@ def _contains(text: str, term: str) -> bool:
     if re.fullmatch(r"[a-z0-9-]{1,8}", value):
         return bool(re.search(rf"(?<![a-z0-9]){re.escape(value)}(?![a-z0-9])", hay, flags=re.I))
     return value in hay
+
+
+def _count_occurrences(text: str, term: str) -> int:
+    value = clean_space(term).casefold()
+    hay = clean_space(text).casefold()
+    if not value or not hay:
+        return 0
+    if re.fullmatch(r"[a-z0-9-]{1,8}", value):
+        return len(re.findall(rf"(?<![a-z0-9]){re.escape(value)}(?![a-z0-9])", hay, flags=re.I))
+    return hay.count(value)
 
 
 def _record_body(record: dict[str, Any], kind: str) -> str:
@@ -107,6 +117,14 @@ def relevance_assessment(title: str, body: str, profile: dict[str, Any]) -> dict
         score -= 6
         reasons.append(f"excluded_title:{excluded_title[:3]}")
 
+    identity_frequency = sum(
+        _count_occurrences(combined, term)
+        for term in unique_strings(anchors + members + diseases + qualified_ok)
+    )
+    if has_identity and identity_frequency >= 2:
+        score += 1
+        reasons.append(f"identity_frequency:{identity_frequency}")
+
     accept = int(rules.get("minimum_relevance_score", 6))
     review = int(rules.get("review_score_min", 3))
     high_confidence_title = bool(title_anchor or title_member or title_disease)
@@ -130,6 +148,7 @@ def relevance_assessment(title: str, body: str, profile: dict[str, Any]) -> dict
         "ambiguous_abbreviation_hits": qualified_bad,
         "context_hits": context_hits,
         "excluded_hits": unique_strings(excluded_title + excluded_body),
+        "identity_frequency": identity_frequency,
     }
 
 
@@ -154,6 +173,10 @@ def assess_records(
         record["relevance_raw_score"] = audit["score"]
         record["relevance_score"] = max(0.0, min(1.0, audit["score"] / 10.0))
         record["relevance_decision"] = audit["decision"]
+        concept_count = len(record.get("retrieval_concepts") or [])
+        provider_count = len(set(record.get("sources") or [record.get("source")]) - {None, ""})
+        record["retrieval_concept_count"] = concept_count
+        record["provider_convergence_count"] = provider_count
         record["relevance_reason"] = audit["reasons"]
         if keep is None or audit["decision"] in keep:
             output.append(record)
@@ -176,7 +199,7 @@ def _candidate_filter(records: list[dict[str, Any]], profile: dict[str, Any], ki
         excluded = bool(audit.get("excluded_hits"))
         if anchored and record.get("title") and not excluded:
             record["relevance_decision"] = "metadata_pending"
-            record["candidate_rescue_reason"] = "identity_query_requires_content_review"
+            record["candidate_rescue_reason"] = "lean_core_query_requires_compact_review"
             output.append(record)
     return output
 
@@ -470,7 +493,7 @@ def final_filter(
     *,
     kind: str,
     review_cache: dict[str, Any] | None = None,
-    review_mode: str = "all_compact",
+    review_mode: str = "balanced",
     compact_batch_tokens: int = 12000,
     escalation_batch_tokens: int = 10000,
     # Backward-compatible arguments from v5 are accepted but intentionally no
@@ -478,12 +501,13 @@ def final_filter(
     max_llm_reviews: int | None = None,
     review_body_chars: int | None = None,
 ) -> list[dict[str, Any]]:
-    """Review every candidate without a fixed document-count cutoff.
+    """Python-assess every candidate and send only ambiguous cases to LLM.
 
-    Python first assesses 100% of records.  Gemini/Groq then receives compact,
-    evidence-centered packets packed by token budget until the queue is empty.
-    Only records marked U are escalated with fuller, sentence-selected evidence.
-    Deep bilingual interpretation remains a later Top-N step in the pipeline.
+    Retrieval uses a small set of broad, direct concepts. The rich vocabulary
+    is applied here to every title/abstract/excerpt. High-confidence accepts and
+    clear rejects are resolved locally. Review/metadata-pending records are
+    packed into compact token-budgeted LLM batches until the queue is empty.
+    Full text and news bodies are fetched only after final Top-N selection.
     """
     del max_llm_reviews, review_body_chars
     review_cache = review_cache if review_cache is not None else {}
@@ -493,8 +517,15 @@ def final_filter(
     # Candidate filtering has already removed obvious broad-source noise.  In
     # all_compact mode every remaining candidate is LLM cross-checked.  The
     # uncertain mode is retained for low-cost emergency operation.
-    if review_mode == "uncertain":
-        review_records = [x for x in assessed if (x.get("relevance_final") or {}).get("decision") != "reject"]
+    if review_mode in {"uncertain", "balanced"}:
+        # Python still assesses 100% of records.  Only genuinely ambiguous
+        # records are sent to the LLM in routine operation; high-confidence
+        # accepts and clear rejects are resolved deterministically.
+        review_records = [
+            x for x in assessed
+            if (x.get("relevance_final") or {}).get("decision") == "review"
+            or bool(x.get("candidate_rescue_reason"))
+        ]
     else:
         review_records = list(assessed)
 
@@ -571,9 +602,9 @@ def final_filter(
             record["relevance_decision"] = "reject_after_deterministic_full_review"
             record["relevance_review_method"] = "python_full_corpus_fallback"
 
-    # In uncertain-only mode, deterministic high-confidence records not queued
-    # above still need to be retained.
-    if review_mode == "uncertain":
+    # In balanced/uncertain mode, deterministic high-confidence records not
+    # queued above still need to be retained.
+    if review_mode in {"uncertain", "balanced"}:
         reviewed_ids = {id(x) for x in review_records}
         for record in assessed:
             if id(record) in reviewed_ids:

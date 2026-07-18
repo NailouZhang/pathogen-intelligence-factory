@@ -1,4 +1,4 @@
-name: Weekly 21-Virus Intelligence Cycle v6
+name: Weekly 21-Virus Intelligence Cycle v7
 
 on:
   schedule:
@@ -24,7 +24,7 @@ on:
         type: choice
         options: [scheduled, all]
       refresh_profile:
-        description: Rebuild strict terminology profiles from authoritative sources
+        description: Rebuild terminology and lean five-concept retrieval profiles from authoritative sources
         required: false
         default: false
         type: boolean
@@ -39,6 +39,12 @@ on:
         required: false
         default: true
         type: boolean
+      review_mode:
+        description: balanced uses Python for all candidates and LLM only for ambiguous records; all_compact is an optional audit mode
+        required: false
+        default: balanced
+        type: choice
+        options: [balanced, all_compact]
 
 permissions:
   contents: write
@@ -52,7 +58,7 @@ concurrency:
 jobs:
   cycle:
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 330
     outputs:
       pages_ready: ${{ steps.portal.outputs.pages_ready }}
     steps:
@@ -126,6 +132,7 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
           OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+          UNPAYWALL_EMAIL: ${{ secrets.UNPAYWALL_EMAIL || secrets.CROSSREF_MAILTO }}
           RELIEFWEB_APPNAME: ${{ vars.RELIEFWEB_APPNAME || secrets.RELIEFWEB_APPNAME || 'wiv-virology-literature-tracker-42x' }}
           PUBLISHER_REPO_TOKEN: ${{ secrets.PUBLISHER_REPO_TOKEN }}
           PUBLISHER_REPO: ${{ vars.PUBLISHER_REPO || 'NailouZhang/pathogen-wechat-publisher' }}
@@ -139,32 +146,39 @@ jobs:
           PIF_WINDOW_DAYS: ${{ steps.plan.outputs.window_days }}
           PIF_MAX_PAPERS: ${{ steps.plan.outputs.max_papers }}
           PIF_MAX_NEWS: ${{ steps.plan.outputs.max_news }}
-          # Zero disables arbitrary local document-count truncation. Provider
-          # pagination limits and the seven-day window remain in force.
+          # Metadata retrieval is not truncated locally. Only five distinct
+          # core concepts are sent to each provider. Full text/news bodies are
+          # fetched only after relevance review and Top-50 selection.
           PIF_MAX_PAPER_CANDIDATES: "0"
           PIF_MAX_NEWS_CANDIDATES: "0"
-          PIF_MAX_NEWS_FETCHES: "0"
-          PIF_MAX_FULLTEXTS: "0"
-          PIF_PUBMED_PER_QUERY: "180"
+          PIF_MAX_NEWS_FETCHES: "50"
+          PIF_MAX_FULLTEXTS: "50"
+          PIF_PUBMED_PER_QUERY: "250"
           PIF_PUBMED_TOTAL_LIMIT: "2000"
-          PIF_EUROPE_PMC_PER_QUERY: "150"
-          PIF_CROSSREF_PER_QUERY: "45"
+          PIF_EUROPE_PMC_PER_QUERY: "250"
+          PIF_CROSSREF_PER_QUERY: "80"
           PIF_CROSSREF_INCLUDE_INDEXED: "true"
-          PIF_SEMANTIC_PER_QUERY: "80"
-          # No Semantic Scholar key yet: attempt every compiled single-anchor
-          # query with conservative anonymous pacing. Set a positive limit only
-          # as an emergency response to sustained provider throttling.
-          PIF_SEMANTIC_ANONYMOUS_QUERY_LIMIT: "0"
-          PIF_SEMANTIC_ANONYMOUS_DELAY_MS: "500"
+          PIF_SEMANTIC_PER_QUERY: "100"
+          # Semantic Scholar is supplementary. Without a key, the five lean
+          # plain-text queries run with conservative anonymous pacing.
+          PIF_SEMANTIC_ANONYMOUS_QUERY_LIMIT: "5"
+          PIF_SEMANTIC_ANONYMOUS_DELAY_MS: "700"
           PIF_OPENALEX_PER_QUERY: "100"
-          # Every post-Python candidate is reviewed. Records are packed by
-          # estimated token budget until the queue is empty; there is no paper
-          # count or character-prefix cutoff.
-          PIF_LLM_REVIEW_MODE: "all_compact"
+          # Python reviews 100% of candidates. Routine balanced mode sends
+          # only ambiguous records to the LLM; manual all_compact mode can
+          # cross-check every candidate without a document-count cutoff.
+          PIF_LLM_REVIEW_MODE: ${{ github.event_name == 'schedule' && vars.PIF_LLM_REVIEW_MODE || inputs.review_mode || vars.PIF_LLM_REVIEW_MODE || 'balanced' }}
           PIF_LLM_COMPACT_BATCH_TOKENS: "12000"
           PIF_LLM_ESCALATION_BATCH_TOKENS: "10000"
           PIF_RELEVANCE_REVIEW_CACHE: "true"
           PIF_ANALYSIS_CACHE: "true"
+          PIF_NEWS_CONTEXT_QUERY_LIMIT: "0"
+          PIF_HTTP_TIMEOUT: "18"
+          PIF_HTTP_RETRIES: "2"
+          PIF_LLM_HTTP_TIMEOUT: "55"
+          PIF_LLM_MAX_MODELS_PER_PROVIDER: "1"
+          PIF_PROFILE_RUNTIME_MINUTES: ${{ vars.PIF_PROFILE_RUNTIME_MINUTES || '90' }}
+          PYTHONUNBUFFERED: "1"
           SHOULD_DISPATCH: ${{ github.event_name == 'schedule' || inputs.dispatch_wechat }}
         run: |
           set -Eeuo pipefail
@@ -185,19 +199,19 @@ jobs:
             fi
 
             set +e
+            PROFILE_MINUTES="${PIF_PROFILE_RUNTIME_MINUTES:-90}"
+            echo "[workflow] starting $PROFILE_ID with ${PROFILE_MINUTES}m profile timeout"
             PIF_CONTENT_SOURCE_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/profiles/$PROFILE_ID/" \
-            python scripts/run_daily.py \
+            timeout --signal=TERM --kill-after=30s "${PROFILE_MINUTES}m" \
+            python -u scripts/run_daily.py \
               --profile "$PROFILE_ID" \
               --output-dir "$OUT" \
               --state-dir "$OUT/data/state" \
-              >"/tmp/${PROFILE_ID}.stdout.log" \
-              2>"/tmp/${PROFILE_ID}.stderr.log"
-            STATUS=$?
+              2>&1 | tee "/tmp/${PROFILE_ID}.combined.log"
+            STATUS=${PIPESTATUS[0]}
             set -e
-
-            cat "/tmp/${PROFILE_ID}.stdout.log" || true
             if [[ $STATUS -ne 0 ]]; then
-              cat "/tmp/${PROFILE_ID}.stderr.log" >&2 || true
+              tail -n 300 "/tmp/${PROFILE_ID}.combined.log" >&2 || true
               printf '%s\tfailed\t%s\n' "$PROFILE_ID" "$STATUS" >> /tmp/pif_cycle_results.tsv
               echo "::error::Profile $PROFILE_ID failed; continuing with the next queued profile."
               echo "::endgroup::"

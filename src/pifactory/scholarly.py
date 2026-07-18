@@ -361,15 +361,14 @@ def search_crossref(
     """Search Crossref with provider-native simple identity queries.
 
     Crossref does not receive PubMed Boolean syntax. Each identity is queried
-    independently through publication, created and optionally indexed date
-    channels. The latter two channels recover recently deposited metadata for
-    works whose printed publication date is older than the reporting window.
+    independently through publication and optionally indexed date channels.
+    The indexed channel recovers newly deposited or corrected metadata without
+    tripling request volume with a separate created-date channel.
     """
     output: list[dict[str, Any]] = []
     endpoint = "https://api.crossref.org/works"
     channels = [
         ("published", f"from-pub-date:{start.isoformat()},until-pub-date:{end.isoformat()}"),
-        ("created", f"from-created-date:{start.isoformat()},until-created-date:{end.isoformat()}"),
     ]
     if include_indexed:
         channels.append(("indexed", f"from-index-date:{start.isoformat()},until-index-date:{end.isoformat()}"))

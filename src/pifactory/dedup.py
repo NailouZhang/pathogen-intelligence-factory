@@ -4,11 +4,32 @@ import json
 import re
 from collections import defaultdict
 from typing import Any
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-from rapidfuzz.fuzz import ratio
+from rapidfuzz.fuzz import ratio, token_set_ratio
 
 from .llm import LLMError, LLMRouter
 from .utils import clean_space, extract_doi, normalize_title, sha256_text, unique_strings
+
+
+def _title_signature(value: str | None) -> str:
+    title = normalize_title(value)
+    title = re.sub(r"\b(preprint|early view|online ahead of print|accepted manuscript|version \d+)\b", " ", title)
+    title = re.sub(r"\b(a|an|the)\b", " ", title)
+    return clean_space(title)
+
+
+def _canonical_url(value: str | None) -> str:
+    url = clean_space(value)
+    if not url:
+        return ""
+    try:
+        parts = urlsplit(url)
+        keep = [(k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True) if not k.lower().startswith("utm_") and k.lower() not in {"gclid", "fbclid", "ref"}]
+        path = re.sub(r"/+$", "", parts.path) or "/"
+        return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), path, urlencode(keep), ""))
+    except Exception:
+        return url
 
 
 def _paper_key(record: dict[str, Any]) -> str:
@@ -20,7 +41,7 @@ def _paper_key(record: dict[str, Any]) -> str:
         value = clean_space(ids.get(field)).lower()
         if value:
             return f"{field}:{value}"
-    title = normalize_title(record.get("title"))
+    title = _title_signature(record.get("title"))
     first_author = normalize_title((record.get("authors") or [""])[0])
     return f"title:{title}|author:{first_author}"
 
@@ -81,11 +102,20 @@ def dedup_papers(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for item in merged.values():
         matched = False
         for existing in loose:
-            title_score = ratio(normalize_title(item.get("title")), normalize_title(existing.get("title")))
-            if title_score >= 94:
+            title_score = token_set_ratio(_title_signature(item.get("title")), _title_signature(existing.get("title")))
+            if title_score >= 92:
                 author_a = normalize_title((item.get("authors") or [""])[0])
                 author_b = normalize_title((existing.get("authors") or [""])[0])
-                if not author_a or not author_b or ratio(author_a, author_b) >= 70:
+                year_a = str(item.get("year") or "")
+                year_b = str(existing.get("year") or "")
+                author_ok = not author_a or not author_b or ratio(author_a, author_b) >= 68
+                year_ok = not year_a or not year_b or abs(int(year_a[:4]) - int(year_b[:4])) <= 1
+                if author_ok and year_ok:
+                    existing.setdefault("version_relations", []).append({
+                        "source": item.get("source"),
+                        "url": item.get("url"),
+                        "title_similarity": title_score,
+                    })
                     _merge_paper(existing, item)
                     matched = True
                     break
@@ -99,26 +129,40 @@ def dedup_papers(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def dedup_news(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
+    by_url: dict[str, dict[str, Any]] = {}
     for record in records:
-        title = normalize_title(record.get("title"))
+        title = _title_signature(record.get("title"))
         if not title:
             continue
-        duplicate = None
-        for existing in out:
-            if ratio(title, normalize_title(existing.get("title"))) >= 84:
-                duplicate = existing
-                break
+        canonical = _canonical_url(record.get("resolved_url") or record.get("url"))
+        duplicate = by_url.get(canonical) if canonical else None
+        if duplicate is None:
+            for existing in out:
+                score = token_set_ratio(title, _title_signature(existing.get("title")))
+                date_a = clean_space(record.get("published_date"))[:10]
+                date_b = clean_space(existing.get("published_date"))[:10]
+                date_ok = not date_a or not date_b or date_a == date_b
+                if score >= 87 and date_ok:
+                    duplicate = existing
+                    break
         if duplicate:
             duplicate.setdefault("duplicate_sources", []).append({
-                "source": record.get("source"), "url": record.get("url"), "publisher": record.get("publisher")
+                "source": record.get("source"),
+                "url": record.get("url"),
+                "publisher": record.get("publisher"),
             })
+            duplicate["retrieval_queries"] = unique_strings((duplicate.get("retrieval_queries") or []) + (record.get("retrieval_queries") or []))
+            duplicate["retrieval_concepts"] = unique_strings((duplicate.get("retrieval_concepts") or []) + (record.get("retrieval_concepts") or []))
             if len(clean_space(record.get("excerpt"))) > len(clean_space(duplicate.get("excerpt"))):
                 duplicate["excerpt"] = record.get("excerpt")
             continue
         copied = dict(record)
+        copied["canonical_url"] = canonical
         copied["news_id"] = "news-" + sha256_text(title + "|" + clean_space(record.get("published_date")))[:16]
         copied["duplicate_sources"] = []
         out.append(copied)
+        if canonical:
+            by_url[canonical] = copied
     return out
 
 

@@ -162,11 +162,54 @@ news_identity_terms_zh:
 - 乙型肝炎
 - 乙肝
 retrieval_policy:
-  execute_all_query_chunks: true
+  execute_all_query_chunks: false
   pubmed_per_query: 120
   europe_pmc_per_query: 150
   crossref_per_term: 50
   semantic_scholar_per_term: 80
   openalex_per_term: 80
-  candidate_gate: accept_or_review
-  final_gate: accept_after_content_enrichment
+  candidate_gate: python_accept_or_llm_review
+  final_gate: accept_before_top_n_enrichment
+  strategy: lean_core_concepts_v7
+  max_core_concepts: 5
+  content_enrichment_stage: after_top_n_selection
+  content_enrichment_limit_papers: 50
+  content_enrichment_limit_news: 50
+  llm_review_mode: ambiguous_only
+  provider_expansion_first: true
+search_strategy:
+  schema_version: '1.1'
+  max_concepts: 5
+  provider_expansion_first: true
+  deduplicate_semantic_equivalents: true
+  concepts:
+  - id: hepatitis_b
+    scholarly: hepatitis B
+    news_en: hepatitis B
+    news_zh: 乙型肝炎
+    role: umbrella
+    priority: 1
+  - id: chronic
+    scholarly: chronic hepatitis B
+    news_en: chronic hepatitis B
+    news_zh: 慢性乙型肝炎
+    role: clinical
+    priority: 2
+  - id: treatment
+    scholarly: hepatitis B treatment
+    news_en: hepatitis B treatment
+    news_zh: 乙型肝炎治疗
+    role: intervention
+    priority: 3
+  - id: functional_cure
+    scholarly: HBV functional cure
+    news_en: HBV functional cure
+    news_zh: 乙肝功能性治愈
+    role: hotspot_treatment
+    priority: 4
+  - id: vaccination
+    scholarly: hepatitis B vaccination
+    news_en: hepatitis B vaccination
+    news_zh: 乙型肝炎疫苗接种
+    role: intervention
+    priority: 5

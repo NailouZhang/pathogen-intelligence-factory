@@ -16,6 +16,16 @@ from .http import HttpClient
 from .utils import clean_space, extract_doi, normalize_title, sha256_text, split_sentences, strip_tags, truncate, unique_strings, utc_now_iso
 
 
+LEGAL_FULLTEXT_POLICY = "legal_open_access_only"
+LEGAL_FULLTEXT_SOURCES = [
+    "Europe PMC/PMC Open Access full text",
+    "PMC BioC",
+    "OpenAlex best open-access location",
+    "Unpaywall open-access locations",
+    "Crossref-provided full-text links",
+    "publisher or DOI landing pages accessible without access-control bypass",
+]
+
 BOILERPLATE_PATTERNS = [
     r"comprehensive up[- ]to[- ]date news coverage",
     r"aggregated from sources all over the world",
@@ -180,7 +190,13 @@ def _identity_score(work: dict[str, Any], candidate_text: str, candidate_url: st
 
 
 def enrich_scholarly_work(http: HttpClient, work: dict[str, Any], mailto: str, max_chars: int = 18000) -> dict[str, Any]:
-    audit: dict[str, Any] = {"attempts": [], "retrieved_at": utc_now_iso()}
+    audit: dict[str, Any] = {
+        "attempts": [],
+        "retrieved_at": utc_now_iso(),
+        "policy": LEGAL_FULLTEXT_POLICY,
+        "allowed_sources": list(LEGAL_FULLTEXT_SOURCES),
+    }
+    work["full_text_policy"] = LEGAL_FULLTEXT_POLICY
     pmcid = clean_space((work.get("source_ids") or {}).get("pmcid"))
     if pmcid and not pmcid.upper().startswith("PMC"):
         pmcid = "PMC" + pmcid

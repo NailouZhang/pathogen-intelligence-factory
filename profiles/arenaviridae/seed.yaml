@@ -237,11 +237,54 @@ news_identity_terms_zh:
 - 拉沙病毒
 - 拉沙热
 retrieval_policy:
-  execute_all_query_chunks: true
+  execute_all_query_chunks: false
   pubmed_per_query: 120
   europe_pmc_per_query: 150
   crossref_per_term: 50
   semantic_scholar_per_term: 80
   openalex_per_term: 80
-  candidate_gate: accept_or_review
-  final_gate: accept_after_content_enrichment
+  candidate_gate: python_accept_or_llm_review
+  final_gate: accept_before_top_n_enrichment
+  strategy: lean_core_concepts_v7
+  max_core_concepts: 5
+  content_enrichment_stage: after_top_n_selection
+  content_enrichment_limit_papers: 50
+  content_enrichment_limit_news: 50
+  llm_review_mode: ambiguous_only
+  provider_expansion_first: true
+search_strategy:
+  schema_version: '1.1'
+  max_concepts: 5
+  provider_expansion_first: true
+  deduplicate_semantic_equivalents: true
+  concepts:
+  - id: lassa
+    scholarly: Lassa virus
+    news_en: Lassa virus
+    news_zh: 拉沙病毒
+    role: hotspot_member
+    priority: 1
+  - id: lcmv
+    scholarly: lymphocytic choriomeningitis virus
+    news_en: lymphocytic choriomeningitis virus
+    news_zh: 淋巴细胞脉络丛脑膜炎病毒
+    role: hotspot_member
+    priority: 2
+  - id: junin
+    scholarly: Junin virus
+    news_en: Junin virus
+    news_zh: 胡宁病毒
+    role: hotspot_member
+    priority: 3
+  - id: machupo
+    scholarly: Machupo virus
+    news_en: Machupo virus
+    news_zh: 马丘波病毒
+    role: hotspot_member
+    priority: 4
+  - id: mammarenavirus
+    scholarly: mammarenavirus
+    news_en: human mammarenavirus
+    news_zh: 哺乳沙粒病毒
+    role: umbrella_group
+    priority: 5

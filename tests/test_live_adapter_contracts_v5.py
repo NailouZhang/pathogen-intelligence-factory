@@ -24,13 +24,13 @@ class FakeHttp:
         raise RuntimeError("403 appname pending approval")
 
 
-def test_crossref_runs_publication_created_and_indexed_channels():
+def test_crossref_runs_publication_and_indexed_channels():
     http = FakeHttp()
     audit = SourceAudit()
     search_crossref(http, ["Nipah virus"], date(2026, 7, 1), date(2026, 7, 8), "x@example.org", audit=audit)
     filters = [call[2]["params"]["filter"] for call in http.calls]
     assert any("from-pub-date" in value for value in filters)
-    assert any("from-created-date" in value for value in filters)
+    assert not any("from-created-date" in value for value in filters)
     assert any("from-index-date" in value for value in filters)
     assert all("query.bibliographic" in call[2]["params"] for call in http.calls)
 

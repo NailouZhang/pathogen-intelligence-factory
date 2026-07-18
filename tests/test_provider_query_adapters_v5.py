@@ -14,58 +14,47 @@ def compiled(profile_id: str):
     return compile_profile_queries(deterministic_profile(seed, docs))
 
 
-def test_pubmed_and_europe_pmc_have_provider_fields_and_fallbacks():
-    profile = compiled("respiratory_syncytial_virus")
-    sets = profile["query_sets"]
-    assert all("[Title/Abstract]" in q for q in sets["pubmed_core_high_precision"])
-    assert sets["pubmed_identity_fallback"]
-    assert all("[Title/Abstract]" in q for q in sets["pubmed_identity_fallback"])
-    assert all("TITLE_ABS:" in q for q in sets["europe_pmc"])
-    assert all("TITLE_ABS:" in q for q in sets["europe_pmc_identity_fallback"])
-    joined = "\n".join(sets["pubmed_core_high_recall"])
-    assert '"RSV"[Title/Abstract] AND' in joined
+def test_provider_native_queries_are_lean_and_not_cross_contaminated():
+    sets = compiled("respiratory_syncytial_virus")["query_sets"]
+    assert len(sets["pubmed_core"]) == 5
+    assert all("[Title/Abstract]" not in q for q in sets["pubmed_core"])
+    assert all("FIRST_PDATE" not in q for q in sets["europe_pmc_core"])
+    assert sets["europe_pmc_core"] == [
+        concept["scholarly"] for concept in sets["core_concepts"]
+    ]
+    assert all("TITLE_ABS:" not in q for q in sets["europe_pmc_core"])
+    assert all("[Title/Abstract]" not in q for q in sets["semantic_scholar_core"])
+    assert all(" AND " not in q and " OR " not in q for q in sets["semantic_scholar_core"])
+    assert all("[" not in q and "]" not in q for q in sets["crossref_core"])
+    assert sets["openalex_exact"] == []
+    assert sets["openalex_normal"] == sets["openalex_core"]
 
 
-def test_semantic_scholar_uses_no_pubmed_syntax_and_qualifies_abbreviations():
-    profile = compiled("respiratory_syncytial_virus")
-    queries = profile["query_sets"]["semantic_scholar"]
-    assert queries
-    assert all("[Title/Abstract]" not in q for q in queries)
-    assert all("-" not in q for q in queries), "hyphens must be normalized"
-    assert any(q.startswith("RSV +(") and " | " in q for q in queries)
-    assert "RSV" not in queries, "ambiguous abbreviations must never be standalone"
-    assert all(" AND " not in q and " OR " not in q for q in queries), "bulk search uses + and | operators"
+def test_each_provider_has_at_most_five_direct_concepts():
+    for profile_id in [p.name for p in (ROOT / "profiles").iterdir() if p.is_dir()]:
+        sets = compiled(profile_id)["query_sets"]
+        for key in (
+            "pubmed_core", "europe_pmc_core", "crossref_core",
+            "semantic_scholar_core", "openalex_core", "general_news_en",
+            "general_news_zh", "gdelt_core", "reliefweb_core",
+        ):
+            assert 1 <= len(sets[key]) <= 5, (profile_id, key, len(sets[key]))
 
 
-def test_crossref_receives_simple_identity_terms_only():
-    profile = compiled("sars_cov_2")
-    queries = profile["query_sets"]["crossref"]
-    assert queries
-    assert all("[Title/Abstract]" not in q for q in queries)
-    assert all(" AND " not in q and " OR " not in q and " NOT " not in q for q in queries)
-
-
-def test_openalex_has_exact_and_normal_channels():
-    profile = compiled("sars_cov_2")
-    exact = profile["query_sets"]["openalex_exact"]
-    normal = profile["query_sets"]["openalex_normal"]
-    assert exact and normal
-    assert any("SARS-CoV-2" in q for q in exact)
-    assert any(" OR " in q or " AND " in q for q in normal)
-
-
-def test_all_query_chunks_are_present_in_audit_plan():
+def test_audit_plan_contains_one_row_per_provider_query():
     profile = compiled("arenaviridae")
     plan = build_query_plan(profile, max_groups=1000)
-    keys = (
-        "pubmed_single_anchor_exact", "pubmed_single_qualified",
-        "pubmed_core_high_precision", "pubmed_core_high_recall", "pubmed_identity_fallback",
-        "pubmed_molecular", "pubmed_epidemiology", "pubmed_clinical",
-        "europe_pmc_single_anchor_exact", "europe_pmc_single_qualified",
-        "europe_pmc", "europe_pmc_identity_fallback", "crossref", "semantic_scholar",
-        "openalex_exact", "openalex_normal", "general_news_single_en", "general_news_single_zh",
-        "general_news_en", "general_news_zh",
-        "gdelt", "reliefweb", "authoritative_web_queries",
-    )
-    assert len(plan) == sum(len(profile["query_sets"].get(k) or []) for k in keys)
-    assert len(profile["query_sets"]["pubmed_core_high_recall"]) >= 2
+    provider_keys = {
+        "pubmed": "pubmed_core",
+        "europe_pmc": "europe_pmc_core",
+        "crossref": "crossref_core",
+        "semantic_scholar": "semantic_scholar_core",
+        "openalex": "openalex_core",
+        "news_en": "general_news_en",
+        "news_zh": "general_news_zh",
+        "gdelt": "gdelt_core",
+        "reliefweb": "reliefweb_core",
+    }
+    expected = sum(len(profile["query_sets"][key]) for key in provider_keys.values())
+    assert len(plan) == expected
+    assert all(row.get("concept_id") for row in plan)

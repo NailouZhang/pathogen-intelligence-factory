@@ -41,7 +41,11 @@ def search_google_news(
         ("zh-CN", "CN", "CN:zh-Hans", "Google News Chinese", "zh"),
     ]
     for query in unique_strings(queries):
-        for hl, gl, ceid, source_name, language in locales:
+        # Do not run every English query again in the Chinese locale or every
+        # Chinese query again in the English locale.  This preserves the same
+        # five concepts per language while halving redundant Google RSS calls.
+        query_locales = [locales[1]] if re.search(r"[\u4e00-\u9fff]", query) else [locales[0]]
+        for hl, gl, ceid, source_name, language in query_locales:
             url = f"https://news.google.com/rss/search?q={quote_plus(query + ' when:7d')}&hl={hl}&gl={gl}&ceid={quote_plus(ceid)}"
             try:
                 feed = feedparser.parse(http.get_text(url))

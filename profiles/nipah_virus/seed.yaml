@@ -127,11 +127,54 @@ news_identity_terms_zh:
 - 尼帕病毒
 - 尼帕病毒感染
 retrieval_policy:
-  execute_all_query_chunks: true
+  execute_all_query_chunks: false
   pubmed_per_query: 120
   europe_pmc_per_query: 150
   crossref_per_term: 50
   semantic_scholar_per_term: 80
   openalex_per_term: 80
-  candidate_gate: accept_or_review
-  final_gate: accept_after_content_enrichment
+  candidate_gate: python_accept_or_llm_review
+  final_gate: accept_before_top_n_enrichment
+  strategy: lean_core_concepts_v7
+  max_core_concepts: 5
+  content_enrichment_stage: after_top_n_selection
+  content_enrichment_limit_papers: 50
+  content_enrichment_limit_news: 50
+  llm_review_mode: ambiguous_only
+  provider_expansion_first: true
+search_strategy:
+  schema_version: '1.1'
+  max_concepts: 5
+  provider_expansion_first: true
+  deduplicate_semantic_equivalents: true
+  concepts:
+  - id: nipah
+    scholarly: Nipah virus
+    news_en: Nipah virus
+    news_zh: 尼帕病毒
+    role: umbrella
+    priority: 1
+  - id: outbreak
+    scholarly: Nipah outbreak
+    news_en: Nipah outbreak
+    news_zh: 尼帕病毒疫情
+    role: outbreak
+    priority: 2
+  - id: encephalitis
+    scholarly: Nipah encephalitis
+    news_en: Nipah encephalitis
+    news_zh: 尼帕病毒脑炎
+    role: clinical
+    priority: 3
+  - id: transmission
+    scholarly: Nipah virus transmission
+    news_en: Nipah virus transmission
+    news_zh: 尼帕病毒传播
+    role: transmission
+    priority: 4
+  - id: vaccine
+    scholarly: Nipah vaccine
+    news_en: Nipah vaccine
+    news_zh: 尼帕病毒疫苗
+    role: intervention
+    priority: 5

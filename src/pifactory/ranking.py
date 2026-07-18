@@ -46,6 +46,13 @@ HIGH_LEVEL_TYPES = {
 TIER_ORDER = {"A": 3, "B": 2, "C": 1}
 TRUSTED_PAPER_SOURCES = {"PubMed", "Europe PMC", "OpenAlex", "Crossref", "Semantic Scholar"}
 
+HOTSPOT_TOKENS = (
+    "outbreak", "epidemic", "surveillance", "transmission", "spillover",
+    "vaccine", "vaccination", "treatment", "antiviral", "clinical trial",
+    "variant", "lineage", "genomic", "genome", "mutation", "resistance",
+    "emerging", "case", "hospitalization", "mortality",
+)
+
 
 
 def _days_old(value: str | None) -> int:
@@ -62,6 +69,25 @@ def paper_quality(record: dict[str, Any]) -> tuple[float, list[str]]:
     source_points = max((PAPER_SOURCE_WEIGHT.get(str(x), 5) for x in sources if x), default=0)
     score += source_points
     reasons.append(f"source={source_points}")
+
+    provider_count = len(set(x for x in sources if x))
+    convergence_points = min(max(0, provider_count - 1) * 3, 12)
+    score += convergence_points
+    if convergence_points:
+        reasons.append(f"provider_convergence={convergence_points}")
+
+    concept_count = len(record.get("retrieval_concepts") or [])
+    concept_points = min(concept_count * 2, 8)
+    score += concept_points
+    if concept_points:
+        reasons.append(f"concept_coverage={concept_points}")
+
+    haystack = clean_space((record.get("title") or "") + " " + (record.get("abstract") or "")).lower()
+    hotspot_hits = [token for token in HOTSPOT_TOKENS if token in haystack]
+    hotspot_points = min(len(hotspot_hits) * 1.5, 9)
+    score += hotspot_points
+    if hotspot_points:
+        reasons.append(f"hotspot={hotspot_points:g}")
 
     types = " ".join(str(x).lower() for x in record.get("publication_types") or [])
     design_points = max((points for token, points in HIGH_LEVEL_TYPES.items() if token in types), default=0)
@@ -107,6 +133,25 @@ def news_quality(record: dict[str, Any]) -> tuple[float, list[str]]:
         score += 35
     else:
         score += 8
+
+    duplicate_count = len(record.get("duplicate_sources") or [])
+    corroboration_points = min(duplicate_count * 3, 15)
+    score += corroboration_points
+    if corroboration_points:
+        reasons.append(f"corroboration={corroboration_points}")
+
+    concept_count = len(record.get("retrieval_concepts") or [])
+    concept_points = min(concept_count * 2, 8)
+    score += concept_points
+    if concept_points:
+        reasons.append(f"concept_coverage={concept_points}")
+
+    text = clean_space((record.get("title") or "") + " " + (record.get("excerpt") or "") + " " + (record.get("content") or "")).lower()
+    hotspot_hits = [token for token in HOTSPOT_TOKENS if token in text]
+    hotspot_points = min(len(hotspot_hits) * 2, 12)
+    score += hotspot_points
+    if hotspot_points:
+        reasons.append(f"hotspot={hotspot_points:g}")
 
     status = clean_space(record.get("content_status") or record.get("body_status"))
     if status in {"full", "captured", "partial"} and clean_space(record.get("content")):

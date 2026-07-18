@@ -11,7 +11,7 @@ from .bootstrap import _fallback_profile, build_profile
 from .config import Settings, load_profile, load_seed
 from .content import enrich_scholarly_work, resolve_and_extract_news
 from .dates import date_window
-from .dedup import attach_news_to_papers, dedup_news, dedup_papers, llm_review_ambiguous_duplicates
+from .dedup import attach_news_to_papers, dedup_news, dedup_papers
 from .http import HttpClient
 from .llm import LLMRouter
 from .news import filter_news_window, search_bing_news, search_gdelt, search_google_news, search_reliefweb, search_who
@@ -34,6 +34,7 @@ from .scholarly import (
 from .storage import load_state, save_state, write_issue
 from .translation import translate_record
 from .overview import build_overview
+from .progress import progress
 from .cover import ensure_profile_cover
 from .utils import append_jsonl, clean_space, dump_json, sha256_text, utc_now_iso, unique_strings
 
@@ -118,49 +119,58 @@ def _review_summary(rows: list[dict[str, Any]], accepted_count: int) -> dict[str
     }
 
 
-def _anchor_coverage(profile: dict[str, Any], query_sets: dict[str, list[str]], entries: list[dict[str, Any]]) -> dict[str, Any]:
-    vocabulary = profile.get("vocabulary") or {}
-    identities: list[str] = []
-    for key in ("identity_anchor_terms", "member_identity_terms", "disease_identity_terms"):
-        for item in vocabulary.get(key) or []:
-            if isinstance(item, dict) and item.get("safe_to_use_alone", key == "member_identity_terms"):
-                term = clean_space(item.get("term"))
-                if term:
-                    identities.append(term)
-    identities = unique_strings(identities)
-    providers = {
-        "pubmed": query_sets.get("pubmed_single_anchor_exact") or [],
-        "europe_pmc": query_sets.get("europe_pmc_single_anchor_exact") or [],
-        "crossref": query_sets.get("crossref") or [],
-        "semantic_scholar": query_sets.get("semantic_scholar") or [],
-        "openalex_exact": query_sets.get("openalex_exact") or [],
-        "news_en": query_sets.get("general_news_single_en") or [],
+def _anchor_coverage(profile: dict[str, Any], query_sets: dict[str, Any], entries: list[dict[str, Any]]) -> dict[str, Any]:
+    concepts = [x for x in query_sets.get("core_concepts") or [] if isinstance(x, dict)]
+    provider_queries = {
+        "pubmed": query_sets.get("pubmed_core") or [],
+        "europe_pmc": query_sets.get("europe_pmc_core") or [],
+        "crossref": query_sets.get("crossref_core") or [],
+        "semantic_scholar": query_sets.get("semantic_scholar_core") or [],
+        "openalex": query_sets.get("openalex_core") or [],
+        "news_en": query_sets.get("general_news_en") or [],
+        "news_zh": query_sets.get("general_news_zh") or [],
     }
     rows: list[dict[str, Any]] = []
-    for term in identities:
-        item: dict[str, Any] = {"identity": term, "providers": {}}
-        low = term.casefold()
-        for provider, queries in providers.items():
-            matching_queries = [q for q in queries if low in clean_space(q).casefold()]
-            matching_entries = [
+    for index, concept in enumerate(concepts):
+        row: dict[str, Any] = {
+            "concept_id": concept.get("id"),
+            "scholarly": concept.get("scholarly"),
+            "role": concept.get("role"),
+            "providers": {},
+        }
+        for provider, queries in provider_queries.items():
+            query = queries[index] if index < len(queries) else ""
+            matching = [
                 entry for entry in entries
-                if any(clean_space(entry.get("query")) == clean_space(q) for q in matching_queries)
+                if query and clean_space(entry.get("query")) == clean_space(query)
             ]
-            item["providers"][provider] = {
-                "queries_planned": len(matching_queries),
-                "queries_executed": len(matching_entries),
-                "records_reported": sum(int(x.get("records") or 0) for x in matching_entries),
-                "failed_queries": sum(x.get("status") == "failed" for x in matching_entries),
+            row["providers"][provider] = {
+                "query": query,
+                "executed": bool(matching),
+                "records_reported": sum(int(x.get("records") or 0) for x in matching),
+                "failed_queries": sum(x.get("status") == "failed" for x in matching),
             }
-        rows.append(item)
+        rows.append(row)
     return {
         "profile_id": profile.get("profile_id"),
-        "identity_count": len(rows),
-        "identities": rows,
+        "strategy": "lean_core_concepts_v7",
+        "concept_count": len(rows),
+        "concepts": rows,
     }
+
+
+def _annotate_retrieval_concepts(records: list[dict[str, Any]], query_sets: dict[str, Any]) -> None:
+    mapping = query_sets.get("query_concept_map") or {}
+    for record in records:
+        concepts: list[str] = []
+        for query in record.get("retrieval_queries") or []:
+            concepts.extend(mapping.get(clean_space(query)) or mapping.get(query) or [])
+        record["retrieval_concepts"] = unique_strings(concepts)
+        record["retrieval_concept_count"] = len(record["retrieval_concepts"])
 
 
 def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
+    progress("pipeline", "start", profile=settings.profile_id, demo=demo)
     settings.output_dir.mkdir(parents=True, exist_ok=True)
     settings.state_dir.mkdir(parents=True, exist_ok=True)
     http = HttpClient(settings.user_agent)
@@ -171,18 +181,32 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     seed = load_seed(settings.project_root, settings.profile_id)
     seed_hash = sha256_text(__import__("json").dumps(seed, ensure_ascii=False, sort_keys=True))
     profile_stale = not profile or profile.get("seed_hash") != seed_hash
+    progress(
+        "profile",
+        "decision",
+        refresh=settings.refresh_profile,
+        stale=profile_stale,
+        cached=bool(profile),
+    )
     if demo and (not profile or profile_stale):
         profile = _fallback_profile(seed, [])
         profile["seed_hash"] = seed_hash
     elif settings.refresh_profile or profile_stale or (profile and profile.get("generated_by") == "bundled_seed"):
         profile = build_profile(settings, http, llm)
+    progress("profile", "ready_check", status=(profile or {}).get("status"), generated_by=(profile or {}).get("generated_by"))
     if profile.get("status") != "ready":
         raise RuntimeError(
             f"profile {settings.profile_id} is not ready: "
             f"{profile.get('blocking_issues') or profile.get('status')}"
         )
-    query_sets = profile.get("query_sets") or compile_query_sets(profile)
-    plan = build_query_plan(profile, max_groups=240)
+    query_sets = compile_query_sets(profile)
+    profile["query_sets"] = query_sets
+    plan = build_query_plan(profile, max_groups=120)
+    progress(
+        "query_plan",
+        "compiled",
+        query_counts={key: len(value) for key, value in query_sets.items() if isinstance(value, list)},
+    )
     start, end = date_window(settings.window_days, timezone_name=settings.timezone)
     source_audit = SourceAudit()
 
@@ -193,101 +217,90 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     else:
         raw_papers: list[dict[str, Any]] = []
         scholarly_calls = [
-            lambda: search_pubmed(
-                http,
-                unique_strings(
-                    (query_sets.get("pubmed_single_anchor_exact") or [])
-                    + (query_sets.get("pubmed_single_qualified") or [])
-                    + (query_sets.get("pubmed_core_high_precision") or [])
-                    + (query_sets.get("pubmed_core_high_recall") or [])
-                    + (query_sets.get("pubmed_identity_fallback") or [])
-                    + (query_sets.get("pubmed_molecular") or [])
-                    + (query_sets.get("pubmed_epidemiology") or [])
-                    + (query_sets.get("pubmed_clinical") or [])
-                ),
-                start,
-                end,
+            ("PubMed", lambda: search_pubmed(
+                http, query_sets.get("pubmed_core") or [], start, end,
                 secrets.get("NCBI_API_KEY", ""),
                 per_query=settings.pubmed_per_query,
                 max_total=settings.pubmed_total_limit,
                 audit=source_audit,
-            ),
-            lambda: search_europe_pmc(
-                http, unique_strings(
-                    (query_sets.get("europe_pmc_single_anchor_exact") or [])
-                    + (query_sets.get("europe_pmc_single_qualified") or [])
-                    + (query_sets.get("europe_pmc") or [])
-                    + (query_sets.get("europe_pmc_identity_fallback") or [])
-                ), start, end,
+            )),
+            ("Europe PMC", lambda: search_europe_pmc(
+                http, query_sets.get("europe_pmc_core") or [], start, end,
                 per_query=settings.europe_pmc_per_query, audit=source_audit,
-            ),
-            lambda: search_crossref(
-                http, query_sets.get("crossref") or [], start, end,
+            )),
+            ("Crossref", lambda: search_crossref(
+                http, query_sets.get("crossref_core") or [], start, end,
                 secrets.get("CROSSREF_MAILTO", ""),
                 per_query=settings.crossref_per_query,
                 include_indexed=settings.crossref_include_indexed,
                 audit=source_audit,
-            ),
-            lambda: search_semantic_scholar(
-                http, query_sets.get("semantic_scholar") or [], start, end,
+            )),
+            ("Semantic Scholar", lambda: search_semantic_scholar(
+                http, query_sets.get("semantic_scholar_core") or [], start, end,
                 secrets.get("SEMANTIC_SCHOLAR_API_KEY", ""),
                 per_query=settings.semantic_per_query,
                 anonymous_query_limit=settings.semantic_anonymous_query_limit,
                 anonymous_delay_ms=settings.semantic_anonymous_delay_ms,
                 audit=source_audit,
-            ),
-            lambda: search_openalex(
-                http,
-                query_sets.get("openalex_exact") or [],
-                query_sets.get("openalex_normal") or [],
-                start, end,
+            )),
+            ("OpenAlex", lambda: search_openalex(
+                http, [], query_sets.get("openalex_core") or [], start, end,
                 secrets.get("OPENALEX_API_KEY", ""),
                 per_query=settings.openalex_per_query, audit=source_audit,
-            ),
-            lambda: search_biorxiv_medrxiv(http, start, end, audit=source_audit),
+            )),
+            ("bioRxiv/medRxiv", lambda: search_biorxiv_medrxiv(http, start, end, audit=source_audit)),
         ]
+        progress("scholarly_retrieval", "start", providers=[name for name, _ in scholarly_calls], core_concepts=len(query_sets.get("core_concepts") or []))
         with ThreadPoolExecutor(max_workers=len(scholarly_calls)) as executor:
-            for future in as_completed([executor.submit(call) for call in scholarly_calls]):
+            future_names = {executor.submit(call): name for name, call in scholarly_calls}
+            for future in as_completed(future_names):
+                name = future_names[future]
                 try:
-                    raw_papers.extend(future.result())
+                    rows = future.result()
+                    raw_papers.extend(rows)
+                    progress("scholarly_retrieval", "provider_complete", provider=name, records=len(rows), cumulative=len(raw_papers))
                 except Exception as exc:
-                    source_audit.add(source="scholarly orchestration", status="failed", error=exc)
+                    progress("scholarly_retrieval", "provider_failed", provider=name, error=str(exc)[:300])
+                    source_audit.add(source="scholarly orchestration", status="failed", error=exc, details={"provider": name})
+        progress("scholarly_retrieval", "complete", records=len(raw_papers))
 
         raw_news: list[dict[str, Any]] = []
         general_news_queries = unique_strings(
-            (query_sets.get("general_news_single_en") or [])
-            + (query_sets.get("general_news_single_zh") or [])
-            + (query_sets.get("general_news_en") or [])
+            (query_sets.get("general_news_en") or [])
             + (query_sets.get("general_news_zh") or [])
-            + (query_sets.get("authoritative_web_queries") or [])
         )
-        identity_terms = [
-            x.get("term")
-            for x in (profile.get("vocabulary") or {}).get("identity_anchor_terms", [])
-            if isinstance(x, dict) and x.get("term")
-        ]
+        progress(
+            "news_query_plan", "selected",
+            core_concepts=len(query_sets.get("core_concepts") or []),
+            rss_queries=len(general_news_queries),
+            gdelt_queries=len(query_sets.get("gdelt_core") or []),
+            reliefweb_queries=len(query_sets.get("reliefweb_core") or []),
+        )
+        who_terms = [x.get("news_en") or x.get("scholarly") for x in query_sets.get("core_concepts") or [] if isinstance(x, dict)]
         news_calls = [
-            lambda: search_google_news(http, general_news_queries, start, end, audit=source_audit),
-            lambda: search_bing_news(http, general_news_queries, start, end, audit=source_audit),
-            lambda: search_gdelt(http, query_sets.get("gdelt") or [], start, end, audit=source_audit),
-            lambda: search_reliefweb(
-                http, query_sets.get("reliefweb") or [], start, end,
+            ("Google News RSS", lambda: search_google_news(http, general_news_queries, start, end, audit=source_audit)),
+            ("Bing News RSS", lambda: search_bing_news(http, general_news_queries, start, end, audit=source_audit)),
+            ("GDELT", lambda: search_gdelt(http, query_sets.get("gdelt_core") or [], start, end, audit=source_audit)),
+            ("ReliefWeb", lambda: search_reliefweb(
+                http, query_sets.get("reliefweb_core") or [], start, end,
                 appname=secrets.get("RELIEFWEB_APPNAME", ""), audit=source_audit,
-            ),
-            lambda: search_who(http, identity_terms, start, end, audit=source_audit),
+            )),
+            ("WHO", lambda: search_who(http, unique_strings(who_terms), start, end, audit=source_audit)),
         ]
+        progress("news_retrieval", "start", providers=[name for name, _ in news_calls])
         with ThreadPoolExecutor(max_workers=len(news_calls)) as executor:
-            for future in as_completed([executor.submit(call) for call in news_calls]):
+            future_names = {executor.submit(call): name for name, call in news_calls}
+            for future in as_completed(future_names):
+                name = future_names[future]
                 try:
-                    raw_news.extend(future.result())
+                    rows = future.result()
+                    raw_news.extend(rows)
+                    progress("news_retrieval", "provider_complete", provider=name, records=len(rows), cumulative=len(raw_news))
                 except Exception as exc:
-                    source_audit.add(source="news orchestration", status="failed", error=exc)
+                    progress("news_retrieval", "provider_failed", provider=name, error=str(exc)[:300])
+                    source_audit.add(source="news orchestration", status="failed", error=exc, details={"provider": name})
+        progress("news_retrieval", "complete", records=len(raw_news))
 
-
-        # When both primary biomedical indexes are genuinely empty in the
-        # seven-day window, run count-only 90-day single-anchor probes.  Probe
-        # hits are diagnostic only and never enter the daily report.  They
-        # distinguish a quiet week from a broken profile/query or provider.
         pubmed_7d_hits = sum(
             int(row.get("records") or 0) for row in source_audit.entries
             if row.get("source") == "PubMed" and row.get("status") == "success"
@@ -299,12 +312,11 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         if pubmed_7d_hits == 0 and epmc_7d_hits == 0:
             probe_start = end - timedelta(days=89)
             probe_pubmed_anchor_counts(
-                http, query_sets.get("pubmed_single_anchor_exact") or [],
-                probe_start, end, secrets.get("NCBI_API_KEY", ""), audit=source_audit,
+                http, query_sets.get("pubmed_core") or [], probe_start, end,
+                secrets.get("NCBI_API_KEY", ""), audit=source_audit,
             )
             probe_europe_pmc_anchor_counts(
-                http, query_sets.get("europe_pmc_single_anchor_exact") or [],
-                probe_start, end, audit=source_audit,
+                http, query_sets.get("europe_pmc_core") or [], probe_start, end, audit=source_audit,
             )
 
         scholarly_names = {"PubMed", "Europe PMC", "Crossref", "Semantic Scholar", "OpenAlex", "bioRxiv", "medRxiv"}
@@ -315,89 +327,55 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         if not scholarly_success:
             raise RuntimeError("All scholarly source adapters failed or were skipped; inspect data/audit/source_status.json and GitHub logs")
 
+    _annotate_retrieval_concepts(raw_papers, query_sets)
+    _annotate_retrieval_concepts(raw_news, query_sets)
+
     raw_papers_before_window = len(raw_papers)
     raw_papers = filter_window(raw_papers, start, end)
     papers_after_window = len(raw_papers)
     paper_candidates = candidate_filter_papers(raw_papers, profile)
     papers_after_candidate_gate = len(paper_candidates)
+    progress("paper_candidate_gate", "complete", raw=raw_papers_before_window, after_window=papers_after_window, candidates=papers_after_candidate_gate)
     papers = dedup_papers(paper_candidates)
-    dedup_prompt = (settings.project_root / "prompts" / "ambiguous_dedup.md").read_text(encoding="utf-8")
-    papers = llm_review_ambiguous_duplicates(papers, llm, dedup_prompt)
+    papers_after_dedup = len(papers)
     papers = rank_papers(papers)
     if settings.max_paper_candidates > 0:
         papers = papers[: settings.max_paper_candidates]
+    progress("paper_dedup", "complete", candidates=papers_after_candidate_gate, unique=len(papers))
 
     raw_news_before_window = len(raw_news)
     raw_news = filter_news_window(raw_news, start, end)
     news_after_window = len(raw_news)
-    strict_news_candidates = candidate_filter_news(raw_news, profile)
-    strict_ids = {id(x) for x in strict_news_candidates}
-    # An anchored search result can have a generic title while naming the virus
-    # only in the landing-page body. Preserve a bounded prefetch pool so that
-    # body extraction happens before final rejection.
-    query_anchored_prefetch: list[dict[str, Any]] = []
-    for record in raw_news:
-        if id(record) in strict_ids:
-            continue
-        if record.get("retrieval_queries") and record.get("title"):
-            record["relevance_decision"] = "query_anchored_prefetch"
-            query_anchored_prefetch.append(record)
-    news_candidates = strict_news_candidates + query_anchored_prefetch
+    news_candidates = candidate_filter_news(raw_news, profile)
     news_after_candidate_gate = len(news_candidates)
     news = dedup_news(news_candidates)
-    news = llm_review_ambiguous_duplicates(news, llm, dedup_prompt)
+    news_after_dedup = len(news)
     news = rank_news(news)
     if settings.max_news_candidates > 0:
         news = news[: settings.max_news_candidates]
+    progress("news_dedup", "complete", raw=raw_news_before_window, after_window=news_after_window, candidates=news_after_candidate_gate, unique=len(news))
 
+    # No network content completion occurs before relevance review and Top-N
+    # selection. API-provided abstracts/excerpts and query provenance are the
+    # only evidence at this stage.
+    for paper in papers:
+        paper["evidence_level"] = "E1" if clean_space(paper.get("abstract")) else "E0"
+        paper["full_text_method"] = "api_abstract" if paper.get("abstract") else "metadata_only"
     if demo:
         for paper in papers:
             paper["paper_id"] = paper.get("paper_id") or "paper-" + sha256_text(paper.get("title", ""))[:16]
-            paper["evidence_level"] = "E1" if paper.get("abstract") else "E0"
         for article in news:
             article["news_id"] = article.get("news_id") or "news-" + sha256_text(article.get("title", ""))[:16]
             article["content"] = article.get("excerpt")
             article["content_status"] = "partial"
             article["resolved_url"] = article.get("url")
-    else:
-        # Relevance needs an abstract/body, not necessarily an entire full text.
-        # Enrich every candidate whose metadata lacks an abstract.  A positive
-        # max_fulltexts remains available as an emergency runtime cap; zero is
-        # the normal unlimited mode.
-        missing_abstract = [item for item in papers if not clean_space(item.get("abstract"))]
-        enrich_targets = missing_abstract
-        if settings.max_fulltexts > 0:
-            enrich_targets = enrich_targets[: settings.max_fulltexts]
-        enriched = _parallel_map(
-            enrich_targets,
-            lambda item: enrich_scholarly_work(http, item, secrets.get("CROSSREF_MAILTO", "")),
-            workers=6,
-        )
-        enriched_by_id = {item.get("paper_id"): item for item in enriched}
-        updated_papers: list[dict[str, Any]] = []
-        for item in papers:
-            if item.get("paper_id") in enriched_by_id:
-                updated_papers.append(enriched_by_id[item.get("paper_id")])
-            else:
-                item["evidence_level"] = "E1" if item.get("abstract") else "E0"
-                item["full_text_method"] = "abstract_sufficient" if item.get("abstract") else "metadata_only"
-                updated_papers.append(item)
-        papers = updated_papers
-
-        news_fetch_targets = news if settings.max_news_fetches <= 0 else news[: settings.max_news_fetches]
-        fetched_news = _parallel_map(
-            news_fetch_targets,
-            lambda item: resolve_and_extract_news(http, item),
-            workers=8,
-        )
-        fetched_ids = {id(item) for item in news_fetch_targets}
-        news = fetched_news + [item for item in news if id(item) not in fetched_ids]
 
     papers_before_final_gate = len(papers)
     news_before_final_gate = len(news)
     paper_review_population = list(papers)
     news_review_population = list(news)
     relevance_review_cache = state.setdefault("relevance_review_cache", {}) if settings.relevance_review_cache_enabled else {}
+    progress("relevance_review", "start", kind="paper", candidates=len(papers), mode=settings.llm_review_mode)
     papers = final_filter(
         papers,
         profile,
@@ -408,6 +386,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         compact_batch_tokens=settings.llm_compact_batch_tokens,
         escalation_batch_tokens=settings.llm_escalation_batch_tokens,
     )
+    progress("relevance_review", "complete", kind="paper", accepted=len(papers))
+    progress("relevance_review", "start", kind="news", candidates=len(news), mode=settings.llm_review_mode)
     news = final_filter(
         news,
         profile,
@@ -418,13 +398,14 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         compact_batch_tokens=settings.llm_compact_batch_tokens,
         escalation_batch_tokens=settings.llm_escalation_batch_tokens,
     )
+    progress("relevance_review", "complete", kind="news", accepted=len(news))
     if len(relevance_review_cache) > 12000:
         for stale_key in list(relevance_review_cache)[: len(relevance_review_cache) - 12000]:
             relevance_review_cache.pop(stale_key, None)
     papers_after_final_gate = len(papers)
     news_after_final_gate = len(news)
     relevance_review_summary = {
-        "policy_version": "v6-compact-all-1",
+        "policy_version": "v7-python-first-ambiguous-llm-1",
         "mode": settings.llm_review_mode,
         "compact_batch_tokens": settings.llm_compact_batch_tokens,
         "escalation_batch_tokens": settings.llm_escalation_batch_tokens,
@@ -433,25 +414,53 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     }
     news, papers = attach_news_to_papers(news, papers)
 
-    # Final ranking is applied after metadata/full-text enrichment so that
-    # study design, evidence completeness and official-source authority can
-    # influence the displayed top 50. If fewer records exist, all are shown.
+    # Rank using metadata, API abstracts, provider convergence, study design,
+    # recency and hotspot signals. Only the final display set is enriched.
     papers = rank_papers(papers)[: settings.max_papers]
     news = rank_news(news)[: settings.max_news]
+    progress("display_selection", "complete", papers=len(papers), news=len(news), max_papers=settings.max_papers, max_news=settings.max_news)
 
-    # Full-text work is reserved for displayed papers after relevance and
-    # quality ranking.  This keeps LLM/deep-fetch cost focused on what appears
-    # on Pages and in WeChat while every candidate has already received compact
-    # relevance review.
     if not demo:
-        deep_targets = [item for item in papers if item.get("evidence_level") != "E2"]
+        oa_email = secrets.get("UNPAYWALL_EMAIL") or secrets.get("CROSSREF_MAILTO", "")
+        paper_targets = papers[: max(0, min(len(papers), settings.max_fulltexts))]
+        progress("display_content_enrichment", "start", kind="paper", selected=len(paper_targets), cap=settings.max_fulltexts)
         deep_enriched = _parallel_map(
-            deep_targets,
-            lambda item: enrich_scholarly_work(http, item, secrets.get("CROSSREF_MAILTO", "")),
+            paper_targets,
+            lambda item: enrich_scholarly_work(http, item, oa_email),
             workers=5,
         )
         deep_by_id = {item.get("paper_id"): item for item in deep_enriched}
         papers = [deep_by_id.get(item.get("paper_id"), item) for item in papers]
+        progress("display_content_enrichment", "complete", kind="paper", enriched=len(deep_enriched), total=len(papers))
+
+        news_targets = news[: max(0, min(len(news), settings.max_news_fetches))]
+        progress("display_content_enrichment", "start", kind="news", selected=len(news_targets), cap=settings.max_news_fetches)
+        fetched_news = _parallel_map(
+            news_targets,
+            lambda item: resolve_and_extract_news(http, item),
+            workers=8,
+        )
+        fetched_by_id = {item.get("news_id"): item for item in fetched_news}
+        news = [fetched_by_id.get(item.get("news_id"), item) for item in news]
+        progress("display_content_enrichment", "complete", kind="news", enriched=len(fetched_news), total=len(news))
+
+        # Content-aware audit is intentionally non-expansive: it cannot pull in
+        # new candidates after Top-N selection. It flags explicit mismatches and
+        # improves transparency without triggering another retrieval cycle.
+        for paper in papers:
+            paper["relevance_post_enrichment"] = relevance_assessment(
+                paper.get("title", ""),
+                clean_space(paper.get("full_text") or paper.get("abstract")),
+                profile,
+            )
+        for article in news:
+            article["relevance_post_enrichment"] = relevance_assessment(
+                article.get("title", ""),
+                clean_space(article.get("content") or article.get("excerpt")),
+                profile,
+            )
+        papers = rank_papers(papers)
+        news = rank_news(news)
 
     prompts_dir = settings.project_root / "prompts"
     analysis_cache = state.setdefault("analysis_cache", {})
@@ -473,7 +482,10 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         )
         return f"{kind}:{sha256_text(identity + '|' + evidence)}"
 
-    for paper in papers:
+    progress("deep_analysis", "start", papers=len(papers), news=len(news))
+    for paper_index, paper in enumerate(papers, start=1):
+        if paper_index == 1 or paper_index % 5 == 0 or paper_index == len(papers):
+            progress("deep_analysis", "paper_progress", completed=paper_index-1, total=len(papers))
         key = analysis_cache_key("paper", paper)
         cached = analysis_cache.get(key) if settings.analysis_cache_enabled else None
         if isinstance(cached, dict):
@@ -486,7 +498,9 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             if settings.analysis_cache_enabled:
                 analysis_cache[key] = {"analysis": paper.get("analysis") or {}, "paper_type": paper.get("paper_type")}
 
-    for article in news:
+    for news_index, article in enumerate(news, start=1):
+        if news_index == 1 or news_index % 5 == 0 or news_index == len(news):
+            progress("deep_analysis", "news_progress", completed=news_index-1, total=len(news))
         key = analysis_cache_key("news", article)
         cached = analysis_cache.get(key) if settings.analysis_cache_enabled else None
         if isinstance(cached, dict):
@@ -498,6 +512,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             if settings.analysis_cache_enabled:
                 analysis_cache[key] = {"analysis": article.get("analysis") or {}}
 
+    progress("deep_analysis", "complete", papers=len(papers), news=len(news))
     # Keep the persistent state bounded across long-running weekly cycles.
     if len(analysis_cache) > 5000:
         for stale_key in list(analysis_cache)[: len(analysis_cache) - 5000]:
@@ -561,7 +576,10 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
                 "fields": {},
             }
     else:
-        for paper in papers:
+        progress("translation", "start", papers=len(papers), news=len(news))
+        for paper_index, paper in enumerate(papers, start=1):
+            if paper_index == 1 or paper_index % 5 == 0 or paper_index == len(papers):
+                progress("translation", "paper_progress", completed=paper_index-1, total=len(papers))
             translate_record(
                 paper,
                 profile=profile,
@@ -570,8 +588,11 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
                 cache=translation_cache,
                 kind=paper.get("paper_type") or "research",
             )
-        for article in news:
+        for news_index, article in enumerate(news, start=1):
+            if news_index == 1 or news_index % 5 == 0 or news_index == len(news):
+                progress("translation", "news_progress", completed=news_index-1, total=len(news))
             translate_record(article, profile=profile, llm=llm, prompts_dir=prompts_dir, cache=translation_cache, kind="news")
+        progress("translation", "complete", papers=len(papers), news=len(news))
 
     def has_real_title_translation(item: dict[str, Any]) -> bool:
         title = clean_space(item.get("title_zh"))
@@ -590,22 +611,26 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "raw": raw_papers_before_window,
             "after_window": papers_after_window,
             "after_candidate_gate": papers_after_candidate_gate,
+            "after_dedup": papers_after_dedup,
             "before_final_gate": papers_before_final_gate,
             "after_final_gate": papers_after_final_gate,
+            "selected_for_content_enrichment": min(len(papers), settings.max_fulltexts),
             "displayed": len(papers),
         },
         "news": {
             "raw": raw_news_before_window,
             "after_window": news_after_window,
             "after_candidate_gate": news_after_candidate_gate,
+            "after_dedup": news_after_dedup,
             "before_final_gate": news_before_final_gate,
             "after_final_gate": news_after_final_gate,
+            "selected_for_content_enrichment": min(len(news), settings.max_news_fetches),
             "displayed": len(news),
         },
     }
 
     issue = {
-        "schema_version": "3.0",
+        "schema_version": "3.1",
         "issue_id": f"{settings.profile_id}-{issue_date}",
         "profile_id": settings.profile_id,
         "issue_date": issue_date,
@@ -665,4 +690,5 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "content_audit": article.get("content_audit"),
         })
     save_state(settings.state_dir, state)
+    progress("pipeline", "complete", profile=settings.profile_id, issue_id=issue.get("issue_id"), metrics=issue.get("metrics"))
     return issue

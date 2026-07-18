@@ -119,11 +119,54 @@ news_identity_terms_zh:
 - 麻疹病毒
 - 麻疹
 retrieval_policy:
-  execute_all_query_chunks: true
+  execute_all_query_chunks: false
   pubmed_per_query: 120
   europe_pmc_per_query: 150
   crossref_per_term: 50
   semantic_scholar_per_term: 80
   openalex_per_term: 80
-  candidate_gate: accept_or_review
-  final_gate: accept_after_content_enrichment
+  candidate_gate: python_accept_or_llm_review
+  final_gate: accept_before_top_n_enrichment
+  strategy: lean_core_concepts_v7
+  max_core_concepts: 5
+  content_enrichment_stage: after_top_n_selection
+  content_enrichment_limit_papers: 50
+  content_enrichment_limit_news: 50
+  llm_review_mode: ambiguous_only
+  provider_expansion_first: true
+search_strategy:
+  schema_version: '1.1'
+  max_concepts: 5
+  provider_expansion_first: true
+  deduplicate_semantic_equivalents: true
+  concepts:
+  - id: measles
+    scholarly: measles
+    news_en: measles
+    news_zh: 麻疹
+    role: umbrella
+    priority: 1
+  - id: outbreak
+    scholarly: measles outbreak
+    news_en: measles outbreak
+    news_zh: 麻疹暴发
+    role: outbreak
+    priority: 2
+  - id: vaccination
+    scholarly: measles vaccination
+    news_en: measles vaccination
+    news_zh: 麻疹疫苗接种
+    role: intervention
+    priority: 3
+  - id: genotype
+    scholarly: measles genotype
+    news_en: measles genotype
+    news_zh: 麻疹病毒基因型
+    role: genomic
+    priority: 4
+  - id: sspe
+    scholarly: subacute sclerosing panencephalitis
+    news_en: subacute sclerosing panencephalitis measles
+    news_zh: 亚急性硬化性全脑炎
+    role: clinical
+    priority: 5

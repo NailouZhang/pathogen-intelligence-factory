@@ -176,7 +176,7 @@
 ## 输出 JSON 结构
 
 {
-  "schema_version": "3.0",
+  "schema_version": "3.1",
   "profile_id": "",
   "status": "ready|needs_review|failed",
   "target_scope": {

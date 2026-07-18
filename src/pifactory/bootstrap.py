@@ -40,8 +40,8 @@ def _fallback_profile(seed: dict[str, Any], sources: list[dict[str, Any]]) -> di
 def _llm_validator(data: Any) -> tuple[bool, str]:
     if not isinstance(data, dict):
         return False, "output is not a JSON object"
-    if str(data.get("schema_version")) != "3.0":
-        return False, "schema_version must be 3.0"
+    if str(data.get("schema_version")) != "3.1":
+        return False, "schema_version must be 3.1"
     vocabulary = data.get("vocabulary") or {}
     if not isinstance(vocabulary, dict):
         return False, "missing vocabulary object"
@@ -108,7 +108,7 @@ def build_profile(settings: Settings, http: HttpClient, llm: LLMRouter) -> dict[
     profile["seed_hash"] = seed_hash
     profile["source_bundle_hash"] = source_bundle_hash(documents)
     profile["generated_at"] = utc_now_iso()
-    profile["profile_contract"] = "strict-virus-retrieval-profile/v3"
+    profile["profile_contract"] = "lean-core-retrieval-profile/v7"
     profile = compile_profile_queries(profile)
     valid, issues = validate_profile(profile, seed)
     if not valid:

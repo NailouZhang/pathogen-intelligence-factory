@@ -26,8 +26,9 @@ def test_query_plan_uses_database_specific_anchored_queries():
 
 def test_context_and_short_symbols_never_become_standalone_identity_branches():
     profile = compiled("sftsv")
-    queries = "\n".join(q for qs in profile["query_sets"].values() for q in qs)
+    queries = "\n".join(q for qs in profile["query_sets"].values() if isinstance(qs, list) for q in qs if isinstance(q, str))
     assert '("NSs")' not in queries
     assert '("Gn")' not in queries
     assert '("thrombocytopenia")' not in queries
-    assert '"SFTSV"[Title/Abstract] AND' in queries
+    assert '\nSFTSV\n' not in '\n' + queries + '\n'
+    assert 'SFTSV outbreak' in queries

@@ -157,11 +157,54 @@ news_identity_terms_zh:
 - 乙型流感
 - 流感病毒
 retrieval_policy:
-  execute_all_query_chunks: true
+  execute_all_query_chunks: false
   pubmed_per_query: 120
   europe_pmc_per_query: 150
   crossref_per_term: 50
   semantic_scholar_per_term: 80
   openalex_per_term: 80
-  candidate_gate: accept_or_review
-  final_gate: accept_after_content_enrichment
+  candidate_gate: python_accept_or_llm_review
+  final_gate: accept_before_top_n_enrichment
+  strategy: lean_core_concepts_v7
+  max_core_concepts: 5
+  content_enrichment_stage: after_top_n_selection
+  content_enrichment_limit_papers: 50
+  content_enrichment_limit_news: 50
+  llm_review_mode: ambiguous_only
+  provider_expansion_first: true
+search_strategy:
+  schema_version: '1.1'
+  max_concepts: 5
+  provider_expansion_first: true
+  deduplicate_semantic_equivalents: true
+  concepts:
+  - id: seasonal_influenza
+    scholarly: seasonal influenza
+    news_en: seasonal influenza
+    news_zh: 季节性流感
+    role: umbrella
+    priority: 1
+  - id: h3n2
+    scholarly: A(H3N2)
+    news_en: A(H3N2) influenza
+    news_zh: 甲型H3N2流感
+    role: hotspot_subtype
+    priority: 2
+  - id: h1n1pdm09
+    scholarly: A(H1N1)pdm09
+    news_en: A(H1N1)pdm09 influenza
+    news_zh: 甲型H1N1流感
+    role: hotspot_subtype
+    priority: 3
+  - id: influenza_b_victoria
+    scholarly: influenza B Victoria lineage
+    news_en: influenza B Victoria
+    news_zh: 乙型流感Victoria系
+    role: hotspot_subtype
+    priority: 4
+  - id: vaccine_effectiveness
+    scholarly: seasonal influenza vaccine effectiveness
+    news_en: influenza vaccine effectiveness
+    news_zh: 季节性流感疫苗有效性
+    role: intervention
+    priority: 5

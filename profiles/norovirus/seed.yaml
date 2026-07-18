@@ -139,11 +139,54 @@ news_identity_terms_zh:
 - 诺如病毒感染
 - 诺如病毒胃肠炎
 retrieval_policy:
-  execute_all_query_chunks: true
+  execute_all_query_chunks: false
   pubmed_per_query: 120
   europe_pmc_per_query: 150
   crossref_per_term: 50
   semantic_scholar_per_term: 80
   openalex_per_term: 80
-  candidate_gate: accept_or_review
-  final_gate: accept_after_content_enrichment
+  candidate_gate: python_accept_or_llm_review
+  final_gate: accept_before_top_n_enrichment
+  strategy: lean_core_concepts_v7
+  max_core_concepts: 5
+  content_enrichment_stage: after_top_n_selection
+  content_enrichment_limit_papers: 50
+  content_enrichment_limit_news: 50
+  llm_review_mode: ambiguous_only
+  provider_expansion_first: true
+search_strategy:
+  schema_version: '1.1'
+  max_concepts: 5
+  provider_expansion_first: true
+  deduplicate_semantic_equivalents: true
+  concepts:
+  - id: human_norovirus
+    scholarly: human norovirus
+    news_en: norovirus
+    news_zh: 诺如病毒
+    role: umbrella
+    priority: 1
+  - id: gii4
+    scholarly: GII.4 norovirus
+    news_en: GII.4 norovirus
+    news_zh: GII.4诺如病毒
+    role: hotspot_genotype
+    priority: 2
+  - id: outbreak
+    scholarly: norovirus outbreak
+    news_en: norovirus outbreak
+    news_zh: 诺如病毒暴发
+    role: outbreak
+    priority: 3
+  - id: vaccine
+    scholarly: norovirus vaccine
+    news_en: norovirus vaccine
+    news_zh: 诺如病毒疫苗
+    role: intervention
+    priority: 4
+  - id: genomics
+    scholarly: norovirus genomic surveillance
+    news_en: norovirus genomic surveillance
+    news_zh: 诺如病毒基因组监测
+    role: genomic
+    priority: 5

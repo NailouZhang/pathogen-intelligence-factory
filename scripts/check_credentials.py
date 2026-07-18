@@ -6,6 +6,7 @@ import os
 
 ROWS = [
     ("CROSSREF_MAILTO", "recommended", "Crossref polite pool and contact identity"),
+    ("UNPAYWALL_EMAIL", "recommended", "legal open-access location lookup; may equal CROSSREF_MAILTO"),
     ("NCBI_API_KEY", "recommended", "higher PubMed E-utilities request allowance"),
     ("GEMINI_API_KEY", "required_for_full_analysis", "profile refinement, relevance review, analysis, translation and optional cover"),
     ("GROQ_API_KEY", "recommended_fallback", "text-model fallback when Gemini fails"),
@@ -29,7 +30,7 @@ def main() -> int:
         print(f"[{note:44}] {name:28} {level:28} {purpose}")
         if level.startswith("required") and not configured:
             missing_required += 1
-    print("\nSemantic Scholar without a key: all compiled queries are attempted with conservative per-query size and pacing.")
+    print("\nSemantic Scholar without a key: the five lean provider-native queries use conservative anonymous pacing.")
     print("ReliefWeb before approval: attempted; 401/403 is recorded as pending/skipped, not as a genuine zero-result search.")
     return 2 if missing_required else 0
 

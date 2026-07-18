@@ -1,53 +1,31 @@
-Pathogen Weekly 21 v6 - Offline Validation Report
-Generated: 2026-07-18
+Pathogen Weekly 21 v7 - Offline Validation Report
 
-SCOPE
-- Public repository: pathogen-intelligence-factory v6.0.0
-- Private repository: pathogen-wechat-publisher v2.3.0
-- Schedule: 7 days x 3 profiles = 21 unique virus topics
-- Window: 7 days
-- Display limits: top 50 papers + top 50 news after relevance and quality ranking
+Scope
+- Public repository: pathogen-intelligence-factory v7.0.0
+- Private repository: pathogen-wechat-publisher v2.4.0
+- Profiles: 21
+- Schedule: 7 days x 3 profiles
+- Search strategy: five distinct core concepts per profile
+- Enrichment stage: after relevance, deduplication, ranking and Top-50 selection
 
-RETRIEVAL DESIGN CHECKS
-- All 21 deterministic profiles compiled with status=ready.
-- 56 qualified-abbreviation rules compiled.
-- 4,570 provider/mode query-plan entries compiled across all 21 profiles.
-- Every safe authoritative identity has an independent PubMed and Europe PMC query.
-- Rare family members such as Chapare virus and Lujo virus have independent queries.
-- PubMed, Europe PMC, Semantic Scholar, OpenAlex, Crossref and news providers use separate compilers.
-- Grouped/context queries remain supplementary; independent anchor-only queries remain mandatory.
-- News request volume was reduced by grouping contextual variants while retaining one independent query per identity.
-- PubMed/Europe PMC 90-day count-only probes are available when both 7-day primary indexes are empty.
+Public validation
+- 21/21 profiles compile as ready
+- 5/5 distinct concepts per profile
+- 45 provider-plan rows per profile
+- 945 provider-plan rows across 21 profiles
+- Python tests: see bundled VALIDATION_REPORT.txt
+- Demo pipeline: generated latest.json, Pages HTML and wechat-package/v2
+- Full-text policy: legal_open_access_only
 
-RELEVANCE REVIEW CHECKS
-- Python processes 100% of post-retrieval candidates.
-- Compact evidence selects complete identity/context/exclusion-bearing sentences, not an arbitrary text prefix.
-- Token-budget packing processes all pending records; no document-count cutoff.
-- Missing LLM decisions are recursively split and retried.
-- Only U decisions receive fuller sentence-selected evidence.
-- Gemini/Groq failure uses an explicit deterministic full-corpus fallback.
-- Review cache includes profile/content/policy fingerprints.
-- Deep bilingual analysis remains after final relevance ranking and Top-50 selection.
+Private validation
+- Generic v2 package validation
+- UTF-8 WeChat JSON tests
+- Persistent local runner workflow tests
 
-TEST RESULTS
-- Public repository pytest: 62 tests passed.
-- Private repository pytest: 4 tests passed.
-- Python compileall: passed for both repositories.
-- YAML parsing: 25 YAML/YML files passed.
-- Bash syntax: all bundled .sh files passed bash -n.
-- Demo pipeline: passed for hantavirus.
-- Demo GitHub Pages index: generated and includes retrieval/review audit section.
-- Demo wechat-package/v2: validated.
-- Query coverage audit: 21/21 ready.
-- Weekly schedule audit: 21 unique profiles, exactly 3 per day.
-
-NOT EXECUTED IN THE OFFLINE PACKAGING ENVIRONMENT
-- Live PubMed, Europe PMC, Crossref, Semantic Scholar, OpenAlex, bioRxiv/medRxiv or news API calls.
-- User OpenAlex API key validation.
-- Semantic Scholar anonymous rate-limit behavior on the user's network.
-- ReliefWeb appname approval status for wiv-virology-literature-tracker-42x.
-- Gemini/Groq live quotas and model responses.
-- GitHub Actions, Pages deployment and repository_dispatch.
-- Local self-hosted Runner and WeChat stable_token/material/draft APIs.
-
-These online steps must be verified after the user configures repository Secrets/Variables and runs the supplied workflow commands. No claim of live success is made here.
+Not claimed as executed offline
+- Live PubMed/Europe PMC/Crossref/Semantic Scholar/OpenAlex calls
+- Live ReliefWeb approval result
+- Live Gemini/Groq quotas
+- GitHub Pages deployment
+- Local self-hosted runner job
+- WeChat stable token, permanent media upload or draft/add

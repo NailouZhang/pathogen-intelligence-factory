@@ -151,7 +151,11 @@ class LLMRouter:
                 "responseMimeType": "application/json",
             },
         }
-        response = self.http.request("POST", url, params={"key": self.gemini_key}, json=payload, timeout=100)
+        timeout = int(os.getenv("PIF_LLM_HTTP_TIMEOUT", "55"))
+        response = self.http.request(
+            "POST", url, params={"key": self.gemini_key}, json=payload,
+            timeout=timeout, retry_attempts=1,
+        )
         body = response.json()
         candidates = body.get("candidates") or []
         if not candidates:
@@ -175,7 +179,8 @@ class LLMRouter:
             "https://api.groq.com/openai/v1/chat/completions",
             headers={"Authorization": f"Bearer {self.groq_key}"},
             json=payload,
-            timeout=100,
+            timeout=int(os.getenv("PIF_LLM_HTTP_TIMEOUT", "55")),
+            retry_attempts=1,
         )
         body = response.json()
         choices = body.get("choices") or []
@@ -194,6 +199,8 @@ class LLMRouter:
         max_models_per_provider: int = 3,
     ) -> LLMResult:
         attempts: list[dict[str, Any]] = []
+        runtime_cap = max(1, int(os.getenv("PIF_LLM_MAX_MODELS_PER_PROVIDER", "1")))
+        max_models_per_provider = min(max_models_per_provider, runtime_cap)
         for provider in provider_order:
             if provider == "gemini" and self.gemini_key:
                 models = self._discover_gemini_models()[:max_models_per_provider]

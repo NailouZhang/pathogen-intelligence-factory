@@ -1,25 +1,38 @@
-# Pathogen Intelligence Factory v6 — 21 病毒全锚点、高召回、高精度系统
+# Pathogen Intelligence Factory v7 — 21 病毒精简检索、富词复核与 Top-50 内容补全
 
 公开仓库：`NailouZhang/pathogen-intelligence-factory`
 
-本仓库每天北京时间 02:00 按顺序处理 3 个病毒主题，一周覆盖 21 个主题。每个主题检索过去 7 天的文献与新闻，依次完成：固定权威网页词库、数据库专属查询编译、所有安全身份锚点逐词独立检索、组合式补充检索、去重与内容补全、全候选 Python 复核、动态 Token 批次 LLM 复核、A/B/C 等级排序、最终 Top 50 双语与五要素分析、GitHub Pages、`wechat-package/v2` 和私有 Runner 发布。
+本仓库每天北京时间 02:00 按顺序处理 3 个病毒主题，一周覆盖 21 个主题。每个主题检索过去 7 天的学术文献与新闻，完成双语分析、GitHub Pages 展示，并为私有本地 Runner 生成 `wechat-package/v2`。
 
-## v6 的关键变化
+## v7 的核心策略
 
-- 不使用 Google CSE 自动寻找权威网页；21 个 profile 只使用人工确认的 ICTV、ViralZone、WHO、CDC 等固定来源。
-- 每个 `safe_to_use_alone=true` 的完整身份词在 PubMed、Europe PMC、Semantic Scholar、OpenAlex、Crossref 和新闻查询中拥有独立入口，避免热门成员挤掉罕见成员。
-- 分组 OR、分子、流行病学、临床和基因组查询只作为补充，不再承担唯一召回责任。
-- 缩写只有与必要上下文组合后才可检索；蛋白、基因、宿主、症状、药物和疫苗不能独立证明病毒身份。
-- Python 检查 100% 候选；LLM 以身份命中、上下文命中、排除命中和完整证据句构成紧凑包，按 Token 预算动态分批处理到队列为空。
-- 不再设置“最多复核 80 篇”或“摘要前 2500 字符”限制；只有模型返回 `U` 的记录才升级为更完整的句子级证据。
-- 只有最终展示的 Top 50 文献与 Top 50 新闻执行深度翻译、五要素和综合综述，避免对未展示候选浪费模型 Token。
-- 当 PubMed 与 Europe PMC 的 7 天核心查询同时为 0 时，自动执行 90 天逐锚点 count-only 健康探针；探针结果只用于诊断，不进入日报。
-- 每条最终记录具有确定性质量分和 A/B/C 优先级，不随机抽取。
-- 每次输出来源健康、检索漏斗、单锚点覆盖和全量相关性复核审计。
+```text
+固定权威网页与人工主题边界
+→ 每个病毒最多 5 个有区分度的核心检索概念
+→ 各数据库专属、简短、宽松查询
+→ 汇总全部元数据与数据库自带摘要
+→ Python 对 100% 候选进行富词相关性复核
+→ Gemini/Groq 只处理 Python 无法可靠判定的边界记录
+→ DOI/PMID/标题/作者/年份/URL 多层去重
+→ 依据相关性、来源收敛、研究设计、热点与时效排序
+→ 选取最多 50 篇文献与 50 条新闻
+→ 只对最终展示集合抓取合法开放全文或新闻正文
+→ 双语翻译、五要素分析、综合综述
+→ GitHub Pages + 微信发布包
+```
+
+与 v6 相比，v7 不再为每个身份词、成员名、缩写和研究方向生成数百条查询。富词库仍完整保留，但主要用于检索后的 Python/LLM 复核。每个 profile 对九类查询通道各编译 5 条概念，总审计计划为 45 条；实际接口请求由各提供者分页和语言通道决定。
+
+## 为什么减少检索词不会放松主题边界
+
+- 初始查询采用常见、重要、热点且与目标病毒直接相关的短语，利用 PubMed Automatic Term Mapping、Semantic Scholar/OpenAlex 词干和全文搜索等提供者能力扩大召回。
+- 所有候选仍由完整身份锚点、成员白名单、限定缩写、疾病、上下文词和排除实体进行 Python 复核。
+- 明确相关和明确无关记录由 Python 决定；只有边界记录进入 Gemini/Groq 紧凑证据复核。
+- 全文、PDF 和新闻正文只在 Top-50 选择之后抓取，不再为数百条候选浪费网络时间。
 
 ## 每周调度
 
-`config/weekly_virus_schedule.yaml` 定义 7 天 × 每天 3 个 profile。YAML 顺序就是实际执行顺序，后续可直接编辑。
+`config/weekly_virus_schedule.yaml` 定义 7 天 × 每天 3 个 profile。YAML 中的顺序就是实际执行顺序。
 
 ## 主要输出
 
@@ -50,4 +63,15 @@ python -m pytest -q
 python -m compileall -q src scripts tests
 ```
 
-完整说明见 `docs/INSTALL_ZH.md`、`docs/RETRIEVAL_V6_ZH.md`、`docs/FULL_CORPUS_REVIEW_V6_ZH.md`、`docs/CREDENTIALS_V6_ZH.md` 和 `docs/GITHUB_UPDATE_PUBLIC_ZH.md`。
+完整说明见：
+
+- `docs/ARCHITECTURE_V7_ZH.md`
+- `docs/LEAN_RETRIEVAL_V7_ZH.md`
+- `docs/PROVIDER_ADAPTER_MATRIX_V7_ZH.md`
+- `docs/RELEVANCE_DEDUP_RANKING_V7_ZH.md`
+- `docs/LEGAL_FULLTEXT_V7_ZH.md`
+- `docs/LLM_AND_TOKEN_V7_ZH.md`
+- `docs/CREDENTIALS_V7_ZH.md`
+- `docs/INSTALL_ZH.md`
+- `docs/GITHUB_UPDATE_PUBLIC_ZH.md`
+- `docs/RUNBOOK_V7_ZH.md`

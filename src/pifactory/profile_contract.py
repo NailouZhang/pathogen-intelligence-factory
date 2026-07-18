@@ -6,7 +6,7 @@ from typing import Any
 
 from .utils import clean_space, unique_strings, utc_now_iso
 
-SCHEMA_VERSION = "3.0"
+SCHEMA_VERSION = "3.1"
 
 BROAD_DISEASE_WORDS = {
     "fever", "pneumonia", "encephalitis", "hepatitis", "gastroenteritis",
@@ -136,6 +136,7 @@ def deterministic_profile(seed: dict[str, Any], documents: list[dict[str, Any]])
             "exclusion_terms": exclusions,
         },
         "manual_query_skeletons": deepcopy(seed.get("manual_query_skeletons") or {}),
+        "search_strategy": deepcopy(seed.get("search_strategy") or {}),
         "news_identity_terms_zh": list(seed.get("news_identity_terms_zh") or []),
         "query_policy": deepcopy(seed.get("query_policy") or {}),
         "retrieval_policy": deepcopy(seed.get("retrieval_policy") or {}),
@@ -156,7 +157,7 @@ def _entries(data: Any) -> list[dict[str, Any]]:
 def validate_profile(profile: dict[str, Any], seed: dict[str, Any]) -> tuple[bool, list[str]]:
     issues: list[str] = []
     if profile.get("schema_version") != SCHEMA_VERSION:
-        issues.append("schema_version must be 3.0")
+        issues.append("schema_version must be 3.1")
     if profile.get("profile_id") != seed.get("profile_id"):
         issues.append("profile_id mismatch")
     vocabulary = profile.get("vocabulary") or {}
@@ -181,6 +182,14 @@ def validate_profile(profile: dict[str, Any], seed: dict[str, Any]) -> tuple[boo
         term = clean_space(item.get("term")).casefold()
         if allowed and term not in allowed:
             issues.append(f"out-of-scope member: {item.get('term')}")
+    strategy = profile.get("search_strategy") or {}
+    concepts = [x for x in strategy.get("concepts") or [] if isinstance(x, dict)]
+    scholarly = [clean_space(x.get("scholarly")) for x in concepts if clean_space(x.get("scholarly"))]
+    normalized = {re.sub(r"[^a-z0-9]+", " ", x.casefold()).strip() for x in scholarly}
+    if not 1 <= len(concepts) <= 5:
+        issues.append(f"search_strategy must contain 1..5 concepts, got {len(concepts)}")
+    if len(scholarly) != len(normalized):
+        issues.append("search_strategy contains semantic duplicate scholarly terms")
     exact = (profile.get("source_policy") or {}).get("exact_urls_only")
     discovery = (profile.get("source_policy") or {}).get("allow_search_discovery")
     if exact is not True or discovery is not False:

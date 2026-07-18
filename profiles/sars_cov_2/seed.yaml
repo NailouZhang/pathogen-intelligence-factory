@@ -129,11 +129,54 @@ news_identity_terms_zh:
 - 新冠肺炎
 - COVID-19
 retrieval_policy:
-  execute_all_query_chunks: true
+  execute_all_query_chunks: false
   pubmed_per_query: 120
   europe_pmc_per_query: 150
   crossref_per_term: 50
   semantic_scholar_per_term: 80
   openalex_per_term: 80
-  candidate_gate: accept_or_review
-  final_gate: accept_after_content_enrichment
+  candidate_gate: python_accept_or_llm_review
+  final_gate: accept_before_top_n_enrichment
+  strategy: lean_core_concepts_v7
+  max_core_concepts: 5
+  content_enrichment_stage: after_top_n_selection
+  content_enrichment_limit_papers: 50
+  content_enrichment_limit_news: 50
+  llm_review_mode: ambiguous_only
+  provider_expansion_first: true
+search_strategy:
+  schema_version: '1.1'
+  max_concepts: 5
+  provider_expansion_first: true
+  deduplicate_semantic_equivalents: true
+  concepts:
+  - id: sars_cov_2
+    scholarly: SARS-CoV-2
+    news_en: SARS-CoV-2
+    news_zh: 新冠病毒
+    role: umbrella
+    priority: 1
+  - id: covid_19
+    scholarly: COVID-19
+    news_en: COVID-19
+    news_zh: 新冠肺炎
+    role: disease
+    priority: 2
+  - id: variant
+    scholarly: SARS-CoV-2 variant
+    news_en: SARS-CoV-2 variant
+    news_zh: 新冠病毒变异株
+    role: hotspot_variant
+    priority: 3
+  - id: vaccine
+    scholarly: COVID-19 vaccine
+    news_en: COVID-19 vaccine
+    news_zh: 新冠疫苗
+    role: intervention
+    priority: 4
+  - id: wastewater
+    scholarly: SARS-CoV-2 wastewater surveillance
+    news_en: SARS-CoV-2 wastewater surveillance
+    news_zh: 新冠病毒污水监测
+    role: surveillance
+    priority: 5

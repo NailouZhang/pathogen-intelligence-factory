@@ -34,7 +34,7 @@ def test_abstract_identity_plus_context_survives_candidate_and_final_gate():
     assert candidates[0]["relevance_candidate"]["decision"] in {"review", "accept"}
     final = final_filter(candidates, p, NoLLM(), kind="paper")
     assert len(final) == 1
-    assert final[0]["relevance_decision"] in {"accept", "accept_after_review", "accept_after_deterministic_full_review"}
+    assert final[0]["relevance_decision"] in {"accept", "accept_after_review", "accept_after_deterministic_full_review", "accept_python_high_confidence"}
 
 
 def test_news_body_is_allowed_to_rescue_a_generic_headline():
