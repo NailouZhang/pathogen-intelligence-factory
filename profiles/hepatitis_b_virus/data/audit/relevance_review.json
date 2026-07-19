@@ -1,48 +1,69 @@
 {
-  "policy_version": "v7-python-first-ambiguous-llm-1",
+  "policy_version": "v15-completion-before-final-relevance-2",
   "mode": "balanced",
   "compact_batch_tokens": 12000,
   "escalation_batch_tokens": 10000,
   "papers": {
-    "candidates_reviewed_by_python": 420,
-    "accepted": 115,
-    "rejected": 305,
+    "candidates_reviewed_by_python": 268,
+    "accepted": 92,
+    "rejected": 176,
     "review_methods": {
-      "compact_llm": 45,
-      "python": 89,
-      "python_full_corpus_fallback": 286
+      "compact_llm": 57,
+      "python": 65,
+      "python_full_corpus_fallback": 146
     },
     "review_decisions": {
-      "accept_after_compact_llm_review": 24,
-      "accept_after_deterministic_full_review": 2,
-      "accept_python_high_confidence": 89,
-      "reject_after_compact_llm_review": 21,
-      "reject_after_deterministic_full_review": 284
+      "accept": 60,
+      "accept_python_high_confidence": 6,
+      "reject": 4,
+      "reject_after_compact_llm_review": 37,
+      "reject_after_deterministic_full_review": 135,
+      "review": 26
     },
     "cache": {
-      "miss": 331,
-      "not_used": 89
+      "miss": 203,
+      "not_used": 65
     },
     "document_count_cutoff": null,
     "character_prefix_cutoff": null
   },
   "news": {
-    "candidates_reviewed_by_python": 133,
-    "accepted": 20,
-    "rejected": 113,
+    "candidates_reviewed_by_python": 101,
+    "accepted": 24,
+    "rejected": 77,
     "review_methods": {
-      "python": 20,
-      "python_full_corpus_fallback": 113
+      "compact_llm": 30,
+      "python": 23,
+      "python_full_corpus_fallback": 48
     },
     "review_decisions": {
-      "accept_python_high_confidence": 20,
-      "reject_after_deterministic_full_review": 113
+      "accept_after_compact_llm_review": 1,
+      "accept_python_high_confidence": 23,
+      "reject_after_compact_llm_review": 29,
+      "reject_after_deterministic_full_review": 48
     },
     "cache": {
-      "miss": 113,
-      "not_used": 20
+      "miss": 78,
+      "not_used": 23
     },
     "document_count_cutoff": null,
     "character_prefix_cutoff": null
-  }
+  },
+  "paper_stage_order": [
+    "candidate_gate",
+    "cross_source_dedup",
+    "ranked_batch",
+    "content_completion",
+    "final_relevance",
+    "identity_gate",
+    "analysis_translation",
+    "dynamic_replenishment"
+  ],
+  "news_stage_order": [
+    "candidate_gate",
+    "dedup",
+    "pre_fetch_relevance",
+    "body_resolution",
+    "post_fetch_relevance"
+  ]
 }
