@@ -81,7 +81,9 @@ class RenderAuditParser(HTMLParser):
         self.meta_rows: list[str] = []
         self.toggle_languages: set[str] = set()
         self.paper_cards = 0
+        self.supplementary_cards = 0
         self.news_cards = 0
+        self.supplementary_violations: list[dict[str, Any]] = []
 
     @staticmethod
     def _attrs(attrs: list[tuple[str, str | None]]) -> dict[str, str]:
@@ -96,6 +98,7 @@ class RenderAuditParser(HTMLParser):
             "classes": classes,
             "lang_en": bool(parent.get("lang_en")) or "lang-en" in classes,
             "lang_zh": bool(parent.get("lang_zh")) or "lang-zh" in classes,
+            "supplementary_scope": bool(parent.get("supplementary_scope")) or "supplementary-card" in classes or "supplementary" in classes,
             "text": [],
         }
 
@@ -108,6 +111,8 @@ class RenderAuditParser(HTMLParser):
         if tag == "article" and "card" in classes:
             if "paper" in classes:
                 self.paper_cards += 1
+            if "supplementary" in classes or "supplementary-card" in classes:
+                self.supplementary_cards += 1
             if "news" in classes:
                 self.news_cards += 1
 
@@ -136,6 +141,16 @@ class RenderAuditParser(HTMLParser):
                     "lang_zh": bool(row["lang_zh"]),
                 }
             )
+        if row.get("supplementary_scope") and (
+            row["tag"] in {"details", "dl", "dd"}
+            or "translated-body" in row["classes"]
+            or "original" in row["classes"]
+        ):
+            self.supplementary_violations.append({
+                "tag": row["tag"],
+                "classes": sorted(row["classes"]),
+                "excerpt": text[:300],
+            })
         if "meta-strip" in row["classes"] or (
             row["tag"] == "p" and ("Journal:" in text or "Source:" in text)
         ):
@@ -203,6 +218,13 @@ def audit_html(path: Path) -> dict[str, Any]:
             if len(text) >= 40 and _chinese_ratio(text) >= 0.35:
                 findings.append({"severity": "critical", "code": "chinese_text_in_english_element", "dd_index": index, "excerpt": text[:300]})
 
+    for violation in parser.supplementary_violations:
+        findings.append({
+            "severity": "critical",
+            "code": "supplementary_card_contains_deep_content",
+            **violation,
+        })
+
     for text in parser.meta_rows:
         if re.search(r"\b(?:Figshare|Zenodo|Dryad|Data Dryad)\b", text, flags=re.I):
             findings.append({"severity": "critical", "code": "repository_object_rendered_as_paper", "excerpt": text[:300]})
@@ -213,9 +235,10 @@ def audit_html(path: Path) -> dict[str, Any]:
     critical = sum(row["severity"] == "critical" for row in findings)
     warnings = sum(row["severity"] == "warning" for row in findings)
     return {
-        "schema_version": 3,
+        "schema_version": 4,
         "file": str(path),
         "paper_card_markers": parser.paper_cards,
+        "supplementary_card_markers": parser.supplementary_cards,
         "news_card_markers": parser.news_cards,
         "structured_elements": len(parser.dd_rows),
         "language_toggles": sorted(parser.toggle_languages),

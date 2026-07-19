@@ -30,5 +30,6 @@ def test_context_and_short_symbols_never_become_standalone_identity_branches():
     assert '("NSs")' not in queries
     assert '("Gn")' not in queries
     assert '("thrombocytopenia")' not in queries
-    assert '\nSFTSV\n' not in '\n' + queries + '\n'
-    assert 'SFTSV outbreak' in queries
+    assert '\nSFTSV\n' in '\n' + queries + '\n'
+    assert 'SFTSV outbreak' not in queries
+    assert 'SFTSV vaccine' not in queries

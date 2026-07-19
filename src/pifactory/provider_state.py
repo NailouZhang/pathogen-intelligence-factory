@@ -25,6 +25,9 @@ class ProviderRuntimeState:
     total_tokens: int = 0
     models: dict[str, dict[str, Any]] = field(default_factory=dict)
     account: dict[str, Any] = field(default_factory=dict)
+    key_fingerprint: str = ""
+    last_failure_category: str = ""
+    last_failure_at: float = 0.0
 
     @classmethod
     def from_dict(cls, provider: str, data: dict[str, Any] | None) -> "ProviderRuntimeState":
@@ -52,11 +55,28 @@ class ProviderRuntimeState:
             "authentication_failed", "quota_exhausted", "disabled",
         }
 
+    def reset_for_key_change(self, fingerprint: str) -> None:
+        """Re-enable a provider when GitHub Secret/API key changes.
+
+        Token counters are preserved for audit, while stale authentication/quota
+        state, model cooldowns and account snapshots are cleared.
+        """
+        self.status = "healthy"
+        self.disabled_reason = ""
+        self.last_failure_category = ""
+        self.cooldown_until = 0.0
+        self.models = {}
+        self.account = {}
+        self.last_failure_category = ""
+        self.last_failure_at = 0.0
+        self.key_fingerprint = fingerprint
+
     def mark_success(self, model: str, usage: dict[str, Any] | None = None) -> None:
         self.requests += 1
         self.successes += 1
         self.status = "healthy"
         self.disabled_reason = ""
+        self.last_failure_category = ""
         usage = usage or {}
         prompt = int(usage.get("prompt_tokens") or usage.get("input_tokens") or 0)
         completion = int(usage.get("completion_tokens") or usage.get("output_tokens") or 0)
@@ -79,6 +99,8 @@ class ProviderRuntimeState:
         row["requests"] = int(row.get("requests") or 0) + 1
         row["failures"] = int(row.get("failures") or 0) + 1
         row["last_failure_category"] = category
+        self.last_failure_category = category
+        self.last_failure_at = time.time()
         if category in {"authentication_failed", "quota_exhausted"}:
             self.status = category
             self.disabled_reason = category
@@ -102,6 +124,7 @@ class ProviderRuntimeState:
 
     def safe_dict(self) -> dict[str, Any]:
         output = asdict(self)
+        output.pop("key_fingerprint", None)
         output["cooldown_remaining_seconds"] = max(0, round(self.cooldown_until - time.time(), 1))
         output.pop("cooldown_until", None)
         for row in output.get("models", {}).values():

@@ -235,16 +235,27 @@ def filter_post_enrichment(
         record["relevance_decision"] = assessment.get("decision")
         content_identity = record.get("content_identity") or {}
         content_identity_rejected = bool(kind == "news" and content_identity and not content_identity.get("accepted", False))
+        scholarly_identity_conflict = bool(
+            kind == "paper"
+            and (
+                clean_space(record.get("content_identity_status")) == "identity_conflict"
+                or bool(record.get("identifier_conflict"))
+                or (record.get("metadata_verification") or {}).get("conflict")
+            )
+        )
         accepted = bool(
             clean_space(body)
             and assessment.get("decision") in {"accept", "review"}
             and not content_identity_rejected
+            and not scholarly_identity_conflict
         )
         if accepted:
             retained.append(record)
             continue
         reason = (
-            "content_identity_rejected"
+            "identifier_conflict"
+            if scholarly_identity_conflict
+            else "content_identity_rejected"
             if content_identity_rejected
             else "post_enrichment_relevance_rejected"
             if assessment.get("decision") == "reject"
@@ -269,15 +280,28 @@ def filter_post_enrichment(
 
 
 def _deterministic_medium_accept(record: dict[str, Any], assessment: dict[str, Any], kind: str) -> bool:
-    body = _record_body(record, kind)
+    """Deterministic fallback based on identity evidence, never character length."""
+    title_hits = assessment.get("title_identity_hits") or []
+    body_hits = assessment.get("body_identity_hits") or []
+    context_hits = assessment.get("context_hits") or []
+    exclusions = assessment.get("excluded_hits") or assessment.get("exclusion_hits") or []
+    reliable_metadata = bool(
+        (record.get("metadata_verification") or {}).get("verified")
+        or record.get("doi")
+        or (record.get("source_ids") or {}).get("pmid")
+        or len(record.get("sources") or []) >= 2
+    )
+    abbreviation_supported = bool(assessment.get("qualified_identity_hits"))
     return bool(
         assessment.get("identity_present")
+        and not exclusions
         and (
-            assessment.get("context_hits")
-            or assessment.get("title_identity_hits")
-            or len(assessment.get("body_identity_hits") or []) >= 2
+            title_hits
+            or body_hits
+            or abbreviation_supported
+            or (context_hits and reliable_metadata)
         )
-        and len(body) >= (80 if kind == "paper" else 120)
+        and (title_hits or reliable_metadata or len(body_hits) >= 1)
     )
 
 
@@ -491,13 +515,22 @@ def _call_review_batch(
         "or surveillance record when the target has substantive results. Return compact JSON only."
     )
     try:
+        task_name = "relevance_escalated_review" if escalated else "relevance_compact_review"
         result = llm.json_task(
             system=system,
             prompt=json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
+            provider_order=getattr(llm, "provider_order", lambda purpose: None)("relevance"),
             temperature=0.0,
             max_models_per_provider=1,
+            task_name=task_name,
         )
-    except LLMError:
+    except LLMError as exc:
+        recorder = getattr(llm, "record_task_failure", None)
+        if callable(recorder):
+            recorder(
+                "relevance_escalated_review" if escalated else "relevance_compact_review",
+                exc, kind=kind, record_ids=[packet.get("id") for packet in packets],
+            )
         return {}
     parsed = _parse_compact_decisions(result.data)
     stage = "escalated" if escalated else "compact"

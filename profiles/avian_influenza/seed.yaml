@@ -120,11 +120,85 @@ candidate_vocabulary:
   - swine influenza
   - equine influenza
   - canine influenza
-manual_query_skeletons:
-  pubmed_high_precision: (("avian influenza"[Title/Abstract] OR "avian influenza A virus"[Title/Abstract] OR "H5N1"[Title/Abstract]
-    OR "H5N6"[Title/Abstract] OR "H7N9"[Title/Abstract] OR "H9N2"[Title/Abstract]) AND {{DATE_FILTER}}) NOT ("seasonal influenza"[Title/Abstract])
-  news_high_precision: ("avian influenza" OR "bird flu" OR "H5N1" OR "H5N6" OR "H7N9" OR "H9N2") AND (outbreak OR human case
-    OR poultry OR wild bird OR spillover)
+  paper_priority_terms:
+  - term: outbreak
+    category: emerging_event
+    weight: 5
+  - term: spillover
+    category: cross_species
+    weight: 5
+  - term: first report
+    category: novelty
+    weight: 5
+  - term: novel host
+    category: novelty
+    weight: 5
+  - term: new region
+    category: novelty
+    weight: 4
+  - term: genomic surveillance
+    category: genomics
+    weight: 4
+  - term: recombination
+    category: evolution
+    weight: 4
+  - term: evolution
+    category: evolution
+    weight: 3
+  - term: vaccine
+    category: countermeasure
+    weight: 3
+  - term: therapeutic
+    category: countermeasure
+    weight: 3
+  - term: diagnostic
+    category: diagnostics
+    weight: 3
+  - term: clinical outcome
+    category: clinical
+    weight: 3
+  - term: cohort
+    category: study_scale
+    weight: 2
+  - term: systematic review
+    category: evidence_synthesis
+    weight: 3
+  - term: public health
+    category: public_health
+    weight: 2
+  document_type_terms:
+    research:
+    - trial
+    - cohort
+    - case-control
+    - cross-sectional
+    - experimental study
+    systematic_review:
+    - systematic review
+    - meta-analysis
+    - scoping review
+    narrative_review:
+    - review
+    - narrative review
+    - perspective
+    case_report:
+    - case report
+    - case series
+    surveillance_report:
+    - surveillance report
+    - outbreak report
+    - epidemiological update
+    methods:
+    - method
+    - assay
+    - protocol
+    - algorithm
+    - model
+    commentary:
+    - editorial
+    - commentary
+    - letter
+    - opinion
 authoritative_sources:
 - name: WHO Avian and Other Zoonotic Influenza
   organization: WHO
@@ -179,46 +253,59 @@ retrieval_policy:
   openalex_per_term: 80
   candidate_gate: python_accept_or_llm_review
   final_gate: accept_before_top_n_enrichment
-  strategy: lean_core_concepts_v7
+  strategy: frozen_five_core_terms_v15
   max_core_concepts: 5
-  content_enrichment_stage: after_top_n_selection
-  content_enrichment_limit_papers: 50
+  content_enrichment_stage: after_cross_source_dedup_dynamic_batches
+  content_enrichment_limit_papers: 150
   content_enrichment_limit_news: 50
   llm_review_mode: ambiguous_only
   provider_expansion_first: true
+  primary_report_limit: 50
+  supplementary_report_limit: 100
+  top_n_means_deep_report_not_deletion: true
 search_strategy:
-  schema_version: '1.1'
+  schema_version: '2.1'
   max_concepts: 5
   provider_expansion_first: true
   deduplicate_semantic_equivalents: true
   concepts:
-  - id: avian
+  - id: avian_influenza
     scholarly: avian influenza
     news_en: avian influenza
     news_zh: 禽流感
-    role: umbrella
+    role: disease
     priority: 1
   - id: h5n1
     scholarly: H5N1
-    news_en: H5N1 avian influenza
-    news_zh: H5N1禽流感
-    role: hotspot_subtype
+    news_en: H5N1
+    news_zh: H5N1禽流感病毒
+    role: subtype
     priority: 2
   - id: h5n6
     scholarly: H5N6
-    news_en: H5N6 avian influenza
-    news_zh: H5N6禽流感
-    role: hotspot_subtype
+    news_en: H5N6
+    news_zh: H5N6禽流感病毒
+    role: subtype
     priority: 3
   - id: h7n9
     scholarly: H7N9
-    news_en: H7N9 avian influenza
-    news_zh: H7N9禽流感
-    role: hotspot_subtype
+    news_en: H7N9
+    news_zh: H7N9禽流感病毒
+    role: subtype
     priority: 4
   - id: h9n2
     scholarly: H9N2
-    news_en: H9N2 avian influenza
-    news_zh: H9N2禽流感
-    role: hotspot_subtype
+    news_en: H9N2
+    news_zh: H9N2禽流感病毒
+    role: subtype
     priority: 5
+  frozen: true
+  allow_weekly_mutation: false
+  core_terms_version: '2.0'
+  generated_from: authoritative_sources_plus_manual_v15_1_review
+  controlled_supplemental_terms:
+  - H5N8
+  - H5Nx
+  - H7N4
+  - highly pathogenic avian influenza
+  - low pathogenic avian influenza

@@ -58,14 +58,19 @@ def test_fulltext_policy_is_legal_open_access_only():
     assert prohibited not in production
 
 
-def test_workflow_and_pipeline_enrich_only_bounded_display_candidates():
+def test_workflow_and_pipeline_use_v15_completion_and_supplementary_budgets():
     workflow = (ROOT / ".github/workflows/daily-intelligence.yml").read_text(encoding="utf-8")
-    assert 'PIF_MAX_FULLTEXTS: "80"' in workflow
+    assert "vars.PIF_MAX_FULLTEXTS || '150'" in workflow
     assert 'PIF_MAX_NEWS_FETCHES: "80"' in workflow
-    assert 'PIF_DISPLAY_CANDIDATE_BUFFER: "30"' in workflow
-    pipeline = (ROOT / "src/pifactory/pipeline.py").read_text(encoding="utf-8")
-    selection = pipeline.index("paper_queue = rank_papers(papers)")
-    enrichment = pipeline.index("lambda item: enrich_scholarly_work", selection)
-    final_slice = pipeline.index("papers = ranked_paper_ready_pool[: settings.max_papers]", enrichment)
-    translation = pipeline.index('progress("translation", "start"', enrichment)
-    assert selection < enrichment < translation < final_slice
+    assert "vars.PIF_DISPLAY_CANDIDATE_BUFFER || '100'" in workflow
+    assert "vars.PIF_MAX_SUPPLEMENTARY_PAPERS || '100'" in workflow
+    pipeline = (ROOT / "src/pifactory/pipeline_v15.py").read_text(encoding="utf-8")
+    dedup = pipeline.index("dedup_papers")
+    lifecycle = pipeline.index('progress(\n        "literature_lifecycle", "start"', dedup)
+    completion = pipeline.index("complete_literature_catalog(", lifecycle)
+    final_review = pipeline.index("_review_paper_batch(completed", completion)
+    analysis = pipeline.index("_analyze_translate_paper(item)", final_review)
+    selection = pipeline.index("select_primary_and_supplementary(", analysis)
+    assert dedup < lifecycle < completion < final_review < analysis < selection
+    assert "len(primary_ready) < comparison_target" in pipeline
+    assert "completion_processed < settings.max_fulltexts" in pipeline

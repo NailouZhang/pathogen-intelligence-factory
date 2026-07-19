@@ -5,7 +5,7 @@ from typing import Any
 
 from .utils import clean_space, unique_strings
 
-QUERY_POLICY_VERSION = "v7-lean-core-1"
+QUERY_POLICY_VERSION = "v15.1-five-core-plus-controlled-supplemental-2"
 PUBMED_LIMIT = 1800
 NEWS_LIMIT = 350
 
@@ -25,7 +25,7 @@ def _safe_terms(profile: dict[str, Any], key: str) -> list[str]:
 def _core_concepts(profile: dict[str, Any]) -> list[dict[str, Any]]:
     strategy = profile.get("search_strategy") or {}
     raw = [x for x in strategy.get("concepts") or [] if isinstance(x, dict)]
-    max_concepts = max(1, min(5, int(strategy.get("max_concepts") or 5)))
+    max_concepts = 5
     out: list[dict[str, Any]] = []
     seen: set[str] = set()
     for index, item in enumerate(raw, 1):
@@ -49,14 +49,18 @@ def _core_concepts(profile: dict[str, Any]) -> list[dict[str, Any]]:
         })
         if len(out) >= max_concepts:
             break
-    if out:
+    if len(out) == 5:
         return out
+    if out:
+        raise RuntimeError(f"{profile.get('profile_id')}: frozen core concept contract requires exactly 5 valid concepts; got {len(out)}")
 
     fallback = unique_strings(
         _safe_terms(profile, "identity_anchor_terms")
         + _safe_terms(profile, "member_identity_terms")
         + _safe_terms(profile, "disease_identity_terms")
     )[:5]
+    if len(fallback) != 5:
+        raise RuntimeError(f"{profile.get('profile_id')}: unable to construct exactly 5 fallback identity terms")
     return [
         {
             "id": f"fallback_{index}",
@@ -108,6 +112,20 @@ def _gdelt_query(term: str) -> str:
     return f'"{value}"' if " " in value else value
 
 
+def _controlled_supplemental_terms(profile: dict[str, Any]) -> list[str]:
+    strategy = profile.get("search_strategy") or {}
+    values = unique_strings(clean_space(x) for x in strategy.get("controlled_supplemental_terms") or [] if clean_space(x))
+    core = {re.sub(r"[^a-z0-9]+", " ", clean_space(x.get("scholarly")).casefold()).strip() for x in _core_concepts(profile)}
+    output: list[str] = []
+    for value in values:
+        norm = re.sub(r"[^a-z0-9]+", " ", value.casefold()).strip()
+        if norm and norm not in core:
+            output.append(value)
+        if len(output) >= 8:
+            break
+    return output
+
+
 def compile_query_sets(profile: dict[str, Any]) -> dict[str, Any]:
     concepts = _core_concepts(profile)
     if not concepts:
@@ -124,6 +142,25 @@ def compile_query_sets(profile: dict[str, Any]) -> dict[str, Any]:
     openalex = list(scholarly)
     gdelt = unique_strings(_gdelt_query(x) for x in news_en)
     reliefweb = unique_strings(_news_query(x) for x in news_en)
+
+    supplemental_terms = _controlled_supplemental_terms(profile)
+    supplemental_concepts = [
+        {
+            "id": f"supplemental_{index}",
+            "semantic_key": re.sub(r"[^a-z0-9]+", " ", term.casefold()).strip(),
+            "scholarly": term,
+            "news_en": term,
+            "news_zh": "",
+            "role": "controlled_supplemental_identity",
+            "priority": 100 + index,
+        }
+        for index, term in enumerate(supplemental_terms, 1)
+    ]
+    pubmed_supplemental = unique_strings(_pubmed_query(x) for x in supplemental_terms)
+    epmc_supplemental = unique_strings(_epmc_query(x) for x in supplemental_terms)
+    crossref_supplemental = list(supplemental_terms)
+    semantic_supplemental = unique_strings(_semantic_query(x) for x in supplemental_terms if _semantic_query(x))
+    openalex_supplemental = list(supplemental_terms)
 
     query_concept_map: dict[str, list[str]] = {}
     provider_concept_map: dict[str, dict[str, list[str]]] = {}
@@ -147,9 +184,28 @@ def compile_query_sets(profile: dict[str, Any]) -> dict[str, Any]:
             query_concept_map.setdefault(query, []).append(concept_id)
             provider_concept_map.setdefault(provider, {}).setdefault(query, []).append(concept_id)
 
+    for concept in supplemental_concepts:
+        concept_id = str(concept.get("id"))
+        term = clean_space(concept.get("scholarly"))
+        pairs = {
+            "pubmed_supplemental": _pubmed_query(term),
+            "europe_pmc_supplemental": _epmc_query(term),
+            "crossref_supplemental": term,
+            "semantic_scholar_supplemental": _semantic_query(term),
+            "openalex_supplemental": term,
+        }
+        for provider, query in pairs.items():
+            query = clean_space(query)
+            if not query:
+                continue
+            query_concept_map.setdefault(query, []).append(concept_id)
+            provider_concept_map.setdefault(provider, {}).setdefault(query, []).append(concept_id)
+
     return {
         "query_policy_version": QUERY_POLICY_VERSION,
         "core_concepts": concepts,
+        "controlled_supplemental_concepts": supplemental_concepts,
+        "controlled_supplemental_terms": supplemental_terms,
         "query_concept_map": query_concept_map,
         "provider_concept_map": provider_concept_map,
         "pubmed_core": pubmed,
@@ -157,6 +213,16 @@ def compile_query_sets(profile: dict[str, Any]) -> dict[str, Any]:
         "crossref_core": crossref,
         "semantic_scholar_core": semantic,
         "openalex_core": openalex,
+        "pubmed_supplemental": pubmed_supplemental,
+        "europe_pmc_supplemental": epmc_supplemental,
+        "crossref_supplemental": crossref_supplemental,
+        "semantic_scholar_supplemental": semantic_supplemental,
+        "openalex_supplemental": openalex_supplemental,
+        "pubmed_all": unique_strings(pubmed + pubmed_supplemental),
+        "europe_pmc_all": unique_strings(epmc + epmc_supplemental),
+        "crossref_all": unique_strings(crossref + crossref_supplemental),
+        "semantic_scholar_all": unique_strings(semantic + semantic_supplemental),
+        "openalex_all": unique_strings(openalex + openalex_supplemental),
         "general_news_en": news_en,
         "general_news_zh": news_zh,
         "gdelt_core": gdelt,
@@ -238,8 +304,8 @@ def validate_compiled_queries(profile: dict[str, Any], sets: dict[str, Any]) -> 
     scholarly = [clean_space(x.get("scholarly")) for x in concepts if isinstance(x, dict)]
     norm = [re.sub(r"[^a-z0-9]+", " ", x.casefold()).strip() for x in scholarly]
     issues: list[str] = []
-    if not 1 <= len(concepts) <= 5:
-        issues.append(f"core concept count must be 1..5, got {len(concepts)}")
+    if len(concepts) != 5:
+        issues.append(f"core concept count must be exactly 5, got {len(concepts)}")
     if len(norm) != len(set(norm)):
         issues.append("semantic duplicate core concepts")
     for name in ("pubmed_core", "europe_pmc_core", "crossref_core", "semantic_scholar_core", "openalex_core"):
@@ -288,6 +354,11 @@ def build_query_plan(profile: dict[str, Any], max_groups: int = 200) -> list[dic
         "crossref": sets.get("crossref_core") or [],
         "semantic_scholar": sets.get("semantic_scholar_core") or [],
         "openalex": sets.get("openalex_core") or [],
+        "pubmed_supplemental": sets.get("pubmed_supplemental") or [],
+        "europe_pmc_supplemental": sets.get("europe_pmc_supplemental") or [],
+        "crossref_supplemental": sets.get("crossref_supplemental") or [],
+        "semantic_scholar_supplemental": sets.get("semantic_scholar_supplemental") or [],
+        "openalex_supplemental": sets.get("openalex_supplemental") or [],
         "news_en": sets.get("general_news_en") or [],
         "news_zh": sets.get("general_news_zh") or [],
         "gdelt": sets.get("gdelt_core") or [],
@@ -296,19 +367,26 @@ def build_query_plan(profile: dict[str, Any], max_groups: int = 200) -> list[dic
     plan: list[dict[str, Any]] = []
     for provider, queries in providers.items():
         for index, query in enumerate(queries):
-            concept = concepts[index] if index < len(concepts) else {}
+            supplemental_concepts = sets.get("controlled_supplemental_concepts") or []
+            is_supplemental = provider.endswith("_supplemental")
+            concept_pool = supplemental_concepts if is_supplemental else concepts
+            concept = concept_pool[index] if index < len(concept_pool) else {}
             plan.append({
                 "group_id": f"{provider}-{index + 1:02d}",
                 "provider": provider,
-                "purpose": "lean provider-native discovery",
+                "purpose": (
+                    "controlled supplemental member-identity discovery"
+                    if is_supplemental
+                    else "frozen simple identity-term provider-native discovery"
+                ),
                 "concept_id": concept.get("id"),
                 "concept_role": concept.get("role"),
                 "query": query,
-                "pubmed_query": query if provider == "pubmed" else "",
-                "europe_pmc_query": query if provider == "europe_pmc" else "",
-                "crossref_query": query if provider == "crossref" else "",
-                "semantic_scholar_query": query if provider == "semantic_scholar" else "",
-                "openalex_query": query if provider == "openalex" else "",
+                "pubmed_query": query if provider in {"pubmed", "pubmed_supplemental"} else "",
+                "europe_pmc_query": query if provider in {"europe_pmc", "europe_pmc_supplemental"} else "",
+                "crossref_query": query if provider in {"crossref", "crossref_supplemental"} else "",
+                "semantic_scholar_query": query if provider in {"semantic_scholar", "semantic_scholar_supplemental"} else "",
+                "openalex_query": query if provider in {"openalex", "openalex_supplemental"} else "",
                 "news_query": query if provider.startswith("news") or provider in {"gdelt", "reliefweb"} else "",
             })
             if len(plan) >= max_groups:

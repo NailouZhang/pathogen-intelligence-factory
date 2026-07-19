@@ -146,7 +146,7 @@ def main() -> int:
         status = "ready" if configured_analysis else "unavailable"
 
     audit = {
-        "schema_version": 2,
+        "schema_version": 3,
         "generated_at": utc_now_iso(),
         "status": status,
         "analysis_provider_configured": configured_analysis,
@@ -155,6 +155,8 @@ def main() -> int:
         "provider_orders": {
             "extract": list(LLMRouter(HttpClient("pif/order-only")).provider_order("extract")),
             "rescue": list(LLMRouter(HttpClient("pif/order-only")).provider_order("rescue")),
+            "overview": list(LLMRouter(HttpClient("pif/order-only")).provider_order("overview")),
+            "relevance": list(LLMRouter(HttpClient("pif/order-only")).provider_order("relevance")),
         },
         "provider_endpoints": {
             "siliconflow": LLMRouter(HttpClient("pif/endpoint-only")).provider_base_url("siliconflow"),
@@ -169,7 +171,8 @@ def main() -> int:
         print(f"\nSafe audit written to {args.json_out}")
 
     print(f"\nSiliconFlow API endpoint: {audit['provider_endpoints']['siliconflow']}")
-    print("A 429 response is treated as a cooldown, not automatically as permanent quota exhaustion.")
+    print("A 429 response is treated as a temporary cooldown, honors Retry-After when available, and is never persisted as permanent quota exhaustion.")
+    print("Replacing a GitHub API-key Secret changes its safe fingerprint and automatically clears stale authentication/quota disablement in the daily provider-state file.")
     print("OpenRouter, SiliconFlow and DeepSeek account information is recorded when supported; secrets are never printed.")
 
     if args.require_analysis_provider or args.analysis_only:

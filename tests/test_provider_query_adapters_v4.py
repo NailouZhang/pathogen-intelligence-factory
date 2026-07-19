@@ -19,5 +19,5 @@ def test_all_21_profiles_have_natural_chinese_news_aliases_and_lean_policy():
         assert policy.get("execute_all_query_chunks") is False
         assert policy.get("provider_expansion_first") is True
         assert policy.get("candidate_gate") == "python_accept_or_llm_review"
-        assert policy.get("content_enrichment_stage") == "after_top_n_selection"
+        assert policy.get("content_enrichment_stage") == "after_cross_source_dedup_dynamic_batches"
         assert policy.get("llm_review_mode") == "ambiguous_only"

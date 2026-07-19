@@ -10,6 +10,7 @@ from rapidfuzz.fuzz import ratio, token_set_ratio
 
 from .llm import LLMError, LLMRouter
 from .utils import clean_scholarly_abstract, clean_space, extract_doi, normalize_title, sha256_text, unique_strings
+from .dates import parse_date_span
 
 
 def _title_signature(value: str | None) -> str:
@@ -80,6 +81,16 @@ def _dedup_authors(values: list[Any]) -> list[str]:
             groups[key] = value
     return [groups[key] for key in order]
 
+def _earliest_publication_value(left: Any, right: Any) -> Any:
+    a = parse_date_span(left)
+    b = parse_date_span(right)
+    if not a:
+        return right
+    if not b:
+        return left
+    return left if a.start <= b.start else right
+
+
 def _merge_paper(base: dict[str, Any], incoming: dict[str, Any]) -> dict[str, Any]:
     base.setdefault("sources", [])
     base["sources"] = unique_strings(base["sources"] + [base.get("source"), incoming.get("source")])
@@ -87,12 +98,24 @@ def _merge_paper(base: dict[str, Any], incoming: dict[str, Any]) -> dict[str, An
     base["authors"] = _dedup_authors((base.get("authors") or []) + (incoming.get("authors") or []))
     base["publication_types"] = unique_strings((base.get("publication_types") or []) + (incoming.get("publication_types") or []))
     base["source_ids"] = {**(base.get("source_ids") or {}), **{k: v for k, v in (incoming.get("source_ids") or {}).items() if v}}
-    for field in (
-        "doi", "journal", "year", "volume", "issue", "pages", "online_date", "created_date",
-        "indexed_date", "published_date", "print_date", "availability_date", "availability_date_basis", "url",
-    ):
+    for field in ("doi", "journal", "year", "volume", "issue", "pages", "url"):
         if not base.get(field) and incoming.get(field):
             base[field] = incoming[field]
+    for field in ("first_publication_date", "online_date", "published_date", "print_date"):
+        if incoming.get(field):
+            base[field] = _earliest_publication_value(base.get(field), incoming.get(field))
+    for field in ("created_date", "indexed_date"):
+        if not base.get(field) and incoming.get(field):
+            base[field] = incoming[field]
+    base.setdefault("date_source_records", []).append({
+        "source": incoming.get("source"),
+        "first_publication_date": incoming.get("first_publication_date"),
+        "online_date": incoming.get("online_date"),
+        "published_date": incoming.get("published_date"),
+        "print_date": incoming.get("print_date"),
+        "created_date": incoming.get("created_date"),
+        "indexed_date": incoming.get("indexed_date"),
+    })
     if len(clean_space(incoming.get("abstract"))) > len(clean_space(base.get("abstract"))):
         base["abstract"] = incoming.get("abstract")
         base["abstract_source"] = incoming.get("source")

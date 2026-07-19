@@ -13,7 +13,7 @@ from .utils import clean_space, split_sentences, truncate
 from .postprocess import contains_cross_field_overlap, deduplicate_structured_analysis, complete_text
 
 
-ANALYSIS_POLICY_VERSION = "v14-bilingual-strict-schema-analysis-1"
+ANALYSIS_POLICY_VERSION = "v15.1-profile-document-type-analysis-2"
 
 REVIEW_HINTS = re.compile(
     r"\b(review|systematic review|meta-analysis|narrative review|scoping review|umbrella review|viewpoint|perspective|commentary|consensus statement)\b",
@@ -50,10 +50,25 @@ NEWS_FIELDS = [
 def classify_paper(work: dict[str, Any]) -> str:
     types = " ".join(str(x) for x in work.get("publication_types") or [])
     title = clean_space(work.get("title"))
-    abstract = clean_space(work.get("abstract"))[:900]
-    if REVIEW_HINTS.search(" ".join([types, title, abstract])):
-        return "review"
-    return "research"
+    abstract = clean_space(work.get("abstract"))[:1200]
+    haystack = clean_space(" ".join([types, title, abstract])).casefold()
+    configured = work.get("document_type_terms") or {}
+    scores: dict[str, int] = {}
+    if isinstance(configured, dict):
+        for category, terms in configured.items():
+            score = sum(1 for term in (terms or []) if clean_space(term) and clean_space(term).casefold() in haystack)
+            if score:
+                scores[str(category)] = score
+    if scores:
+        category = sorted(scores, key=lambda key: (scores[key], key in {"systematic_review", "narrative_review"}), reverse=True)[0]
+        work["document_type_category"] = category
+        work["document_type_term_scores"] = scores
+        if category in {"systematic_review", "narrative_review"}:
+            return "review"
+        return "research"
+    work["document_type_category"] = "review" if REVIEW_HINTS.search(haystack) else "research"
+    work["document_type_term_scores"] = {}
+    return "review" if REVIEW_HINTS.search(haystack) else "research"
 
 
 ROLE_PATTERNS: list[tuple[str, re.Pattern[str]]] = [

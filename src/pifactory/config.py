@@ -57,7 +57,7 @@ class Settings:
     max_paper_candidates: int = field(default_factory=lambda: env_int("PIF_MAX_PAPER_CANDIDATES", 0))
     max_news_candidates: int = field(default_factory=lambda: env_int("PIF_MAX_NEWS_CANDIDATES", 0))
     max_news_fetches: int = field(default_factory=lambda: env_int("PIF_MAX_NEWS_FETCHES", 80))
-    max_fulltexts: int = field(default_factory=lambda: env_int("PIF_MAX_FULLTEXTS", 80))
+    max_fulltexts: int = field(default_factory=lambda: env_int("PIF_MAX_FULLTEXTS", 150))
     pubmed_per_query: int = field(default_factory=lambda: env_int("PIF_PUBMED_PER_QUERY", 180))
     pubmed_total_limit: int = field(default_factory=lambda: env_int("PIF_PUBMED_TOTAL_LIMIT", 2000))
     europe_pmc_per_query: int = field(default_factory=lambda: env_int("PIF_EUROPE_PMC_PER_QUERY", 150))
@@ -97,7 +97,9 @@ class Settings:
     overview_min_items: int = field(default_factory=lambda: env_int("PIF_OVERVIEW_MIN_ITEMS", 15))
     overview_max_items: int = field(default_factory=lambda: env_int("PIF_OVERVIEW_MAX_ITEMS", 25))
     wechat_news_max_zh_chars: int = field(default_factory=lambda: env_int("PIF_WECHAT_NEWS_MAX_ZH_CHARS", 500))
-    display_candidate_buffer: int = field(default_factory=lambda: env_int("PIF_DISPLAY_CANDIDATE_BUFFER", 30))
+    display_candidate_buffer: int = field(default_factory=lambda: env_int("PIF_DISPLAY_CANDIDATE_BUFFER", 100))
+    max_supplementary_papers: int = field(default_factory=lambda: env_int("PIF_MAX_SUPPLEMENTARY_PAPERS", 100))
+    fulltext_batch_size: int = field(default_factory=lambda: env_int("PIF_FULLTEXT_BATCH_SIZE", 25))
     timezone: str = "Asia/Shanghai"
 
     @property

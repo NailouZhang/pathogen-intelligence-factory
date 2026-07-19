@@ -1,4 +1,4 @@
-name: Weekly 21-Virus Intelligence Cycle v14.7
+name: Weekly 21-Virus Intelligence Cycle v15.3
 
 on:
   schedule:
@@ -174,7 +174,7 @@ jobs:
           PIF_MAX_PAPER_CANDIDATES: "0"
           PIF_MAX_NEWS_CANDIDATES: "0"
           PIF_MAX_NEWS_FETCHES: "80"
-          PIF_MAX_FULLTEXTS: "80"
+          PIF_MAX_FULLTEXTS: ${{ vars.PIF_MAX_FULLTEXTS || '150' }}
           # News extraction: RSS metadata -> cleaned publisher URL -> static
           # multi-extractor -> bounded Playwright rendering -> source-summary
           # fallback. No CAPTCHA solving, login automation or access bypass.
@@ -184,6 +184,7 @@ jobs:
           PIF_NEWS_STATIC_MAX_URLS: ${{ vars.PIF_NEWS_STATIC_MAX_URLS || '8' }}
           PIF_NEWS_ENRICH_WORKERS: ${{ vars.PIF_NEWS_ENRICH_WORKERS || '4' }}
           PIF_NEWS_EXCERPT_MIN_CHARS: ${{ vars.PIF_NEWS_EXCERPT_MIN_CHARS || '100' }}
+          PIF_TRANSLATION_NETWORK_FAILURE_THRESHOLD: ${{ vars.PIF_TRANSLATION_NETWORK_FAILURE_THRESHOLD || '2' }}
           PIF_PUBMED_PER_QUERY: "250"
           PIF_PUBMED_TOTAL_LIMIT: "2000"
           PIF_EUROPE_PMC_PER_QUERY: "250"
@@ -245,7 +246,9 @@ jobs:
           PIF_OVERVIEW_MIN_ITEMS: "15"
           PIF_OVERVIEW_MAX_ITEMS: "25"
           PIF_WECHAT_NEWS_MAX_ZH_CHARS: "500"
-          PIF_DISPLAY_CANDIDATE_BUFFER: "30"
+          PIF_DISPLAY_CANDIDATE_BUFFER: ${{ vars.PIF_DISPLAY_CANDIDATE_BUFFER || '100' }}
+          PIF_MAX_SUPPLEMENTARY_PAPERS: ${{ vars.PIF_MAX_SUPPLEMENTARY_PAPERS || '100' }}
+          PIF_FULLTEXT_BATCH_SIZE: ${{ vars.PIF_FULLTEXT_BATCH_SIZE || '25' }}
           PIF_HTTP_TIMEOUT: "18"
           PIF_HTTP_RETRIES: "2"
           PIF_LLM_HTTP_TIMEOUT: "55"
@@ -264,7 +267,7 @@ jobs:
           set -e
           export PIF_LLM_PREFLIGHT_FILE="$LLM_PREFLIGHT"
           if [[ $LLM_PREFLIGHT_STATUS -ne 0 ]]; then
-            echo "::warning title=LLM preflight failed::None of Gemini/Groq/OpenRouter/Mistral/SiliconFlow passed the minimal JSON probe. Structured analysis may use low-confidence fallback."
+            echo "::warning title=LLM preflight failed::No configured LLM provider passed the minimal JSON probe. Structured analysis may use low-confidence fallback."
             if [[ "${PIF_ANALYSIS_REQUIRE_LLM:-false}" == "true" ]]; then
               echo "::error::PIF_ANALYSIS_REQUIRE_LLM=true and no LLM provider passed preflight."
               exit 3

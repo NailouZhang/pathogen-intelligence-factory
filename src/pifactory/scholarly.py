@@ -638,6 +638,9 @@ def filter_publication_window(
         if not decision.accepted:
             rejected.append(record)
             continue
+        record["canonical_publication_date"] = decision.canonical_date
+        record["canonical_publication_date_basis"] = decision.canonical_basis
+        # Backward-compatible aliases retained for older ranking/render helpers.
         record["availability_date"] = decision.canonical_date
         record["availability_date_basis"] = decision.canonical_basis
         record["publication_date_status"] = decision.status
@@ -686,67 +689,70 @@ def search_biorxiv_medrxiv(
     identity_filter: bool = True,
     audit: SourceAudit | None = None,
 ) -> list[dict[str, Any]]:
-    """Retrieve a bounded recent preprint sample and filter immediately.
+    """Retrieve the latest contiguous preprints in the reporting window.
 
-    The official date API returns every preprint in the interval. Downloading
-    thousands of unrelated records for each pathogen dominated Actions runtime.
-    This adapter uses the real reporting window, caps scanned records per server,
-    and rejects title/abstract records without a pathogen identity term before
-    they reach global deduplication and LLM stages.
+    The date API is paged by cursor.  v15 first reads the total count, then
+    starts at ``max(total-cap, 0)`` and walks continuously to the newest record.
+    The resulting rows are sorted by first publication date descending and only
+    then passed through the local pathogen-identity filter.  No head/tail splice
+    is used, so the middle of the weekly interval cannot be structurally skipped.
     """
     output: list[dict[str, Any]] = []
     identity_terms = unique_strings(identity_terms or [])
     cap = max(0, int(max_records_per_server))
     for server in ("biorxiv", "medrxiv"):
-        cursor = 0
-        scanned = 0
-        accepted = 0
+        endpoint = f"https://api.biorxiv.org/details/{server}/{start.isoformat()}/{end.isoformat()}"
         pages = 0
         available_total = 0
+        scanned = 0
+        accepted = 0
         failed: Exception | None = None
-        endpoint = f"https://api.biorxiv.org/details/{server}/{start.isoformat()}/{end.isoformat()}"
-        while cap == 0 or scanned < cap:
-            try:
-                payload = http.get_json(f"{endpoint}/{cursor}")
+        collected: list[dict[str, Any]] = []
+        try:
+            first = http.get_json(f"{endpoint}/0")
+            pages += 1
+            message = (first.get("messages") or [{}])[0]
+            available_total = int(message.get("total") or len(first.get("collection") or []))
+            start_cursor = 0 if cap == 0 else max(0, available_total - cap)
+            cursor = start_cursor
+            while cursor < available_total and (cap == 0 or len(collected) < cap):
+                payload = first if cursor == 0 else http.get_json(f"{endpoint}/{cursor}")
+                if cursor != 0:
+                    pages += 1
                 rows = payload.get("collection", []) or []
-                pages += 1
-                message = (payload.get("messages") or [{}])[0]
-                available_total = int(message.get("total") or available_total or scanned + len(rows))
-                if cap:
-                    rows = rows[: max(0, cap - scanned)]
-                for item in rows:
-                    scanned += 1
-                    record = {
-                        "source": "bioRxiv" if server == "biorxiv" else "medRxiv",
-                        "source_ids": {server: item.get("doi")},
-                        "doi": clean_space(item.get("doi")).lower() or None,
-                        "title": clean_space(item.get("title")),
-                        "abstract": clean_space(item.get("abstract")),
-                        "authors": unique_strings(str(item.get("authors", "")).split(";")),
-                        "journal": "bioRxiv" if server == "biorxiv" else "medRxiv",
-                        "online_date": safe_date_string(item.get("date")),
-                        "published_date": safe_date_string(item.get("date")),
-                        "publication_types": ["preprint"],
-                        "url": f"https://doi.org/{item.get('doi')}" if item.get("doi") else "",
-                    }
-                    if identity_filter and not _preprint_matches_identity(record, identity_terms):
-                        continue
-                    output.append(record)
-                    accepted += 1
-                next_cursor = cursor + len(rows)
-                # Keep one head page for coverage, then jump to the newest tail
-                # when the weekly feed is larger than the configured budget.
-                # This avoids spending minutes walking thousands of unrelated
-                # preprints while preserving both ends of the reporting window.
-                if pages == 1 and cap and available_total > cap and scanned < cap:
-                    remaining = cap - scanned
-                    next_cursor = max(next_cursor, available_total - remaining)
-                cursor = next_cursor
-                if not rows or cursor >= available_total or (cap and scanned >= cap):
+                if not rows:
                     break
-            except Exception as exc:
-                failed = exc
-                break
+                remaining = len(rows) if cap == 0 else max(0, cap - len(collected))
+                rows = rows[:remaining]
+                collected.extend(rows)
+                cursor += len(rows)
+                if len(rows) == 0:
+                    break
+            collected.sort(key=lambda item: safe_date_string(item.get("date")) or "", reverse=True)
+            if cap:
+                collected = collected[:cap]
+            for item in collected:
+                scanned += 1
+                record = {
+                    "source": "bioRxiv" if server == "biorxiv" else "medRxiv",
+                    "source_ids": {server: item.get("doi")},
+                    "doi": clean_space(item.get("doi")).lower() or None,
+                    "title": clean_space(item.get("title")),
+                    "abstract": clean_space(item.get("abstract")),
+                    "authors": unique_strings(str(item.get("authors", "")).split(";")),
+                    "journal": "bioRxiv" if server == "biorxiv" else "medRxiv",
+                    "first_publication_date": safe_date_string(item.get("date")),
+                    "online_date": safe_date_string(item.get("date")),
+                    "published_date": safe_date_string(item.get("date")),
+                    "publication_types": ["preprint"],
+                    "url": f"https://doi.org/{item.get('doi')}" if item.get("doi") else "",
+                }
+                if identity_filter and not _preprint_matches_identity(record, identity_terms):
+                    continue
+                output.append(record)
+                accepted += 1
+        except Exception as exc:
+            failed = exc
         if audit:
             audit.add(
                 source="bioRxiv" if server == "biorxiv" else "medRxiv",
@@ -763,7 +769,7 @@ def search_biorxiv_medrxiv(
                     "max_records_per_server": cap,
                     "identity_filter": bool(identity_filter),
                     "identity_term_count": len(identity_terms),
-                    "sampling_strategy": "head_plus_latest_tail" if cap else "complete_interval",
+                    "sampling_strategy": "latest_contiguous_window_descending",
                 },
             )
     return output

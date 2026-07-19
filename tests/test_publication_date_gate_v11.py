@@ -42,7 +42,7 @@ def test_recent_index_date_cannot_revive_old_publication():
         future_days=90,
     )
     assert decision.accepted is False
-    assert decision.reason == "real_publication_date_before_window"
+    assert decision.reason == "canonical_publication_date_before_window"
     assert decision.metadata_dates["indexed_date"] == "2026-07-17"
 
 
@@ -90,7 +90,7 @@ def test_far_future_publication_is_rejected():
         future_days=90,
     )
     assert decision.accepted is False
-    assert decision.reason == "real_publication_date_beyond_future_grace"
+    assert decision.reason == "canonical_publication_date_beyond_future_grace"
 
 
 def test_year_only_publication_date_cannot_prove_weekly_recency():
@@ -116,7 +116,7 @@ def test_filter_returns_rejected_records_for_audit():
     )
     assert [row["title"] for row in accepted] == ["new"]
     assert [row["title"] for row in rejected] == ["old"]
-    assert rejected[0]["publication_date_gate"]["reason"] == "real_publication_date_before_window"
+    assert rejected[0]["publication_date_gate"]["reason"] == "canonical_publication_date_before_window"
 
 
 def test_pubmed_query_uses_publication_dates_not_processing_dates():

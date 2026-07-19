@@ -111,12 +111,85 @@ candidate_vocabulary:
   - swine influenza
   - influenza C virus
   - influenza D virus
-manual_query_skeletons:
-  pubmed_high_precision: (("seasonal influenza"[Title/Abstract] OR "influenza A virus"[Title/Abstract] OR "influenza B virus"[Title/Abstract]
-    OR "A(H1N1)pdm09"[Title/Abstract] OR "A(H3N2)"[Title/Abstract]) AND {{DATE_FILTER}}) NOT (avian influenza[Title/Abstract]
-    OR swine influenza[Title/Abstract])
-  news_high_precision: ("seasonal influenza" OR "influenza A virus" OR "influenza B virus" OR "A(H1N1)pdm09" OR "A(H3N2)")
-    AND (outbreak OR surveillance OR vaccine OR cases)
+  paper_priority_terms:
+  - term: outbreak
+    category: emerging_event
+    weight: 5
+  - term: spillover
+    category: cross_species
+    weight: 5
+  - term: first report
+    category: novelty
+    weight: 5
+  - term: novel host
+    category: novelty
+    weight: 5
+  - term: new region
+    category: novelty
+    weight: 4
+  - term: genomic surveillance
+    category: genomics
+    weight: 4
+  - term: recombination
+    category: evolution
+    weight: 4
+  - term: evolution
+    category: evolution
+    weight: 3
+  - term: vaccine
+    category: countermeasure
+    weight: 3
+  - term: therapeutic
+    category: countermeasure
+    weight: 3
+  - term: diagnostic
+    category: diagnostics
+    weight: 3
+  - term: clinical outcome
+    category: clinical
+    weight: 3
+  - term: cohort
+    category: study_scale
+    weight: 2
+  - term: systematic review
+    category: evidence_synthesis
+    weight: 3
+  - term: public health
+    category: public_health
+    weight: 2
+  document_type_terms:
+    research:
+    - trial
+    - cohort
+    - case-control
+    - cross-sectional
+    - experimental study
+    systematic_review:
+    - systematic review
+    - meta-analysis
+    - scoping review
+    narrative_review:
+    - review
+    - narrative review
+    - perspective
+    case_report:
+    - case report
+    - case series
+    surveillance_report:
+    - surveillance report
+    - outbreak report
+    - epidemiological update
+    methods:
+    - method
+    - assay
+    - protocol
+    - algorithm
+    - model
+    commentary:
+    - editorial
+    - commentary
+    - letter
+    - opinion
 authoritative_sources:
 - name: WHO Seasonal influenza
   organization: WHO
@@ -165,15 +238,18 @@ retrieval_policy:
   openalex_per_term: 80
   candidate_gate: python_accept_or_llm_review
   final_gate: accept_before_top_n_enrichment
-  strategy: lean_core_concepts_v7
+  strategy: frozen_five_core_terms_v15
   max_core_concepts: 5
-  content_enrichment_stage: after_top_n_selection
-  content_enrichment_limit_papers: 50
+  content_enrichment_stage: after_cross_source_dedup_dynamic_batches
+  content_enrichment_limit_papers: 150
   content_enrichment_limit_news: 50
   llm_review_mode: ambiguous_only
   provider_expansion_first: true
+  primary_report_limit: 50
+  supplementary_report_limit: 100
+  top_n_means_deep_report_not_deletion: true
 search_strategy:
-  schema_version: '1.1'
+  schema_version: '2.1'
   max_concepts: 5
   provider_expansion_first: true
   deduplicate_semantic_equivalents: true
@@ -182,29 +258,35 @@ search_strategy:
     scholarly: seasonal influenza
     news_en: seasonal influenza
     news_zh: 季节性流感
-    role: umbrella
+    role: disease
     priority: 1
   - id: h3n2
-    scholarly: A(H3N2)
-    news_en: A(H3N2) influenza
-    news_zh: 甲型H3N2流感
-    role: hotspot_subtype
+    scholarly: influenza A(H3N2)
+    news_en: influenza A(H3N2)
+    news_zh: 甲型H3N2流感病毒
+    role: subtype
     priority: 2
   - id: h1n1pdm09
-    scholarly: A(H1N1)pdm09
-    news_en: A(H1N1)pdm09 influenza
-    news_zh: 甲型H1N1流感
-    role: hotspot_subtype
+    scholarly: influenza A(H1N1)pdm09
+    news_en: influenza A(H1N1)pdm09
+    news_zh: 甲型H1N1pdm09流感病毒
+    role: subtype
     priority: 3
-  - id: influenza_b_victoria
+  - id: b_victoria
     scholarly: influenza B Victoria lineage
-    news_en: influenza B Victoria
+    news_en: influenza B Victoria lineage
     news_zh: 乙型流感Victoria系
-    role: hotspot_subtype
+    role: lineage
     priority: 4
-  - id: vaccine_effectiveness
-    scholarly: seasonal influenza vaccine effectiveness
-    news_en: influenza vaccine effectiveness
-    news_zh: 季节性流感疫苗有效性
-    role: intervention
+  - id: b_yamagata
+    scholarly: influenza B Yamagata lineage
+    news_en: influenza B Yamagata lineage
+    news_zh: 乙型流感Yamagata系
+    role: lineage
     priority: 5
+  frozen: true
+  allow_weekly_mutation: false
+  core_terms_version: '2.0'
+  generated_from: authoritative_sources_plus_manual_v15_1_review
+  controlled_supplemental_terms:
+  - B/Victoria lineage

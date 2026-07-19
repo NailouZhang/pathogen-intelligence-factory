@@ -46,10 +46,15 @@ def test_audit_plan_contains_one_row_per_provider_query():
     plan = build_query_plan(profile, max_groups=1000)
     provider_keys = {
         "pubmed": "pubmed_core",
+        "pubmed_supplemental": "pubmed_supplemental",
         "europe_pmc": "europe_pmc_core",
+        "europe_pmc_supplemental": "europe_pmc_supplemental",
         "crossref": "crossref_core",
+        "crossref_supplemental": "crossref_supplemental",
         "semantic_scholar": "semantic_scholar_core",
+        "semantic_scholar_supplemental": "semantic_scholar_supplemental",
         "openalex": "openalex_core",
+        "openalex_supplemental": "openalex_supplemental",
         "news_en": "general_news_en",
         "news_zh": "general_news_zh",
         "gdelt": "gdelt_core",

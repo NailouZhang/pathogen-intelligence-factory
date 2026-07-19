@@ -647,3 +647,166 @@ Python `HTMLParser` 对 `<br>`、`<img>`、`<meta>` 等 void element 不会调�
 - `BIGMODEL_BASE_URL`和`DEEPSEEK_BASE_URL`既可填写base URL，也可误填完整`/chat/completions`地址，代码会规范化，避免路径重复。
 - DeepSeek余额通过`/user/balance`写入安全审计。默认`PIF_DEEPSEEK_GRANTED_BALANCE_ONLY=true`，仅有足够赠送余额时才调用，避免误用充值余额。需要允许付费余额时显式改为`false`。
 - 两家均在低Token结构化任务中关闭思考模式，并继续使用`response_format=json_object`与既有validator。
+
+## 修复项22：v15.0 文献生命周期主版本重构
+
+### 被替换的旧逻辑
+
+1. 文献在跨库去重前或内容补全前进入严格相关性和证据门禁；
+2. 无摘要或全文补全失败会使记录从最终网页消失；
+3. Top50被解释成最终保留数量；
+4. 内容补全只处理过小候选池，主报告不足时不继续递补；
+5. 短摘要和短正文可能因字符长度被拒绝；
+6. 微信摘要长度参与新闻标准数据资格；
+7. 前台页面显示内部LLM和质量审计信息；
+8. bioRxiv/medRxiv使用不连续首尾抽样；
+9. Profile只限制最多5个概念，未形成不可变版本契约。
+
+### v15不可回退规则
+
+1. 每个Profile必须有恰好5个冻结核心身份词，周运行不得增加、删除、重排或改写。
+2. 后置词库按身份、缩写歧义/排除、优先级和文献类型分组，不得整体转换成入口查询。
+3. 规范发表日期固定为`first_publication_date → online_date → published_date → print_date`。
+4. 日期和文章对象门禁后，先宽松身份初筛，再跨来源去重，再内容补全，再终审。
+5. 内容补全必须验证同篇身份；失败不能覆盖已有可信元数据或摘要。
+6. 不得按摘要或正文字符长度删除已经核验的文献。
+7. 主报告只包含有核验摘要/全文并完成双语结构化分析的记录。
+8. Top50只决定深度主报告；其他终审通过记录进入补充文献Top100。
+9. 补充文献不生成摘要展示、七/五要素或标题推测结论。
+10. 顶部文献总结只能使用最终主报告。
+11. 动态递补默认以25条为批次，最多补全150条候选，直到主报告达到50或预算耗尽。
+12. bioRxiv和medRxiv必须按日期倒序连续分页，单服务器默认上限300，不得采用首尾拼接。
+13. 新闻资格与微信长度分离；`PIF_WECHAT_NEWS_MAX_ZH_CHARS`只在公众号渲染阶段使用。
+14. Pages前台不得显示LLM供应商、翻译审计、抓取器和分析质量横幅；后台审计必须保留。
+15. 公众号包继续使用`pathogen-wechat-package/v2`，不得破坏现有私有Runner协议。
+
+### 实现文件
+
+- `src/pifactory/literature/profile.py`
+- `src/pifactory/literature/normalization.py`
+- `src/pifactory/literature/enrichment.py`
+- `src/pifactory/literature/selection.py`
+- `src/pifactory/pipeline_v15.py`
+- `src/pifactory/pipeline.py`
+- `src/pifactory/render.py`
+- `scripts/audit_rendered_html.py`
+- `scripts/issue_summary.py`
+- `tests/test_v15_literature_architecture.py`
+
+## 修复项23：v15.1 Profile、后置词库、身份核验与全局Top50细节硬化
+
+### 状态
+
+已实现；专项、历史回归、离线端到端、Pages审计和公众号包契约测试通过。
+
+### 根因
+
+1. 17个Profile仍含“病毒身份+研究方向”组合词，旧校验器只禁止布尔式。
+2. `paper_priority_terms`、`document_type_terms`和`controlled_supplemental_terms`只保存未消费。
+3. 内容补全主要检查标题和标识符，期刊、年份、作者的一致性不足；冲突可能被后续弱匹配覆盖。
+4. 相关性确定性兜底残留80字符条件。
+5. 全文-only文章缺少稳定的英文展示片段。
+6. 补充标题翻译失败后缺乏完整递补审计。
+7. 日期只在去重前门禁，跨来源合并和补全后的更权威日期未重新计算。
+8. 文献缓冲参数没有形成独立比较池。
+9. 主报告达到50篇即停止，形成先到先得而非全局Top50。
+10. Profile缓存缺失或Seed变化时，正常周运行可能自动调用LLM重建五词，引发检索漂移。
+
+### 不可回退规则
+
+1. 21个Profile必须恰好包含5个冻结身份词，`core_terms_version=2.0`、`allow_weekly_mutation=false`。
+2. 校验器必须拒绝布尔表达式和 `outbreak/vaccine/surveillance/diagnosis/treatment` 等普通研究方向组合。
+3. 正常周运行、定时队列和全量运行不得调用LLM修改五词；只有显式 `refresh_profile=true` 可以生成新版本。
+4. `paper_priority_terms`必须影响排序分值和tier；`document_type_terms`必须影响文献类型；受控补充词必须进入查询执行与审计。
+5. 内容身份必须使用 `identity_verified/identity_uncertain/identity_conflict` 三态；明确冲突不可被弱匹配覆盖。
+6. 无标识符内容必须综合标题、作者、期刊和年份；DOI/PMID/PMCID冲突必须拒绝写入。
+7. 字符长度不能决定文献相关性或保留；短而身份明确的摘要可以保留。
+8. 全文-only主报告必须生成可追溯英文 `full_text_excerpt` 和中文翻译。
+9. 补充标题必须走多接口翻译递补，全部失败后才回退英文。
+10. 规范发表日期至少在初始阶段和去重/补全后各计算一次；最终展示使用第二次结果。
+11. 默认形成最多100篇主报告比较池，完成全局排序后选择Top50；达到50篇不得立即停止。
+12. Top50之外的终审相关记录继续进入补充文献，不能被截断删除。
+
+### 主要审计
+
+```text
+data/audit/controlled_supplemental_queries.json
+data/audit/publication_date_gate.json
+data/audit/literature_completion.json
+data/audit/content_identity.jsonl
+data/audit/literature_selection.json
+```
+
+### 主要测试
+
+- 21个Profile五词和方向组合禁令；
+- 正常周运行不调用Profile LLM builder；
+- 显式刷新是唯一LLM重建路径；
+- 受控补充查询进入各适配器；
+- Profile优先词改变排名；
+- Profile文献类型词改变分类；
+- 标识符冲突不可逆；
+- 期刊和年份参与综合核验；
+- 30字符身份明确摘要在LLM不可用时保留；
+- 全文片段和双语展示；
+- 补充标题多接口失败后英文回退；
+- 补全后更早首次发表日期重新门禁；
+- 100篇比较池全局Top50；
+- `pathogen-wechat-package/v2`跨仓兼容。
+
+
+## 修复项24：v15.2 新闻独立状态、相关性专用路由、Key恢复与翻译熔断
+
+### 根因
+
+1. 新闻有效性被错误绑定到中文翻译完整度，导致下方有有效新闻而顶部声称无新闻。
+2. 相关性复核未传入relevance Provider顺序，配置变量失效；LLM失败被静默吞掉。
+3. `json_task`对显式空Provider顺序偷偷回退到extract。
+4. 每日Provider状态无法识别GitHub Secret已更换，旧鉴权失败可能继续禁用新Key。
+5. 短官方通报仍受正文/摘要字符门限制。
+6. 免费翻译接口没有当前Profile健康熔断，单字段救援重复调用已确认不可用Provider。
+
+### 不可回退规则
+
+1. `source_qualified`、`analysis_ready`和`translation_complete`必须独立。
+2. `source_qualified + analysis_ready`即可形成`display_ready`；翻译失败使用英文填充并记录`english_fallback`。
+3. 顶部新闻总览输入必须来自全部最终有效新闻，`source_ids`不得依赖中文字段。
+4. 相关性普通/升级复核必须使用`provider_order("relevance")`和独立任务名。
+5. 相关性LLM失败必须保留Provider尝试、认证、配额、超时、JSON和校验类别。
+6. 调用方显式传入空Provider顺序必须报错，不能回退extract。
+7. API Key安全指纹变化必须清除旧鉴权/配额禁用和模型冷却。
+8. 429只属于临时冷却，并优先遵守Retry-After。
+9. 官方新闻可凭可靠来源与正文身份门通过，不得仅因短小被删除。
+10. 翻译Provider连续网络失败、429和认证失败必须在当前Profile共享状态；单字段质量失败不得全局熔断。
+
+### 审计与测试
+
+- `news_state`写入标准数据与`eligible_news.jsonl`；
+- `llm_usage.json`包含`task_failures`；
+- 翻译审计包含Provider健康状态和英文回退字段；
+- `tests/test_v15_2_news_llm_translation_reliability.py`覆盖全部契约。
+
+
+## 修复项25：v15.3 独立仓测试定位、浏览器隔离与新闻来源状态
+
+### 根因
+
+1. 公开仓单元测试错误地向上两级寻找两仓工程根目录的 `public_manager.sh`，独立克隆公开仓时必然出现 `FileNotFoundError`。
+2. RSS回退测试使用 `BrokenHTTP` 模拟静态网络失败，但Playwright浏览器仍可绕过该测试替身访问真实网络，使测试结果依赖本机是否安装Chromium及当时网页响应。
+3. 未解析到出版商URL的Google/Bing聚合落地页可能被抽取器误标为 `full` 或 `partial`，混淆真实出版商正文与聚合摘要的来源状态。
+
+### 不可回退规则
+
+1. 公开仓测试只能依赖公开仓内部文件；两仓包装脚本契约由根目录 `validate_bundle.sh` 验证。
+2. pytest默认禁用真实Playwright网络；浏览器专项测试必须显式启用并注入确定性HTML。
+3. 聚合页只有解析到非聚合的最终URL或canonical URL时，正文才有资格标记为 `full/partial`。
+4. 无法解析出版商正文时，实质性RSS摘要必须保持 `syndicated_summary`；标题本身必须保持 `title_only_rejected`。
+5. 内容审计必须保存 `provenance_valid` 和 `unresolved_aggregator_landing` 拒绝原因。
+
+### 主要测试
+
+- 独立公开仓运行不访问 `/home/stone/github-projects/public_manager.sh`；
+- `BrokenHTTP` 环境中不启动真实Chromium；
+- 未解析聚合页不能升级为全文；
+- 直接出版商浏览器正文仍可形成 `full/partial`；
+- RSS实质摘要与标题项状态保持历史契约。

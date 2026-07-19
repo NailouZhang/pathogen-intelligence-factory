@@ -131,7 +131,7 @@ def test_analysis_quality_warns_when_fallback_exceeds_threshold():
     assert quality["top_failure_categories"][0]["category"] == "validation_failed"
 
 
-def test_render_site_places_global_analysis_warning_near_top(tmp_path: Path):
+def test_render_site_keeps_analysis_quality_in_backend_only(tmp_path: Path):
     issue = {
         "title_zh": "汉坦病毒每周情报",
         "title_en": "Hantavirus Weekly Intelligence",
@@ -139,6 +139,7 @@ def test_render_site_places_global_analysis_warning_near_top(tmp_path: Path):
         "window_start": "2026-07-12",
         "window_end": "2026-07-18",
         "papers": [],
+        "supplementary_papers": [],
         "news": [],
         "overview": {"literature": {}, "news": {}},
         "metrics": {},
@@ -152,9 +153,9 @@ def test_render_site_places_global_analysis_warning_near_top(tmp_path: Path):
     }
     render_site(issue, tmp_path)
     html = (tmp_path / "site" / "index.html").read_text(encoding="utf-8")
-    assert "分析质量提示" in html
-    assert "本期分析质量严重降级" in html
-    assert html.index("分析质量提示") < html.index("本期文献进展")
+    assert "分析质量提示" not in html
+    assert "本期分析质量严重降级" not in html
+    assert issue["analysis_quality"]["severity"] == "critical"
 
 
 def test_check_credentials_analysis_only_writes_safe_unavailable_audit(tmp_path: Path):

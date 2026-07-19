@@ -13,8 +13,8 @@ from .utils import clean_space
 # Dates describing when the scholarly work itself became/will become public.
 # These fields may be used to decide whether a paper belongs to a weekly issue.
 REAL_PUBLICATION_DATE_FIELDS = (
-    "online_date",
     "first_publication_date",
+    "online_date",
     "published_date",
     "print_date",
 )
@@ -109,15 +109,13 @@ def assess_publication_date(
     future_days: int = 0,
     allow_month_precision: bool = True,
 ) -> PublicationDateDecision:
-    """Apply the hard publication-date gate.
+    """Select one canonical publication date, then apply the weekly gate.
 
-    Policy:
-    - publication dates and metadata/index dates are evaluated separately;
-    - an old real publication date is a hard rejection even when an index date
-      is recent;
-    - metadata-only records are quarantined/rejected from the public report;
-    - bounded future issue dates are allowed and explicitly labelled;
-    - year-only dates cannot establish weekly recency.
+    v15 policy chooses the first usable field in this fixed order:
+    ``first_publication_date -> online_date -> published_date -> print_date``.
+    Created/indexed dates remain provenance only.  Other publication fields do
+    not independently revive or reject a record once the canonical field has
+    been selected.
     """
     future_end = publication_search_end(end, future_days)
     real_spans = _collect_date_spans(record, REAL_PUBLICATION_DATE_FIELDS)
@@ -132,9 +130,6 @@ def assess_publication_date(
             real_dates, metadata_dates, precisions,
         )
 
-    # A year-only value is not enough to claim weekly recency. If another field
-    # supplies month/day precision, use that field and keep the year-only value
-    # only as provenance.
     usable = {
         field: span
         for field, span in real_spans.items()
@@ -146,51 +141,23 @@ def assess_publication_date(
             real_dates, metadata_dates, precisions,
         )
 
-    # If any usable real publication field proves the work was already public
-    # before this issue window, a recent created/indexed timestamp must not revive it.
-    old_fields = [field for field, span in usable.items() if span.end < start]
-    if old_fields:
-        oldest_field = min(old_fields, key=lambda field: usable[field].start)
+    basis = next((field for field in REAL_PUBLICATION_DATE_FIELDS if field in usable), None)
+    if basis is None:
         return PublicationDateDecision(
-            False,
-            usable[oldest_field].raw,
-            oldest_field,
-            "rejected",
-            "real_publication_date_before_window",
-            real_dates,
-            metadata_dates,
-            precisions,
-        )
-
-    too_future_fields = [field for field, span in usable.items() if span.start > future_end]
-    if len(too_future_fields) == len(usable):
-        earliest_field = min(too_future_fields, key=lambda field: usable[field].start)
-        return PublicationDateDecision(
-            False,
-            usable[earliest_field].raw,
-            earliest_field,
-            "rejected",
-            "real_publication_date_beyond_future_grace",
-            real_dates,
-            metadata_dates,
-            precisions,
-        )
-
-    eligible = {
-        field: span
-        for field, span in usable.items()
-        if span.end >= start and span.start <= future_end
-    }
-    if not eligible:
-        return PublicationDateDecision(
-            False, None, None, "rejected", "real_publication_date_outside_allowed_range",
+            False, None, None, "rejected", "missing_usable_canonical_publication_date",
             real_dates, metadata_dates, precisions,
         )
-
-    # Earliest public availability is the canonical report date. On ties, prefer
-    # online/first-publication fields over generic published/print fields.
-    priority = {field: index for index, field in enumerate(REAL_PUBLICATION_DATE_FIELDS)}
-    basis, span = min(eligible.items(), key=lambda item: (item[1].start, priority[item[0]]))
+    span = usable[basis]
+    if span.end < start:
+        return PublicationDateDecision(
+            False, span.raw, basis, "rejected", "canonical_publication_date_before_window",
+            real_dates, metadata_dates, precisions,
+        )
+    if span.start > future_end:
+        return PublicationDateDecision(
+            False, span.raw, basis, "rejected", "canonical_publication_date_beyond_future_grace",
+            real_dates, metadata_dates, precisions,
+        )
     if span.start > end:
         status = "future_scheduled"
     elif span.precision == "month":
@@ -198,12 +165,6 @@ def assess_publication_date(
     else:
         status = "in_window"
     return PublicationDateDecision(
-        True,
-        span.raw,
-        basis,
-        status,
-        "accepted_real_publication_date",
-        real_dates,
-        metadata_dates,
-        precisions,
+        True, span.raw, basis, status, "accepted_canonical_publication_date",
+        real_dates, metadata_dates, precisions,
     )

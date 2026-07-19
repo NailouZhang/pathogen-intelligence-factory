@@ -6,7 +6,7 @@ from typing import Any
 
 from .utils import clean_space, unique_strings, utc_now_iso
 
-SCHEMA_VERSION = "3.1"
+SCHEMA_VERSION = "3.2"
 
 BROAD_DISEASE_WORDS = {
     "fever", "pneumonia", "encephalitis", "hepatitis", "gastroenteritis",
@@ -115,6 +115,13 @@ def deterministic_profile(seed: dict[str, Any], documents: list[dict[str, Any]])
         for x in unique_strings(candidates.get("exclusion_terms") or [])
     ]
 
+    search_strategy = deepcopy(seed.get("search_strategy") or {})
+    search_strategy["max_concepts"] = 5
+    search_strategy["frozen"] = True
+    search_strategy["allow_weekly_mutation"] = False
+    search_strategy.setdefault("core_terms_version", "2.0")
+    search_strategy.setdefault("generated_from", "authoritative_sources_and_manual_seed")
+
     profile = {
         "schema_version": SCHEMA_VERSION,
         "profile_id": seed["profile_id"],
@@ -134,9 +141,10 @@ def deterministic_profile(seed: dict[str, Any], documents: list[dict[str, Any]])
             "context_terms": contexts,
             "display_only_terms": display_only,
             "exclusion_terms": exclusions,
+            "paper_priority_terms": deepcopy(candidates.get("paper_priority_terms") or []),
+            "document_type_terms": deepcopy(candidates.get("document_type_terms") or {}),
         },
-        "manual_query_skeletons": deepcopy(seed.get("manual_query_skeletons") or {}),
-        "search_strategy": deepcopy(seed.get("search_strategy") or {}),
+        "search_strategy": search_strategy,
         "news_identity_terms_zh": list(seed.get("news_identity_terms_zh") or []),
         "query_policy": deepcopy(seed.get("query_policy") or {}),
         "retrieval_policy": deepcopy(seed.get("retrieval_policy") or {}),
@@ -157,7 +165,7 @@ def _entries(data: Any) -> list[dict[str, Any]]:
 def validate_profile(profile: dict[str, Any], seed: dict[str, Any]) -> tuple[bool, list[str]]:
     issues: list[str] = []
     if profile.get("schema_version") != SCHEMA_VERSION:
-        issues.append("schema_version must be 3.1")
+        issues.append("schema_version must be 3.2")
     if profile.get("profile_id") != seed.get("profile_id"):
         issues.append("profile_id mismatch")
     vocabulary = profile.get("vocabulary") or {}
@@ -186,10 +194,22 @@ def validate_profile(profile: dict[str, Any], seed: dict[str, Any]) -> tuple[boo
     concepts = [x for x in strategy.get("concepts") or [] if isinstance(x, dict)]
     scholarly = [clean_space(x.get("scholarly")) for x in concepts if clean_space(x.get("scholarly"))]
     normalized = {re.sub(r"[^a-z0-9]+", " ", x.casefold()).strip() for x in scholarly}
-    if not 1 <= len(concepts) <= 5:
-        issues.append(f"search_strategy must contain 1..5 concepts, got {len(concepts)}")
+    if len(concepts) != 5:
+        issues.append(f"search_strategy must contain exactly 5 concepts, got {len(concepts)}")
+    if strategy.get("frozen") is not True:
+        issues.append("search_strategy.frozen must be true")
+    if strategy.get("allow_weekly_mutation") is not False:
+        issues.append("search_strategy.allow_weekly_mutation must be false")
+    if not clean_space(strategy.get("core_terms_version")):
+        issues.append("search_strategy.core_terms_version is required")
     if len(scholarly) != len(normalized):
         issues.append("search_strategy contains semantic duplicate scholarly terms")
+    try:
+        from .literature.profile import validate_frozen_core_terms
+        contract = validate_frozen_core_terms(profile, strict=False)
+        issues.extend(x for x in contract.get("issues", []) if x not in issues)
+    except Exception as exc:
+        issues.append(f"core-term contract validation failed: {clean_space(exc)}")
     exact = (profile.get("source_policy") or {}).get("exact_urls_only")
     discovery = (profile.get("source_policy") or {}).get("allow_search_discovery")
     if exact is not True or discovery is not False:
@@ -214,7 +234,7 @@ def merge_llm_refinement(base: dict[str, Any], proposal: dict[str, Any], seed: d
     base_vocab = result["vocabulary"]
     source_urls = {x.get("url") for x in result.get("sources") or [] if x.get("url")}
 
-    for key in ("identity_anchor_terms", "qualified_identity_terms", "disease_identity_terms", "context_terms", "display_only_terms"):
+    for key in ("identity_anchor_terms", "qualified_identity_terms", "disease_identity_terms", "context_terms", "display_only_terms", "paper_priority_terms"):
         accepted = []
         for item in _entries(proposed_vocab.get(key)):
             urls = set(item.get("source_urls") or [])
@@ -232,6 +252,49 @@ def merge_llm_refinement(base: dict[str, Any], proposal: dict[str, Any], seed: d
                 if clean_space(item.get("term")).casefold() not in seen:
                     existing.append(item)
             base_vocab[key] = existing
+
+    proposed_document_types = proposed_vocab.get("document_type_terms")
+    if isinstance(proposed_document_types, dict) and proposed_document_types:
+        result["vocabulary"]["document_type_terms"] = deepcopy(proposed_document_types)
+
+    # On explicit profile refresh only, the LLM may select a new five-term set
+    # from source-supported names. Weekly production runs consume the frozen
+    # profile and never call this merge path.
+    proposed_strategy = proposal.get("search_strategy") or {}
+    proposed_concepts = [x for x in proposed_strategy.get("concepts") or [] if isinstance(x, dict)]
+    if len(proposed_concepts) == 5:
+        allowed_terms = {
+            clean_space(x.get("term")).casefold()
+            for key in ("identity_anchor_terms", "member_identity_terms", "disease_identity_terms")
+            for x in _entries(result["vocabulary"].get(key))
+            if clean_space(x.get("term"))
+        }
+        accepted_concepts = []
+        seen = set()
+        for index, item in enumerate(proposed_concepts, 1):
+            term = clean_space(item.get("scholarly"))
+            norm = re.sub(r"[^a-z0-9]+", " ", term.casefold()).strip()
+            if not term or norm in seen or term.casefold() not in allowed_terms:
+                accepted_concepts = []
+                break
+            if re.search(r"\b(?:AND|OR|NOT)\b|[()\[\]{}]", term, flags=re.I):
+                accepted_concepts = []
+                break
+            seen.add(norm)
+            accepted_concepts.append({
+                "id": clean_space(item.get("id")) or f"core_{index}",
+                "scholarly": term,
+                "news_en": term,
+                "news_zh": clean_space(item.get("news_zh")),
+                "role": clean_space(item.get("role")) or "identity",
+                "priority": index,
+            })
+        if len(accepted_concepts) == 5:
+            result["search_strategy"]["concepts"] = accepted_concepts
+            result["search_strategy"]["core_terms_version"] = clean_space(proposed_strategy.get("core_terms_version")) or "2.0"
+    result["search_strategy"]["max_concepts"] = 5
+    result["search_strategy"]["frozen"] = True
+    result["search_strategy"]["allow_weekly_mutation"] = False
 
     # Member and exclusion lists are intentionally not expanded by the LLM.
     result["generated_by"] = proposal.get("generated_by") or "llm_refined_with_seed_boundary"

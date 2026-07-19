@@ -125,12 +125,85 @@ candidate_vocabulary:
   - fowl adenovirus
   - adenoviral vector
   - gene therapy vector
-manual_query_skeletons:
-  pubmed_high_precision: (("human adenovirus"[Title/Abstract] OR "human adenoviruses"[Title/Abstract] OR "HAdV-3"[Title/Abstract]
-    OR "HAdV-7"[Title/Abstract] OR "HAdV-41"[Title/Abstract]) AND {{DATE_FILTER}}) NOT (canine adenovirus[Title/Abstract]
-    OR bovine adenovirus[Title/Abstract] OR fowl adenovirus[Title/Abstract])
-  news_high_precision: ("human adenovirus" OR "HAdV-3" OR "HAdV-7" OR "HAdV-41") AND (outbreak OR infection OR surveillance
-    OR cases)
+  paper_priority_terms:
+  - term: outbreak
+    category: emerging_event
+    weight: 5
+  - term: spillover
+    category: cross_species
+    weight: 5
+  - term: first report
+    category: novelty
+    weight: 5
+  - term: novel host
+    category: novelty
+    weight: 5
+  - term: new region
+    category: novelty
+    weight: 4
+  - term: genomic surveillance
+    category: genomics
+    weight: 4
+  - term: recombination
+    category: evolution
+    weight: 4
+  - term: evolution
+    category: evolution
+    weight: 3
+  - term: vaccine
+    category: countermeasure
+    weight: 3
+  - term: therapeutic
+    category: countermeasure
+    weight: 3
+  - term: diagnostic
+    category: diagnostics
+    weight: 3
+  - term: clinical outcome
+    category: clinical
+    weight: 3
+  - term: cohort
+    category: study_scale
+    weight: 2
+  - term: systematic review
+    category: evidence_synthesis
+    weight: 3
+  - term: public health
+    category: public_health
+    weight: 2
+  document_type_terms:
+    research:
+    - trial
+    - cohort
+    - case-control
+    - cross-sectional
+    - experimental study
+    systematic_review:
+    - systematic review
+    - meta-analysis
+    - scoping review
+    narrative_review:
+    - review
+    - narrative review
+    - perspective
+    case_report:
+    - case report
+    - case series
+    surveillance_report:
+    - surveillance report
+    - outbreak report
+    - epidemiological update
+    methods:
+    - method
+    - assay
+    - protocol
+    - algorithm
+    - model
+    commentary:
+    - editorial
+    - commentary
+    - letter
+    - opinion
 authoritative_sources:
 - name: ICTV Adenoviridae
   organization: ICTV
@@ -177,15 +250,18 @@ retrieval_policy:
   openalex_per_term: 80
   candidate_gate: python_accept_or_llm_review
   final_gate: accept_before_top_n_enrichment
-  strategy: lean_core_concepts_v7
+  strategy: frozen_five_core_terms_v15
   max_core_concepts: 5
-  content_enrichment_stage: after_top_n_selection
-  content_enrichment_limit_papers: 50
+  content_enrichment_stage: after_cross_source_dedup_dynamic_batches
+  content_enrichment_limit_papers: 150
   content_enrichment_limit_news: 50
   llm_review_mode: ambiguous_only
   provider_expansion_first: true
+  primary_report_limit: 50
+  supplementary_report_limit: 100
+  top_n_means_deep_report_not_deletion: true
 search_strategy:
-  schema_version: '1.1'
+  schema_version: '2.1'
   max_concepts: 5
   provider_expansion_first: true
   deduplicate_semantic_equivalents: true
@@ -194,29 +270,39 @@ search_strategy:
     scholarly: human adenovirus
     news_en: human adenovirus
     news_zh: 人腺病毒
-    role: umbrella
+    role: virus
     priority: 1
   - id: hadv7
     scholarly: HAdV-7
     news_en: HAdV-7
     news_zh: 人腺病毒7型
-    role: hotspot_type
+    role: type
     priority: 2
   - id: hadv41
     scholarly: HAdV-41
     news_en: HAdV-41
     news_zh: 人腺病毒41型
-    role: hotspot_type
+    role: type
     priority: 3
-  - id: conjunctivitis
+  - id: adenoviral_conjunctivitis
     scholarly: adenoviral conjunctivitis
     news_en: adenoviral conjunctivitis
-    news_zh: 腺病毒结膜炎
-    role: clinical
+    news_zh: 腺病毒性结膜炎
+    role: disease
     priority: 4
-  - id: outbreak
-    scholarly: human adenovirus outbreak
-    news_en: human adenovirus outbreak
-    news_zh: 人腺病毒暴发
-    role: outbreak
+  - id: adenovirus_respiratory_disease
+    scholarly: adenovirus respiratory disease
+    news_en: adenovirus respiratory disease
+    news_zh: 腺病毒呼吸道疾病
+    role: disease
     priority: 5
+  frozen: true
+  allow_weekly_mutation: false
+  core_terms_version: '2.0'
+  generated_from: authoritative_sources_plus_manual_v15_1_review
+  controlled_supplemental_terms:
+  - HAdV-3
+  - HAdV-4
+  - HAdV-14
+  - HAdV-21
+  - HAdV-40

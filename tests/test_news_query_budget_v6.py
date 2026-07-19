@@ -25,4 +25,4 @@ def test_context_query_multiplication_is_disabled():
         policy = seed.get("retrieval_policy") or {}
         assert policy.get("execute_all_query_chunks") is False
         assert policy.get("max_core_concepts") == 5
-        assert policy.get("content_enrichment_stage") == "after_top_n_selection"
+        assert policy.get("content_enrichment_stage") == "after_cross_source_dedup_dynamic_batches"

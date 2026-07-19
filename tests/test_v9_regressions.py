@@ -120,14 +120,18 @@ def test_overview_validator_rejects_english_chinese_fields_and_ellipsis():
 
 def test_cover_and_issue_titles_are_weekly():
     cover = Path("src/pifactory/cover.py").read_text(encoding="utf-8")
-    pipeline = Path("src/pifactory/pipeline.py").read_text(encoding="utf-8")
+    pipeline = Path("src/pifactory/pipeline_v15.py").read_text(encoding="utf-8")
     assert "全球病原每周情报" in cover
     assert "每周情报" in pipeline
     assert "Weekly Intelligence" in pipeline
 
 
-def test_final_top_n_is_selected_after_translation_ready_pool():
-    pipeline = Path("src/pifactory/pipeline.py").read_text(encoding="utf-8")
-    assert "paper_ready_pool" in pipeline
-    assert "papers = ranked_paper_ready_pool[: settings.max_papers]" in pipeline
-    assert pipeline.index("paper_ready_pool") > pipeline.index('progress("translation", "start"')
+def test_primary_top_n_and_supplementary_are_selected_after_analysis_translation():
+    pipeline = Path("src/pifactory/pipeline_v15.py").read_text(encoding="utf-8")
+    analysis = pipeline.index("def _analyze_translate_paper")
+    primary_ready = pipeline.index("primary_ready.append(item)", analysis)
+    replenishment = pipeline.index('"primary_report_replenishment", "batch_complete"', primary_ready)
+    supplementary_titles = pipeline.index("supplementary_title_candidates", replenishment)
+    selection = pipeline.index("select_primary_and_supplementary(", supplementary_titles)
+    assert analysis < primary_ready < replenishment < supplementary_titles < selection
+    assert '"supplementary_papers": supplementary_papers' in pipeline

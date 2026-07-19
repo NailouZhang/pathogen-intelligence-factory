@@ -76,7 +76,7 @@ def test_preprint_bulk_feed_is_capped_and_identity_filtered() -> None:
     assert all("Hantavirus" in row["title"] for row in result)
 
 
-def test_preprint_large_feed_samples_head_and_latest_tail() -> None:
+def test_preprint_large_feed_reads_latest_contiguous_pages() -> None:
     rows = [
         {"doi": f"10.1101/{i}", "title": f"Hantavirus record {i}", "abstract": "hantavirus", "authors": "A", "date": "2026-07-18"}
         for i in range(10)
@@ -94,10 +94,10 @@ def test_preprint_large_feed_samples_head_and_latest_tail() -> None:
         max_records_per_server=4, identity_terms=["hantavirus"],
     )
     assert len(result) == 8  # four records sampled for each of two servers
-    assert requested == [0, 8, 0, 8]
+    assert requested == [0, 6, 8, 0, 6, 8]
 
 
-def test_fallback_badge_is_visible_on_card() -> None:
+def test_fallback_status_is_backend_only_not_public_badge() -> None:
     fields = {
         "research_question_and_background": "The question was described.",
         "study_design_and_population": "The population was described.",
@@ -114,9 +114,9 @@ def test_fallback_badge_is_visible_on_card() -> None:
         "priority_tier": "B", "evidence_level": "E1", "translation_audit": {},
     }
     html = paper_card(work)
-    assert "规则兜底·低置信" in html
-    assert "Deterministic fallback · low confidence" in html
-    assert "evidence gap" in html
+    assert "规则兜底" not in html
+    assert "Deterministic fallback" not in html
+    assert work["analysis"]["status"] == "fallback_source_extract"
 
 
 def test_settings_expose_preprint_bounds(tmp_path: Path, monkeypatch) -> None:

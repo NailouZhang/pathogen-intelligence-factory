@@ -1,79 +1,17 @@
-pathogen-intelligence-factory v14 validation targets
+pathogen-intelligence-factory v15.3 validation targets
 
-Core regression groups:
-- real publication date hard gate
-- news body identity/topic gate and error-page circuit breaker
-- structured-analysis observability and fallback warning
-- five-provider low-token routing
-- transparent Top-N statistics
-- abbreviation/glossary removal
-- dataset/supplement/repository scholarly hard gate
-- strict scalar analysis schema
-- parallel elements_en/elements_zh and full-page language switching
-- DOI landing independent from Unpaywall email
-- cross-process daily provider state
-- event-driven scarce-pathogen news discovery
+Automated suite:
+- 211 public tests passed
+- v15.3 standalone repository/provenance regressions: 4 passed
+- Python compileall: PASS
+- profile and workflow contracts: PASS
 
-Expected local environment:
-- Conda prefix: $HOME/github-projects/pathogen-intelligence-factory/.conda-env
-- Python 3.12
-- requirements.txt installed
-- Playwright Chromium shell installed for bounded dynamic-news fallback
+v15.3 coverage:
+- standalone public-repository tests do not depend on the bundle parent directory
+- live Playwright is disabled by default during pytest
+- unresolved Google/Bing aggregation pages cannot become full publisher bodies
+- substantive RSS summaries remain syndicated_summary
+- title-only RSS entries remain rejected
+- direct publisher browser extraction remains supported
 
-Commands:
-  bash scripts/bootstrap_dev.sh
-  $HOME/github-projects/pathogen-intelligence-factory/.conda-env/bin/python -m pytest -q
-  bash scripts/doctor_local.sh
-
-Production validation additionally requires real source APIs, configured LLM keys,
-GitHub Actions, Pages, the private self-hosted Runner and the WeChat API. Offline
-unit/integration tests do not assert live provider availability.
-
-
-V14.1 src-layout import hotfix
-- Formal package namespace standardized to pifactory.
-- pyproject pytest pythonpath points to src.
-- Conda bootstrap and GitHub Actions install the repository editable.
-- Public repository: 141 tests passed with dependency shims in the isolated validation container.
-- Affected import tests: 17 passed.
-
-
-v14.2 event-query plan contract hotfix
-- query_plan remains list: covered
-- event-driven query append: covered
-- duplicate dynamic query de-duplication: covered
-- mapping regression rejected: covered
-
-[v14.3] Build/bootstrap contract
-- Explicit build toolchain before setuptools.build_meta editable install
-- Daily workflow and CI share scripts/install_python_project.sh
-- Local bootstrap retains repository-local .conda-env
-- Generic /tmp ZIP updater does not depend on a versioned root directory
-[v14.4] Rendered-HTML audit stack contract
-- HTML void elements do not remain on the parser stack.
-- An English <br> in card 1 cannot leak lang-en into card 2 Chinese elements.
-- News card counts include article cards only, not section wrappers.
-
-[v14.5] Release gate and final quality contract
-- Honest partial absence clauses do not trigger placeholder findings.
-- Dominant whole-field placeholders are warnings and do not block publication.
-- Final displayed analysis denominator is recomputed after translation gate.
-- Preprint bulk feed is bounded and identity-filtered before deduplication.
-- Fallback cards expose low-confidence and evidence-gap badges.
-
-[v14.6] SiliconFlow China endpoint contract
-- chat/models/account share api.siliconflow.cn
-- env override normalized
-- workflow default and static no-.com checks
-
-[v14.7] BigModel and DeepSeek provider contract
-- official endpoint normalization
-- GLM free model default
-- DeepSeek current model and JSON mode
-- granted-balance-only guard
-- seven-provider workflow and credential preflight
-
-[v14.7 final validation]
-- Public suite: 169 collected, PASS
-- Private suite: 7 collected, PASS
-- Offline end-to-end and package/render audits: PASS
+External databases, live LLM providers, GitHub Actions, GitHub Pages, repository_dispatch, the self-hosted Runner and WeChat APIs require online production verification.

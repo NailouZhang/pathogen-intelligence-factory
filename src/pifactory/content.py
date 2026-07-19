@@ -14,6 +14,8 @@ from bs4 import BeautifulSoup
 from rapidfuzz.fuzz import partial_ratio, ratio, token_set_ratio
 
 from .http import HttpClient
+from .literature.enrichment import classify_scholarly_payload
+from .literature.identity import assess_completion_identity, merge_verified_candidate, register_identity_assessment
 from .browser_fetch import browser_enabled, fetch_rendered_html
 from .relevance import relevance_assessment
 from .utils import clean_space, extract_doi, normalize_title, sha256_text, split_sentences, strip_tags, truncate, unique_strings, utc_now_iso
@@ -366,7 +368,18 @@ def _external_news_urls(
     return unique_strings(output)[:20], decisions
 
 
-def _news_text_quality(text: str, title: str) -> tuple[bool, float, dict[str, Any]]:
+def _is_official_news_record(record: dict[str, Any]) -> bool:
+    if record.get("official"):
+        return True
+    identity = " ".join(
+        clean_space(record.get(key)) for key in ("source", "publisher", "publisher_url", "url")
+    ).casefold()
+    return any(token in identity for token in (
+        "world health organization", "who.int", "reliefweb", "cdc.gov", "ecdc.europa.eu",
+        "paho.org", "afro.who.int", "gov.", ".gov", "ministry of health", "public health agency",
+    ))
+
+def _news_text_quality(text: str, title: str, *, official: bool = False) -> tuple[bool, float, dict[str, Any]]:
     value = remove_boilerplate(text)
     title_norm = normalize_title(title)
     value_norm = normalize_title(value)
@@ -391,7 +404,12 @@ def _news_text_quality(text: str, title: str) -> tuple[bool, float, dict[str, An
             "accept cookies",
         )
     )
-    valid = len(value) >= 260 and len(sentences) >= 2 and not title_only and unique_ratio >= 0.10
+    standard_valid = len(value) >= 260 and len(sentences) >= 2 and not title_only and unique_ratio >= 0.10
+    # Official public-health notices are often concise. Their eligibility is
+    # determined by verified source metadata and the separate pathogen body
+    # identity gate, not by a minimum character count.
+    official_valid = bool(official and value and not title_only and navigation_noise == 0)
+    valid = standard_valid or official_valid
     score = min(len(value), 12000) / 50 + len(sentences) * 3 + unique_ratio * 40 - navigation_noise * 10
     if title_only:
         score -= 300
@@ -402,10 +420,11 @@ def _news_text_quality(text: str, title: str) -> tuple[bool, float, dict[str, An
         "title_body_similarity": round(title_similarity, 3),
         "title_only": title_only,
         "navigation_noise": navigation_noise,
+        "official_short_notice_override": bool(official_valid and not standard_valid),
     }
 
 
-def _news_summary_quality(text: str, title: str) -> tuple[bool, dict[str, Any]]:
+def _news_summary_quality(text: str, title: str, *, official: bool = False) -> tuple[bool, dict[str, Any]]:
     """Validate a syndicated/RSS summary without pretending it is full text."""
     value = remove_boilerplate(text)
     title_norm = normalize_title(title)
@@ -413,18 +432,21 @@ def _news_summary_quality(text: str, title: str) -> tuple[bool, dict[str, Any]]:
     similarity = ratio(title_norm, value_norm) / 100 if title_norm and value_norm else 0.0
     tokens = re.findall(r"[A-Za-z0-9\u4e00-\u9fff]+", value)
     sentences = split_sentences(value, max_sentences=20)
-    valid = (
+    standard_valid = (
         len(value) >= int(os.getenv("PIF_NEWS_EXCERPT_MIN_CHARS", "100"))
         and len(tokens) >= 18
         and similarity < 0.90
         and (len(sentences) >= 2 or len(value) >= 220)
     )
+    official_valid = bool(official and value and similarity < 0.90)
+    valid = standard_valid or official_valid
     return valid, {
         "chars": len(value),
         "tokens": len(tokens),
         "sentences": len(sentences),
         "title_body_similarity": round(similarity, 3),
         "title_only": similarity >= 0.90 and len(value) < 300,
+        "official_short_notice_override": bool(official_valid and not standard_valid),
     }
 
 
@@ -599,27 +621,40 @@ def resolve_and_extract_news(
                 queue.append(candidate_url)
         if discovery_audit:
             audit.setdefault("url_discovery", []).extend(discovery_audit)
+        selected_url = canonical_url or page_url
+        unresolved_aggregator = bool(
+            _is_aggregator_url(page_url)
+            and (not selected_url or _is_aggregator_url(selected_url))
+        )
         for method, extracted in _extract_news_candidates(raw, soup, page_url):
-            valid, score, quality = _news_text_quality(extracted, record.get("title"))
+            valid, score, quality = _news_text_quality(extracted, record.get("title"), official=_is_official_news_record(record))
             identity_ok, identity = _news_content_identity(
-                record, extracted, candidate_title, canonical_url or page_url, profile,
+                record, extracted, candidate_title, selected_url, profile,
             )
+            # Google/Bing aggregation landing pages are discovery surfaces, not
+            # publisher bodies.  Unless rendering resolves to a non-aggregator
+            # canonical/final URL, their navigation or synopsis must never be
+            # promoted to ``full``/``partial`` article content.  The original
+            # RSS excerpt remains eligible as ``syndicated_summary`` below.
+            provenance_ok = not unresolved_aggregator
             audit["extraction_attempts"].append({
                 "url": page_url, "channel": channel, "method": method,
-                "status": "valid" if valid and identity_ok else "rejected",
+                "status": "valid" if valid and identity_ok and provenance_ok else "rejected",
                 "structural_valid": valid,
                 "identity_valid": identity_ok,
+                "provenance_valid": provenance_ok,
+                "rejection_reason": "unresolved_aggregator_landing" if not provenance_ok else "",
                 "identity": identity,
                 **quality,
             })
-            if valid and identity_ok and score > best_score:
+            if valid and identity_ok and provenance_ok and score > best_score:
                 best_text = extracted
                 best_title = candidate_title
                 best_method = f"{channel}:{method}"
                 best_score = score
                 best_quality = quality
                 best_identity = identity
-                best_url = canonical_url or page_url
+                best_url = selected_url
 
     while queue and len(visited) < static_limit:
         url = clean_news_url(queue.pop(0))
@@ -661,7 +696,7 @@ def resolve_and_extract_news(
                 break
 
     rss_excerpt = remove_boilerplate(record.get("excerpt") or "")
-    summary_valid, summary_quality = _news_summary_quality(rss_excerpt, record.get("title"))
+    summary_valid, summary_quality = _news_summary_quality(rss_excerpt, record.get("title"), official=_is_official_news_record(record))
     summary_identity_ok, summary_identity = _news_content_identity(
         record,
         rss_excerpt,
@@ -861,22 +896,277 @@ def _pdf_text(raw: bytes, max_pages: int = 60) -> str:
     return clean_space(" ".join(texts))
 
 
-def _identity_score(work: dict[str, Any], candidate_text: str, candidate_url: str) -> tuple[bool, dict[str, Any]]:
+def _page_identity_candidate(soup: BeautifulSoup, candidate_url: str) -> dict[str, Any]:
+    """Extract article-level identity metadata without using reference-list DOIs."""
+    doi = clean_space(_meta_content(soup, [
+        ("name", "citation_doi"), ("name", "dc.identifier"),
+        ("name", "DC.Identifier"), ("property", "og:doi"),
+    ])).lower()
+    url_doi = clean_space(extract_doi(candidate_url)).lower()
+    if not doi and url_doi:
+        doi = url_doi
+    pmid = clean_space(_meta_content(soup, [("name", "citation_pmid"), ("name", "pmid")]))
+    pmcid = clean_space(_meta_content(soup, [("name", "citation_pmcid"), ("name", "pmcid")]))
+    title = _meta_content(soup, [
+        ("name", "citation_title"), ("name", "dc.title"),
+        ("property", "og:title"), ("name", "twitter:title"),
+    ]) or clean_space(soup.title.get_text(" ") if soup.title else "")
+    authors = unique_strings(
+        clean_space(tag.get("content"))
+        for tag in soup.find_all("meta", attrs={"name": "citation_author"})
+        if tag.get("content")
+    )
+    journal = _meta_content(soup, [
+        ("name", "citation_journal_title"), ("name", "dc.source"),
+        ("name", "prism.publicationName"),
+    ])
+    date_value = _meta_content(soup, [
+        ("name", "citation_publication_date"), ("name", "citation_date"),
+        ("name", "dc.date"), ("name", "prism.publicationDate"),
+    ])
+    return {
+        "source": "publisher_page_identity",
+        "source_ids": {"pmid": pmid or None, "pmcid": pmcid or None},
+        "doi": doi or None,
+        "title": title,
+        "authors": authors,
+        "journal": journal,
+        "first_publication_date": date_value,
+        "published_date": date_value,
+        "year": date_value[:4] if len(date_value) >= 4 else None,
+        "url": candidate_url,
+    }
+
+
+def _identity_score(
+    work: dict[str, Any],
+    candidate_text: str,
+    candidate_url: str,
+    candidate_metadata: dict[str, Any] | None = None,
+) -> tuple[bool, dict[str, Any]]:
+    """Verify retrieved content using identifiers first, then bibliography and text.
+
+    DOIs found in a reference list are not treated as conflicts. A conflict is
+    hard only when article-level metadata or the resolved article URL explicitly
+    identifies a different DOI/PMID/PMCID.
+    """
+    metadata = candidate_metadata or {}
+    if any(clean_space(metadata.get(key)) for key in ("title", "doi", "journal")) or any(
+        clean_space((metadata.get("source_ids") or {}).get(key)) for key in ("pmid", "pmcid")
+    ):
+        assessment = assess_completion_identity(work, metadata)
+        if assessment.get("status") == "identity_conflict":
+            return False, assessment
+        if assessment.get("status") == "identity_verified":
+            return True, assessment
+
     expected_title = normalize_title(work.get("title"))
-    head = normalize_title(candidate_text[:2500])
+    head = normalize_title(candidate_text[:3500])
     title_score = partial_ratio(expected_title, head) / 100 if expected_title and head else 0.0
-    expected_doi = (work.get("doi") or "").lower()
-    doi_candidates = {x.lower() for x in re.findall(r"10\.\d{4,9}/[-._;()/:A-Z0-9]+", candidate_text[:12000], flags=re.I)}
-    doi_match = bool(expected_doi and expected_doi in {x.rstrip(".,;)]}") for x in doi_candidates})
+    expected_doi = clean_space(work.get("doi")).lower()
+    url_doi = clean_space(extract_doi(candidate_url)).lower()
+    body_dois = {x.lower().rstrip(".,;)]}") for x in re.findall(
+        r"10\.\d{4,9}/[-._;()/:A-Z0-9]+", candidate_text[:5000], flags=re.I
+    )}
+    doi_match = bool(expected_doi and (expected_doi == url_doi or expected_doi in body_dois))
+    doi_conflict = bool(expected_doi and url_doi and expected_doi != url_doi)
     author_match = False
-    lower = candidate_text[:8000].lower()
-    for author in (work.get("authors") or [])[:4]:
+    lower = candidate_text[:12000].lower()
+    for author in (work.get("authors") or [])[:6]:
         family = clean_space(author).split(" ")[-1].lower()
         if len(family) > 3 and family in lower:
             author_match = True
             break
-    accepted = title_score >= 0.82 or (doi_match and (title_score >= 0.45 or author_match)) or (title_score >= 0.62 and author_match)
-    return accepted, {"title_score": round(title_score, 3), "doi_match": doi_match, "author_match": author_match, "candidate_url": candidate_url}
+    journal = clean_space(work.get("journal")).lower()
+    journal_match = bool(journal and journal in lower)
+    year = str(work.get("year") or clean_space(work.get("canonical_publication_date"))[:4])
+    year_match = bool(year.isdigit() and year in candidate_text[:12000])
+    if doi_conflict:
+        status = "identity_conflict"
+        accepted = False
+        reason = "resolved_url_doi_mismatch"
+    elif doi_match:
+        status = "identity_verified"
+        accepted = True
+        reason = "expected_doi_present"
+    else:
+        supports = sum([title_score >= 0.82, author_match, journal_match, year_match])
+        accepted = title_score >= 0.88 or (title_score >= 0.72 and supports >= 3)
+        status = "identity_verified" if accepted else "identity_uncertain"
+        reason = "text_bibliographic_match" if accepted else "insufficient_text_identity_evidence"
+    return accepted, {
+        "policy_version": "v15.1-multifactor-content-identity-2",
+        "status": status,
+        "reason": reason,
+        "title_score": round(title_score, 3),
+        "doi_match": doi_match,
+        "doi_conflict": doi_conflict,
+        "url_doi": url_doi,
+        "body_doi_candidates": sorted(body_dois)[:8],
+        "author_match": author_match,
+        "journal_match": journal_match,
+        "year_match": year_match,
+        "candidate_url": candidate_url,
+        "metadata_assessment": assessment if 'assessment' in locals() else None,
+    }
+
+
+def _merge_metadata_candidate(work: dict[str, Any], candidate: dict[str, Any], method: str) -> dict[str, Any]:
+    """Merge a post-dedup completion only after multifactor identity verification."""
+    assessment = merge_verified_candidate(work, candidate, method=method)
+    return {
+        "method": method,
+        "status": assessment.get("status"),
+        "reason": assessment.get("reason"),
+        "identity": assessment,
+    }
+
+
+def complete_scholarly_metadata(http: HttpClient, work: dict[str, Any], ncbi_api_key: str = "") -> dict[str, Any]:
+    """Complete abstract/identifier metadata after cross-provider deduplication."""
+    work = dict(work)
+    completion_audit: list[dict[str, Any]] = []
+    ids = work.get("source_ids") or {}
+    pmid = clean_space(ids.get("pmid"))
+    doi = clean_space(work.get("doi")).lower()
+
+    if pmid:
+        try:
+            from .scholarly import _pubmed_fetch  # local import avoids an import cycle
+            rows = _pubmed_fetch(http, [pmid], ncbi_api_key)
+            if rows:
+                completion_audit.append(_merge_metadata_candidate(work, rows[0], "PubMed post-dedup completion"))
+            else:
+                completion_audit.append({"method": "PubMed post-dedup completion", "status": "not_found"})
+        except Exception as exc:
+            completion_audit.append({"method": "PubMed post-dedup completion", "status": "failed", "error": clean_space(exc)[:300]})
+
+    query = f"EXT_ID:{pmid}" if pmid else f"DOI:{doi}" if doi else ""
+    if query:
+        try:
+            payload = http.get_json(
+                "https://www.ebi.ac.uk/europepmc/webservices/rest/search",
+                params={"query": query, "format": "json", "pageSize": 5, "resultType": "core"},
+            )
+            rows = (payload.get("resultList") or {}).get("result") or []
+            if rows:
+                row = rows[0]
+                candidate = {
+                    "source": "Europe PMC post-dedup completion",
+                    "source_ids": {"pmid": row.get("pmid"), "pmcid": row.get("pmcid")},
+                    "doi": clean_space(row.get("doi")).lower() or None,
+                    "title": clean_space(row.get("title")),
+                    "abstract": clean_space(row.get("abstractText")),
+                    "authors": unique_strings(str(row.get("authorString") or "").split(",")),
+                    "journal": clean_space(row.get("journalTitle")),
+                    "year": row.get("pubYear"),
+                    "first_publication_date": row.get("firstPublicationDate"),
+                    "published_date": row.get("firstPublicationDate"),
+                    "publication_types": unique_strings(row.get("pubTypeList") or []),
+                    "url": f"https://europepmc.org/article/MED/{row.get('pmid')}" if row.get("pmid") else "",
+                }
+                completion_audit.append(_merge_metadata_candidate(work, candidate, "Europe PMC post-dedup completion"))
+            else:
+                completion_audit.append({"method": "Europe PMC post-dedup completion", "status": "not_found"})
+        except Exception as exc:
+            completion_audit.append({"method": "Europe PMC post-dedup completion", "status": "failed", "error": clean_space(exc)[:300]})
+
+    if doi:
+        try:
+            payload = http.get_json(f"https://api.crossref.org/works/{doi}")
+            row = payload.get("message") or {}
+            title = clean_space(" ".join(row.get("title") or []))
+            authors = []
+            for author in row.get("author") or []:
+                name = clean_space(f"{author.get('given') or ''} {author.get('family') or ''}")
+                if name:
+                    authors.append(name)
+            candidate = {
+                "source": "Crossref post-dedup completion",
+                "source_ids": {},
+                "doi": clean_space(row.get("DOI")).lower() or doi,
+                "title": title,
+                "abstract": strip_tags(row.get("abstract") or ""),
+                "authors": authors,
+                "journal": clean_space(" ".join(row.get("container-title") or [])),
+                "year": ((row.get("published-online") or row.get("published") or {}).get("date-parts") or [[None]])[0][0],
+                "publication_types": [row.get("type")] if row.get("type") else [],
+                "url": clean_space(row.get("URL")),
+            }
+            completion_audit.append(_merge_metadata_candidate(work, candidate, "Crossref post-dedup completion"))
+        except Exception as exc:
+            completion_audit.append({"method": "Crossref post-dedup completion", "status": "failed", "error": clean_space(exc)[:300]})
+
+        try:
+            payload = http.get_json(f"https://api.openalex.org/works/https://doi.org/{doi}")
+            abstract_index = payload.get("abstract_inverted_index") or {}
+            tokens: list[tuple[int, str]] = []
+            for token, positions in abstract_index.items():
+                for position in positions or []:
+                    tokens.append((int(position), str(token)))
+            abstract = " ".join(token for _, token in sorted(tokens))
+            candidate = {
+                "source": "OpenAlex post-dedup completion",
+                "source_ids": {"pmid": clean_space(((payload.get("ids") or {}).get("pmid") or "").split("/")[-1])},
+                "doi": clean_space(((payload.get("ids") or {}).get("doi") or doi)).replace("https://doi.org/", "").lower(),
+                "title": clean_space(payload.get("title")),
+                "abstract": clean_space(abstract),
+                "authors": [clean_space(((x.get("author") or {}).get("display_name"))) for x in payload.get("authorships") or [] if clean_space(((x.get("author") or {}).get("display_name")))],
+                "journal": clean_space((((payload.get("primary_location") or {}).get("source") or {}).get("display_name"))),
+                "year": payload.get("publication_year"),
+                "published_date": payload.get("publication_date"),
+                "publication_types": [payload.get("type")] if payload.get("type") else [],
+                "url": clean_space(((payload.get("primary_location") or {}).get("landing_page_url"))),
+            }
+            completion_audit.append(_merge_metadata_candidate(work, candidate, "OpenAlex post-dedup completion"))
+        except Exception as exc:
+            completion_audit.append({"method": "OpenAlex post-dedup completion", "status": "failed", "error": clean_space(exc)[:300]})
+
+    work["metadata_completion_audit"] = completion_audit
+    return work
+
+
+def _full_text_excerpt(work: dict[str, Any], max_chars: int = 1800) -> str:
+    """Build a traceable abstract-like English excerpt from verified full text."""
+    sections = work.get("full_text_sections") or {}
+    ordered = []
+    if isinstance(sections, dict):
+        for key in ("abstract", "introduction", "methods", "results", "discussion", "conclusion", "full_text", "other"):
+            value = clean_space(sections.get(key))
+            if value:
+                ordered.append(value)
+    source = clean_space(" ".join(ordered) or work.get("full_text"))
+    sentences = split_sentences(source, max_sentences=80)
+    selected: list[str] = []
+    priorities = (
+        re.compile(r"\b(we (?:conducted|used|analy[sz]ed|found|observed|identified)|methods?|results?|findings?|conclusion|study|review)\b", re.I),
+        re.compile(r"\b(hazard ratio|odds ratio|confidence interval|\d+(?:\.\d+)?%|p\s*[=<])\b", re.I),
+    )
+    for pattern in priorities:
+        for sentence in sentences:
+            if sentence not in selected and pattern.search(sentence):
+                selected.append(sentence)
+                if len(clean_space(" ".join(selected))) >= max_chars * 0.65:
+                    break
+        if len(clean_space(" ".join(selected))) >= max_chars * 0.65:
+            break
+    for sentence in sentences:
+        if sentence not in selected:
+            selected.append(sentence)
+        if len(clean_space(" ".join(selected))) >= max_chars:
+            break
+    return truncate(clean_space(" ".join(selected)), max_chars)
+
+
+def complete_scholarly_work(
+    http: HttpClient,
+    work: dict[str, Any],
+    mailto: str,
+    ncbi_api_key: str = "",
+    max_chars: int = 18000,
+) -> dict[str, Any]:
+    completed = complete_scholarly_metadata(http, work, ncbi_api_key)
+    return enrich_scholarly_work(http, completed, mailto, max_chars=max_chars)
 
 
 def enrich_scholarly_work(http: HttpClient, work: dict[str, Any], mailto: str, max_chars: int = 18000) -> dict[str, Any]:
@@ -937,6 +1227,7 @@ def enrich_scholarly_work(http: HttpClient, work: dict[str, Any], mailto: str, m
             response = http.request("GET", url, allow_redirects=True, timeout=35)
             content_type = response.headers.get("Content-Type", "").lower()
             final_url = response.url
+            candidate_metadata: dict[str, Any] = {"url": final_url}
             if "pdf" in content_type or response.content.startswith(b"%PDF"):
                 text = _pdf_text(response.content)
                 sections = {"full_text": text}
@@ -956,6 +1247,16 @@ def enrich_scholarly_work(http: HttpClient, work: dict[str, Any], mailto: str, m
                 sections = _jats_sections(response.text)
                 text = clean_space(" ".join(sections.values()))
                 parse_method = "jats_xml"
+                xml_soup = BeautifulSoup(response.text, "xml")
+                candidate_metadata = _page_identity_candidate(xml_soup, final_url)
+                article_doi = xml_soup.find("article-id", attrs={"pub-id-type": "doi"})
+                article_pmid = xml_soup.find("article-id", attrs={"pub-id-type": "pmid"})
+                article_pmcid = xml_soup.find("article-id", attrs={"pub-id-type": "pmcid"})
+                candidate_metadata["doi"] = clean_space(article_doi.get_text(" ") if article_doi else candidate_metadata.get("doi")).lower() or None
+                candidate_metadata["source_ids"] = {
+                    "pmid": clean_space(article_pmid.get_text(" ") if article_pmid else "") or None,
+                    "pmcid": clean_space(article_pmcid.get_text(" ") if article_pmcid else "") or None,
+                }
             else:
                 raw = response.text
                 sniff = raw.lstrip()[:500].lower()
@@ -963,6 +1264,7 @@ def enrich_scholarly_work(http: HttpClient, work: dict[str, Any], mailto: str, m
                     sections = _jats_sections(raw)
                     text = clean_space(" ".join(sections.values()))
                     parse_method = "jats_xml_sniffed"
+                    candidate_metadata = _page_identity_candidate(BeautifulSoup(raw, "xml"), final_url)
                 else:
                     extracted = trafilatura.extract(raw, include_comments=False, include_tables=True, favor_recall=True) or ""
                     soup = BeautifulSoup(raw, "lxml")
@@ -970,10 +1272,20 @@ def enrich_scholarly_work(http: HttpClient, work: dict[str, Any], mailto: str, m
                     text = clean_space(extracted or abstract)
                     sections = {"full_text": text} if text else {}
                     parse_method = "publisher_html"
-            accepted, identity = _identity_score(work, text, final_url)
-            attempt.update({"status": "accepted" if accepted else "identity_rejected", "identity": identity, "chars": len(text), "parse_method": parse_method})
+                    candidate_metadata = _page_identity_candidate(soup, final_url)
+            payload_quality = classify_scholarly_payload(
+                text, status_code=getattr(response, "status_code", None), content_type=content_type, url=final_url
+            )
+            if not payload_quality.get("valid"):
+                attempt.update({"status": "invalid_page", "payload_quality": payload_quality, "chars": len(text), "parse_method": parse_method})
+                audit["attempts"].append(attempt)
+                continue
+            accepted, identity = _identity_score(work, text, final_url, candidate_metadata)
+            attempt_status = "accepted" if accepted else identity.get("status") or "identity_rejected"
+            attempt.update({"status": attempt_status, "identity": identity, "payload_quality": payload_quality, "chars": len(text), "parse_method": parse_method})
             audit["attempts"].append(attempt)
-            if not accepted or len(text) < 400:
+            register_identity_assessment(work, identity, method=f"{method}:{final_url}")
+            if not accepted or work.get("identifier_conflict"):
                 continue
             if len(text) > len(best_text):
                 best_text = text
@@ -988,9 +1300,17 @@ def enrich_scholarly_work(http: HttpClient, work: dict[str, Any], mailto: str, m
 
     work["full_text"] = truncate(best_text, max_chars) if len(best_text) > len(clean_space(work.get("abstract"))) else ""
     work["full_text_sections"] = {k: truncate(v, 8000) for k, v in best_sections.items()}
+    if work.get("full_text") and not clean_space(work.get("abstract")):
+        work["full_text_excerpt"] = _full_text_excerpt(work)
+        work["full_text_excerpt_source"] = {
+            "method": best_method,
+            "url": best_url,
+            "identity_status": clean_space(work.get("content_identity_status")) or "identity_verified",
+        }
     work["full_text_method"] = best_method
     work["full_text_url"] = best_url
     work["evidence_level"] = "E2" if work.get("full_text") else ("E1" if work.get("abstract") else "E0")
     work["content_audit"] = audit
+    work["content_completion_status"] = "evidence_ready" if work.get("abstract") or work.get("full_text") else "metadata_only"
     return work
 

@@ -31,6 +31,8 @@ def main() -> None:
             "pubmed_core", "europe_pmc_core", "crossref_core",
             "semantic_scholar_core", "openalex_core", "general_news_en",
             "general_news_zh", "gdelt_core", "reliefweb_core",
+            "pubmed_supplemental", "europe_pmc_supplemental", "crossref_supplemental",
+            "semantic_scholar_supplemental", "openalex_supplemental",
         )
         counts = {key: len(profile["query_sets"].get(key) or []) for key in provider_keys}
         concepts = profile["query_sets"].get("core_concepts") or []
@@ -42,6 +44,13 @@ def main() -> None:
             "core_concept_count": len(concepts),
             "provider_query_count": sum(counts.values()),
             "query_counts": counts,
+            "controlled_supplemental_terms": profile["query_sets"].get("controlled_supplemental_terms") or [],
+            "controlled_supplemental_query_count": sum(
+                counts.get(key, 0) for key in (
+                    "pubmed_supplemental", "europe_pmc_supplemental", "crossref_supplemental",
+                    "semantic_scholar_supplemental", "openalex_supplemental",
+                )
+            ),
             "validation": profile["validation"],
         })
     payload = {

@@ -84,11 +84,85 @@ candidate_vocabulary:
   - Middle East respiratory syndrome coronavirus
   - bovine coronavirus
   - feline coronavirus
-manual_query_skeletons:
-  pubmed_high_precision: (("SARS-CoV-2"[Title/Abstract] OR "severe acute respiratory syndrome coronavirus 2"[Title/Abstract]
-    OR "COVID-19"[Title/Abstract]) AND {{DATE_FILTER}}) NOT ("SARS-CoV-1"[Title/Abstract] OR "MERS-CoV"[Title/Abstract])
-  news_high_precision: ("SARS-CoV-2" OR "COVID-19") AND (outbreak OR surveillance OR variant OR vaccine OR transmission OR
-    cases)
+  paper_priority_terms:
+  - term: outbreak
+    category: emerging_event
+    weight: 5
+  - term: spillover
+    category: cross_species
+    weight: 5
+  - term: first report
+    category: novelty
+    weight: 5
+  - term: novel host
+    category: novelty
+    weight: 5
+  - term: new region
+    category: novelty
+    weight: 4
+  - term: genomic surveillance
+    category: genomics
+    weight: 4
+  - term: recombination
+    category: evolution
+    weight: 4
+  - term: evolution
+    category: evolution
+    weight: 3
+  - term: vaccine
+    category: countermeasure
+    weight: 3
+  - term: therapeutic
+    category: countermeasure
+    weight: 3
+  - term: diagnostic
+    category: diagnostics
+    weight: 3
+  - term: clinical outcome
+    category: clinical
+    weight: 3
+  - term: cohort
+    category: study_scale
+    weight: 2
+  - term: systematic review
+    category: evidence_synthesis
+    weight: 3
+  - term: public health
+    category: public_health
+    weight: 2
+  document_type_terms:
+    research:
+    - trial
+    - cohort
+    - case-control
+    - cross-sectional
+    - experimental study
+    systematic_review:
+    - systematic review
+    - meta-analysis
+    - scoping review
+    narrative_review:
+    - review
+    - narrative review
+    - perspective
+    case_report:
+    - case report
+    - case series
+    surveillance_report:
+    - surveillance report
+    - outbreak report
+    - epidemiological update
+    methods:
+    - method
+    - assay
+    - protocol
+    - algorithm
+    - model
+    commentary:
+    - editorial
+    - commentary
+    - letter
+    - opinion
 authoritative_sources:
 - name: ICTV Coronaviridae
   organization: ICTV
@@ -137,15 +211,18 @@ retrieval_policy:
   openalex_per_term: 80
   candidate_gate: python_accept_or_llm_review
   final_gate: accept_before_top_n_enrichment
-  strategy: lean_core_concepts_v7
+  strategy: frozen_five_core_terms_v15
   max_core_concepts: 5
-  content_enrichment_stage: after_top_n_selection
-  content_enrichment_limit_papers: 50
+  content_enrichment_stage: after_cross_source_dedup_dynamic_batches
+  content_enrichment_limit_papers: 150
   content_enrichment_limit_news: 50
   llm_review_mode: ambiguous_only
   provider_expansion_first: true
+  primary_report_limit: 50
+  supplementary_report_limit: 100
+  top_n_means_deep_report_not_deletion: true
 search_strategy:
-  schema_version: '1.1'
+  schema_version: '2.1'
   max_concepts: 5
   provider_expansion_first: true
   deduplicate_semantic_equivalents: true
@@ -153,30 +230,36 @@ search_strategy:
   - id: sars_cov_2
     scholarly: SARS-CoV-2
     news_en: SARS-CoV-2
-    news_zh: 新冠病毒
-    role: umbrella
+    news_zh: 严重急性呼吸综合征冠状病毒2
+    role: virus
     priority: 1
   - id: covid_19
     scholarly: COVID-19
     news_en: COVID-19
-    news_zh: 新冠肺炎
+    news_zh: 新型冠状病毒病
     role: disease
     priority: 2
-  - id: variant
-    scholarly: SARS-CoV-2 variant
-    news_en: SARS-CoV-2 variant
-    news_zh: 新冠病毒变异株
-    role: hotspot_variant
+  - id: full_name
+    scholarly: severe acute respiratory syndrome coronavirus 2
+    news_en: severe acute respiratory syndrome coronavirus 2
+    news_zh: 严重急性呼吸综合征冠状病毒2
+    role: virus
     priority: 3
-  - id: vaccine
-    scholarly: COVID-19 vaccine
-    news_en: COVID-19 vaccine
-    news_zh: 新冠疫苗
-    role: intervention
+  - id: taxonomy
+    scholarly: Betacoronavirus pandemicum
+    news_en: Betacoronavirus pandemicum
+    news_zh: 大流行贝塔冠状病毒
+    role: taxonomy
     priority: 4
-  - id: wastewater
-    scholarly: SARS-CoV-2 wastewater surveillance
-    news_en: SARS-CoV-2 wastewater surveillance
-    news_zh: 新冠病毒污水监测
-    role: surveillance
+  - id: omicron
+    scholarly: Omicron SARS-CoV-2
+    news_en: Omicron SARS-CoV-2
+    news_zh: 新冠病毒奥密克戎变异株
+    role: lineage
     priority: 5
+  frozen: true
+  allow_weekly_mutation: false
+  core_terms_version: '2.0'
+  generated_from: authoritative_sources_plus_manual_v15_1_review
+  controlled_supplemental_terms:
+  - Betacoronavirus pandemicum

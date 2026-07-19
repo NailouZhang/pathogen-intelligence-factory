@@ -1,95 +1,185 @@
-> 当前工程版本：v14.7。GitHub Actions、本地Conda和CI使用统一Python安装器。
+# pathogen-intelligence-factory v15.3
 
-# pathogen-intelligence-factory v14.7
+公开仓负责“病原文献与新闻抓取—规范化—跨库去重—内容补全—相关性终审—双语结构化分析—GitHub Pages—不可变微信公众号发布包”。私有公众号仓只消费公开仓生成的 `pathogen-wechat-package/v2`，两条发布链互不阻塞。
 
-公开的21种病毒每周文献与公共卫生新闻情报工厂。
-
-固定GitHub仓库：`NailouZhang/pathogen-intelligence-factory`
-固定本地目录：`$HOME/github-projects/pathogen-intelligence-factory`
-固定Conda环境：`$HOME/github-projects/pathogen-intelligence-factory/.conda-env`
-
-## 完整链路
+## 固定位置与协议
 
 ```text
-21种病原北京时间顺序调度
-→ 多文献源与新闻源检索
-→ 真实发表日期硬门禁
-→ Dataset/补充材料/仓储对象硬门禁
-→ Python全量相关性复核与LLM边界复核
-→ 新闻正文身份、主题和错误页熔断
-→ L1摘要/L2关键全文证据/L3跨供应商复核
-→ elements_en英文结构化要素
-→ elements_zh中文翻译镜像
-→ 中英文GitHub Pages
-→ wechat-package/v2
-→ 私有公众号仓repository_dispatch
+GitHub: NailouZhang/pathogen-intelligence-factory
+本地仓库: /home/stone/github-projects/pathogen-intelligence-factory
+Conda Prefix: /home/stone/github-projects/pathogen-intelligence-factory/.conda-env
+数据分支: intelligence-data
+公众号协议: pathogen-wechat-package/v2
+issue schema: 6.2
 ```
 
-## 已实现的质量策略
-
-- `created_date/indexed_date`只作审计，不决定本周入选；
-- Figshare、Zenodo、Dryad、Dataset、Supplement等默认在LLM前拒绝；
-- 新闻正文必须自身出现目标病原身份，不允许标题救援无关正文；
-- 相同错误URL/正文被多个不同标题复用时熔断；
-- 七/五要素严格要求字符串Schema，嵌套字典和列表不能进入HTML；
-- Gemini、Groq、OpenRouter、Mistral、SiliconFlow按任务和状态自动轮换；
-- 21个profile共享北京时间每日额度/冷却状态；
-- 全文只在本地筛选证据，不整体发送给LLM；
-- 马尔堡等稀缺病原使用文献事件线索动态增强新闻查询；
-- fallback超过阈值时在网页顶部、日志和审计中告警；
-- 中英文标题、摘要、要素、总览、统计、来源健康和审计完整切换；
-- Top-N是展示限制，不是相关性判定，全部合格记录保存在审计中；
-- 渲染完成后再次审计最终HTML，发现字典字面量、英文占位符、数据集卡片或缩写词表污染时阻止发布。
-
-## 核心审计文件
+## v15.3文献生命周期
 
 ```text
-data/audit/publication_date_gate.json
-data/audit/scholarly_record_type_gate.json
-data/audit/news_content_gate.json
-data/audit/paper_post_enrichment_gate.json
-data/audit/event_query_expansion.json
-data/audit/analysis_quality.json
-data/audit/llm_provider_usage.json
-data/audit/retrieval_funnel.json
-data/audit/display_selection.json
-data/audit/eligible_papers.jsonl
-data/audit/eligible_news.jsonl
-data/audit/rendered_html_quality.json
+5个冻结病毒身份词
+→ 七个学术源独立检索
+→ 初始字段/日期规范化与明显超窗门禁
+→ 文章对象门禁和宽松身份初筛
+→ DOI/PMID/PMCID/标题作者跨库去重
+→ 合并来源日期与元数据
+→ 去重后分批内容补全
+→ 三态内容身份核验
+→ 补全后重新计算规范发表日期并再次门禁
+→ 补全后相关性终审
+→ 分析、翻译与动态递补
+→ 形成最多100篇可比较主报告候选
+→ 全局重排后选择Top50
+→ 其余终审通过记录进入补充文献Top100
+→ 顶部总结只使用最终主报告Top50
 ```
 
-## 本地安装
+### 三种身份结论
+
+```text
+identity_verified   标识符一致，或标题+作者+期刊+年份形成足够一致证据
+identity_uncertain  未发现冲突，但可核验信息不足
+identity_conflict   DOI/PMID/PMCID明确冲突或综合身份明显不一致
+```
+
+`identity_conflict`不可被后续弱匹配覆盖；它会阻止错误摘要或正文写入记录。
+
+## 五个核心词与Profile冻结
+
+每个 `profiles/<profile_id>/seed.yaml` 必须满足：
+
+```yaml
+search_strategy:
+  core_terms_version: "2.0"
+  frozen: true
+  allow_weekly_mutation: false
+  concepts:               # 恰好5个
+    - scholarly: "独立病毒身份词或固定疾病/综合征名称"
+```
+
+禁止：
+
+- `virus + outbreak/vaccine/surveillance/diagnosis/treatment` 等研究方向组合；
+- `AND/OR/NOT`、括号和长布尔表达式；
+- 普通症状、蛋白、宿主、设备、软件或机构名称；
+- 五个上下位关系高度重复的近义词。
+
+正常周运行、定时运行和 `run-all` 不会调用LLM改写五词。只有操作员显式提交 `refresh_profile=true` 时，才允许依据权威来源生成一个新的冻结版本。
+
+## 后置词库的实际用途
+
+Profile中的后置词库已经接入运行路径：
+
+| 词库 | 运行用途 |
+|---|---|
+| `identity_terms` | 初筛、终审、标题/摘要/全文身份命中 |
+| `qualified_abbreviations` | 缩写上下文校验 |
+| `exclusion_terms` | 同名非目标实体排除 |
+| `paper_priority_terms` | `paper_priority_tier`和全局Top50排序 |
+| `document_type_terms` | 研究、综述、病例、方法、评论等分类 |
+| `controlled_supplemental_terms` | 少量成员病毒的受控补充召回 |
+
+受控补充词不会替代五个入口词，也不会扩张为整个后置词库。实际执行记录写入：
+
+```text
+data/audit/controlled_supplemental_queries.json
+data/audit/query_plan.json
+data/audit/query_coverage.json
+```
+
+## 日期与去重
+
+规范发表日期优先级固定为：
+
+```text
+first_publication_date
+→ online_date
+→ published_date
+→ print_date
+```
+
+`created_date/indexed_date`只用于审计。日期至少计算两次：
+
+1. 初始门禁阻挡明显超窗记录；
+2. 跨来源去重、元数据合并和内容补全后重新计算并再次过滤。
+
+最终网页、历史去重和状态判断只使用第二次结果。
+
+## bioRxiv与medRxiv
+
+报告窗口内记录按首次发布日期倒序连续分页；每个平台最多读取最新300条。随后立即执行病毒身份初筛，不使用“第一页+尾页”的不连续抽样。
+
+## 内容补全与短内容规则
+
+内容补全只在跨库去重后执行：
+
+```text
+PMCID/PMC
+→ PMID/PubMed和PMCID关联
+→ Europe PMC
+→ DOI/Crossref/OpenAlex/开放获取来源
+→ 出版商落地页
+```
+
+不按字符长度删除记录。30字符但病毒身份明确、来源可靠且无排除实体的摘要，在LLM不可用时仍可进入确定性相关性判断。
+
+404、登录页、Cookie页和JavaScript占位页只表示该次补全失败，不会覆盖已有可信标题、摘要或元数据。
+
+仅有全文的主报告会从核验全文中抽取可追溯英文片段，写入 `full_text_excerpt`，再生成中文翻译；前台不会出现空白英文原文区。
+
+## 主报告与补充文献
+
+默认参数：
+
+```text
+PIF_MAX_PAPERS=50
+PIF_MAX_FULLTEXTS=150
+PIF_DISPLAY_CANDIDATE_BUFFER=100
+PIF_FULLTEXT_BATCH_SIZE=25
+PIF_MAX_SUPPLEMENTARY_PAPERS=100
+```
+
+系统以最多100篇完成分析和翻译的证据文献组成全局比较池，再统一重排Top50。达到50篇不会立即停止。
+
+补充文献包含：
+
+- 只有核验元数据且摘要/全文暂不可得的记录；
+- 具有摘要或全文但没有进入全局Top50的终审相关记录。
+
+补充卡片只展示中英文标题、作者、期刊、规范日期、DOI/PMID/PMCID、来源和客观状态，不生成摘要、七/五要素或研究结论。标题翻译依次尝试配置的翻译接口和LLM；全部失败后才回退英文标题。
+
+## 新闻和微信公众号分流
+
+新闻标准数据资格由日期、来源、正文有效性、病毒相关性和新闻质量决定。`PIF_WECHAT_NEWS_MAX_ZH_CHARS`只作用于公众号渲染，不参与新闻保留或删除。Pages和 `latest.json` 保存完整合格内容。
+
+## 前台与后台
+
+Pages依次展示：
+
+```text
+本期文献进展
+本期新闻动态
+研究论文主报告
+综述主报告
+补充文献目录
+新闻
+```
+
+前台不显示LLM供应商、翻译器、抓取器、fallback比例等内部质量横幅。完整信息保存在 `data/audit/`。
+
+## 本地开发与测试
 
 ```bash
-cd "$HOME/github-projects/pathogen-intelligence-factory"
-bash scripts/bootstrap_dev.sh
-"$HOME/github-projects/pathogen-intelligence-factory/.conda-env/bin/python" \
-  -m playwright install --with-deps --only-shell chromium
-bash scripts/doctor_local.sh
+source "/home/stone/20T/DataBase/SoftwaresEnsembel/MiniConda/etc/profile.d/conda.sh"
+conda activate /home/stone/github-projects/pathogen-intelligence-factory/.conda-env
+
+cd /home/stone/github-projects/pathogen-intelligence-factory
+python -m pip install --no-build-isolation --no-deps -e .
+python -m pytest -q
+python scripts/validate_all_profiles.py
+python scripts/audit_query_coverage.py
 ```
 
-## 测试
-
-```bash
-cd "$HOME/github-projects/pathogen-intelligence-factory"
-"$HOME/github-projects/pathogen-intelligence-factory/.conda-env/bin/python" -m pytest -q
-```
-
-## 本地运行
-
-真实模式：
-
-```bash
-bash scripts/run_profile_local.sh hantavirus /tmp/pif-hantavirus
-```
-
-离线演示：
-
-```bash
-bash scripts/run_profile_local.sh hantavirus /tmp/pif-hantavirus-demo --demo
-```
-
-## GitHub运行
+## 手动运行单个Profile
 
 ```bash
 gh workflow run daily-intelligence.yml \
@@ -97,35 +187,14 @@ gh workflow run daily-intelligence.yml \
   --ref main \
   -f profile_id=hantavirus \
   -f dispatch_wechat=false \
-  -f cover_image_mode=deterministic \
+  -f refresh_profile=false \
+  -f cover_image_mode=auto \
   -f review_mode=balanced
 ```
 
-完整安装、Secrets、Variables、Pages、Runner和公众号操作见：
-
-```text
-docs/INSTALL_ZH.md
-docs/OPERATIONS_V14_ZH.md
-docs/QUALITY_AND_BILINGUAL_REPAIRS_V14_ZH.md
-docs/CURRENT_ENGINEERING_LIMITATIONS_V14_ZH.md
-REPAIR_LEDGER_ZH.md
-```
+公开网页验收后，将 `dispatch_wechat` 攒为 `true`，即可触发私有仓本地Runner。
 
 
-### v14.7 SiliconFlow China endpoint
+## v15.3测试与新闻来源状态
 
-- SiliconFlow默认API基址切换为`https://api.siliconflow.cn/v1`；
-- 对话、模型发现和`/user/info`账户查询统一使用同一基址；
-- 可通过`SILICONFLOW_BASE_URL`覆盖，但GitHub Actions默认固定中国站；
-- 预检安全审计会记录实际使用的非敏感API基址。
-
-### v14.5 production hardening
-
-- `PIF_PREPRINT_MAX_RECORDS_PER_SERVER` defaults to `300`.
-- `PIF_PREPRINT_IDENTITY_FILTER` defaults to `true`.
-- Rendered evidence-gap placeholders are warnings only when they dominate a field; structural corruption remains a hard publication failure.
-- The public analysis-quality banner always reports the final displayed records after translation gating.
-
-### v14.7 BigModel + DeepSeek
-
-新增智谱BigModel与DeepSeek OpenAI兼容通道。BigModel默认`glm-4.7-flash`；DeepSeek默认`deepseek-v4-flash`并启用赠送余额保护。两家均进入预检、共享冷却、JSON validator和使用量审计。
+公开仓pytest可在独立克隆目录运行，不依赖两仓工程根目录。测试默认禁用真实Playwright网络；浏览器测试显式注入HTML。Google/Bing聚合页只有解析到出版商最终地址后才允许形成`full/partial`，否则使用`syndicated_summary`或拒绝标题项。

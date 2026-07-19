@@ -8,6 +8,7 @@ from .config import Settings, load_seed
 from .http import HttpClient
 from .llm import LLMError, LLMRouter
 from .profile_contract import deterministic_profile, merge_llm_refinement, validate_profile
+from .literature.profile import validate_frozen_core_terms
 from .query_plan import compile_profile_queries
 from .utils import dump_json, sha256_text, utc_now_iso
 
@@ -40,13 +41,20 @@ def _fallback_profile(seed: dict[str, Any], sources: list[dict[str, Any]]) -> di
 def _llm_validator(data: Any) -> tuple[bool, str]:
     if not isinstance(data, dict):
         return False, "output is not a JSON object"
-    if str(data.get("schema_version")) != "3.1":
-        return False, "schema_version must be 3.1"
+    if str(data.get("schema_version")) != "3.2":
+        return False, "schema_version must be 3.2"
     vocabulary = data.get("vocabulary") or {}
     if not isinstance(vocabulary, dict):
         return False, "missing vocabulary object"
     if not vocabulary.get("identity_anchor_terms"):
         return False, "missing identity_anchor_terms"
+    strategy = data.get("search_strategy") or {}
+    concepts = [x for x in strategy.get("concepts") or [] if isinstance(x, dict)]
+    if len(concepts) != 5:
+        return False, "search_strategy must contain exactly five concepts"
+    term_contract = validate_frozen_core_terms(data, strict=False)
+    if not term_contract.get("passed"):
+        return False, "; ".join(term_contract.get("issues") or ["invalid frozen five-term contract"])
     if not isinstance(data.get("validation"), dict):
         return False, "missing validation report"
     if data.get("status") not in {"ready", "needs_review", "failed"}:
@@ -109,7 +117,7 @@ def build_profile(settings: Settings, http: HttpClient, llm: LLMRouter) -> dict[
     profile["seed_hash"] = seed_hash
     profile["source_bundle_hash"] = source_bundle_hash(documents)
     profile["generated_at"] = utc_now_iso()
-    profile["profile_contract"] = "lean-core-retrieval-profile/v7"
+    profile["profile_contract"] = "frozen-five-core-post-retrieval-vocabulary/v15.1"
     profile = compile_profile_queries(profile)
     valid, issues = validate_profile(profile, seed)
     if not valid:

@@ -10,7 +10,7 @@ from .postprocess import BANNED_EDITORIAL_SENTENCES, sanitize_editorial_block, s
 from .utils import clean_space, split_sentences, unique_strings
 
 
-OVERVIEW_POLICY_VERSION = "v14-parallel-bilingual-overview-1"
+OVERVIEW_POLICY_VERSION = "v15.2-qualified-news-independent-translation-1"
 PLACEHOLDER_MARKERS = (
     "翻译暂不可用",
     "translation unavailable",
@@ -240,6 +240,11 @@ def _news_payload(item: dict[str, Any]) -> dict[str, Any]:
         "published_date": item.get("published_date"),
         "source_assessment": analysis_block.get("source_assessment"),
         "content_status": item.get("content_status"),
+        "source_qualified": bool(item.get("source_qualified")),
+        "analysis_ready": bool(item.get("analysis_ready")),
+        "translation_complete": bool(item.get("translation_complete")),
+        "translation_status": item.get("translation_status"),
+        "display_ready": bool(item.get("display_ready")),
         "brief_en": _clip_complete_sentences(analysis_block.get("brief_en"), 1600),
         "brief_zh": _clip_complete_sentences(item.get("content_zh"), 1100),
         "analysis_en": {key: _clip_complete_sentences(value, 560) for key, value in analysis_en.items()},
@@ -368,41 +373,74 @@ def _literature_fallback(profile: dict[str, Any], papers: list[dict[str, Any]]) 
 
 
 def _news_fallback(profile: dict[str, Any], news: list[dict[str, Any]]) -> dict[str, Any]:
-    name = profile.get("display_name_zh") or profile.get("profile_id")
-    findings: list[str] = []
-    ids: list[str] = []
+    name_zh = profile.get("display_name_zh") or profile.get("profile_id")
+    name_en = profile.get("display_name_en") or profile.get("profile_id")
+    all_ids = unique_strings(clean_space(article.get("news_id")) for article in news)
+    findings_zh: list[str] = []
+    findings_en: list[str] = []
+
     for article in news:
-        analysis_zh = article.get("analysis_zh") or {}
-        text = _clean_for_overview(analysis_zh.get("event") or article.get("content_zh"))
-        if text and _is_chinese(text, 12, 0.30):
-            clipped = _clip_complete_sentences(text, 230)
-            if clipped and not any(sentence_similarity(clipped, x) >= 0.90 for x in findings):
-                findings.append(clipped + (f" [{article.get('news_id')}]" if article.get("news_id") else ""))
-                ids.append(clean_space(article.get("news_id")))
-        if len(findings) >= 5:
+        analysis_en = article.get("elements_en") or article.get("analysis_en") or (article.get("analysis") or {}).get("analysis") or {}
+        analysis_zh = article.get("elements_zh") or article.get("analysis_zh") or {}
+        english = _clean_for_overview(
+            analysis_en.get("event") or (article.get("analysis") or {}).get("brief_en") or article.get("title")
+        )
+        chinese = _clean_for_overview(analysis_zh.get("event") or article.get("content_zh"))
+        selected_zh = chinese if chinese and _is_chinese(chinese, 8, 0.20) else english
+        if selected_zh:
+            clipped = _clip_complete_sentences(selected_zh, 260)
+            if clipped and not any(sentence_similarity(clipped, existing) >= 0.90 for existing in findings_zh):
+                findings_zh.append(clipped + (f" [{article.get('news_id')}]" if article.get("news_id") else ""))
+        if english:
+            clipped_en = _clip_complete_sentences(english, 320)
+            if clipped_en and not any(sentence_similarity(clipped_en, existing) >= 0.90 for existing in findings_en):
+                findings_en.append(clipped_en + (f" [{article.get('news_id')}]" if article.get("news_id") else ""))
+        if len(findings_zh) >= 5 and len(findings_en) >= 5:
             break
+
+    has_valid_news = bool(news)
+    if has_valid_news and not findings_zh:
+        findings_zh = [
+            _clip_complete_sentences(clean_space(item.get("title_zh") or item.get("title")), 220)
+            + (f" [{item.get('news_id')}]" if item.get("news_id") else "")
+            for item in news[:5]
+            if clean_space(item.get("title_zh") or item.get("title"))
+        ]
+    if has_valid_news and not findings_en:
+        findings_en = [
+            _clip_complete_sentences(clean_space(item.get("title")), 260)
+            + (f" [{item.get('news_id')}]" if item.get("news_id") else "")
+            for item in news[:5]
+            if clean_space(item.get("title"))
+        ]
+
+    if has_valid_news:
+        zh_empty = "Qualified news exists, but no compact event field was available; see the verified reports below."
+        en_empty = "Qualified news exists, but no compact event field was available; see the verified reports below."
+        lead_zh = "本期新闻资格由来源、日期、正文身份和相关性终审决定；中文翻译状态不影响有效新闻的保留。中文字段不可用时，本区域使用已核验英文内容填充。"
+        lead_en = "News eligibility is determined by source, date, body identity and final relevance. Translation completeness does not determine whether an eligible report is retained."
+    else:
+        zh_empty = "本期未获得通过来源、日期、正文身份和相关性终审的有效新闻。"
+        en_empty = "No news report passed the source, date, body-identity and final-relevance gates in this reporting window."
+        lead_zh = "本期没有新闻记录通过完整的来源、日期、正文身份和相关性终审。"
+        lead_en = "No news record passed the complete source, date, body-identity and relevance workflow."
+
     data = {
-        "headline_zh": f"{name}本期公共卫生新闻动态",
-        "lead_zh": "本期新闻简报仅纳入获得有效正文或实质性来源摘要、并通过病原相关性和翻译门禁的报道。",
-        "key_findings_zh": findings[:5] or ["本期未获得足以形成公开新闻通报的有效正文或实质性来源摘要。"],
+        "headline_zh": f"{name_zh}本期公共卫生新闻动态",
+        "lead_zh": lead_zh,
+        "key_findings_zh": findings_zh[:5] or [zh_empty],
         "trend_or_risk_zh": "风险判断仅依据入选来源已经确认的信息，不把媒体推测升级为官方结论。",
-        "caveats_zh": "动态网页、登录限制或来源更新可能影响正文完整度，具体事实以原始发布机构后续通报为准。",
-        "headline_en": f"Recent {profile.get('display_name_en') or profile.get('profile_id')} news",
-        "lead_en": "This news brief includes only reports with an extracted body or a substantive syndicated summary that passed pathogen relevance and translation gates.",
-        "key_findings_en": [
-            _clip_complete_sentences(
-                ((article.get("elements_en") or article.get("analysis_en") or (article.get("analysis") or {}).get("analysis") or {}).get("event")
-                 or article.get("title")),
-                300,
-            ) + (f" [{article.get('news_id')}]" if article.get("news_id") else "")
-            for article in news[:5]
-        ] or ["No news report passed the body identity, topic relevance and translation gates in this reporting window."],
+        "caveats_zh": "中文翻译不完整时会以英文证据填充中文显示位置，并在后台记录translation_status=english_fallback。",
+        "headline_en": f"Recent {name_en} news",
+        "lead_en": lead_en,
+        "key_findings_en": findings_en[:5] or [en_empty],
         "trend_or_risk_en": "Risk statements are limited to information confirmed by eligible sources and do not upgrade media speculation into official conclusions.",
-        "caveats_en": "Dynamic pages, access restrictions and source updates can limit body completeness; facts should be checked against subsequent statements from the original institution.",
-        "brief_en": "This news brief includes only reports with an extracted article body or a substantive source summary that passed relevance and translation checks. It separates confirmed developments from unresolved information and source limitations.",
-        "source_ids": unique_strings(ids),
+        "caveats_en": "When Chinese translation is incomplete, verified English evidence fills the Chinese display slot and is audited as translation_status=english_fallback.",
+        "brief_en": " ".join(findings_en[:5]) if findings_en else en_empty,
+        "source_ids": all_ids,
         "status": "deterministic_editorial_fallback",
         "input_count": len(news),
+        "qualified_news_count": len(news),
         "policy_version": OVERVIEW_POLICY_VERSION,
     }
     data["zh"] = _compose_zh(data)
@@ -448,7 +486,18 @@ def build_news_overview(
     profile: dict[str, Any], news: list[dict[str, Any]], llm: LLMRouter, prompts_dir: Any,
     *, minimum: int = 15, maximum: int = 25, window_start: date | str | None = None, window_end: date | str | None = None,
 ) -> dict[str, Any]:
-    eligible = [item for item in news if item.get("content_status") in {"full", "partial", "syndicated_summary"}]
+    eligible = [
+        item for item in news
+        if (
+            item.get("source_qualified")
+            or ("source_qualified" not in item and item.get("content_status") in {"full", "partial", "syndicated_summary"})
+        )
+        and (
+            item.get("analysis_ready")
+            or ("analysis_ready" not in item and bool((item.get("analysis") or {}).get("analysis")))
+        )
+        and (item.get("display_ready") or "display_ready" not in item)
+    ]
     selected = select_overview_items(eligible, minimum=minimum, maximum=maximum, window_start=window_start, window_end=window_end, kind="news")
     fallback = _news_fallback(profile, selected)
     if not selected or not llm.available:
@@ -472,6 +521,10 @@ def build_news_overview(
         if len(data.get("key_findings_zh") or []) < 3:
             return fallback
         data.update({"status": f"{result.provider}:{result.model}", "input_count": len(records), "policy_version": OVERVIEW_POLICY_VERSION})
+        # Provenance must cover the full selected qualified-news set, regardless
+        # of which items produced Chinese findings.
+        data["source_ids"] = unique_strings(item.get("news_id") for item in records)
+        data["qualified_news_count"] = len(records)
         data["zh"] = _compose_zh(data)
         data["en"] = clean_space(data.get("brief_en"))
         return data

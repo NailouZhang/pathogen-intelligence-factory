@@ -183,15 +183,85 @@ candidate_vocabulary:
   - fish arenavirus
   - plant virus
   - Tacaribe virus
-manual_query_skeletons:
-  pubmed_high_precision: (("Lassa virus"[Title/Abstract] OR "lymphocytic choriomeningitis virus"[Title/Abstract] OR "Junín
-    virus"[Title/Abstract] OR "Junin virus"[Title/Abstract] OR "Machupo virus"[Title/Abstract] OR "Guanarito virus"[Title/Abstract]
-    OR "Sabiá virus"[Title/Abstract] OR "Sabia virus"[Title/Abstract] OR "Chapare virus"[Title/Abstract] OR "Lujo virus"[Title/Abstract]
-    OR ("mammarenavirus"[Title/Abstract] AND (human[Title/Abstract] OR hemorrhagic[Title/Abstract]))) AND {{DATE_FILTER}})
-    NOT (Reptarenavirus[Title/Abstract] OR Hartmanivirus[Title/Abstract] OR Antennavirus[Title/Abstract])
-  news_high_precision: ("Lassa virus" OR "Lassa fever" OR "lymphocytic choriomeningitis virus" OR "Junin virus" OR "Machupo
-    virus" OR "Guanarito virus" OR "Chapare virus" OR "Lujo virus") AND (outbreak OR case OR infection OR transmission OR
-    surveillance)
+  paper_priority_terms:
+  - term: outbreak
+    category: emerging_event
+    weight: 5
+  - term: spillover
+    category: cross_species
+    weight: 5
+  - term: first report
+    category: novelty
+    weight: 5
+  - term: novel host
+    category: novelty
+    weight: 5
+  - term: new region
+    category: novelty
+    weight: 4
+  - term: genomic surveillance
+    category: genomics
+    weight: 4
+  - term: recombination
+    category: evolution
+    weight: 4
+  - term: evolution
+    category: evolution
+    weight: 3
+  - term: vaccine
+    category: countermeasure
+    weight: 3
+  - term: therapeutic
+    category: countermeasure
+    weight: 3
+  - term: diagnostic
+    category: diagnostics
+    weight: 3
+  - term: clinical outcome
+    category: clinical
+    weight: 3
+  - term: cohort
+    category: study_scale
+    weight: 2
+  - term: systematic review
+    category: evidence_synthesis
+    weight: 3
+  - term: public health
+    category: public_health
+    weight: 2
+  document_type_terms:
+    research:
+    - trial
+    - cohort
+    - case-control
+    - cross-sectional
+    - experimental study
+    systematic_review:
+    - systematic review
+    - meta-analysis
+    - scoping review
+    narrative_review:
+    - review
+    - narrative review
+    - perspective
+    case_report:
+    - case report
+    - case series
+    surveillance_report:
+    - surveillance report
+    - outbreak report
+    - epidemiological update
+    methods:
+    - method
+    - assay
+    - protocol
+    - algorithm
+    - model
+    commentary:
+    - editorial
+    - commentary
+    - letter
+    - opinion
 authoritative_sources:
 - name: ICTV Arenaviridae
   organization: ICTV
@@ -245,15 +315,18 @@ retrieval_policy:
   openalex_per_term: 80
   candidate_gate: python_accept_or_llm_review
   final_gate: accept_before_top_n_enrichment
-  strategy: lean_core_concepts_v7
+  strategy: frozen_five_core_terms_v15
   max_core_concepts: 5
-  content_enrichment_stage: after_top_n_selection
-  content_enrichment_limit_papers: 50
+  content_enrichment_stage: after_cross_source_dedup_dynamic_batches
+  content_enrichment_limit_papers: 150
   content_enrichment_limit_news: 50
   llm_review_mode: ambiguous_only
   provider_expansion_first: true
+  primary_report_limit: 50
+  supplementary_report_limit: 100
+  top_n_means_deep_report_not_deletion: true
 search_strategy:
-  schema_version: '1.1'
+  schema_version: '2.1'
   max_concepts: 5
   provider_expansion_first: true
   deduplicate_semantic_equivalents: true
@@ -262,29 +335,39 @@ search_strategy:
     scholarly: Lassa virus
     news_en: Lassa virus
     news_zh: 拉沙病毒
-    role: hotspot_member
+    role: member
     priority: 1
   - id: lcmv
     scholarly: lymphocytic choriomeningitis virus
     news_en: lymphocytic choriomeningitis virus
     news_zh: 淋巴细胞脉络丛脑膜炎病毒
-    role: hotspot_member
+    role: member
     priority: 2
   - id: junin
     scholarly: Junin virus
     news_en: Junin virus
     news_zh: 胡宁病毒
-    role: hotspot_member
+    role: member
     priority: 3
   - id: machupo
     scholarly: Machupo virus
     news_en: Machupo virus
     news_zh: 马丘波病毒
-    role: hotspot_member
+    role: member
     priority: 4
   - id: mammarenavirus
     scholarly: mammarenavirus
-    news_en: human mammarenavirus
+    news_en: mammarenavirus
     news_zh: 哺乳沙粒病毒
-    role: umbrella_group
+    role: taxonomy
     priority: 5
+  frozen: true
+  allow_weekly_mutation: false
+  core_terms_version: '2.0'
+  generated_from: authoritative_sources_plus_manual_v15_1_review
+  controlled_supplemental_terms:
+  - Junín virus
+  - Guanarito virus
+  - Sabiá virus
+  - Sabia virus
+  - Chapare virus

@@ -90,10 +90,85 @@ candidate_vocabulary:
   - Mayaro virus
   - Ross River virus
   - Sindbis virus
-manual_query_skeletons:
-  pubmed_high_precision: (("chikungunya virus"[Title/Abstract] OR chikungunya[Title/Abstract] OR ("CHIKV"[Title/Abstract]
-    AND virus[Title/Abstract])) AND {{DATE_FILTER}})
-  news_high_precision: ("chikungunya virus" OR chikungunya) AND (outbreak OR cases OR transmission OR surveillance OR vaccine)
+  paper_priority_terms:
+  - term: outbreak
+    category: emerging_event
+    weight: 5
+  - term: spillover
+    category: cross_species
+    weight: 5
+  - term: first report
+    category: novelty
+    weight: 5
+  - term: novel host
+    category: novelty
+    weight: 5
+  - term: new region
+    category: novelty
+    weight: 4
+  - term: genomic surveillance
+    category: genomics
+    weight: 4
+  - term: recombination
+    category: evolution
+    weight: 4
+  - term: evolution
+    category: evolution
+    weight: 3
+  - term: vaccine
+    category: countermeasure
+    weight: 3
+  - term: therapeutic
+    category: countermeasure
+    weight: 3
+  - term: diagnostic
+    category: diagnostics
+    weight: 3
+  - term: clinical outcome
+    category: clinical
+    weight: 3
+  - term: cohort
+    category: study_scale
+    weight: 2
+  - term: systematic review
+    category: evidence_synthesis
+    weight: 3
+  - term: public health
+    category: public_health
+    weight: 2
+  document_type_terms:
+    research:
+    - trial
+    - cohort
+    - case-control
+    - cross-sectional
+    - experimental study
+    systematic_review:
+    - systematic review
+    - meta-analysis
+    - scoping review
+    narrative_review:
+    - review
+    - narrative review
+    - perspective
+    case_report:
+    - case report
+    - case series
+    surveillance_report:
+    - surveillance report
+    - outbreak report
+    - epidemiological update
+    methods:
+    - method
+    - assay
+    - protocol
+    - algorithm
+    - model
+    commentary:
+    - editorial
+    - commentary
+    - letter
+    - opinion
 authoritative_sources:
 - name: ICTV Togaviridae
   organization: ICTV
@@ -145,46 +220,54 @@ retrieval_policy:
   openalex_per_term: 80
   candidate_gate: python_accept_or_llm_review
   final_gate: accept_before_top_n_enrichment
-  strategy: lean_core_concepts_v7
+  strategy: frozen_five_core_terms_v15
   max_core_concepts: 5
-  content_enrichment_stage: after_top_n_selection
-  content_enrichment_limit_papers: 50
+  content_enrichment_stage: after_cross_source_dedup_dynamic_batches
+  content_enrichment_limit_papers: 150
   content_enrichment_limit_news: 50
   llm_review_mode: ambiguous_only
   provider_expansion_first: true
+  primary_report_limit: 50
+  supplementary_report_limit: 100
+  top_n_means_deep_report_not_deletion: true
 search_strategy:
-  schema_version: '1.1'
+  schema_version: '2.1'
   max_concepts: 5
   provider_expansion_first: true
   deduplicate_semantic_equivalents: true
   concepts:
-  - id: chikungunya
-    scholarly: chikungunya
-    news_en: chikungunya
-    news_zh: 基孔肯雅热
-    role: umbrella
+  - id: chikungunya_virus
+    scholarly: Chikungunya virus
+    news_en: Chikungunya virus
+    news_zh: 基孔肯雅病毒
+    role: virus
     priority: 1
-  - id: outbreak
-    scholarly: chikungunya outbreak
-    news_en: chikungunya outbreak
-    news_zh: 基孔肯雅热暴发
-    role: outbreak
+  - id: chikungunya_fever
+    scholarly: chikungunya fever
+    news_en: chikungunya fever
+    news_zh: 基孔肯雅热
+    role: disease
     priority: 2
-  - id: arthritis
-    scholarly: chronic chikungunya arthritis
-    news_en: chronic chikungunya arthritis
-    news_zh: 慢性基孔肯雅关节炎
-    role: clinical
+  - id: chikv
+    scholarly: CHIKV
+    news_en: CHIKV
+    news_zh: 基孔肯雅病毒CHIKV
+    role: abbreviation
     priority: 3
-  - id: vaccine
-    scholarly: chikungunya vaccine
-    news_en: chikungunya vaccine
-    news_zh: 基孔肯雅疫苗
-    role: intervention
+  - id: ecsa_lineage
+    scholarly: East Central South African chikungunya lineage
+    news_en: East Central South African chikungunya lineage
+    news_zh: 基孔肯雅病毒东中南非谱系
+    role: lineage
     priority: 4
-  - id: e1a226v
-    scholarly: chikungunya E1-A226V
-    news_en: chikungunya E1-A226V
-    news_zh: 基孔肯雅E1-A226V突变
-    role: genomic
+  - id: asian_lineage
+    scholarly: Asian chikungunya lineage
+    news_en: Asian chikungunya lineage
+    news_zh: 基孔肯雅病毒亚洲谱系
+    role: lineage
     priority: 5
+  frozen: true
+  allow_weekly_mutation: false
+  core_terms_version: '2.0'
+  generated_from: authoritative_sources_plus_manual_v15_1_review
+  controlled_supplemental_terms: []

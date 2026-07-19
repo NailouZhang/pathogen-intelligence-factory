@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -121,6 +122,13 @@ def classify_llm_failure(error: Any) -> str:
         return "invalid_json"
     if any(token in text for token in ("401", "403", "unauthorized", "forbidden", "invalid api key", "api_key_invalid", "authentication")):
         return "authentication_failed"
+    # HTTP 429 is always a temporary rate-limit signal.  Check it before
+    # generic quota wording because providers often return messages such as
+    # "429 quota exceeded" for a retryable per-minute or concurrency limit.
+    if any(token in text for token in (
+        "429", "rate limit", "resource_exhausted", "too many requests", "请求过于频繁", "并发超额",
+    )):
+        return "rate_limited"
     if any(token in text for token in (
         "402", "insufficient credit", "insufficient balance", "negative credit", "payment required",
         "余额不足", "余额已用完", "账户余额", "赠送余额不可用", "free granted balance is unavailable",
@@ -128,10 +136,6 @@ def classify_llm_failure(error: Any) -> str:
         return "quota_exhausted"
     if any(token in text for token in ("quota", "billing", "insufficient_quota", "daily limit", "monthly limit", "token budget exhausted")):
         return "quota_exhausted"
-    if any(token in text for token in (
-        "429", "rate limit", "resource_exhausted", "too many requests", "请求过于频繁", "并发超额",
-    )):
-        return "rate_limited"
     if any(token in text for token in ("timeout", "timed out", "read timed out", "connect timeout")):
         return "timeout"
     if any(token in text for token in ("context length", "maximum context", "token limit", "request too large", "payload too large")):
@@ -200,8 +204,23 @@ class LLMRouter:
         self.bigmodel_key = self.keys["bigmodel"]
         self.deepseek_key = self.keys["deepseek"]
         self._model_cache: dict[str, list[str]] = {}
+        self.task_failures: list[dict[str, Any]] = []
         self.state_store = ProviderStateStore(os.getenv("PIF_PROVIDER_STATE_FILE", "").strip() or None)
         self.states = self.state_store.load(list(self.keys))
+        state_changed = False
+        for provider, key in self.keys.items():
+            fingerprint = hashlib.sha256(key.encode("utf-8")).hexdigest()[:16] if key else ""
+            state = self.states[provider]
+            # A newly configured or replaced key must not inherit an old
+            # authentication/quota disablement from the daily state file.
+            if fingerprint and fingerprint != state.key_fingerprint:
+                state.reset_for_key_change(fingerprint)
+                state_changed = True
+            elif not key and state.key_fingerprint:
+                state.key_fingerprint = ""
+                state_changed = True
+        if state_changed:
+            self._persist_states()
 
     @property
     def available(self) -> bool:
@@ -245,6 +264,19 @@ class LLMRouter:
         values = _split_csv(os.getenv(env_name, "") or default)
         known = [value.lower() for value in values if value.lower() in self.keys]
         return tuple(dict.fromkeys(known))
+
+    def record_task_failure(self, task_name: str, error: LLMError, **context: Any) -> None:
+        row = {
+            "task": task_name,
+            "at": utc_now_iso(),
+            "failure_category": error.category,
+            "error": self._safe_error_text(error),
+            "attempts": list(error.attempts or []),
+            "context": context,
+        }
+        self.task_failures.append(row)
+        if len(self.task_failures) > 500:
+            del self.task_failures[:-500]
 
     def _safe_error_text(self, error: Any) -> str:
         text = clean_space(error)
@@ -551,6 +583,19 @@ class LLMRouter:
     def _persist_states(self) -> None:
         self.state_store.save(self.states)
 
+    def _failure_cooldown_seconds(self, error: Any, default: int) -> int:
+        text = clean_space(error)
+        match = re.search(r"retry[- ]?after[^0-9]{0,20}(\d+)", text, flags=re.I)
+        if match:
+            return max(1, int(match.group(1)))
+        response = getattr(error, "response", None)
+        headers = getattr(response, "headers", {}) or {}
+        value = headers.get("Retry-After") or headers.get("retry-after")
+        try:
+            return max(1, int(float(value)))
+        except (TypeError, ValueError):
+            return max(1, default)
+
     def json_task(
         self,
         *,
@@ -563,7 +608,20 @@ class LLMRouter:
         task_name: str = "json_task",
     ) -> LLMResult:
         attempts: list[dict[str, Any]] = []
-        provider_order = provider_order or self.provider_order("extract")
+        if provider_order is None:
+            provider_order = self.provider_order("extract")
+        else:
+            provider_order = tuple(provider_order)
+        if not provider_order:
+            attempt = {
+                "task": task_name, "provider": "", "model": "", "at": utc_now_iso(),
+                "status": "failed", "failure_category": "no_provider_configured",
+                "error": "The caller supplied an empty provider order; extract fallback was not applied.",
+            }
+            raise LLMError(
+                "No provider is configured for the requested task order",
+                attempts=[attempt], category="no_provider_configured",
+            )
         runtime_cap = max(1, int(os.getenv("PIF_LLM_MAX_MODELS_PER_PROVIDER", "2")))
         max_models_per_provider = min(max_models_per_provider, runtime_cap)
         attempts_per_model = max(1, int(os.getenv("PIF_LLM_ATTEMPTS_PER_MODEL", "1")))
@@ -661,7 +719,7 @@ class LLMRouter:
                         return LLMResult(data=data, provider=provider, model=response_model, attempts=attempts)
                     except Exception as exc:
                         category = classify_llm_failure(exc)
-                        state.mark_failure(model, category, cooldown_seconds=cooldown_seconds)
+                        state.mark_failure(model, category, cooldown_seconds=self._failure_cooldown_seconds(exc, cooldown_seconds))
                         self._persist_states()
                         attempt.update({
                             "status": "failed",
@@ -698,6 +756,7 @@ class LLMRouter:
                 "overview": list(self.provider_order("overview")),
                 "relevance": list(self.provider_order("relevance")),
             },
+            "task_failures": list(self.task_failures),
             "providers": {
                 name: {
                     "configured": bool(self.keys.get(name)),

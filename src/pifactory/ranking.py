@@ -54,6 +54,34 @@ HOTSPOT_TOKENS = (
 )
 
 
+def _profile_priority_terms(profile: dict[str, Any] | None) -> list[dict[str, Any]]:
+    if not isinstance(profile, dict):
+        return []
+    vocab = profile.get("post_retrieval_vocabulary") or profile.get("vocabulary") or profile.get("candidate_vocabulary") or {}
+    rows = vocab.get("paper_priority_terms") or []
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        if isinstance(row, dict) and clean_space(row.get("term")):
+            out.append({
+                "term": clean_space(row.get("term")),
+                "category": clean_space(row.get("category")) or "profile_priority",
+                "weight": float(row.get("weight") or 1),
+            })
+    return out
+
+
+def paper_priority_term_hits(record: dict[str, Any], profile: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    text = clean_space(" ".join([
+        str(record.get("title") or ""), str(record.get("abstract") or ""),
+        str(record.get("full_text_excerpt") or ""), str(record.get("full_text") or "")[:8000],
+    ])).casefold()
+    hits: list[dict[str, Any]] = []
+    for row in _profile_priority_terms(profile):
+        term = row["term"].casefold()
+        if term and term in text:
+            hits.append(row)
+    return hits
+
 
 def _days_old(value: str | None) -> int:
     try:
@@ -62,7 +90,7 @@ def _days_old(value: str | None) -> int:
         return 30
 
 
-def paper_quality(record: dict[str, Any]) -> tuple[float, list[str]]:
+def paper_quality(record: dict[str, Any], profile: dict[str, Any] | None = None) -> tuple[float, list[str]]:
     reasons: list[str] = []
     score = float(record.get("relevance_score") or 0) * 36
     sources = record.get("sources") or [record.get("source")]
@@ -88,6 +116,14 @@ def paper_quality(record: dict[str, Any]) -> tuple[float, list[str]]:
     score += hotspot_points
     if hotspot_points:
         reasons.append(f"hotspot={hotspot_points:g}")
+
+    profile_hits = paper_priority_term_hits(record, profile)
+    profile_points = min(sum(float(x.get("weight") or 0) for x in profile_hits), 24.0)
+    score += profile_points
+    record["profile_priority_term_hits"] = profile_hits
+    record["profile_priority_score"] = round(profile_points, 3)
+    if profile_points:
+        reasons.append(f"profile_priority={profile_points:g}")
 
     types = " ".join(str(x).lower() for x in record.get("publication_types") or [])
     design_points = max((points for token, points in HIGH_LEVEL_TYPES.items() if token in types), default=0)
@@ -166,7 +202,7 @@ def news_quality(record: dict[str, Any]) -> tuple[float, list[str]]:
     return round(score, 3), reasons
 
 
-def paper_priority_tier(record: dict[str, Any]) -> tuple[str, str]:
+def paper_priority_tier(record: dict[str, Any], profile: dict[str, Any] | None = None) -> tuple[str, str]:
     relevance = float(record.get("relevance_score") or 0)
     sources = set(record.get("sources") or [record.get("source")])
     types = " ".join(str(x).lower() for x in record.get("publication_types") or [])
@@ -175,14 +211,18 @@ def paper_priority_tier(record: dict[str, Any]) -> tuple[str, str]:
     evidence_level = clean_space(record.get("evidence_level"))
     trusted = bool(sources & TRUSTED_PAPER_SOURCES)
     citations = int(record.get("citation_count") or 0)
+    profile_hits = record.get("profile_priority_term_hits") or paper_priority_term_hits(record, profile)
+    profile_priority_score = float(record.get("profile_priority_score") or sum(float(x.get("weight") or 0) for x in profile_hits))
 
     if relevance >= 0.6 and has_evidence and (
         design_points >= 16
         or evidence_level == "E2"
         or citations >= 20
         or (trusted and float(record.get("quality_score") or 0) >= 62)
+        or profile_priority_score >= 5
     ):
-        return "A", "高相关性，且具备高等级研究设计、全文证据或较强数据库/引用支持"
+        reason = "高相关性且命中病毒Profile优先主题" if profile_priority_score >= 5 else "高相关性，且具备高等级研究设计、全文证据或较强数据库/引用支持"
+        return "A", reason
     if relevance >= 0.6 and (has_evidence or trusted):
         return "B", "主题明确且摘要或可信数据库元数据较完整"
     return "C", "补充性记录、预印本或证据完整度有限"
@@ -206,12 +246,12 @@ def news_priority_tier(record: dict[str, Any]) -> tuple[str, str]:
     return "C", "新闻聚合或正文证据有限，作为补充信息"
 
 
-def rank_papers(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def rank_papers(records: list[dict[str, Any]], profile: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     for record in records:
-        score, reasons = paper_quality(record)
+        score, reasons = paper_quality(record, profile)
         record["quality_score"] = score
         record["quality_reasons"] = reasons
-        tier, reason = paper_priority_tier(record)
+        tier, reason = paper_priority_tier(record, profile)
         record["priority_tier"] = tier
         record["priority_tier_reason"] = reason
     return sorted(

@@ -1,30 +1,29 @@
 from pathlib import Path
 
 
-def test_workflow_streams_python_output_and_bounds_display_enrichment():
+def test_workflow_streams_python_output_and_sets_v15_budgets():
     text = Path(".github/workflows/daily-intelligence.yml").read_text(encoding="utf-8")
     assert "python -u scripts/run_daily.py" in text
     assert '| tee "/tmp/${PROFILE_ID}.combined.log"' in text
-    # v9 keeps a bounded Top 50 plus 30 replacement candidates through
-    # translation, then selects the final 50 only after the translation gate.
     assert 'PIF_MAX_NEWS_FETCHES: "80"' in text
-    assert 'PIF_MAX_FULLTEXTS: "80"' in text
-    assert 'PIF_DISPLAY_CANDIDATE_BUFFER: "30"' in text
-    assert 'PIF_SEMANTIC_ANONYMOUS_QUERY_LIMIT: "5"' in text
+    assert "vars.PIF_MAX_FULLTEXTS || '150'" in text
+    assert "vars.PIF_DISPLAY_CANDIDATE_BUFFER || '100'" in text
+    assert "vars.PIF_MAX_SUPPLEMENTARY_PAPERS || '100'" in text
+    assert "vars.PIF_FULLTEXT_BATCH_SIZE || '25'" in text
     assert "timeout --signal=TERM" in text
 
 
-def test_pipeline_keeps_bounded_replacement_pool_until_translation_gate():
-    text = Path("src/pifactory/pipeline.py").read_text(encoding="utf-8")
-    queue_selection = text.index("paper_queue = rank_papers(papers)")
-    news_queue_selection = text.index("news_queue = rank_news(news)")
-    paper_call = text.index("lambda item: enrich_scholarly_work", queue_selection)
-    news_call = text.index("lambda item: resolve_and_extract_news", news_queue_selection)
-    analysis = text.index('progress("deep_analysis", "start"', paper_call)
-    translation_gate = text.index('"translation_gate", "complete"', analysis)
-    final_paper_slice = text.index("papers = ranked_paper_ready_pool[: settings.max_papers]", analysis)
-    final_news_slice = text.index("news = ranked_news_ready_pool[: settings.max_news]", analysis)
-    assert queue_selection < paper_call < analysis < final_paper_slice < translation_gate
-    assert news_queue_selection < news_call < analysis < final_news_slice < translation_gate
-    assert "settings.max_papers + max(0, settings.display_candidate_buffer)" in text
-    assert "settings.max_news + max(0, settings.display_candidate_buffer)" in text
+def test_pipeline_completes_after_dedup_and_replenishes_primary_report():
+    text = Path("src/pifactory/pipeline_v15.py").read_text(encoding="utf-8")
+    dedup = text.index("dedup_papers")
+    lifecycle = text.index('progress(\n        "literature_lifecycle", "start"', dedup)
+    completion = text.index("complete_literature_catalog(", lifecycle)
+    final_review = text.index("_review_paper_batch(completed", completion)
+    analysis = text.index("_analyze_translate_paper(item)", final_review)
+    replenishment = text.index('"primary_report_replenishment", "batch_complete"', analysis)
+    selection = text.index("select_primary_and_supplementary(", replenishment)
+    assert dedup < lifecycle < completion < final_review < analysis < replenishment < selection
+    assert "max_budget=len(current)" in text
+    assert "completion_processed < settings.max_fulltexts" in text
+    assert "len(primary_ready) < comparison_target" in text
+    assert "supplementary_limit=settings.max_supplementary_papers" in text

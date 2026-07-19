@@ -127,13 +127,85 @@ candidate_vocabulary:
   - porcine enterovirus
   - bovine enterovirus
   - simian enterovirus
-manual_query_skeletons:
-  pubmed_high_precision: (("non-polio enterovirus"[Title/Abstract] OR "nonpolio enterovirus"[Title/Abstract] OR "EV-A71"[Title/Abstract]
-    OR "enterovirus A71"[Title/Abstract] OR "EV-D68"[Title/Abstract] OR "enterovirus D68"[Title/Abstract] OR "coxsackievirus
-    A6"[Title/Abstract] OR "coxsackievirus A16"[Title/Abstract]) AND {{DATE_FILTER}}) NOT (poliovirus[Title/Abstract] OR porcine
-    enterovirus[Title/Abstract])
-  news_high_precision: ("non-polio enterovirus" OR "EV-A71" OR "EV-D68" OR "coxsackievirus A6" OR "coxsackievirus A16") AND
-    (outbreak OR cases OR surveillance OR "hand foot and mouth disease" OR "acute flaccid myelitis")
+  paper_priority_terms:
+  - term: outbreak
+    category: emerging_event
+    weight: 5
+  - term: spillover
+    category: cross_species
+    weight: 5
+  - term: first report
+    category: novelty
+    weight: 5
+  - term: novel host
+    category: novelty
+    weight: 5
+  - term: new region
+    category: novelty
+    weight: 4
+  - term: genomic surveillance
+    category: genomics
+    weight: 4
+  - term: recombination
+    category: evolution
+    weight: 4
+  - term: evolution
+    category: evolution
+    weight: 3
+  - term: vaccine
+    category: countermeasure
+    weight: 3
+  - term: therapeutic
+    category: countermeasure
+    weight: 3
+  - term: diagnostic
+    category: diagnostics
+    weight: 3
+  - term: clinical outcome
+    category: clinical
+    weight: 3
+  - term: cohort
+    category: study_scale
+    weight: 2
+  - term: systematic review
+    category: evidence_synthesis
+    weight: 3
+  - term: public health
+    category: public_health
+    weight: 2
+  document_type_terms:
+    research:
+    - trial
+    - cohort
+    - case-control
+    - cross-sectional
+    - experimental study
+    systematic_review:
+    - systematic review
+    - meta-analysis
+    - scoping review
+    narrative_review:
+    - review
+    - narrative review
+    - perspective
+    case_report:
+    - case report
+    - case series
+    surveillance_report:
+    - surveillance report
+    - outbreak report
+    - epidemiological update
+    methods:
+    - method
+    - assay
+    - protocol
+    - algorithm
+    - model
+    commentary:
+    - editorial
+    - commentary
+    - letter
+    - opinion
 authoritative_sources:
 - name: ICTV Picornaviridae
   organization: ICTV
@@ -183,15 +255,18 @@ retrieval_policy:
   openalex_per_term: 80
   candidate_gate: python_accept_or_llm_review
   final_gate: accept_before_top_n_enrichment
-  strategy: lean_core_concepts_v7
+  strategy: frozen_five_core_terms_v15
   max_core_concepts: 5
-  content_enrichment_stage: after_top_n_selection
-  content_enrichment_limit_papers: 50
+  content_enrichment_stage: after_cross_source_dedup_dynamic_batches
+  content_enrichment_limit_papers: 150
   content_enrichment_limit_news: 50
   llm_review_mode: ambiguous_only
   provider_expansion_first: true
+  primary_report_limit: 50
+  supplementary_report_limit: 100
+  top_n_means_deep_report_not_deletion: true
 search_strategy:
-  schema_version: '1.1'
+  schema_version: '2.1'
   max_concepts: 5
   provider_expansion_first: true
   deduplicate_semantic_equivalents: true
@@ -200,29 +275,39 @@ search_strategy:
     scholarly: non-polio enterovirus
     news_en: non-polio enterovirus
     news_zh: 非脊髓灰质炎肠道病毒
-    role: umbrella
+    role: group
     priority: 1
   - id: eva71
     scholarly: enterovirus A71
     news_en: enterovirus A71
     news_zh: 肠道病毒A71型
-    role: hotspot_type
+    role: type
     priority: 2
   - id: evd68
     scholarly: enterovirus D68
     news_en: enterovirus D68
     news_zh: 肠道病毒D68型
-    role: hotspot_type
+    role: type
     priority: 3
   - id: cva6
     scholarly: coxsackievirus A6
     news_en: coxsackievirus A6
     news_zh: 柯萨奇病毒A6型
-    role: hotspot_type
+    role: type
     priority: 4
   - id: hfmd
-    scholarly: enterovirus hand foot and mouth disease
-    news_en: enterovirus hand foot and mouth disease
-    news_zh: 肠道病毒手足口病
-    role: clinical
+    scholarly: hand foot and mouth disease
+    news_en: hand foot and mouth disease
+    news_zh: 手足口病
+    role: disease
     priority: 5
+  frozen: true
+  allow_weekly_mutation: false
+  core_terms_version: '2.0'
+  generated_from: authoritative_sources_plus_manual_v15_1_review
+  controlled_supplemental_terms:
+  - EV-A71
+  - EV-D68
+  - CV-A6
+  - coxsackievirus A16
+  - CV-A16

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import json
 import os
 import re
@@ -14,7 +15,7 @@ from .llm import LLMError, LLMRouter
 from .utils import clean_space, extract_numbers, sha256_text, split_sentences, truncate
 
 
-TRANSLATION_CACHE_VERSION = "v14-parallel-bilingual-elements-1"
+TRANSLATION_CACHE_VERSION = "v15.2-independent-news-state-provider-health-1"
 
 DEFAULT_REPAIRS = {
     "汉塔病毒": "汉坦病毒",
@@ -41,6 +42,70 @@ FORBIDDEN_TRANSLATIONS = (
 )
 
 GOOGLE_DIRECT_URL = "https://translate.googleapis.com/translate_a/single"
+
+
+TRANSLATION_HEALTH_KEY = "__translation_provider_health_v15_2__"
+
+def _translation_health(cache: dict[str, Any]) -> dict[str, Any]:
+    state = cache.setdefault(TRANSLATION_HEALTH_KEY, {"policy_version": TRANSLATION_CACHE_VERSION, "providers": {}})
+    if not isinstance(state, dict):
+        state = {"policy_version": TRANSLATION_CACHE_VERSION, "providers": {}}
+        cache[TRANSLATION_HEALTH_KEY] = state
+    state.setdefault("providers", {})
+    return state
+
+def _translation_failure_category(exc: Exception) -> tuple[str, int]:
+    text = clean_space(exc).lower()
+    status = getattr(getattr(exc, "response", None), "status_code", None)
+    headers = getattr(getattr(exc, "response", None), "headers", {}) or {}
+    retry_after = headers.get("Retry-After") or headers.get("retry-after") or 0
+    try:
+        retry_seconds = max(1, int(float(retry_after)))
+    except (TypeError, ValueError):
+        retry_seconds = 60
+    if status == 429 or "429" in text or "too many requests" in text or "rate limit" in text:
+        return "rate_limited", retry_seconds
+    if status in {401, 403} or any(token in text for token in ("unauthorized", "forbidden", "authentication", "invalid api key")):
+        return "authentication_failed", 0
+    if isinstance(exc, (requests.Timeout, requests.ConnectionError)) or any(token in text for token in ("timeout", "timed out", "connection", "network", "dns")):
+        return "network_error", 0
+    return "field_failure", 0
+
+def _provider_available(health: dict[str, Any], provider: str) -> tuple[bool, str]:
+    row = (health.get("providers") or {}).get(provider) or {}
+    now = time.time()
+    if row.get("disabled"):
+        return False, clean_space(row.get("disabled_reason")) or "disabled_for_current_profile"
+    until = float(row.get("cooldown_until") or 0.0)
+    if until > now:
+        return False, f"cooldown:{round(until-now,1)}s"
+    return True, "available"
+
+def _mark_translation_success(health: dict[str, Any], provider: str) -> None:
+    row = (health.setdefault("providers", {})).setdefault(provider, {})
+    row["successes"] = int(row.get("successes") or 0) + 1
+    row["consecutive_network_failures"] = 0
+    row["last_status"] = "success"
+
+def _mark_translation_failure(health: dict[str, Any], provider: str, exc: Exception) -> tuple[str, int]:
+    category, retry_seconds = _translation_failure_category(exc)
+    row = (health.setdefault("providers", {})).setdefault(provider, {})
+    row["failures"] = int(row.get("failures") or 0) + 1
+    row["last_status"] = category
+    row["last_error"] = clean_space(exc)[:300]
+    if category == "rate_limited":
+        row["cooldown_until"] = time.time() + max(1, retry_seconds)
+    elif category == "authentication_failed":
+        row["disabled"] = True
+        row["disabled_reason"] = category
+    elif category == "network_error":
+        count = int(row.get("consecutive_network_failures") or 0) + 1
+        row["consecutive_network_failures"] = count
+        if count >= max(1, int(os.getenv("PIF_TRANSLATION_NETWORK_FAILURE_THRESHOLD", "2"))):
+            row["disabled"] = True
+            row["disabled_reason"] = "repeated_network_failure"
+    return category, retry_seconds
+
 
 
 def _glossary(profile: dict[str, Any]) -> list[dict[str, str]]:
@@ -250,8 +315,8 @@ def _mymemory_chunk(text: str) -> str:
     raise RuntimeError("; ".join(errors))
 
 
-def _python_translate(text: str) -> tuple[str, str, list[dict[str, Any]]]:
-    errors: list[dict[str, Any]] = []
+def _python_translate(text: str, health: dict[str, Any]) -> tuple[str, str, list[dict[str, Any]]]:
+    attempts: list[dict[str, Any]] = []
     chunks = _split_translation_chunks(text)
     providers: list[tuple[str, Callable[[str], str]]] = [
         ("python_google_translate", _google_deep_chunk),
@@ -259,17 +324,37 @@ def _python_translate(text: str) -> tuple[str, str, list[dict[str, Any]]]:
         ("python_mymemory", _mymemory_chunk),
     ]
     for provider, translator in providers:
+        available, reason = _provider_available(health, provider)
+        if not available:
+            attempts.append({"provider": provider, "status": "skipped", "reason": reason})
+            continue
         translated_chunks: list[str] = []
         try:
             for chunk in chunks:
                 translated_chunks.append(translator(chunk))
             value = clean_space(" ".join(translated_chunks))
             if value:
-                errors.append({"provider": provider, "status": "success", "chunks": len(chunks)})
-                return value, provider, errors
+                _mark_translation_success(health, provider)
+                attempts.append({"provider": provider, "status": "success", "chunks": len(chunks)})
+                return value, provider, attempts
         except Exception as exc:
-            errors.append({"provider": provider, "status": "failed", "error": clean_space(exc)[:500]})
-    raise RuntimeError(json.dumps(errors, ensure_ascii=False))
+            category, retry_seconds = _mark_translation_failure(health, provider, exc)
+            attempts.append({
+                "provider": provider, "status": "failed", "failure_category": category,
+                "retry_after_seconds": retry_seconds or None, "error": clean_space(exc)[:500],
+            })
+    raise RuntimeError(json.dumps(attempts, ensure_ascii=False))
+
+
+def _invoke_python_translate(text: str, health: dict[str, Any]) -> tuple[str, str, list[dict[str, Any]]]:
+    """Call the internal translator while preserving older test/plugin shims."""
+    try:
+        parameter_count = len(inspect.signature(_python_translate).parameters)
+    except (TypeError, ValueError):
+        parameter_count = 2
+    if parameter_count <= 1:
+        return _python_translate(text)  # type: ignore[call-arg]
+    return _python_translate(text, health)
 
 
 def _cache_key(source: str, glossary: list[dict[str, str]], field_kind: str) -> str:
@@ -316,7 +401,7 @@ def translate_text(
     # requests-based Google route is independent of deep-translator, and
     # MyMemory is retained as another no-key provider.
     try:
-        raw, provider, python_attempts = _python_translate(protected)
+        raw, provider, python_attempts = _invoke_python_translate(protected, _translation_health(cache))
         attempts.extend(python_attempts)
         candidate = _repair_zh(_restore(raw, mapping), glossary)
         valid, reason = _looks_chinese(candidate, source, field_kind)
@@ -344,7 +429,7 @@ def translate_text(
             ensure_ascii=False,
         )
         try:
-            result = llm.json_task(system=prompt_text, prompt=prompt, provider_order=getattr(llm, "provider_order", lambda purpose: ())("rescue"), max_models_per_provider=2, temperature=0.05)
+            result = llm.json_task(system=prompt_text, prompt=prompt, provider_order=getattr(llm, "provider_order", lambda purpose: ())("rescue"), max_models_per_provider=2, temperature=0.05, task_name="translation_single_rescue")
             attempts.extend(result.attempts)
             raw = ""
             if isinstance(result.data, dict):
@@ -401,9 +486,10 @@ def _python_translate_protected(
     source: str,
     glossary: list[dict[str, str]],
     field_kind: str,
+    health: dict[str, Any],
 ) -> tuple[str, dict[str, Any]]:
     protected, mapping = _protect(source, glossary)
-    raw, provider, attempts = _python_translate(protected)
+    raw, provider, attempts = _invoke_python_translate(protected, health)
     candidate = _repair_zh(_restore(raw, mapping), glossary)
     valid, reason = _looks_chinese(candidate, source, field_kind)
     if not valid:
@@ -448,7 +534,7 @@ def _translate_field_map(
                 audits[key] = {**cached.get("audit", {}), "from_cache": True}
                 continue
         try:
-            candidate, audit = _python_translate_protected(source, glossary, field_kind)
+            candidate, audit = _python_translate_protected(source, glossary, field_kind, _translation_health(cache))
             translated[key] = candidate
             audits[key] = audit
             cache[cache_key] = {"text": candidate, "audit": audit}
@@ -481,7 +567,7 @@ def _translate_field_map(
             ensure_ascii=False,
         )
         try:
-            result = llm.json_task(system=prompt_text, prompt=prompt, provider_order=getattr(llm, "provider_order", lambda purpose: ())("rescue"), max_models_per_provider=2, temperature=0.05)
+            result = llm.json_task(system=prompt_text, prompt=prompt, provider_order=getattr(llm, "provider_order", lambda purpose: ())("rescue"), max_models_per_provider=2, temperature=0.05, task_name="translation_batch_rescue")
             response_fields = result.data.get("translations") if isinstance(result.data, dict) else {}
             if not isinstance(response_fields, dict):
                 response_fields = {}
@@ -586,6 +672,42 @@ def build_wechat_news_summary(analysis_zh: dict[str, str], body_zh: str, limit: 
     return result
 
 
+
+
+def translate_title_only(
+    record: dict[str, Any],
+    *,
+    profile: dict[str, Any],
+    llm: LLMRouter,
+    prompts_dir: Path,
+    cache: dict[str, Any],
+) -> dict[str, Any]:
+    """Translate a supplementary-paper title without inventing study content."""
+    prompt_text = (prompts_dir / "translate_zh.md").read_text(encoding="utf-8")
+    title_zh, audit = translate_text(
+        clean_space(record.get("title")),
+        profile=profile, llm=llm, prompt_text=prompt_text, cache=cache,
+        max_chars=800, field_kind="title",
+    )
+    translated = clean_space(title_zh)
+    fallback_used = False
+    if not translated:
+        translated = clean_space(record.get("title"))
+        fallback_used = True
+        audit = {
+            **(audit or {}),
+            "status": "english_title_fallback_after_all_translation_attempts",
+            "provider": "source",
+            "fallback_used": True,
+        }
+    record["title_zh"] = translated
+    record["supplementary_translation_audit"] = {
+        "title": audit,
+        "ready": bool(record["title_zh"]),
+        "fallback_used": fallback_used,
+    }
+    return record
+
 def translate_record(
     record: dict[str, Any],
     *,
@@ -603,8 +725,8 @@ def translate_record(
 
     title_source = clean_space(record.get("title"))
     if kind in {"research", "review"}:
-        body_source = clean_space(record.get("abstract"))
-        body_kind = "abstract"
+        body_source = clean_space(record.get("abstract") or record.get("full_text_excerpt"))
+        body_kind = "abstract" if clean_space(record.get("abstract")) else "full_text_excerpt"
     else:
         # News cards use the body-grounded compact brief generated during the
         # single-record analysis. Full original text remains available in the
@@ -651,24 +773,35 @@ def translate_record(
     record["analysis_en"] = elements_en
     title_ready = bool(title_zh)
     body_ready = bool(body_zh)
-    analysis_ready = all(bool(analysis_zh.get(field)) for field in fields)
-    translation_ready = title_ready and body_ready and analysis_ready
+    translated_analysis_ready = all(bool(analysis_zh.get(field)) for field in fields)
+    translation_complete = title_ready and body_ready and translated_analysis_ready
 
+    # News translation quality is independent from source and English-analysis
+    # eligibility. Missing Chinese fields are filled with verified English text
+    # later by news_state.finalize_news_state and are never reported as a real
+    # Chinese translation success.
     record["title_zh"] = title_zh
     record["source_body_en"] = body_source
     record["abstract_zh" if kind in {"research", "review"} else "content_zh"] = body_zh
     record["summary_zh"] = body_zh
     record["analysis_zh"] = analysis_zh
+    record["translation_complete"] = translation_complete
+    record["translation_status"] = "complete" if translation_complete else "unavailable"
     if kind == "news":
-        record["wechat_summary_zh"] = build_wechat_news_summary(analysis_zh, body_zh, limit=wechat_news_max_zh_chars)
-        translation_ready = translation_ready and bool(record["wechat_summary_zh"]) and len(record["wechat_summary_zh"]) <= wechat_news_max_zh_chars
-    record["translation_ready"] = translation_ready
+        summary_elements = analysis_zh if translated_analysis_ready else elements_en
+        summary_body = body_zh or body_source
+        record["wechat_summary_zh"] = build_wechat_news_summary(summary_elements, summary_body, limit=wechat_news_max_zh_chars)
+        record["wechat_summary_ready"] = bool(record["wechat_summary_zh"])
+    record["translation_ready"] = translation_complete
     record["translation_audit"] = {
         "policy_version": TRANSLATION_CACHE_VERSION,
         "order": ["deep_translator_google", "google_direct_python", "mymemory", "llm_batch_fallback", "individual_field_rescue"],
         "title": audits.get("title", {}),
         "abstract_or_body": audits.get("abstract_or_body", {}),
+        "body_source_kind": body_kind if body_source else "none",
         "fields": {field: audits.get(field, {"status": "empty_source", "provider": "none", "attempts": []}) for field in fields},
-        "ready": translation_ready,
+        "ready": translation_complete,
+        "translation_status": record.get("translation_status"),
+        "provider_health": _translation_health(cache),
     }
     return record
