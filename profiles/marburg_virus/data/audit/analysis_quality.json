@@ -1,12 +1,12 @@
 {
-  "run": {
-    "policy_version": "v11-analysis-quality-observability-1",
-    "scope": "candidate_pool",
+  "candidate_pool": {
+    "policy_version": "v14.5-final-display-quality-1",
+    "scope": "processed_candidate_pool",
     "severity": "critical",
     "warning_ratio": 0.2,
     "critical_ratio": 0.5,
-    "message_zh": "本期分析质量严重降级：1/2 条（50.0%）使用低置信规则兜底。主要原因：请求触发限流。七/五要素仅可作为来源文本的辅助摘录，不应视为完整的模型精读。",
-    "message_en": "Analysis quality is critically degraded: 1/2 items (50.0%) used low-confidence deterministic extraction. Main causes: requests were rate limited.",
+    "message_zh": "本期分析质量严重降级：1/2 条（50.0%）使用低置信规则兜底。主要原因：模型 JSON 未通过结构/证据校验。七/五要素仅可作为来源文本的辅助摘录，不应视为完整的模型精读。",
+    "message_en": "Analysis quality is critically degraded: 1/2 items (50.0%) used low-confidence deterministic extraction. Main causes: model JSON failed schema or evidence validation.",
     "papers": {
       "total_items": 2,
       "analyzable": 2,
@@ -39,73 +39,107 @@
     },
     "top_failure_categories": [
       {
-        "category": "rate_limited",
+        "category": "validation_failed",
         "count": 1,
-        "label_zh": "请求触发限流",
-        "label_en": "requests were rate limited"
+        "label_zh": "模型 JSON 未通过结构/证据校验",
+        "label_en": "model JSON failed schema or evidence validation"
       }
     ],
     "provider_attempts": {
+      "bigmodel:skipped": 2,
+      "deepseek:skipped": 1,
       "gemini:skipped": 1,
-      "groq:skipped": 2,
-      "mistral:failed": 1,
-      "mistral:skipped": 2,
+      "groq:skipped": 1,
+      "mistral:failed": 2,
       "mistral:success": 1,
-      "openrouter:failed": 2,
+      "openrouter:failed": 1,
+      "openrouter:skipped": 1,
       "siliconflow:skipped": 2
     },
     "model_attempts": {
+      "bigmodel/glm-4.7-flash:skipped": 2,
+      "deepseek/not_selected:skipped": 1,
       "gemini/not_selected:skipped": 1,
-      "groq/not_selected:skipped": 2,
+      "groq/not_selected:skipped": 1,
       "mistral/mistral-small-2506:failed": 1,
-      "mistral/mistral-small-2506:success": 1,
-      "mistral/mistral-small-latest:skipped": 2,
+      "mistral/mistral-small-latest:failed": 1,
+      "mistral/mistral-small-latest:success": 1,
       "openrouter/cohere/north-mini-code:free:failed": 1,
-      "openrouter/openrouter/free:failed": 1,
+      "openrouter/openrouter/free:skipped": 1,
       "siliconflow/not_selected:skipped": 2
     },
     "attempt_failure_categories": {
-      "rate_limited": 2,
-      "validation_failed": 1
+      "rate_limited": 1,
+      "validation_failed": 2
     },
     "preflight": {
-      "schema_version": 2,
-      "generated_at": "2026-07-18T18:54:06+00:00",
+      "schema_version": 3,
+      "generated_at": "2026-07-19T11:51:59+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
         "groq",
         "openrouter",
         "mistral",
-        "siliconflow"
+        "siliconflow",
+        "bigmodel",
+        "deepseek"
       ],
       "analysis_provider_passed": [
-        "groq",
-        "mistral"
+        "mistral",
+        "bigmodel"
       ],
       "live_probe_performed": true,
       "provider_orders": {
         "extract": [
+          "bigmodel",
           "siliconflow",
-          "groq",
           "mistral",
+          "groq",
+          "deepseek",
           "openrouter",
           "gemini"
         ],
         "rescue": [
-          "gemini",
+          "bigmodel",
+          "deepseek",
           "mistral",
+          "gemini",
           "openrouter",
           "groq",
           "siliconflow"
+        ],
+        "overview": [
+          "bigmodel",
+          "deepseek",
+          "mistral",
+          "gemini",
+          "openrouter",
+          "groq",
+          "siliconflow"
+        ],
+        "relevance": [
+          "groq",
+          "bigmodel",
+          "siliconflow",
+          "mistral",
+          "deepseek",
+          "gemini",
+          "openrouter"
         ]
+      },
+      "provider_endpoints": {
+        "siliconflow": "https://api.siliconflow.cn/v1",
+        "bigmodel": "https://open.bigmodel.cn/api/paas/v4",
+        "deepseek": "https://api.deepseek.com"
       },
       "providers": [
         {
           "provider": "gemini",
           "status": "failed",
-          "failure_category": "authentication_failed",
-          "error": "All configured LLM attempts failed (authentication_failed)",
+          "failure_category": "unknown",
+          "error": "All configured LLM attempts failed (unknown)",
+          "action_hint": "",
           "account": {
             "status": "not_supported"
           },
@@ -113,23 +147,20 @@
             {
               "task": "credential_preflight",
               "provider": "gemini",
-              "model": "gemini-2.5-flash",
-              "retry_index": 0,
-              "at": "2026-07-18T18:54:03+00:00",
-              "system_chars": 39,
-              "prompt_chars": 31,
-              "status": "failed",
+              "model": "",
+              "at": "2026-07-19T11:51:56+00:00",
+              "status": "skipped",
               "failure_category": "authentication_failed",
-              "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: HTTP status 403: 403 Client Error: Forbidden for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=[REDACTED] response={ \"error\": { \"code\": 403, \"message\": \"Your API key was reported as leaked. Please use another API key.\", \"status\": \"PERMISSION_DENIED\" } }",
-              "elapsed_ms": 113
+              "error": "authentication_failed"
             }
           ]
         },
         {
           "provider": "groq",
-          "status": "passed",
-          "model": "llama-3.1-8b-instant",
+          "status": "failed",
+          "failure_category": "unknown",
+          "error": "All configured LLM attempts failed (unknown)",
+          "action_hint": "",
           "account": {
             "status": "not_supported"
           },
@@ -137,19 +168,11 @@
             {
               "task": "credential_preflight",
               "provider": "groq",
-              "model": "llama-3.1-8b-instant",
-              "retry_index": 0,
-              "at": "2026-07-18T18:54:04+00:00",
-              "system_chars": 39,
-              "prompt_chars": 31,
-              "status": "success",
-              "response_model": "llama-3.1-8b-instant",
-              "elapsed_ms": 84,
-              "usage": {
-                "prompt_tokens": 68,
-                "completion_tokens": 9,
-                "total_tokens": 77
-              }
+              "model": "",
+              "at": "2026-07-19T11:51:56+00:00",
+              "status": "skipped",
+              "failure_category": "quota_exhausted",
+              "error": "quota_exhausted"
             }
           ]
         },
@@ -158,6 +181,7 @@
           "status": "failed",
           "failure_category": "rate_limited",
           "error": "All configured LLM attempts failed (rate_limited)",
+          "action_hint": "Provider is in temporary cooldown; the router will use another provider.",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -173,14 +197,14 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-07-18T18:54:04+00:00",
+              "at": "2026-07-19T11:51:56+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Provider returned error\",\"provider_name\":\"Venice\",\"raw\":\"cognitivecomputations/dolphin-mistral-24b-venice-edition:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/inte",
-              "elapsed_ms": 112
+              "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Venice\",\"is_byok\":false,\"retry_after_seconds\":7,\"retry_after_seconds_raw\":6.295,\"previous_errors\":[{\"code\":429,\"message\":\"Provider returned error\",\"provider_name\":\"Venice\",\"raw\":\"cognitivecomputations/dolphin-mistral-24b-venice-edition:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\"},{\"code\":429,\"",
+              "elapsed_ms": 173
             }
           ]
         },
@@ -197,12 +221,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-07-18T18:54:05+00:00",
+              "at": "2026-07-19T11:51:57+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 353,
+              "elapsed_ms": 397,
               "usage": {
                 "prompt_tokens": 22,
                 "completion_tokens": 6,
@@ -214,29 +238,86 @@
         {
           "provider": "siliconflow",
           "status": "failed",
-          "failure_category": "authentication_failed",
-          "error": "All configured LLM attempts failed (authentication_failed)",
+          "failure_category": "unknown",
+          "error": "All configured LLM attempts failed (unknown)",
+          "action_hint": "",
           "account": {
             "status": "ok",
             "account_status": "normal",
-            "balance": "1",
+            "balance": "0",
             "charge_balance": "0",
-            "total_balance": "1"
+            "total_balance": "0"
           },
           "attempts": [
             {
               "task": "credential_preflight",
               "provider": "siliconflow",
-              "model": "Qwen/Qwen3-8B",
+              "model": "",
+              "at": "2026-07-19T11:51:57+00:00",
+              "status": "skipped",
+              "failure_category": "authentication_failed",
+              "error": "authentication_failed"
+            }
+          ]
+        },
+        {
+          "provider": "bigmodel",
+          "status": "passed",
+          "model": "glm-4.7-flash",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "bigmodel",
+              "model": "glm-4.7-flash",
               "retry_index": 0,
-              "at": "2026-07-18T18:54:06+00:00",
+              "at": "2026-07-19T11:51:57+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
-              "status": "failed",
-              "failure_category": "authentication_failed",
-              "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.siliconflow.com/v1/chat/completions: HTTP status 403: 403 Client Error: Forbidden for url: https://api.siliconflow.com/v1/chat/completions; response={\"code\":30001,\"message\":\"Sorry, your account balance is insufficient\",\"data\":null}",
-              "elapsed_ms": 14
+              "status": "success",
+              "response_model": "glm-4.7-flash",
+              "elapsed_ms": 1928,
+              "usage": {
+                "prompt_tokens": 75,
+                "completion_tokens": 10,
+                "total_tokens": 85
+              }
+            }
+          ]
+        },
+        {
+          "provider": "deepseek",
+          "status": "failed",
+          "failure_category": "unknown",
+          "error": "All configured LLM attempts failed (unknown)",
+          "action_hint": "",
+          "account": {
+            "status": "ok",
+            "is_available": true,
+            "granted_balance_available": false,
+            "granted_balance_total": 0.0,
+            "topped_up_balance_total": 1.83,
+            "minimum_granted_balance": 0.1,
+            "balances": [
+              {
+                "currency": "CNY",
+                "total_balance": "1.83",
+                "granted_balance": "0.00",
+                "topped_up_balance": "1.83"
+              }
+            ]
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "deepseek",
+              "model": "",
+              "at": "2026-07-19T11:51:59+00:00",
+              "status": "skipped",
+              "failure_category": "quota_exhausted",
+              "error": "quota_exhausted"
             }
           ]
         }
@@ -299,6 +380,20 @@
           "note": "configured"
         },
         {
+          "name": "BIGMODEL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Zhipu BigModel structured-analysis provider; defaults to free GLM-4.7-Flash",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "DEEPSEEK_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "DeepSeek structured-analysis provider with optional granted-balance-only guard",
+          "configured": true,
+          "note": "configured"
+        },
+        {
           "name": "OPENALEX_API_KEY",
           "level": "required_for_openalex",
           "purpose": "OpenAlex currently requires an API key",
@@ -331,86 +426,104 @@
     "fallback_records": [
       {
         "type": "paper",
-        "id": "paper-dab6b24617494464",
-        "title": "Dataset of figures",
-        "failure_category": "rate_limited",
+        "id": "paper-661d0bf746e58ed7",
+        "title": "Digital Health for Pandemic Preparedness: A Critical Review of Innovations, Equity Gaps, and Governance in Infectious Disease Surveillance",
+        "failure_category": "validation_failed",
         "fallback_policy": "role_cue_position_rescue",
-        "error": "All configured LLM attempts failed (rate_limited)",
+        "error": "All configured LLM attempts failed (validation_failed)",
         "attempts": [
           {
-            "task": "paper_research_analysis",
-            "provider": "siliconflow",
-            "model": "",
-            "at": "2026-07-18T18:58:38+00:00",
-            "status": "skipped",
-            "failure_category": "authentication_failed",
-            "error": "authentication_failed"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "groq",
-            "model": "",
-            "at": "2026-07-18T18:58:38+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-latest",
-            "at": "2026-07-18T18:58:38+00:00",
+            "task": "paper_review_analysis",
+            "provider": "bigmodel",
+            "model": "glm-4.7-flash",
+            "at": "2026-07-19T11:57:16+00:00",
             "status": "skipped",
             "failure_category": "model_cooldown",
             "error": "model is temporarily cooling down"
           },
           {
-            "task": "paper_research_analysis",
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-19T11:57:16+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
             "provider": "mistral",
-            "model": "mistral-small-2506",
+            "model": "mistral-small-latest",
             "retry_index": 0,
-            "at": "2026-07-18T18:58:38+00:00",
-            "system_chars": 5395,
-            "prompt_chars": 3973,
+            "at": "2026-07-19T11:57:16+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5589,
             "status": "failed",
             "failure_category": "validation_failed",
             "error_type": "LLMError",
-            "error": "validation_failed: research_question_and_background cites evidence assigned to the wrong rhetorical role: ['implications']",
-            "elapsed_ms": 3853
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['design_population', 'results']",
+            "elapsed_ms": 4588
           },
           {
-            "task": "paper_research_analysis",
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-19T11:57:20+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5589,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['conclusion', 'design_population', 'results']",
+            "elapsed_ms": 6346
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-19T11:57:27+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "deepseek",
+            "model": "",
+            "at": "2026-07-19T11:57:27+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
             "provider": "openrouter",
             "model": "openrouter/free",
-            "retry_index": 0,
-            "at": "2026-07-18T18:58:42+00:00",
-            "system_chars": 5395,
-            "prompt_chars": 3973,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Venice\",\"is_byok\":false,\"retry_after_seconds\":27,\"retry_after_seconds_raw\":26.626,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"}]}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
-            "elapsed_ms": 139
+            "at": "2026-07-19T11:57:27+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
           },
           {
-            "task": "paper_research_analysis",
+            "task": "paper_review_analysis",
             "provider": "openrouter",
             "model": "cohere/north-mini-code:free",
             "retry_index": 0,
-            "at": "2026-07-18T18:58:42+00:00",
-            "system_chars": 5395,
-            "prompt_chars": 3973,
+            "at": "2026-07-19T11:57:27+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5589,
             "status": "failed",
             "failure_category": "rate_limited",
             "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
-            "elapsed_ms": 190
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784505600000\"},\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 265
           },
           {
-            "task": "paper_research_analysis",
+            "task": "paper_review_analysis",
             "provider": "gemini",
             "model": "",
-            "at": "2026-07-18T18:58:42+00:00",
+            "at": "2026-07-19T11:57:27+00:00",
             "status": "skipped",
             "failure_category": "authentication_failed",
             "error": "authentication_failed"
@@ -419,14 +532,14 @@
       }
     ]
   },
-  "displayed": {
-    "policy_version": "v11-analysis-quality-observability-1",
-    "scope": "displayed",
+  "displayed_primary_and_news": {
+    "policy_version": "v14.5-final-display-quality-1",
+    "scope": "displayed_primary_and_news",
     "severity": "critical",
     "warning_ratio": 0.2,
     "critical_ratio": 0.5,
-    "message_zh": "本期分析质量严重降级：1/2 条（50.0%）使用低置信规则兜底。主要原因：请求触发限流。七/五要素仅可作为来源文本的辅助摘录，不应视为完整的模型精读。",
-    "message_en": "Analysis quality is critically degraded: 1/2 items (50.0%) used low-confidence deterministic extraction. Main causes: requests were rate limited.",
+    "message_zh": "本期分析质量严重降级：1/2 条（50.0%）使用低置信规则兜底。主要原因：模型 JSON 未通过结构/证据校验。七/五要素仅可作为来源文本的辅助摘录，不应视为完整的模型精读。",
+    "message_en": "Analysis quality is critically degraded: 1/2 items (50.0%) used low-confidence deterministic extraction. Main causes: model JSON failed schema or evidence validation.",
     "papers": {
       "total_items": 2,
       "analyzable": 2,
@@ -459,73 +572,107 @@
     },
     "top_failure_categories": [
       {
-        "category": "rate_limited",
+        "category": "validation_failed",
         "count": 1,
-        "label_zh": "请求触发限流",
-        "label_en": "requests were rate limited"
+        "label_zh": "模型 JSON 未通过结构/证据校验",
+        "label_en": "model JSON failed schema or evidence validation"
       }
     ],
     "provider_attempts": {
+      "bigmodel:skipped": 2,
+      "deepseek:skipped": 1,
       "gemini:skipped": 1,
-      "groq:skipped": 2,
-      "mistral:failed": 1,
-      "mistral:skipped": 2,
+      "groq:skipped": 1,
+      "mistral:failed": 2,
       "mistral:success": 1,
-      "openrouter:failed": 2,
+      "openrouter:failed": 1,
+      "openrouter:skipped": 1,
       "siliconflow:skipped": 2
     },
     "model_attempts": {
+      "bigmodel/glm-4.7-flash:skipped": 2,
+      "deepseek/not_selected:skipped": 1,
       "gemini/not_selected:skipped": 1,
-      "groq/not_selected:skipped": 2,
+      "groq/not_selected:skipped": 1,
       "mistral/mistral-small-2506:failed": 1,
-      "mistral/mistral-small-2506:success": 1,
-      "mistral/mistral-small-latest:skipped": 2,
+      "mistral/mistral-small-latest:failed": 1,
+      "mistral/mistral-small-latest:success": 1,
       "openrouter/cohere/north-mini-code:free:failed": 1,
-      "openrouter/openrouter/free:failed": 1,
+      "openrouter/openrouter/free:skipped": 1,
       "siliconflow/not_selected:skipped": 2
     },
     "attempt_failure_categories": {
-      "rate_limited": 2,
-      "validation_failed": 1
+      "rate_limited": 1,
+      "validation_failed": 2
     },
     "preflight": {
-      "schema_version": 2,
-      "generated_at": "2026-07-18T18:54:06+00:00",
+      "schema_version": 3,
+      "generated_at": "2026-07-19T11:51:59+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
         "groq",
         "openrouter",
         "mistral",
-        "siliconflow"
+        "siliconflow",
+        "bigmodel",
+        "deepseek"
       ],
       "analysis_provider_passed": [
-        "groq",
-        "mistral"
+        "mistral",
+        "bigmodel"
       ],
       "live_probe_performed": true,
       "provider_orders": {
         "extract": [
+          "bigmodel",
           "siliconflow",
-          "groq",
           "mistral",
+          "groq",
+          "deepseek",
           "openrouter",
           "gemini"
         ],
         "rescue": [
-          "gemini",
+          "bigmodel",
+          "deepseek",
           "mistral",
+          "gemini",
           "openrouter",
           "groq",
           "siliconflow"
+        ],
+        "overview": [
+          "bigmodel",
+          "deepseek",
+          "mistral",
+          "gemini",
+          "openrouter",
+          "groq",
+          "siliconflow"
+        ],
+        "relevance": [
+          "groq",
+          "bigmodel",
+          "siliconflow",
+          "mistral",
+          "deepseek",
+          "gemini",
+          "openrouter"
         ]
+      },
+      "provider_endpoints": {
+        "siliconflow": "https://api.siliconflow.cn/v1",
+        "bigmodel": "https://open.bigmodel.cn/api/paas/v4",
+        "deepseek": "https://api.deepseek.com"
       },
       "providers": [
         {
           "provider": "gemini",
           "status": "failed",
-          "failure_category": "authentication_failed",
-          "error": "All configured LLM attempts failed (authentication_failed)",
+          "failure_category": "unknown",
+          "error": "All configured LLM attempts failed (unknown)",
+          "action_hint": "",
           "account": {
             "status": "not_supported"
           },
@@ -533,23 +680,20 @@
             {
               "task": "credential_preflight",
               "provider": "gemini",
-              "model": "gemini-2.5-flash",
-              "retry_index": 0,
-              "at": "2026-07-18T18:54:03+00:00",
-              "system_chars": 39,
-              "prompt_chars": 31,
-              "status": "failed",
+              "model": "",
+              "at": "2026-07-19T11:51:56+00:00",
+              "status": "skipped",
               "failure_category": "authentication_failed",
-              "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: HTTP status 403: 403 Client Error: Forbidden for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=[REDACTED] response={ \"error\": { \"code\": 403, \"message\": \"Your API key was reported as leaked. Please use another API key.\", \"status\": \"PERMISSION_DENIED\" } }",
-              "elapsed_ms": 113
+              "error": "authentication_failed"
             }
           ]
         },
         {
           "provider": "groq",
-          "status": "passed",
-          "model": "llama-3.1-8b-instant",
+          "status": "failed",
+          "failure_category": "unknown",
+          "error": "All configured LLM attempts failed (unknown)",
+          "action_hint": "",
           "account": {
             "status": "not_supported"
           },
@@ -557,19 +701,11 @@
             {
               "task": "credential_preflight",
               "provider": "groq",
-              "model": "llama-3.1-8b-instant",
-              "retry_index": 0,
-              "at": "2026-07-18T18:54:04+00:00",
-              "system_chars": 39,
-              "prompt_chars": 31,
-              "status": "success",
-              "response_model": "llama-3.1-8b-instant",
-              "elapsed_ms": 84,
-              "usage": {
-                "prompt_tokens": 68,
-                "completion_tokens": 9,
-                "total_tokens": 77
-              }
+              "model": "",
+              "at": "2026-07-19T11:51:56+00:00",
+              "status": "skipped",
+              "failure_category": "quota_exhausted",
+              "error": "quota_exhausted"
             }
           ]
         },
@@ -578,6 +714,7 @@
           "status": "failed",
           "failure_category": "rate_limited",
           "error": "All configured LLM attempts failed (rate_limited)",
+          "action_hint": "Provider is in temporary cooldown; the router will use another provider.",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -593,14 +730,14 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-07-18T18:54:04+00:00",
+              "at": "2026-07-19T11:51:56+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Provider returned error\",\"provider_name\":\"Venice\",\"raw\":\"cognitivecomputations/dolphin-mistral-24b-venice-edition:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/inte",
-              "elapsed_ms": 112
+              "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Venice\",\"is_byok\":false,\"retry_after_seconds\":7,\"retry_after_seconds_raw\":6.295,\"previous_errors\":[{\"code\":429,\"message\":\"Provider returned error\",\"provider_name\":\"Venice\",\"raw\":\"cognitivecomputations/dolphin-mistral-24b-venice-edition:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\"},{\"code\":429,\"",
+              "elapsed_ms": 173
             }
           ]
         },
@@ -617,12 +754,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-07-18T18:54:05+00:00",
+              "at": "2026-07-19T11:51:57+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 353,
+              "elapsed_ms": 397,
               "usage": {
                 "prompt_tokens": 22,
                 "completion_tokens": 6,
@@ -634,29 +771,86 @@
         {
           "provider": "siliconflow",
           "status": "failed",
-          "failure_category": "authentication_failed",
-          "error": "All configured LLM attempts failed (authentication_failed)",
+          "failure_category": "unknown",
+          "error": "All configured LLM attempts failed (unknown)",
+          "action_hint": "",
           "account": {
             "status": "ok",
             "account_status": "normal",
-            "balance": "1",
+            "balance": "0",
             "charge_balance": "0",
-            "total_balance": "1"
+            "total_balance": "0"
           },
           "attempts": [
             {
               "task": "credential_preflight",
               "provider": "siliconflow",
-              "model": "Qwen/Qwen3-8B",
+              "model": "",
+              "at": "2026-07-19T11:51:57+00:00",
+              "status": "skipped",
+              "failure_category": "authentication_failed",
+              "error": "authentication_failed"
+            }
+          ]
+        },
+        {
+          "provider": "bigmodel",
+          "status": "passed",
+          "model": "glm-4.7-flash",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "bigmodel",
+              "model": "glm-4.7-flash",
               "retry_index": 0,
-              "at": "2026-07-18T18:54:06+00:00",
+              "at": "2026-07-19T11:51:57+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
-              "status": "failed",
-              "failure_category": "authentication_failed",
-              "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.siliconflow.com/v1/chat/completions: HTTP status 403: 403 Client Error: Forbidden for url: https://api.siliconflow.com/v1/chat/completions; response={\"code\":30001,\"message\":\"Sorry, your account balance is insufficient\",\"data\":null}",
-              "elapsed_ms": 14
+              "status": "success",
+              "response_model": "glm-4.7-flash",
+              "elapsed_ms": 1928,
+              "usage": {
+                "prompt_tokens": 75,
+                "completion_tokens": 10,
+                "total_tokens": 85
+              }
+            }
+          ]
+        },
+        {
+          "provider": "deepseek",
+          "status": "failed",
+          "failure_category": "unknown",
+          "error": "All configured LLM attempts failed (unknown)",
+          "action_hint": "",
+          "account": {
+            "status": "ok",
+            "is_available": true,
+            "granted_balance_available": false,
+            "granted_balance_total": 0.0,
+            "topped_up_balance_total": 1.83,
+            "minimum_granted_balance": 0.1,
+            "balances": [
+              {
+                "currency": "CNY",
+                "total_balance": "1.83",
+                "granted_balance": "0.00",
+                "topped_up_balance": "1.83"
+              }
+            ]
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "deepseek",
+              "model": "",
+              "at": "2026-07-19T11:51:59+00:00",
+              "status": "skipped",
+              "failure_category": "quota_exhausted",
+              "error": "quota_exhausted"
             }
           ]
         }
@@ -719,6 +913,20 @@
           "note": "configured"
         },
         {
+          "name": "BIGMODEL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Zhipu BigModel structured-analysis provider; defaults to free GLM-4.7-Flash",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "DEEPSEEK_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "DeepSeek structured-analysis provider with optional granted-balance-only guard",
+          "configured": true,
+          "note": "configured"
+        },
+        {
           "name": "OPENALEX_API_KEY",
           "level": "required_for_openalex",
           "purpose": "OpenAlex currently requires an API key",
@@ -751,86 +959,637 @@
     "fallback_records": [
       {
         "type": "paper",
-        "id": "paper-dab6b24617494464",
-        "title": "Dataset of figures",
-        "failure_category": "rate_limited",
+        "id": "paper-661d0bf746e58ed7",
+        "title": "Digital Health for Pandemic Preparedness: A Critical Review of Innovations, Equity Gaps, and Governance in Infectious Disease Surveillance",
+        "failure_category": "validation_failed",
         "fallback_policy": "role_cue_position_rescue",
-        "error": "All configured LLM attempts failed (rate_limited)",
+        "error": "All configured LLM attempts failed (validation_failed)",
         "attempts": [
           {
-            "task": "paper_research_analysis",
-            "provider": "siliconflow",
-            "model": "",
-            "at": "2026-07-18T18:58:38+00:00",
-            "status": "skipped",
-            "failure_category": "authentication_failed",
-            "error": "authentication_failed"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "groq",
-            "model": "",
-            "at": "2026-07-18T18:58:38+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-latest",
-            "at": "2026-07-18T18:58:38+00:00",
+            "task": "paper_review_analysis",
+            "provider": "bigmodel",
+            "model": "glm-4.7-flash",
+            "at": "2026-07-19T11:57:16+00:00",
             "status": "skipped",
             "failure_category": "model_cooldown",
             "error": "model is temporarily cooling down"
           },
           {
-            "task": "paper_research_analysis",
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-19T11:57:16+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
             "provider": "mistral",
-            "model": "mistral-small-2506",
+            "model": "mistral-small-latest",
             "retry_index": 0,
-            "at": "2026-07-18T18:58:38+00:00",
-            "system_chars": 5395,
-            "prompt_chars": 3973,
+            "at": "2026-07-19T11:57:16+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5589,
             "status": "failed",
             "failure_category": "validation_failed",
             "error_type": "LLMError",
-            "error": "validation_failed: research_question_and_background cites evidence assigned to the wrong rhetorical role: ['implications']",
-            "elapsed_ms": 3853
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['design_population', 'results']",
+            "elapsed_ms": 4588
           },
           {
-            "task": "paper_research_analysis",
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-19T11:57:20+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5589,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['conclusion', 'design_population', 'results']",
+            "elapsed_ms": 6346
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-19T11:57:27+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "deepseek",
+            "model": "",
+            "at": "2026-07-19T11:57:27+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
             "provider": "openrouter",
             "model": "openrouter/free",
-            "retry_index": 0,
-            "at": "2026-07-18T18:58:42+00:00",
-            "system_chars": 5395,
-            "prompt_chars": 3973,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Venice\",\"is_byok\":false,\"retry_after_seconds\":27,\"retry_after_seconds_raw\":26.626,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"}]}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
-            "elapsed_ms": 139
+            "at": "2026-07-19T11:57:27+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
           },
           {
-            "task": "paper_research_analysis",
+            "task": "paper_review_analysis",
             "provider": "openrouter",
             "model": "cohere/north-mini-code:free",
             "retry_index": 0,
-            "at": "2026-07-18T18:58:42+00:00",
-            "system_chars": 5395,
-            "prompt_chars": 3973,
+            "at": "2026-07-19T11:57:27+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5589,
             "status": "failed",
             "failure_category": "rate_limited",
             "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784419200000\"},\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
-            "elapsed_ms": 190
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784505600000\"},\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 265
           },
           {
-            "task": "paper_research_analysis",
+            "task": "paper_review_analysis",
             "provider": "gemini",
             "model": "",
-            "at": "2026-07-18T18:58:42+00:00",
+            "at": "2026-07-19T11:57:27+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          }
+        ]
+      }
+    ]
+  },
+  "run": {
+    "policy_version": "v14.5-final-display-quality-1",
+    "scope": "processed_candidate_pool",
+    "severity": "critical",
+    "warning_ratio": 0.2,
+    "critical_ratio": 0.5,
+    "message_zh": "本期分析质量严重降级：1/2 条（50.0%）使用低置信规则兜底。主要原因：模型 JSON 未通过结构/证据校验。七/五要素仅可作为来源文本的辅助摘录，不应视为完整的模型精读。",
+    "message_en": "Analysis quality is critically degraded: 1/2 items (50.0%) used low-confidence deterministic extraction. Main causes: model JSON failed schema or evidence validation.",
+    "papers": {
+      "total_items": 2,
+      "analyzable": 2,
+      "passed": 1,
+      "fallback": 1,
+      "fallback_ratio": 0.5,
+      "statuses": {
+        "fallback_source_extract": 1,
+        "passed": 1
+      }
+    },
+    "news": {
+      "total_items": 0,
+      "analyzable": 0,
+      "passed": 0,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {}
+    },
+    "combined": {
+      "total_items": 2,
+      "analyzable": 2,
+      "passed": 1,
+      "fallback": 1,
+      "fallback_ratio": 0.5,
+      "statuses": {
+        "fallback_source_extract": 1,
+        "passed": 1
+      }
+    },
+    "top_failure_categories": [
+      {
+        "category": "validation_failed",
+        "count": 1,
+        "label_zh": "模型 JSON 未通过结构/证据校验",
+        "label_en": "model JSON failed schema or evidence validation"
+      }
+    ],
+    "provider_attempts": {
+      "bigmodel:skipped": 2,
+      "deepseek:skipped": 1,
+      "gemini:skipped": 1,
+      "groq:skipped": 1,
+      "mistral:failed": 2,
+      "mistral:success": 1,
+      "openrouter:failed": 1,
+      "openrouter:skipped": 1,
+      "siliconflow:skipped": 2
+    },
+    "model_attempts": {
+      "bigmodel/glm-4.7-flash:skipped": 2,
+      "deepseek/not_selected:skipped": 1,
+      "gemini/not_selected:skipped": 1,
+      "groq/not_selected:skipped": 1,
+      "mistral/mistral-small-2506:failed": 1,
+      "mistral/mistral-small-latest:failed": 1,
+      "mistral/mistral-small-latest:success": 1,
+      "openrouter/cohere/north-mini-code:free:failed": 1,
+      "openrouter/openrouter/free:skipped": 1,
+      "siliconflow/not_selected:skipped": 2
+    },
+    "attempt_failure_categories": {
+      "rate_limited": 1,
+      "validation_failed": 2
+    },
+    "preflight": {
+      "schema_version": 3,
+      "generated_at": "2026-07-19T11:51:59+00:00",
+      "status": "ready",
+      "analysis_provider_configured": [
+        "gemini",
+        "groq",
+        "openrouter",
+        "mistral",
+        "siliconflow",
+        "bigmodel",
+        "deepseek"
+      ],
+      "analysis_provider_passed": [
+        "mistral",
+        "bigmodel"
+      ],
+      "live_probe_performed": true,
+      "provider_orders": {
+        "extract": [
+          "bigmodel",
+          "siliconflow",
+          "mistral",
+          "groq",
+          "deepseek",
+          "openrouter",
+          "gemini"
+        ],
+        "rescue": [
+          "bigmodel",
+          "deepseek",
+          "mistral",
+          "gemini",
+          "openrouter",
+          "groq",
+          "siliconflow"
+        ],
+        "overview": [
+          "bigmodel",
+          "deepseek",
+          "mistral",
+          "gemini",
+          "openrouter",
+          "groq",
+          "siliconflow"
+        ],
+        "relevance": [
+          "groq",
+          "bigmodel",
+          "siliconflow",
+          "mistral",
+          "deepseek",
+          "gemini",
+          "openrouter"
+        ]
+      },
+      "provider_endpoints": {
+        "siliconflow": "https://api.siliconflow.cn/v1",
+        "bigmodel": "https://open.bigmodel.cn/api/paas/v4",
+        "deepseek": "https://api.deepseek.com"
+      },
+      "providers": [
+        {
+          "provider": "gemini",
+          "status": "failed",
+          "failure_category": "unknown",
+          "error": "All configured LLM attempts failed (unknown)",
+          "action_hint": "",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "",
+              "at": "2026-07-19T11:51:56+00:00",
+              "status": "skipped",
+              "failure_category": "authentication_failed",
+              "error": "authentication_failed"
+            }
+          ]
+        },
+        {
+          "provider": "groq",
+          "status": "failed",
+          "failure_category": "unknown",
+          "error": "All configured LLM attempts failed (unknown)",
+          "action_hint": "",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "groq",
+              "model": "",
+              "at": "2026-07-19T11:51:56+00:00",
+              "status": "skipped",
+              "failure_category": "quota_exhausted",
+              "error": "quota_exhausted"
+            }
+          ]
+        },
+        {
+          "provider": "openrouter",
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "error": "All configured LLM attempts failed (rate_limited)",
+          "action_hint": "Provider is in temporary cooldown; the router will use another provider.",
+          "account": {
+            "status": "ok",
+            "is_free_tier": true,
+            "limit": null,
+            "limit_remaining": null,
+            "usage_daily": 0,
+            "usage_weekly": 0,
+            "usage_monthly": 0
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "openrouter",
+              "model": "openrouter/free",
+              "retry_index": 0,
+              "at": "2026-07-19T11:51:56+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "rate_limited",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3-next-80b-a3b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Venice\",\"is_byok\":false,\"retry_after_seconds\":7,\"retry_after_seconds_raw\":6.295,\"previous_errors\":[{\"code\":429,\"message\":\"Provider returned error\",\"provider_name\":\"Venice\",\"raw\":\"cognitivecomputations/dolphin-mistral-24b-venice-edition:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\"},{\"code\":429,\"",
+              "elapsed_ms": 173
+            }
+          ]
+        },
+        {
+          "provider": "mistral",
+          "status": "passed",
+          "model": "mistral-small-latest",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "mistral",
+              "model": "mistral-small-latest",
+              "retry_index": 0,
+              "at": "2026-07-19T11:51:57+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "mistral-small-latest",
+              "elapsed_ms": 397,
+              "usage": {
+                "prompt_tokens": 22,
+                "completion_tokens": 6,
+                "total_tokens": 28
+              }
+            }
+          ]
+        },
+        {
+          "provider": "siliconflow",
+          "status": "failed",
+          "failure_category": "unknown",
+          "error": "All configured LLM attempts failed (unknown)",
+          "action_hint": "",
+          "account": {
+            "status": "ok",
+            "account_status": "normal",
+            "balance": "0",
+            "charge_balance": "0",
+            "total_balance": "0"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "siliconflow",
+              "model": "",
+              "at": "2026-07-19T11:51:57+00:00",
+              "status": "skipped",
+              "failure_category": "authentication_failed",
+              "error": "authentication_failed"
+            }
+          ]
+        },
+        {
+          "provider": "bigmodel",
+          "status": "passed",
+          "model": "glm-4.7-flash",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "bigmodel",
+              "model": "glm-4.7-flash",
+              "retry_index": 0,
+              "at": "2026-07-19T11:51:57+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "glm-4.7-flash",
+              "elapsed_ms": 1928,
+              "usage": {
+                "prompt_tokens": 75,
+                "completion_tokens": 10,
+                "total_tokens": 85
+              }
+            }
+          ]
+        },
+        {
+          "provider": "deepseek",
+          "status": "failed",
+          "failure_category": "unknown",
+          "error": "All configured LLM attempts failed (unknown)",
+          "action_hint": "",
+          "account": {
+            "status": "ok",
+            "is_available": true,
+            "granted_balance_available": false,
+            "granted_balance_total": 0.0,
+            "topped_up_balance_total": 1.83,
+            "minimum_granted_balance": 0.1,
+            "balances": [
+              {
+                "currency": "CNY",
+                "total_balance": "1.83",
+                "granted_balance": "0.00",
+                "topped_up_balance": "1.83"
+              }
+            ]
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "deepseek",
+              "model": "",
+              "at": "2026-07-19T11:51:59+00:00",
+              "status": "skipped",
+              "failure_category": "quota_exhausted",
+              "error": "quota_exhausted"
+            }
+          ]
+        }
+      ],
+      "credentials": [
+        {
+          "name": "CROSSREF_MAILTO",
+          "level": "recommended",
+          "purpose": "Crossref polite pool and contact identity",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "UNPAYWALL_EMAIL",
+          "level": "recommended",
+          "purpose": "legal open-access location lookup; may equal CROSSREF_MAILTO",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "NCBI_API_KEY",
+          "level": "recommended",
+          "purpose": "higher PubMed E-utilities request allowance",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GEMINI_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Gemini structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GROQ_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Groq OpenAI-compatible structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENROUTER_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "OpenRouter free-model router and rescue provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "MISTRAL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Mistral structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SILICONFLOW_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "SiliconFlow structured-analysis provider with balance check",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "BIGMODEL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Zhipu BigModel structured-analysis provider; defaults to free GLM-4.7-Flash",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "DEEPSEEK_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "DeepSeek structured-analysis provider with optional granted-balance-only guard",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENALEX_API_KEY",
+          "level": "required_for_openalex",
+          "purpose": "OpenAlex currently requires an API key",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SEMANTIC_SCHOLAR_API_KEY",
+          "level": "optional_but_recommended",
+          "purpose": "anonymous retrieval remains enabled with conservative pacing",
+          "configured": false,
+          "note": "not configured"
+        },
+        {
+          "name": "RELIEFWEB_APPNAME",
+          "level": "pending_approval",
+          "purpose": "pre-approved ReliefWeb appname; a bundled default is available",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "PUBLISHER_REPO_TOKEN",
+          "level": "required_for_wechat_dispatch",
+          "purpose": "repository_dispatch to the private publisher repository",
+          "configured": true,
+          "note": "configured"
+        }
+      ]
+    },
+    "fallback_records": [
+      {
+        "type": "paper",
+        "id": "paper-661d0bf746e58ed7",
+        "title": "Digital Health for Pandemic Preparedness: A Critical Review of Innovations, Equity Gaps, and Governance in Infectious Disease Surveillance",
+        "failure_category": "validation_failed",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (validation_failed)",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "bigmodel",
+            "model": "glm-4.7-flash",
+            "at": "2026-07-19T11:57:16+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "",
+            "at": "2026-07-19T11:57:16+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-07-19T11:57:16+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5589,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['design_population', 'results']",
+            "elapsed_ms": 4588
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2506",
+            "retry_index": 0,
+            "at": "2026-07-19T11:57:20+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5589,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: controversies_and_evidence_gaps cites evidence assigned to the wrong rhetorical role: ['conclusion', 'design_population', 'results']",
+            "elapsed_ms": 6346
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-07-19T11:57:27+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "deepseek",
+            "model": "",
+            "at": "2026-07-19T11:57:27+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "at": "2026-07-19T11:57:27+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-07-19T11:57:27+00:00",
+            "system_chars": 3249,
+            "prompt_chars": 5589,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784505600000\"},\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 265
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-07-19T11:57:27+00:00",
             "status": "skipped",
             "failure_category": "authentication_failed",
             "error": "authentication_failed"

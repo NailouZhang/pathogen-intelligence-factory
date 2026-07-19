@@ -1,43 +1,62 @@
 {
-  "policy_version": "v7-python-first-ambiguous-llm-1",
+  "policy_version": "v15-completion-before-final-relevance-2",
   "mode": "balanced",
   "compact_batch_tokens": 12000,
   "escalation_batch_tokens": 10000,
   "papers": {
-    "candidates_reviewed_by_python": 326,
-    "accepted": 4,
-    "rejected": 322,
+    "candidates_reviewed_by_python": 57,
+    "accepted": 3,
+    "rejected": 54,
     "review_methods": {
-      "compact_llm": 20,
-      "python": 4,
-      "python_full_corpus_fallback": 302
+      "compact_llm": 28,
+      "python": 2,
+      "python_full_corpus_fallback": 27
     },
     "review_decisions": {
-      "accept_python_high_confidence": 4,
-      "reject_after_compact_llm_review": 20,
-      "reject_after_deterministic_full_review": 302
+      "accept": 1,
+      "accept_python_high_confidence": 1,
+      "reject_after_compact_llm_review": 28,
+      "reject_after_deterministic_full_review": 26,
+      "review": 1
     },
     "cache": {
-      "miss": 322,
-      "not_used": 4
+      "miss": 55,
+      "not_used": 2
     },
     "document_count_cutoff": null,
     "character_prefix_cutoff": null
   },
   "news": {
-    "candidates_reviewed_by_python": 15,
+    "candidates_reviewed_by_python": 12,
     "accepted": 0,
-    "rejected": 15,
+    "rejected": 12,
     "review_methods": {
-      "python_full_corpus_fallback": 15
+      "python_full_corpus_fallback": 12
     },
     "review_decisions": {
-      "reject_after_deterministic_full_review": 15
+      "reject_after_deterministic_full_review": 12
     },
     "cache": {
-      "miss": 15
+      "miss": 12
     },
     "document_count_cutoff": null,
     "character_prefix_cutoff": null
-  }
+  },
+  "paper_stage_order": [
+    "candidate_gate",
+    "cross_source_dedup",
+    "ranked_batch",
+    "content_completion",
+    "final_relevance",
+    "identity_gate",
+    "analysis_translation",
+    "dynamic_replenishment"
+  ],
+  "news_stage_order": [
+    "candidate_gate",
+    "dedup",
+    "pre_fetch_relevance",
+    "body_resolution",
+    "post_fetch_relevance"
+  ]
 }
