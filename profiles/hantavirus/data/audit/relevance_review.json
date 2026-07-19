@@ -1,52 +1,71 @@
 {
-  "policy_version": "v7-python-first-ambiguous-llm-1",
+  "policy_version": "v15-completion-before-final-relevance-2",
   "mode": "balanced",
   "compact_batch_tokens": 12000,
   "escalation_batch_tokens": 10000,
   "papers": {
-    "candidates_reviewed_by_python": 295,
-    "accepted": 45,
-    "rejected": 250,
+    "candidates_reviewed_by_python": 296,
+    "accepted": 23,
+    "rejected": 273,
     "review_methods": {
-      "compact_llm": 169,
-      "python": 38,
-      "python_full_corpus_fallback": 88
+      "compact_llm": 47,
+      "escalated_llm": 1,
+      "python": 17,
+      "python_full_corpus_fallback": 231
     },
     "review_decisions": {
-      "accept_after_compact_llm_review": 7,
-      "accept_python_high_confidence": 38,
-      "reject_after_compact_llm_review": 162,
-      "reject_after_deterministic_full_review": 88
+      "accept": 15,
+      "accept_after_compact_llm_review": 4,
+      "accept_python_high_confidence": 2,
+      "reject": 1,
+      "reject_after_compact_llm_review": 43,
+      "reject_after_deterministic_full_review": 229,
+      "review": 2
     },
     "cache": {
-      "hit": 133,
-      "miss": 124,
-      "not_used": 38
+      "miss": 279,
+      "not_used": 17
     },
     "document_count_cutoff": null,
     "character_prefix_cutoff": null
   },
   "news": {
-    "candidates_reviewed_by_python": 71,
-    "accepted": 33,
-    "rejected": 38,
+    "candidates_reviewed_by_python": 73,
+    "accepted": 36,
+    "rejected": 37,
     "review_methods": {
-      "compact_llm": 23,
-      "python": 32,
-      "python_full_corpus_fallback": 16
+      "compact_llm": 11,
+      "python": 34,
+      "python_full_corpus_fallback": 28
     },
     "review_decisions": {
-      "accept_after_compact_llm_review": 1,
-      "accept_python_high_confidence": 32,
-      "reject_after_compact_llm_review": 22,
-      "reject_after_deterministic_full_review": 16
+      "accept_after_compact_llm_review": 2,
+      "accept_python_high_confidence": 34,
+      "reject_after_compact_llm_review": 9,
+      "reject_after_deterministic_full_review": 28
     },
     "cache": {
-      "hit": 19,
-      "miss": 20,
-      "not_used": 32
+      "miss": 39,
+      "not_used": 34
     },
     "document_count_cutoff": null,
     "character_prefix_cutoff": null
-  }
+  },
+  "paper_stage_order": [
+    "candidate_gate",
+    "cross_source_dedup",
+    "ranked_batch",
+    "content_completion",
+    "final_relevance",
+    "identity_gate",
+    "analysis_translation",
+    "dynamic_replenishment"
+  ],
+  "news_stage_order": [
+    "candidate_gate",
+    "dedup",
+    "pre_fetch_relevance",
+    "body_resolution",
+    "post_fetch_relevance"
+  ]
 }
