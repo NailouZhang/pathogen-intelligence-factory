@@ -153,7 +153,7 @@ def summarize_analysis_quality(
         message_en = "No global structured-analysis degradation warning was triggered."
 
     return {
-        "policy_version": "v11-analysis-quality-observability-1",
+        "policy_version": "v14.5-final-display-quality-1",
         "scope": scope,
         "severity": severity,
         "warning_ratio": warning_ratio,

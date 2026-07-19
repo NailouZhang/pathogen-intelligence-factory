@@ -590,7 +590,20 @@ FALLBACK_POSITION_TARGETS: dict[str, float] = {
 }
 
 
-def _fallback_candidate_score(field: str, row: dict[str, str], index: int, total: int) -> float:
+COMPUTATIONAL_FALLBACK_RE = re.compile(
+    r"\b(mathematical|compartmental|fractional[- ]order|caputo|simulation|algorithm|machine learning|"
+    r"neural network|pinn|bayesian|regression|model(?:ing|ling)?|optimization|sensitivity analysis|"
+    r"cost[- ]effectiveness|phylogenetic|genomic|bioinformatic)\b",
+    re.I,
+)
+
+
+def _fallback_track(payload: dict[str, Any]) -> str:
+    text = " ".join(row.get("text", "") for row in _ordered_evidence(payload))
+    return "computational_or_modeling" if COMPUTATIONAL_FALLBACK_RE.search(text) else "empirical_or_clinical"
+
+
+def _fallback_candidate_score(field: str, row: dict[str, str], index: int, total: int, *, track: str = "empirical_or_clinical") -> float:
     role = row["role"]
     text = row["text"]
     allowed = FALLBACK_ALLOWED_ROLES.get(field, {"general"})
@@ -605,6 +618,13 @@ def _fallback_candidate_score(field: str, row: dict[str, str], index: int, total
     score += max(0.0, 24.0 - abs(position - target) * 38.0)
     if field == "main_results" and re.search(r"\d", text):
         score += 18.0
+    if track == "computational_or_modeling":
+        if field == "methods" and re.search(r"\b(model|simulation|algorithm|network|regression|optimization|sensitivity)\b", text, re.I):
+            score += 26.0
+        if field == "main_results" and re.search(r"\b(predicted|estimated|simulation|scenario|accuracy|performance|reproduction number|r0|cost[- ]effective)\b", text, re.I):
+            score += 22.0
+        if field == "study_design_and_population" and re.search(r"\b(dataset|records?|surveillance data|parameters?|scenarios?|model)\b", text, re.I):
+            score += 12.0
     if field in {"study_design_and_population", "evidence_base_and_review_method"} and re.search(r"\d", text):
         score += 8.0
     if field in {"interpretation_and_novelty", "scientific_and_public_health_significance", "research_and_practice_implications"} and position > 0.65:
@@ -634,8 +654,9 @@ def _fallback_default(field: str, payload: dict[str, Any]) -> str:
     return defaults[field]
 
 
-def _fallback_extract_fields(payload: dict[str, Any], fields: list[str], *, limit: int) -> tuple[dict[str, str], dict[str, list[str]], dict[str, str]]:
+def _fallback_extract_fields(payload: dict[str, Any], fields: list[str], *, limit: int) -> tuple[dict[str, str], dict[str, list[str]], dict[str, str], str]:
     rows = _ordered_evidence(payload)
+    track = _fallback_track(payload)
     used: set[str] = set()
     extracted: dict[str, str] = {}
     extracted_refs: dict[str, list[str]] = {}
@@ -660,7 +681,7 @@ def _fallback_extract_fields(payload: dict[str, Any], fields: list[str], *, limi
         for index, row in enumerate(rows):
             if row["id"] in used:
                 continue
-            ranked.append((_fallback_candidate_score(field, row, index, len(rows)), index, row))
+            ranked.append((_fallback_candidate_score(field, row, index, len(rows), track=track), index, row))
         ranked.sort(key=lambda item: (-item[0], item[1]))
         selected: list[dict[str, str]] = []
         for score, _, row in ranked:
@@ -687,7 +708,7 @@ def _fallback_extract_fields(payload: dict[str, Any], fields: list[str], *, limi
     analysis = {field: extracted[field] for field in fields}
     refs = {field: extracted_refs[field] for field in fields}
     sources = {field: extracted_sources[field] for field in fields}
-    return analysis, refs, sources
+    return analysis, refs, sources, track
 
 
 def _llm_failure_details(exc: LLMError) -> tuple[list[dict[str, Any]], str, str]:
@@ -708,11 +729,12 @@ def _llm_failure_details(exc: LLMError) -> tuple[list[dict[str, Any]], str, str]
 
 
 def _fallback_research(payload: dict[str, Any], error: str, *, attempts: list[dict[str, Any]] | None = None, failure_category: str = "unknown") -> dict[str, Any]:
-    analysis, refs, field_sources = _fallback_extract_fields(payload, RESEARCH_FIELDS, limit=560)
+    analysis, refs, field_sources, fallback_track = _fallback_extract_fields(payload, RESEARCH_FIELDS, limit=560)
     return {
         "status": "fallback_source_extract",
         "fallback_policy": "role_cue_position_rescue",
         "fallback_field_sources": field_sources,
+        "fallback_track": fallback_track,
         "kind": "research",
         "analysis": analysis,
         "summary_en": " ".join(analysis.values()),
@@ -726,11 +748,12 @@ def _fallback_research(payload: dict[str, Any], error: str, *, attempts: list[di
 
 
 def _fallback_review(payload: dict[str, Any], error: str, *, attempts: list[dict[str, Any]] | None = None, failure_category: str = "unknown") -> dict[str, Any]:
-    analysis, refs, field_sources = _fallback_extract_fields(payload, REVIEW_FIELDS, limit=590)
+    analysis, refs, field_sources, fallback_track = _fallback_extract_fields(payload, REVIEW_FIELDS, limit=590)
     return {
         "status": "fallback_source_extract",
         "fallback_policy": "role_cue_position_rescue",
         "fallback_field_sources": field_sources,
+        "fallback_track": fallback_track,
         "kind": "review",
         "analysis": analysis,
         "summary_en": " ".join(analysis.values()),

@@ -245,6 +245,8 @@ def test_rendered_html_auditor_rejects_dict_repository_and_placeholder(tmp_path:
     assert result["status"] == "failed"
     assert "python_dict_literal" in codes
     assert "english_placeholder" in codes
+    placeholder = next(row for row in result["findings"] if row["code"] == "english_placeholder")
+    assert placeholder["severity"] == "warning"
     assert "repository_object_rendered_as_paper" in codes
 
 

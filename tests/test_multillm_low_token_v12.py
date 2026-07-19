@@ -30,8 +30,8 @@ def test_default_provider_pools_include_all_five_providers(monkeypatch):
     ):
         monkeypatch.delenv(name, raising=False)
     router = LLMRouter(NeverHTTP())
-    assert set(router.provider_order("extract")) == {"gemini", "groq", "openrouter", "mistral", "siliconflow"}
-    assert set(router.provider_order("rescue")) == {"gemini", "groq", "openrouter", "mistral", "siliconflow"}
+    assert set(router.provider_order("extract")) == {"gemini", "groq", "openrouter", "mistral", "siliconflow", "bigmodel", "deepseek"}
+    assert set(router.provider_order("rescue")) == {"gemini", "groq", "openrouter", "mistral", "siliconflow", "bigmodel", "deepseek"}
 
 
 def test_router_switches_provider_after_quota_exhaustion(monkeypatch):

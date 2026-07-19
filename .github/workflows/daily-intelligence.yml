@@ -1,4 +1,4 @@
-name: Weekly 21-Virus Intelligence Cycle v14.4
+name: Weekly 21-Virus Intelligence Cycle v14.7
 
 on:
   schedule:
@@ -142,6 +142,11 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
           SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
+          BIGMODEL_API_KEY: ${{ secrets.BIGMODEL_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          SILICONFLOW_BASE_URL: ${{ vars.SILICONFLOW_BASE_URL || 'https://api.siliconflow.cn/v1' }}
+          BIGMODEL_BASE_URL: ${{ vars.BIGMODEL_BASE_URL || 'https://open.bigmodel.cn/api/paas/v4' }}
+          DEEPSEEK_BASE_URL: ${{ vars.DEEPSEEK_BASE_URL || 'https://api.deepseek.com' }}
           SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
           OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
           UNPAYWALL_EMAIL: ${{ secrets.UNPAYWALL_EMAIL || secrets.CROSSREF_MAILTO }}
@@ -153,6 +158,8 @@ jobs:
           OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL || 'openrouter/free' }}
           MISTRAL_MODEL: ${{ vars.MISTRAL_MODEL || 'mistral-small-latest' }}
           SILICONFLOW_MODEL: ${{ vars.SILICONFLOW_MODEL }}
+          BIGMODEL_MODEL: ${{ vars.BIGMODEL_MODEL || 'glm-4.7-flash' }}
+          DEEPSEEK_MODEL: ${{ vars.DEEPSEEK_MODEL || 'deepseek-v4-flash' }}
           GEMINI_IMAGE_MODEL: ${{ vars.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-image' }}
           PIF_USER_AGENT: ${{ vars.PIF_USER_AGENT }}
           PIF_REFRESH_PROFILE: ${{ github.event_name == 'schedule' && 'false' || inputs.refresh_profile || 'false' }}
@@ -192,6 +199,10 @@ jobs:
           PIF_SEMANTIC_ANONYMOUS_QUERY_LIMIT: "5"
           PIF_SEMANTIC_ANONYMOUS_DELAY_MS: "700"
           PIF_OPENALEX_PER_QUERY: "100"
+          # The preprint API is a bulk date feed. Bound scanning and filter
+          # title/abstract identity before global deduplication.
+          PIF_PREPRINT_MAX_RECORDS_PER_SERVER: ${{ vars.PIF_PREPRINT_MAX_RECORDS_PER_SERVER || '300' }}
+          PIF_PREPRINT_IDENTITY_FILTER: ${{ vars.PIF_PREPRINT_IDENTITY_FILTER || 'true' }}
           # Python reviews 100% of candidates. Routine balanced mode sends
           # only ambiguous records to the LLM; manual all_compact mode can
           # cross-check every candidate without a document-count cutoff.
@@ -214,13 +225,15 @@ jobs:
           PIF_LLM_CACHE_SUCCESS_ONLY: ${{ vars.PIF_LLM_CACHE_SUCCESS_ONLY || 'true' }}
           PIF_LLM_DISABLE_THINKING: ${{ vars.PIF_LLM_DISABLE_THINKING || 'true' }}
           PIF_LLM_PROVIDER_COOLDOWN_SECONDS: ${{ vars.PIF_LLM_PROVIDER_COOLDOWN_SECONDS || '60' }}
+          PIF_DEEPSEEK_GRANTED_BALANCE_ONLY: ${{ vars.PIF_DEEPSEEK_GRANTED_BALANCE_ONLY || 'true' }}
+          PIF_DEEPSEEK_MIN_GRANTED_BALANCE: ${{ vars.PIF_DEEPSEEK_MIN_GRANTED_BALANCE || '0.10' }}
           # Shared across all sequential profiles in this workflow and persisted
           # on intelligence-data so later pathogens do not retry exhausted quotas.
           PIF_PROVIDER_STATE_FILE: /tmp/pif_data_repo/shared/state/provider_quota_daily.json
-          PIF_LLM_EXTRACT_PROVIDER_ORDER: ${{ vars.PIF_LLM_EXTRACT_PROVIDER_ORDER || 'siliconflow,groq,mistral,openrouter,gemini' }}
-          PIF_LLM_RESCUE_PROVIDER_ORDER: ${{ vars.PIF_LLM_RESCUE_PROVIDER_ORDER || 'gemini,mistral,openrouter,groq,siliconflow' }}
-          PIF_LLM_OVERVIEW_PROVIDER_ORDER: ${{ vars.PIF_LLM_OVERVIEW_PROVIDER_ORDER || 'gemini,mistral,openrouter,groq,siliconflow' }}
-          PIF_LLM_RELEVANCE_PROVIDER_ORDER: ${{ vars.PIF_LLM_RELEVANCE_PROVIDER_ORDER || 'groq,siliconflow,mistral,gemini,openrouter' }}
+          PIF_LLM_EXTRACT_PROVIDER_ORDER: ${{ vars.PIF_LLM_EXTRACT_PROVIDER_ORDER || 'bigmodel,siliconflow,mistral,groq,deepseek,openrouter,gemini' }}
+          PIF_LLM_RESCUE_PROVIDER_ORDER: ${{ vars.PIF_LLM_RESCUE_PROVIDER_ORDER || 'bigmodel,deepseek,mistral,gemini,openrouter,groq,siliconflow' }}
+          PIF_LLM_OVERVIEW_PROVIDER_ORDER: ${{ vars.PIF_LLM_OVERVIEW_PROVIDER_ORDER || 'bigmodel,deepseek,mistral,gemini,openrouter,groq,siliconflow' }}
+          PIF_LLM_RELEVANCE_PROVIDER_ORDER: ${{ vars.PIF_LLM_RELEVANCE_PROVIDER_ORDER || 'groq,bigmodel,siliconflow,mistral,deepseek,gemini,openrouter' }}
           PIF_OPENROUTER_FREE_ONLY: ${{ vars.PIF_OPENROUTER_FREE_ONLY || 'true' }}
           PIF_OPENROUTER_HTTP_REFERER: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
           PIF_OPENROUTER_APP_TITLE: Pathogen Intelligence Factory

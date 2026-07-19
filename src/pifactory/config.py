@@ -67,6 +67,11 @@ class Settings:
     semantic_anonymous_query_limit: int = field(default_factory=lambda: env_int("PIF_SEMANTIC_ANONYMOUS_QUERY_LIMIT", 5))
     semantic_anonymous_delay_ms: int = field(default_factory=lambda: env_int("PIF_SEMANTIC_ANONYMOUS_DELAY_MS", 500))
     openalex_per_query: int = field(default_factory=lambda: env_int("PIF_OPENALEX_PER_QUERY", 100))
+    # The bioRxiv/medRxiv date API is a bulk feed, not a search endpoint.
+    # Bound the number of downloaded records per server and apply a local
+    # title/abstract identity filter before records reach deduplication.
+    preprint_max_records_per_server: int = field(default_factory=lambda: env_int("PIF_PREPRINT_MAX_RECORDS_PER_SERVER", 300))
+    preprint_identity_filter_enabled: bool = field(default_factory=lambda: env_bool("PIF_PREPRINT_IDENTITY_FILTER", True))
     # LLM review has no document-count or character cutoff.  Every candidate
     # that survives the Python coarse gate is packed into token-budgeted batches
     # until the queue is empty.  Only unresolved U records receive fuller
@@ -105,6 +110,8 @@ class Settings:
             "OPENROUTER_API_KEY",
             "MISTRAL_API_KEY",
             "SILICONFLOW_API_KEY",
+            "BIGMODEL_API_KEY",
+            "DEEPSEEK_API_KEY",
             "SEMANTIC_SCHOLAR_API_KEY",
             "OPENALEX_API_KEY",
             "RELIEFWEB_APPNAME",

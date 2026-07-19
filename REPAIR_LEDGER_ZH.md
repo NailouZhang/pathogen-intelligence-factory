@@ -541,7 +541,7 @@ data/audit/eligible_news.jsonl
 - `tests/test_import_contract_v14_1.py`
 
 
-## 修复项 15：事件驱动查询写入列表型 query_plan 导致生产崩溃（v14.2）
+## 修复项 16：事件驱动查询写入列表型 query_plan 导致生产崩溃（v14.2）
 
 ### 根因
 
@@ -563,7 +563,7 @@ plan["scarce_news_mode"] = scarce_news_mode
 5. 工作流生产路径必须在学术检索完成后仍可进入新闻检索，不得只测试 demo 分支。
 
 
-## 修复项16：GitHub Actions构建后端与临时更新器（v14.3）
+## 修复项17：GitHub Actions构建后端与临时更新器（v14.3）
 
 ### 现象
 GitHub Actions在执行editable安装时抛出`BackendUnavailable: Cannot import setuptools.build_meta`，业务流水线尚未开始即退出。
@@ -586,7 +586,7 @@ GitHub Actions在执行editable安装时抛出`BackendUnavailable: Cannot import
 - 新增`tests/test_build_install_contract_v14_3.py`。
 - `update_from_tmp.sh`改为自动发现工程根目录。
 
-## 修复项17：HTML质量审计器空元素栈泄漏（v14.4）
+## 修复项18：HTML质量审计器空元素栈泄漏（v14.4）
 
 ### 生产故障
 
@@ -608,3 +608,42 @@ Python `HTMLParser` 对 `<br>`、`<img>`、`<meta>` 等 void element 不会调�
 
 - `tests/test_render_audit_void_elements_v14_4.py`
 - 保留原有字典字面量、英文占位符、仓储对象和双语渲染测试。
+
+
+## 修复项19：v14.5 发布门禁、最终质量口径与预印本预算
+
+- HTML成品审计不再对占位短语做任意子串硬拦截；仅当占位语覆盖字段规范化文本至少70%时记录warning，允许发布。
+- `python_dict_literal`、语言DOM结构冲突、缩写表污染和仓储数据对象误入论文卡仍为critical。
+- 分析质量页面警告与Actions日志统一在`translation_gate`锁定最终展示记录后计算；候选池比例仅保留在审计文件。
+- bioRxiv/medRxiv使用真实7天窗口，不使用期刊未来印刷宽限；每个服务器默认最多扫描300条，并在适配器内按标题/摘要病原身份立即过滤。
+- 结构化分析默认提取路由改为SiliconFlow→Mistral→Groq，避免SiliconFlow鉴权失败后直接过度依赖8B模型。
+- 规则兜底新增计算/建模轨道，并在网页与公众号卡片显示低置信兜底及证据缺口角标。
+
+
+## 修复项20：v14.6 SiliconFlow中国站API域名
+
+### 现象
+
+从`cloud.siliconflow.cn`创建的API Key在预检中持续显示`authentication_failed`。
+
+### 根因
+
+工程把SiliconFlow对话和账户接口写死为`api.siliconflow.com`，而中国站Key应调用`https://api.siliconflow.cn/v1`。
+
+### 固定策略
+
+1. 默认基址固定为`https://api.siliconflow.cn/v1`；
+2. `/models`、`/chat/completions`和`/user/info`必须从同一个规范化基址派生；
+3. GitHub Actions显式注入`SILICONFLOW_BASE_URL`，默认中国站；
+4. 允许环境变量覆盖以便测试或未来区域迁移，末尾斜杠统一清理；
+5. 凭据预检安全审计必须记录非敏感的实际基址；
+6. 回归测试必须断言发布包中不存在`api.siliconflow.com`。
+
+## 修复项21：v14.7 智谱BigModel与DeepSeek双通道
+
+- 新增`BIGMODEL_API_KEY`与`DEEPSEEK_API_KEY`，均接入统一JSON任务、模型失败分类、跨profile日状态和预检审计。
+- 智谱默认端点为`https://open.bigmodel.cn/api/paas/v4`，默认模型为官方免费`glm-4.7-flash`。
+- DeepSeek默认端点为`https://api.deepseek.com`，默认模型为`deepseek-v4-flash`；旧`deepseek-chat`不再作为默认模型。
+- `BIGMODEL_BASE_URL`和`DEEPSEEK_BASE_URL`既可填写base URL，也可误填完整`/chat/completions`地址，代码会规范化，避免路径重复。
+- DeepSeek余额通过`/user/balance`写入安全审计。默认`PIF_DEEPSEEK_GRANTED_BALANCE_ONLY=true`，仅有足够赠送余额时才调用，避免误用充值余额。需要允许付费余额时显式改为`false`。
+- 两家均在低Token结构化任务中关闭思考模式，并继续使用`response_format=json_object`与既有validator。

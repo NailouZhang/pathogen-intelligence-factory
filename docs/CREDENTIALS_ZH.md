@@ -44,3 +44,50 @@ Playwright 不需要 API Key。Google Cloud Translation 未启用，也不需要
 - `PIF_LLM_DISABLE_THINKING=true`；
 - `PIF_LLM_EXTRACT_PROVIDER_ORDER=siliconflow,groq,mistral,openrouter,gemini`；
 - `PIF_LLM_RESCUE_PROVIDER_ORDER=gemini,mistral,openrouter,groq,siliconflow`。
+
+
+## SiliconFlow authentication_failed
+
+`configured`只表示Secret非空，不代表密钥有效。若预检显示`siliconflow: authentication_failed`，需在SiliconFlow控制台重新生成API Key并覆盖公开仓Secret：
+
+```bash
+gh secret set SILICONFLOW_API_KEY --repo NailouZhang/pathogen-intelligence-factory
+```
+
+更新后重新触发单个profile并确认预检变为`[passed] siliconflow`。代码不能修复失效或复制错误的外部密钥。v14.6在该通道失效时优先转向Mistral，再使用Groq。
+
+## SiliconFlow中国站API基址
+
+从`cloud.siliconflow.cn`创建的API Key必须调用中国站：
+
+```text
+https://api.siliconflow.cn/v1
+```
+
+v14.6已将对话、模型列表和账户信息查询全部统一到该基址。GitHub Actions默认设置：
+
+```bash
+gh variable set SILICONFLOW_BASE_URL \
+  --body 'https://api.siliconflow.cn/v1' \
+  --repo NailouZhang/pathogen-intelligence-factory
+```
+
+不要再使用`https://api.siliconflow.com/v1`，否则中国站Key可能被判定为`authentication_failed`。
+
+## v14.7 智谱与DeepSeek
+
+```bash
+gh secret set BIGMODEL_API_KEY --repo NailouZhang/pathogen-intelligence-factory
+gh secret set DEEPSEEK_API_KEY --repo NailouZhang/pathogen-intelligence-factory
+
+gh variable set BIGMODEL_BASE_URL --body "https://open.bigmodel.cn/api/paas/v4" --repo NailouZhang/pathogen-intelligence-factory
+gh variable set DEEPSEEK_BASE_URL --body "https://api.deepseek.com" --repo NailouZhang/pathogen-intelligence-factory
+gh variable set BIGMODEL_MODEL --body "glm-4.7-flash" --repo NailouZhang/pathogen-intelligence-factory
+gh variable set DEEPSEEK_MODEL --body "deepseek-v4-flash" --repo NailouZhang/pathogen-intelligence-factory
+```
+
+DeepSeek默认只使用赠送余额。允许使用充值余额时：
+
+```bash
+gh variable set PIF_DEEPSEEK_GRANTED_BALANCE_ONLY --body "false" --repo NailouZhang/pathogen-intelligence-factory
+```

@@ -118,3 +118,10 @@ gh run watch --repo NailouZhang/pathogen-intelligence-factory
 ```
 
 确认Pages和`intelligence-data`无误后，再把`dispatch_wechat`设为`true`。
+
+
+### SiliconFlow中国站
+
+```bash
+gh variable set SILICONFLOW_BASE_URL --body 'https://api.siliconflow.cn/v1' --repo NailouZhang/pathogen-intelligence-factory
+```

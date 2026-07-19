@@ -50,6 +50,19 @@ from .cover import ensure_profile_cover
 from .utils import append_jsonl, clean_space, dump_json, load_json, sha256_text, utc_now_iso, unique_strings
 
 
+def _preprint_identity_terms(profile: dict[str, Any]) -> list[str]:
+    vocabulary = profile.get("candidate_vocabulary") or {}
+    scope = profile.get("target_scope") or {}
+    terms: list[str] = []
+    terms.extend(vocabulary.get("identity_anchor_terms") or [])
+    terms.extend(scope.get("required_identity_concepts") or [])
+    terms.extend(scope.get("allowed_members") or [])
+    terms.extend([profile.get("display_name_en"), profile.get("profile_id")])
+    # Qualified abbreviations are intentionally excluded unless their expanded
+    # context appears elsewhere; short tokens such as SNV create false hits.
+    return [term for term in unique_strings(terms) if len(clean_space(term)) >= 4]
+
+
 def _demo_records() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     papers = [
         {
@@ -193,9 +206,11 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         openrouter_key=secrets.get("OPENROUTER_API_KEY", ""),
         mistral_key=secrets.get("MISTRAL_API_KEY", ""),
         siliconflow_key=secrets.get("SILICONFLOW_API_KEY", ""),
+        bigmodel_key=secrets.get("BIGMODEL_API_KEY", ""),
+        deepseek_key=secrets.get("DEEPSEEK_API_KEY", ""),
     )
     for provider_name in llm.configured_providers():
-        if provider_name in {"openrouter", "siliconflow"}:
+        if provider_name in {"openrouter", "siliconflow", "deepseek"}:
             llm.provider_account_info(provider_name)
     llm_preflight = (
         load_json(settings.llm_preflight_file, {})
@@ -284,7 +299,13 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
                 secrets.get("OPENALEX_API_KEY", ""),
                 per_query=settings.openalex_per_query, audit=source_audit,
             )),
-            ("bioRxiv/medRxiv", lambda: search_biorxiv_medrxiv(http, start, scholarly_search_end, audit=source_audit)),
+            ("bioRxiv/medRxiv", lambda: search_biorxiv_medrxiv(
+                http, start, end,
+                max_records_per_server=settings.preprint_max_records_per_server,
+                identity_terms=_preprint_identity_terms(profile),
+                identity_filter=settings.preprint_identity_filter_enabled,
+                audit=source_audit,
+            )),
         ]
         progress("scholarly_retrieval", "start", providers=[name for name, _ in scholarly_calls], core_concepts=len(query_sets.get("core_concepts") or []))
         with ThreadPoolExecutor(max_workers=len(scholarly_calls)) as executor:
@@ -723,17 +744,14 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         preflight=llm_preflight,
         scope="candidate_pool",
     )
-    if analysis_quality_pool.get("severity") in {"warning", "critical", "unavailable"}:
-        progress(
-            "analysis_quality",
-            "degraded",
-            severity=analysis_quality_pool.get("severity"),
-            message=analysis_quality_pool.get("message_zh"),
-            fallback_ratio=(analysis_quality_pool.get("combined") or {}).get("fallback_ratio"),
-            top_failures=analysis_quality_pool.get("top_failure_categories"),
-        )
-        if os.getenv("GITHUB_ACTIONS", "").lower() == "true":
-            print(f"::warning title=Structured analysis degraded::{analysis_quality_pool.get('message_zh')}", flush=True)
+    progress(
+        "analysis_quality",
+        "candidate_pool_snapshot",
+        severity=analysis_quality_pool.get("severity"),
+        fallback_ratio=(analysis_quality_pool.get("combined") or {}).get("fallback_ratio"),
+        analyzed=(analysis_quality_pool.get("combined") or {}).get("analyzable"),
+        scope="candidate_pool",
+    )
     # Keep the persistent state bounded across long-running weekly cycles.
     if len(analysis_cache) > 5000:
         for stale_key in list(analysis_cache)[: len(analysis_cache) - 5000]:
@@ -870,17 +888,29 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         preflight=llm_preflight,
         scope="displayed",
     )
-    # The run-level alert is based on the complete analyzed candidate pool, not
-    # only the final translated Top-N. This prevents downstream filtering from
-    # hiding a broad multi-provider LLM outage. Keep the public issue summary compact;
-    # full per-record attempts remain in data/audit/analysis_quality.json.
+    # Public warnings and metrics must describe the records that actually ship.
+    # Candidate-pool quality remains available for diagnosis, but downstream
+    # translation rejection must not leave the page displaying an obsolete,
+    # artificially better denominator.
+    if analysis_quality_displayed.get("severity") in {"warning", "critical", "unavailable"}:
+        progress(
+            "analysis_quality",
+            "final_displayed_degraded",
+            severity=analysis_quality_displayed.get("severity"),
+            message=analysis_quality_displayed.get("message_zh"),
+            fallback_ratio=(analysis_quality_displayed.get("combined") or {}).get("fallback_ratio"),
+            top_failures=analysis_quality_displayed.get("top_failure_categories"),
+            scope="displayed",
+        )
+        if os.getenv("GITHUB_ACTIONS", "").lower() == "true":
+            print(f"::warning title=Structured analysis degraded::{analysis_quality_displayed.get('message_zh')}", flush=True)
     analysis_quality = {
-        key: value for key, value in analysis_quality_pool.items()
+        key: value for key, value in analysis_quality_displayed.items()
         if key != "fallback_records"
     }
-    analysis_quality["scope"] = "run"
-    analysis_quality["displayed"] = {
-        key: value for key, value in analysis_quality_displayed.items()
+    analysis_quality["scope"] = "displayed"
+    analysis_quality["candidate_pool"] = {
+        key: value for key, value in analysis_quality_pool.items()
         if key not in {"fallback_records", "preflight"}
     }
     issue_date = end.isoformat()
@@ -1004,8 +1034,10 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     dump_json(audit_dir / "anchor_coverage.json", anchor_coverage)
     dump_json(audit_dir / "relevance_review.json", relevance_review_summary)
     dump_json(audit_dir / "analysis_quality.json", {
-        "run": analysis_quality_pool,
+        "candidate_pool": analysis_quality_pool,
         "displayed": analysis_quality_displayed,
+        # Backward-compatible alias for older audit consumers.
+        "run": analysis_quality_pool,
     })
     dump_json(audit_dir / "llm_provider_usage.json", llm.usage_snapshot())
     dump_json(audit_dir / "retrieval_funnel.json", retrieval_funnel)

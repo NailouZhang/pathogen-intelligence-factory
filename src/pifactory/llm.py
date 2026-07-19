@@ -33,10 +33,27 @@ OPENAI_COMPATIBLE_PROVIDERS: dict[str, dict[str, str]] = {
         "models_env": "PIF_MISTRAL_MODELS",
     },
     "siliconflow": {
-        "base_url": "https://api.siliconflow.com/v1",
+        "base_url": "https://api.siliconflow.cn/v1",
+        "base_url_env": "SILICONFLOW_BASE_URL",
         "key_env": "SILICONFLOW_API_KEY",
         "model_env": "SILICONFLOW_MODEL",
         "models_env": "PIF_SILICONFLOW_MODELS",
+    },
+    "bigmodel": {
+        "base_url": "https://open.bigmodel.cn/api/paas/v4",
+        "base_url_env": "BIGMODEL_BASE_URL",
+        "key_env": "BIGMODEL_API_KEY",
+        "model_env": "BIGMODEL_MODEL",
+        "models_env": "PIF_BIGMODEL_MODELS",
+        "discover_models": "false",
+    },
+    "deepseek": {
+        "base_url": "https://api.deepseek.com",
+        "base_url_env": "DEEPSEEK_BASE_URL",
+        "key_env": "DEEPSEEK_API_KEY",
+        "model_env": "DEEPSEEK_MODEL",
+        "models_env": "PIF_DEEPSEEK_MODELS",
+        "discover_models": "false",
     },
 }
 
@@ -45,6 +62,8 @@ DEFAULT_MODELS: dict[str, list[str]] = {
     "openrouter": ["openrouter/free"],
     "mistral": ["mistral-small-latest"],
     "siliconflow": ["Qwen/Qwen3-8B"],
+    "bigmodel": ["glm-4.7-flash"],
+    "deepseek": ["deepseek-v4-flash"],
 }
 
 
@@ -102,11 +121,16 @@ def classify_llm_failure(error: Any) -> str:
         return "invalid_json"
     if any(token in text for token in ("401", "403", "unauthorized", "forbidden", "invalid api key", "api_key_invalid", "authentication")):
         return "authentication_failed"
-    if any(token in text for token in ("402", "insufficient credit", "insufficient balance", "negative credit", "payment required")):
+    if any(token in text for token in (
+        "402", "insufficient credit", "insufficient balance", "negative credit", "payment required",
+        "余额不足", "余额已用完", "账户余额", "赠送余额不可用", "free granted balance is unavailable",
+    )):
         return "quota_exhausted"
     if any(token in text for token in ("quota", "billing", "insufficient_quota", "daily limit", "monthly limit", "token budget exhausted")):
         return "quota_exhausted"
-    if any(token in text for token in ("429", "rate limit", "resource_exhausted", "too many requests")):
+    if any(token in text for token in (
+        "429", "rate limit", "resource_exhausted", "too many requests", "请求过于频繁", "并发超额",
+    )):
         return "rate_limited"
     if any(token in text for token in ("timeout", "timed out", "read timed out", "connect timeout")):
         return "timeout"
@@ -152,6 +176,8 @@ class LLMRouter:
         openrouter_key: str = "",
         mistral_key: str = "",
         siliconflow_key: str = "",
+        bigmodel_key: str = "",
+        deepseek_key: str = "",
         provider_keys: dict[str, str] | None = None,
     ) -> None:
         self.http = http
@@ -162,6 +188,8 @@ class LLMRouter:
             "openrouter": openrouter_key or supplied.get("openrouter", "") or os.getenv("OPENROUTER_API_KEY", "").strip(),
             "mistral": mistral_key or supplied.get("mistral", "") or os.getenv("MISTRAL_API_KEY", "").strip(),
             "siliconflow": siliconflow_key or supplied.get("siliconflow", "") or os.getenv("SILICONFLOW_API_KEY", "").strip(),
+            "bigmodel": bigmodel_key or supplied.get("bigmodel", "") or os.getenv("BIGMODEL_API_KEY", "").strip(),
+            "deepseek": deepseek_key or supplied.get("deepseek", "") or os.getenv("DEEPSEEK_API_KEY", "").strip(),
         }
         # Backwards-compatible public attributes used by earlier code/tests.
         self.gemini_key = self.keys["gemini"]
@@ -169,6 +197,8 @@ class LLMRouter:
         self.openrouter_key = self.keys["openrouter"]
         self.mistral_key = self.keys["mistral"]
         self.siliconflow_key = self.keys["siliconflow"]
+        self.bigmodel_key = self.keys["bigmodel"]
+        self.deepseek_key = self.keys["deepseek"]
         self._model_cache: dict[str, list[str]] = {}
         self.state_store = ProviderStateStore(os.getenv("PIF_PROVIDER_STATE_FILE", "").strip() or None)
         self.states = self.state_store.load(list(self.keys))
@@ -180,6 +210,25 @@ class LLMRouter:
     def configured_providers(self) -> list[str]:
         return [name for name, key in self.keys.items() if key]
 
+    def provider_base_url(self, provider: str) -> str:
+        """Return the normalized API base URL for an OpenAI-compatible provider.
+
+        SiliconFlow China-issued API keys are scoped to api.siliconflow.cn.
+        An explicit SILICONFLOW_BASE_URL may override the default for testing or
+        a future regional endpoint, but an empty value always falls back to the
+        official China endpoint bundled with this release.
+        """
+        config = OPENAI_COMPATIBLE_PROVIDERS[provider]
+        env_name = clean_space(config.get("base_url_env"))
+        configured = clean_space(os.getenv(env_name, "")) if env_name else ""
+        base_url = (configured or clean_space(config.get("base_url"))).rstrip("/")
+        # Accept either a provider base URL or the full Chat Completions URL.
+        # Internally all calls append /chat/completions exactly once.
+        suffix = "/chat/completions"
+        if base_url.endswith(suffix):
+            base_url = base_url[: -len(suffix)].rstrip("/")
+        return base_url
+
     def provider_order(self, purpose: str = "extract") -> tuple[str, ...]:
         env_name = {
             "extract": "PIF_LLM_EXTRACT_PROVIDER_ORDER",
@@ -188,11 +237,11 @@ class LLMRouter:
             "relevance": "PIF_LLM_RELEVANCE_PROVIDER_ORDER",
         }.get(purpose, "PIF_LLM_PROVIDER_ORDER")
         default = {
-            "extract": "siliconflow,groq,mistral,openrouter,gemini",
-            "rescue": "gemini,mistral,openrouter,groq,siliconflow",
-            "overview": "gemini,mistral,openrouter,groq,siliconflow",
-            "relevance": "groq,siliconflow,mistral,gemini,openrouter",
-        }.get(purpose, "gemini,groq,mistral,siliconflow,openrouter")
+            "extract": "bigmodel,siliconflow,mistral,groq,deepseek,openrouter,gemini",
+            "rescue": "bigmodel,deepseek,mistral,gemini,openrouter,groq,siliconflow",
+            "overview": "bigmodel,deepseek,mistral,gemini,openrouter,groq,siliconflow",
+            "relevance": "groq,bigmodel,siliconflow,mistral,deepseek,gemini,openrouter",
+        }.get(purpose, "bigmodel,siliconflow,mistral,groq,deepseek,openrouter,gemini")
         values = _split_csv(os.getenv(env_name, "") or default)
         known = [value.lower() for value in values if value.lower() in self.keys]
         return tuple(dict.fromkeys(known))
@@ -232,7 +281,7 @@ class LLMRouter:
         preferred = self._configured_models(provider)
         discovered: list[str] = []
         key = self.keys.get(provider, "")
-        if key:
+        if key and OPENAI_COMPATIBLE_PROVIDERS.get(provider, {}).get("discover_models", "true") != "false":
             try:
                 if provider == "gemini":
                     payload = self.http.get_json(
@@ -249,7 +298,7 @@ class LLMRouter:
                 else:
                     config = OPENAI_COMPATIBLE_PROVIDERS[provider]
                     payload = self.http.get_json(
-                        f"{config['base_url']}/models",
+                        f"{self.provider_base_url(provider)}/models",
                         headers={"Authorization": f"Bearer {key}"},
                     )
                     items = payload.get("data", payload if isinstance(payload, list) else [])
@@ -282,7 +331,7 @@ class LLMRouter:
                 value += 200
             if any(token in low for token in ("small", "flash-lite", "mini", "8b", "7b")):
                 value += 90
-            if any(token in low for token in ("qwen", "mistral", "llama", "gemma")):
+            if any(token in low for token in ("qwen", "mistral", "llama", "gemma", "glm", "deepseek")):
                 value += 50
             if any(token in low for token in ("reasoning", "thinking", "r1")):
                 value -= 30
@@ -347,8 +396,24 @@ class LLMRouter:
             "response_format": {"type": "json_object"},
             "max_tokens": max(256, int(os.getenv("PIF_LLM_MAX_OUTPUT_TOKENS", "1400"))),
         }
-        if provider == "siliconflow" and os.getenv("PIF_LLM_DISABLE_THINKING", "true").lower() in {"1", "true", "yes", "on"}:
+        disable_thinking = os.getenv("PIF_LLM_DISABLE_THINKING", "true").lower() in {"1", "true", "yes", "on"}
+        if provider == "siliconflow" and disable_thinking:
             payload["enable_thinking"] = False
+        if provider in {"bigmodel", "deepseek"} and disable_thinking:
+            payload["thinking"] = {"type": "disabled"}
+        if provider == "deepseek" and os.getenv("PIF_DEEPSEEK_GRANTED_BALANCE_ONLY", "true").lower() in {"1", "true", "yes", "on"}:
+            account = self.provider_account_info("deepseek", refresh=True)
+            if account.get("status") != "ok":
+                category = clean_space(account.get("failure_category")) or "provider_unavailable"
+                raise LLMError(
+                    "DeepSeek balance check failed before a free-balance-only request",
+                    category=category,
+                )
+            if not account.get("granted_balance_available"):
+                raise LLMError(
+                    "DeepSeek free granted balance is unavailable; paid balance is protected by PIF_DEEPSEEK_GRANTED_BALANCE_ONLY=true",
+                    category="quota_exhausted",
+                )
         if provider == "mistral":
             payload["prompt_cache_key"] = clean_space(os.getenv("PIF_MISTRAL_PROMPT_CACHE_KEY", "pif-structured-analysis-v1"))
         headers = {"Authorization": f"Bearer {self.keys[provider]}"}
@@ -361,7 +426,7 @@ class LLMRouter:
                 headers["X-Title"] = title
         response = self.http.request(
             "POST",
-            f"{config['base_url']}/chat/completions",
+            f"{self.provider_base_url(provider)}/chat/completions",
             headers=headers,
             json=payload,
             timeout=int(os.getenv("PIF_LLM_HTTP_TIMEOUT", "55")),
@@ -377,8 +442,11 @@ class LLMRouter:
     def _groq_call(self, model: str, system: str, prompt: str, temperature: float) -> tuple[Any, dict[str, Any], str]:
         return self._openai_compatible_call("groq", model, system, prompt, temperature)
 
-    def provider_account_info(self, provider: str) -> dict[str, Any]:
+    def provider_account_info(self, provider: str, *, refresh: bool = False) -> dict[str, Any]:
         """Return safe, provider-supported account/credit information when available."""
+        state = self.states.get(provider)
+        if state is not None and state.account and not refresh:
+            return dict(state.account)
         key = self.keys.get(provider, "")
         if not key:
             return {"status": "not_configured"}
@@ -403,7 +471,7 @@ class LLMRouter:
                 return result
             if provider == "siliconflow":
                 body = self.http.get_json(
-                    "https://api.siliconflow.com/v1/user/info",
+                    f"{self.provider_base_url('siliconflow')}/user/info",
                     headers={"Authorization": f"Bearer {key}"},
                 )
                 data = body.get("data") or {}
@@ -415,6 +483,50 @@ class LLMRouter:
                     "total_balance": data.get("totalBalance"),
                 }
                 self.states[provider].account = result
+                self._persist_states()
+                return result
+            if provider == "deepseek":
+                body = self.http.get_json(
+                    f"{self.provider_base_url('deepseek')}/user/balance",
+                    headers={"Authorization": f"Bearer {key}", "Accept": "application/json"},
+                )
+                balances = body.get("balance_infos") if isinstance(body.get("balance_infos"), list) else []
+                granted_total = 0.0
+                topped_up_total = 0.0
+                safe_balances: list[dict[str, Any]] = []
+                for row in balances:
+                    if not isinstance(row, dict):
+                        continue
+                    try:
+                        granted = float(row.get("granted_balance") or 0)
+                    except (TypeError, ValueError):
+                        granted = 0.0
+                    try:
+                        topped_up = float(row.get("topped_up_balance") or 0)
+                    except (TypeError, ValueError):
+                        topped_up = 0.0
+                    granted_total += granted
+                    topped_up_total += topped_up
+                    safe_balances.append({
+                        "currency": row.get("currency"),
+                        "total_balance": row.get("total_balance"),
+                        "granted_balance": row.get("granted_balance"),
+                        "topped_up_balance": row.get("topped_up_balance"),
+                    })
+                minimum = max(0.0, float(os.getenv("PIF_DEEPSEEK_MIN_GRANTED_BALANCE", "0.10")))
+                result = {
+                    "status": "ok",
+                    "is_available": bool(body.get("is_available")),
+                    "granted_balance_available": bool(body.get("is_available")) and granted_total >= minimum,
+                    "granted_balance_total": round(granted_total, 6),
+                    "topped_up_balance_total": round(topped_up_total, 6),
+                    "minimum_granted_balance": minimum,
+                    "balances": safe_balances,
+                }
+                self.states[provider].account = result
+                if not body.get("is_available"):
+                    self.states[provider].status = "quota_exhausted"
+                    self.states[provider].disabled_reason = "deepseek_balance_unavailable"
                 self._persist_states()
                 return result
             result = {"status": "not_supported"}

@@ -24,6 +24,8 @@ ROWS = [
     ("OPENROUTER_API_KEY", "analysis_provider", "OpenRouter free-model router and rescue provider"),
     ("MISTRAL_API_KEY", "analysis_provider", "Mistral structured-analysis provider"),
     ("SILICONFLOW_API_KEY", "analysis_provider", "SiliconFlow structured-analysis provider with balance check"),
+    ("BIGMODEL_API_KEY", "analysis_provider", "Zhipu BigModel structured-analysis provider; defaults to free GLM-4.7-Flash"),
+    ("DEEPSEEK_API_KEY", "analysis_provider", "DeepSeek structured-analysis provider with optional granted-balance-only guard"),
     ("OPENALEX_API_KEY", "required_for_openalex", "OpenAlex currently requires an API key"),
     ("SEMANTIC_SCHOLAR_API_KEY", "optional_but_recommended", "anonymous retrieval remains enabled with conservative pacing"),
     ("RELIEFWEB_APPNAME", "pending_approval", "pre-approved ReliefWeb appname; a bundled default is available"),
@@ -57,11 +59,29 @@ def _probe_provider(router: LLMRouter, provider: str) -> dict[str, Any]:
             "attempts": result.attempts,
         }
     except LLMError as exc:
+        category = getattr(exc, "category", "unknown")
+        action_hint = ""
+        if category == "authentication_failed":
+            secret_name = {
+                "gemini": "GEMINI_API_KEY",
+                "groq": "GROQ_API_KEY",
+                "openrouter": "OPENROUTER_API_KEY",
+                "mistral": "MISTRAL_API_KEY",
+                "siliconflow": "SILICONFLOW_API_KEY",
+                "bigmodel": "BIGMODEL_API_KEY",
+                "deepseek": "DEEPSEEK_API_KEY",
+            }.get(provider, "provider API key")
+            action_hint = f"Regenerate the provider key and replace GitHub Secret {secret_name}."
+        elif category == "quota_exhausted":
+            action_hint = "Wait for quota reset or enable another configured provider."
+        elif category == "rate_limited":
+            action_hint = "Provider is in temporary cooldown; the router will use another provider."
         return {
             "provider": provider,
-            "status": "failed" if getattr(exc, "category", "") != "no_provider_configured" else "not_configured",
-            "failure_category": getattr(exc, "category", "unknown"),
+            "status": "failed" if category != "no_provider_configured" else "not_configured",
+            "failure_category": category,
             "error": str(exc)[:700],
+            "action_hint": action_hint,
             "account": account,
             "attempts": getattr(exc, "attempts", []) or [],
         }
@@ -90,13 +110,15 @@ def main() -> int:
         if level.startswith("required") and not configured:
             missing_required += 1
 
-    provider_names = ("gemini", "groq", "openrouter", "mistral", "siliconflow")
+    provider_names = ("gemini", "groq", "openrouter", "mistral", "siliconflow", "bigmodel", "deepseek")
     provider_env = {
         "gemini": "GEMINI_API_KEY",
         "groq": "GROQ_API_KEY",
         "openrouter": "OPENROUTER_API_KEY",
         "mistral": "MISTRAL_API_KEY",
         "siliconflow": "SILICONFLOW_API_KEY",
+        "bigmodel": "BIGMODEL_API_KEY",
+        "deepseek": "DEEPSEEK_API_KEY",
     }
     configured_analysis = [name for name in provider_names if os.getenv(provider_env[name], "").strip()]
     probes: list[dict[str, Any]] = []
@@ -115,6 +137,8 @@ def main() -> int:
                 print(f"[not configured] {provider}")
             else:
                 print(f"[failed] {provider}: {result.get('failure_category')} - {result.get('error')}")
+                if result.get("action_hint"):
+                    print(f"         action: {result['action_hint']}")
 
     if args.probe_llm:
         status = "ready" if passed_providers else ("unavailable" if not configured_analysis else "failed")
@@ -132,6 +156,11 @@ def main() -> int:
             "extract": list(LLMRouter(HttpClient("pif/order-only")).provider_order("extract")),
             "rescue": list(LLMRouter(HttpClient("pif/order-only")).provider_order("rescue")),
         },
+        "provider_endpoints": {
+            "siliconflow": LLMRouter(HttpClient("pif/endpoint-only")).provider_base_url("siliconflow"),
+            "bigmodel": LLMRouter(HttpClient("pif/endpoint-only")).provider_base_url("bigmodel"),
+            "deepseek": LLMRouter(HttpClient("pif/endpoint-only")).provider_base_url("deepseek"),
+        },
         "providers": probes,
         "credentials": rows,
     }
@@ -139,8 +168,9 @@ def main() -> int:
         dump_json(Path(args.json_out), audit)
         print(f"\nSafe audit written to {args.json_out}")
 
-    print("\nA 429 response is treated as a cooldown, not automatically as permanent quota exhaustion.")
-    print("OpenRouter and SiliconFlow account endpoints are recorded when supported; secrets are never printed.")
+    print(f"\nSiliconFlow API endpoint: {audit['provider_endpoints']['siliconflow']}")
+    print("A 429 response is treated as a cooldown, not automatically as permanent quota exhaustion.")
+    print("OpenRouter, SiliconFlow and DeepSeek account information is recorded when supported; secrets are never printed.")
 
     if args.require_analysis_provider or args.analysis_only:
         return 0 if status == "ready" else 3

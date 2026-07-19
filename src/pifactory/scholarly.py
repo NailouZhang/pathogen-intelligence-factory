@@ -657,27 +657,66 @@ def filter_window(
     return accepted
 
 
+def _normalize_identity_term(value: Any) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", clean_space(value).casefold()).strip()
+
+
+def _preprint_matches_identity(item: dict[str, Any], identity_terms: list[str]) -> bool:
+    if not identity_terms:
+        return True
+    haystack = _normalize_identity_term(f"{item.get('title') or ''} {item.get('abstract') or ''}")
+    if not haystack:
+        return False
+    padded = f" {haystack} "
+    for raw in identity_terms:
+        term = _normalize_identity_term(raw)
+        if len(term) < 4:
+            continue
+        if f" {term} " in padded or term in haystack:
+            return True
+    return False
+
+
 def search_biorxiv_medrxiv(
     http: HttpClient,
     start: date,
     end: date,
-    max_records_per_server: int = 1200,
+    max_records_per_server: int = 300,
+    identity_terms: list[str] | None = None,
+    identity_filter: bool = True,
     audit: SourceAudit | None = None,
 ) -> list[dict[str, Any]]:
+    """Retrieve a bounded recent preprint sample and filter immediately.
+
+    The official date API returns every preprint in the interval. Downloading
+    thousands of unrelated records for each pathogen dominated Actions runtime.
+    This adapter uses the real reporting window, caps scanned records per server,
+    and rejects title/abstract records without a pathogen identity term before
+    they reach global deduplication and LLM stages.
+    """
     output: list[dict[str, Any]] = []
+    identity_terms = unique_strings(identity_terms or [])
+    cap = max(0, int(max_records_per_server))
     for server in ("biorxiv", "medrxiv"):
         cursor = 0
-        collected = 0
+        scanned = 0
+        accepted = 0
         pages = 0
+        available_total = 0
         failed: Exception | None = None
         endpoint = f"https://api.biorxiv.org/details/{server}/{start.isoformat()}/{end.isoformat()}"
-        while collected < max_records_per_server:
+        while cap == 0 or scanned < cap:
             try:
                 payload = http.get_json(f"{endpoint}/{cursor}")
                 rows = payload.get("collection", []) or []
                 pages += 1
+                message = (payload.get("messages") or [{}])[0]
+                available_total = int(message.get("total") or available_total or scanned + len(rows))
+                if cap:
+                    rows = rows[: max(0, cap - scanned)]
                 for item in rows:
-                    output.append({
+                    scanned += 1
+                    record = {
                         "source": "bioRxiv" if server == "biorxiv" else "medRxiv",
                         "source_ids": {server: item.get("doi")},
                         "doi": clean_space(item.get("doi")).lower() or None,
@@ -689,15 +728,42 @@ def search_biorxiv_medrxiv(
                         "published_date": safe_date_string(item.get("date")),
                         "publication_types": ["preprint"],
                         "url": f"https://doi.org/{item.get('doi')}" if item.get("doi") else "",
-                    })
-                collected += len(rows)
-                cursor += len(rows)
-                total = int(((payload.get("messages") or [{}])[0]).get("total") or collected)
-                if not rows or collected >= total:
+                    }
+                    if identity_filter and not _preprint_matches_identity(record, identity_terms):
+                        continue
+                    output.append(record)
+                    accepted += 1
+                next_cursor = cursor + len(rows)
+                # Keep one head page for coverage, then jump to the newest tail
+                # when the weekly feed is larger than the configured budget.
+                # This avoids spending minutes walking thousands of unrelated
+                # preprints while preserving both ends of the reporting window.
+                if pages == 1 and cap and available_total > cap and scanned < cap:
+                    remaining = cap - scanned
+                    next_cursor = max(next_cursor, available_total - remaining)
+                cursor = next_cursor
+                if not rows or cursor >= available_total or (cap and scanned >= cap):
                     break
             except Exception as exc:
                 failed = exc
                 break
         if audit:
-            audit.add(source="bioRxiv" if server == "biorxiv" else "medRxiv", status="failed" if failed else "success", records=collected, pages=pages, endpoint=endpoint, error=failed)
+            audit.add(
+                source="bioRxiv" if server == "biorxiv" else "medRxiv",
+                status="failed" if failed else "success",
+                records=accepted,
+                pages=pages,
+                endpoint=endpoint,
+                error=failed,
+                details={
+                    "available_total": available_total,
+                    "scanned": scanned,
+                    "accepted_after_identity_filter": accepted,
+                    "prefilter_rejected": max(0, scanned - accepted),
+                    "max_records_per_server": cap,
+                    "identity_filter": bool(identity_filter),
+                    "identity_term_count": len(identity_terms),
+                    "sampling_strategy": "head_plus_latest_tail" if cap else "complete_interval",
+                },
+            )
     return output

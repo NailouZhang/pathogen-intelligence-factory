@@ -1,6 +1,6 @@
-> 当前工程版本：v14.4。GitHub Actions、本地Conda和CI使用统一Python安装器。
+> 当前工程版本：v14.7。GitHub Actions、本地Conda和CI使用统一Python安装器。
 
-# pathogen-intelligence-factory v14.4
+# pathogen-intelligence-factory v14.7
 
 公开的21种病毒每周文献与公共卫生新闻情报工厂。
 
@@ -110,3 +110,22 @@ docs/QUALITY_AND_BILINGUAL_REPAIRS_V14_ZH.md
 docs/CURRENT_ENGINEERING_LIMITATIONS_V14_ZH.md
 REPAIR_LEDGER_ZH.md
 ```
+
+
+### v14.7 SiliconFlow China endpoint
+
+- SiliconFlow默认API基址切换为`https://api.siliconflow.cn/v1`；
+- 对话、模型发现和`/user/info`账户查询统一使用同一基址；
+- 可通过`SILICONFLOW_BASE_URL`覆盖，但GitHub Actions默认固定中国站；
+- 预检安全审计会记录实际使用的非敏感API基址。
+
+### v14.5 production hardening
+
+- `PIF_PREPRINT_MAX_RECORDS_PER_SERVER` defaults to `300`.
+- `PIF_PREPRINT_IDENTITY_FILTER` defaults to `true`.
+- Rendered evidence-gap placeholders are warnings only when they dominate a field; structural corruption remains a hard publication failure.
+- The public analysis-quality banner always reports the final displayed records after translation gating.
+
+### v14.7 BigModel + DeepSeek
+
+新增智谱BigModel与DeepSeek OpenAI兼容通道。BigModel默认`glm-4.7-flash`；DeepSeek默认`deepseek-v4-flash`并启用赠送余额保护。两家均进入预检、共享冷却、JSON validator和使用量审计。

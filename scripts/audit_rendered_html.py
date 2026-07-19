@@ -37,6 +37,42 @@ VOID_ELEMENTS = {
 }
 
 
+PLACEHOLDER_PHRASES_EN = (
+    "Not reported in the supplied evidence.",
+    "The supplied evidence does not clearly report",
+    "The supplied evidence does not clearly state",
+    "The supplied source does not clearly report",
+    "The supplied source does not clearly identify",
+    "The supplied source does not clearly describe",
+)
+
+
+def _normalized_coverage_text(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", html_lib.unescape(value).casefold())
+
+
+def _placeholder_coverage(value: str) -> tuple[float, str]:
+    """Return the largest whole-field coverage by a known absence phrase.
+
+    A factual sentence may honestly contain a short clause such as
+    ``Event date: Not reported in the supplied evidence; investigation...``.
+    Substring matching incorrectly rejected those useful fields.  We only flag
+    a field when a known absence phrase dominates at least 70% of the normalized
+    field text; even then it is a publishable warning, not a structural failure.
+    """
+    normalized = _normalized_coverage_text(value)
+    if not normalized:
+        return 0.0, ""
+    best = (0.0, "")
+    for phrase in PLACEHOLDER_PHRASES_EN:
+        needle = _normalized_coverage_text(phrase)
+        if needle and needle in normalized:
+            coverage = min(1.0, len(needle) / max(1, len(normalized)))
+            if coverage > best[0]:
+                best = (coverage, phrase)
+    return best
+
+
 class RenderAuditParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
@@ -154,8 +190,16 @@ def audit_html(path: Path) -> dict[str, Any]:
         if re.search(r"\b(?:Abbreviations?|Acronyms?)\s*[:：]|(?:缩写|缩略语)(?:表)?\s*[:：]", text, flags=re.I):
             findings.append({"severity": "critical", "code": "glossary_in_structured_element", "dd_index": index, "excerpt": text[:300]})
         if row["lang_en"] and not row["lang_zh"]:
-            if "Not reported in the supplied evidence" in text:
-                findings.append({"severity": "critical", "code": "english_placeholder", "dd_index": index, "excerpt": text[:300]})
+            placeholder_coverage, placeholder_phrase = _placeholder_coverage(text)
+            if placeholder_coverage >= 0.70:
+                findings.append({
+                    "severity": "warning",
+                    "code": "english_placeholder",
+                    "dd_index": index,
+                    "coverage": round(placeholder_coverage, 4),
+                    "matched_phrase": placeholder_phrase,
+                    "excerpt": text[:300],
+                })
             if len(text) >= 40 and _chinese_ratio(text) >= 0.35:
                 findings.append({"severity": "critical", "code": "chinese_text_in_english_element", "dd_index": index, "excerpt": text[:300]})
 
@@ -167,16 +211,18 @@ def audit_html(path: Path) -> dict[str, Any]:
         findings.append({"severity": "critical", "code": "missing_bilingual_toggle", "languages": sorted(parser.toggle_languages)})
 
     critical = sum(row["severity"] == "critical" for row in findings)
+    warnings = sum(row["severity"] == "warning" for row in findings)
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "file": str(path),
         "paper_card_markers": parser.paper_cards,
         "news_card_markers": parser.news_cards,
         "structured_elements": len(parser.dd_rows),
         "language_toggles": sorted(parser.toggle_languages),
         "critical_count": critical,
+        "warning_count": warnings,
         "findings": findings,
-        "status": "failed" if critical else "passed",
+        "status": "failed" if critical else ("passed_with_warnings" if warnings else "passed"),
     }
 
 
