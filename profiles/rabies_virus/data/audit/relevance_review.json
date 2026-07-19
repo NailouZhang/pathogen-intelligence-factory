@@ -1,47 +1,66 @@
 {
-  "policy_version": "v7-python-first-ambiguous-llm-1",
+  "policy_version": "v15-completion-before-final-relevance-2",
   "mode": "balanced",
   "compact_batch_tokens": 12000,
   "escalation_batch_tokens": 10000,
   "papers": {
-    "candidates_reviewed_by_python": 244,
-    "accepted": 29,
-    "rejected": 215,
+    "candidates_reviewed_by_python": 93,
+    "accepted": 22,
+    "rejected": 71,
     "review_methods": {
-      "compact_llm": 24,
-      "python": 28,
-      "python_full_corpus_fallback": 192
+      "compact_llm": 18,
+      "python": 17,
+      "python_full_corpus_fallback": 58
     },
     "review_decisions": {
-      "accept_after_compact_llm_review": 1,
-      "accept_python_high_confidence": 28,
-      "reject_after_compact_llm_review": 23,
-      "reject_after_deterministic_full_review": 192
+      "accept": 18,
+      "reject_after_compact_llm_review": 18,
+      "reject_after_deterministic_full_review": 53,
+      "review": 4
     },
     "cache": {
-      "miss": 216,
-      "not_used": 28
+      "miss": 76,
+      "not_used": 17
     },
     "document_count_cutoff": null,
     "character_prefix_cutoff": null
   },
   "news": {
-    "candidates_reviewed_by_python": 115,
-    "accepted": 51,
-    "rejected": 64,
+    "candidates_reviewed_by_python": 111,
+    "accepted": 54,
+    "rejected": 57,
     "review_methods": {
-      "python": 51,
-      "python_full_corpus_fallback": 64
+      "compact_llm": 28,
+      "python": 54,
+      "python_full_corpus_fallback": 29
     },
     "review_decisions": {
-      "accept_python_high_confidence": 51,
-      "reject_after_deterministic_full_review": 64
+      "accept_python_high_confidence": 54,
+      "reject_after_compact_llm_review": 28,
+      "reject_after_deterministic_full_review": 29
     },
     "cache": {
-      "miss": 64,
-      "not_used": 51
+      "miss": 57,
+      "not_used": 54
     },
     "document_count_cutoff": null,
     "character_prefix_cutoff": null
-  }
+  },
+  "paper_stage_order": [
+    "candidate_gate",
+    "cross_source_dedup",
+    "ranked_batch",
+    "content_completion",
+    "final_relevance",
+    "identity_gate",
+    "analysis_translation",
+    "dynamic_replenishment"
+  ],
+  "news_stage_order": [
+    "candidate_gate",
+    "dedup",
+    "pre_fetch_relevance",
+    "body_resolution",
+    "post_fetch_relevance"
+  ]
 }
