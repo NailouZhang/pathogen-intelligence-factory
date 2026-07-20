@@ -58,6 +58,8 @@ from .literature import (
 from .progress import progress
 from .cover import ensure_profile_cover
 from .utils import append_jsonl, clean_space, dump_json, load_json, sha256_text, utc_now_iso, unique_strings
+from .runtime_budget import RuntimeBudget
+from .vocabulary_lifecycle import ensure_review_vocabulary
 
 
 def _preprint_identity_terms(profile: dict[str, Any]) -> list[str]:
@@ -244,6 +246,18 @@ def _load_or_build_runtime_profile(
 
 def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     progress("pipeline", "start", profile=settings.profile_id, demo=demo)
+    runtime_budget = RuntimeBudget(
+        profile_runtime_minutes=settings.profile_runtime_minutes,
+        finalization_reserve_minutes=settings.finalization_reserve_minutes,
+        stage_limits_minutes={
+            "retrieval": settings.retrieval_max_minutes,
+            "relevance": settings.relevance_max_minutes,
+            "paper_processing": settings.paper_processing_max_minutes,
+            "supplementary_review": settings.supplementary_review_max_minutes,
+            "news_enrichment": settings.news_enrichment_max_minutes,
+            "news_analysis": settings.news_analysis_max_minutes,
+        },
+    )
     settings.output_dir.mkdir(parents=True, exist_ok=True)
     settings.state_dir.mkdir(parents=True, exist_ok=True)
     http = HttpClient(settings.user_agent)
@@ -280,6 +294,13 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             f"profile {settings.profile_id} is not ready: "
             f"{profile.get('blocking_issues') or profile.get('status')}"
         )
+    profile, review_vocabulary_audit = ensure_review_vocabulary(
+        settings, profile, http, llm, demo=demo
+    )
+    if review_vocabulary_audit.get("cache_invalidation_required"):
+        for cache_name in ("relevance_review_cache", "analysis_cache", "translation_cache"):
+            state.pop(cache_name, None)
+        state["profile_semantic_fingerprint"] = profile.get("profile_semantic_fingerprint")
     core_term_contract = validate_frozen_core_terms(profile, strict=True)
     post_retrieval_vocabulary = build_post_retrieval_vocabulary(profile)
     profile["core_term_contract"] = core_term_contract
@@ -314,6 +335,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     scholarly_search_end = publication_search_end(end, settings.publication_future_days)
     source_audit = SourceAudit()
 
+    runtime_budget.start_stage("retrieval")
     if demo:
         raw_papers, raw_news = _demo_records()
         source_audit.add(source="Demo scholarly", status="success", records=len(raw_papers))
@@ -458,6 +480,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     _annotate_retrieval_concepts(raw_papers, query_sets)
     _annotate_retrieval_concepts(raw_news, query_sets)
 
+    runtime_budget.finish_stage("retrieval")
     raw_papers_before_window = len(raw_papers)
     raw_papers, paper_date_rejections = filter_publication_window(
         raw_papers,
@@ -553,6 +576,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     news_before_final_gate = len(news)
     relevance_review_cache = state.setdefault("relevance_review_cache", {}) if settings.relevance_review_cache_enabled else {}
     news_review_population = list(news)
+    runtime_budget.start_stage("relevance")
     progress("relevance_review", "start", kind="news", candidates=len(news), mode=settings.llm_review_mode)
     news = final_filter(
         news,
@@ -563,6 +587,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         review_mode=settings.llm_review_mode,
         compact_batch_tokens=settings.llm_compact_batch_tokens,
         escalation_batch_tokens=settings.llm_escalation_batch_tokens,
+        continue_check=lambda: runtime_budget.can_start_expensive("relevance"),
     )
     progress("relevance_review", "complete", kind="news", accepted=len(news))
     news_after_final_gate = len(news)
@@ -740,6 +765,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             review_mode=settings.llm_review_mode,
             compact_batch_tokens=settings.llm_compact_batch_tokens,
             escalation_batch_tokens=settings.llm_escalation_batch_tokens,
+            continue_check=lambda: runtime_budget.can_start_expensive("relevance"),
         )
         progress(
             "relevance_review", "complete", kind="paper", accepted=len(reviewed),
@@ -777,7 +803,10 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
 
     def _analyze_translate_paper(item: dict[str, Any]) -> bool:
         nonlocal paper_analysis_processed
-        if len(primary_ready) >= comparison_target:
+        if len(primary_ready) >= settings.max_papers:
+            return False
+        attempt_limit = max(settings.max_papers, int(round(comparison_target * max(1.0, settings.paper_analysis_attempt_multiplier))))
+        if paper_analysis_processed >= attempt_limit:
             return False
         if not (item.get("evidence_status") or {}).get("has_verified_evidence"):
             return False
@@ -830,8 +859,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     )
     progress("deep_analysis", "start", papers=len(full_paper_catalog), news=len(news))
 
-    # Evidence supplied directly by trusted databases is already complete enough
-    # for final relevance review and does not consume the completion budget.
+    # Phase 1: establish a globally ranked, evidence-bearing comparison pool.
+    # No paper is analyzed or translated until this pool is assembled.
     preexisting_evidence = [
         item for item in full_paper_catalog
         if (item.get("evidence_status") or {}).get("has_verified_evidence")
@@ -841,19 +870,30 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     for item in accepted:
         accepted_ids.add(str(item.get("paper_id")))
         catalog_by_id[item.get("paper_id")] = item
-    for item in rank_papers([x for x in accepted if (x.get("evidence_status") or {}).get("has_verified_evidence")], profile):
-        _analyze_translate_paper(item)
 
+    runtime_budget.start_stage("paper_processing")
     pending = [
         item for item in full_paper_catalog
         if not (item.get("evidence_status") or {}).get("has_verified_evidence")
     ]
     batch_size = max(1, settings.fulltext_batch_size)
+
+    def _accepted_evidence_count() -> int:
+        return sum(
+            1 for paper_id in accepted_ids
+            if (catalog_by_id.get(paper_id, {}).get("evidence_status") or {}).get("has_verified_evidence")
+        )
+
+    completion_stop_reason = "candidate_catalog_exhausted"
     while (
-        len(primary_ready) < comparison_target
+        _accepted_evidence_count() < comparison_target
         and pending
         and completion_processed < settings.max_fulltexts
     ):
+        allowed, reason = runtime_budget.can_start_expensive("paper_processing")
+        if not allowed:
+            completion_stop_reason = reason
+            break
         remaining_budget = settings.max_fulltexts - completion_processed
         current = pending[: min(batch_size, remaining_budget)]
         pending = pending[len(current):]
@@ -862,13 +902,9 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         if demo:
             completed = current
             batch_audit = {
-                "policy_version": "v15-dedup-first-dynamic-completion-2",
-                "catalog_size": len(current),
-                "processed": 0,
-                "evidence_ready": 0,
-                "metadata_only": len(current),
-                "batches": [],
-                "stop_reason": "demo_fixture",
+                "policy_version": "v16-dedup-first-comparison-pool-1",
+                "catalog_size": len(current), "processed": 0, "evidence_ready": 0,
+                "metadata_only": len(current), "batches": [], "stop_reason": "demo_fixture",
             }
         else:
             completed, batch_audit = complete_literature_catalog(
@@ -876,20 +912,17 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
                 enrich_one=lambda item: complete_scholarly_work(
                     http, item, oa_email, secrets.get("NCBI_API_KEY", "")
                 ),
-                primary_target=10**9,
-                max_budget=len(current),
-                batch_size=len(current),
-                workers=5,
+                primary_target=10**9, max_budget=len(current),
+                batch_size=len(current), workers=5,
             )
         completion_processed += int(batch_audit.get("processed") or 0)
         completed = _final_publication_date_gate(completed, stage=f"post_completion_{batch_number}")
         completion_batches.append({
-            "batch": batch_number,
-            "input": len(current),
+            "batch": batch_number, "input": len(current),
             "processed": int(batch_audit.get("processed") or 0),
             "evidence_ready": int(batch_audit.get("evidence_ready") or 0),
             "metadata_only": int(batch_audit.get("metadata_only") or 0),
-            "primary_ready_before": len(primary_ready),
+            "comparison_evidence_before": _accepted_evidence_count(),
         })
         for item in completed:
             catalog_by_id[item.get("paper_id")] = item
@@ -898,18 +931,27 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         for item in accepted:
             accepted_ids.add(str(item.get("paper_id")))
             catalog_by_id[item.get("paper_id")] = item
-        for item in rank_papers([x for x in accepted if (x.get("evidence_status") or {}).get("has_verified_evidence")], profile):
-            _analyze_translate_paper(item)
-        completion_batches[-1]["primary_ready_after"] = len(primary_ready)
+        completion_batches[-1]["comparison_evidence_after"] = _accepted_evidence_count()
         progress(
-            "primary_report_replenishment", "batch_complete",
-            batch=batch_number, completion_processed=completion_processed,
-            primary_ready=len(primary_ready), primary_target=settings.max_papers, comparison_target=comparison_target,
+            "comparison_pool_replenishment", "batch_complete", batch=batch_number,
+            completion_processed=completion_processed, comparison_evidence=_accepted_evidence_count(),
+            comparison_target=comparison_target,
         )
+    else:
+        if _accepted_evidence_count() >= comparison_target:
+            completion_stop_reason = "comparison_pool_target_reached"
+        elif completion_processed >= settings.max_fulltexts:
+            completion_stop_reason = "completion_budget_exhausted"
 
-    # Records not selected for content completion are still final-reviewed as
-    # verified metadata and can be retained as supplementary literature.
+    # Phase 2: retain verified metadata as supplementary literature, but stop
+    # this lower-value review when its dedicated five-minute budget is exhausted.
+    runtime_budget.start_stage("supplementary_review")
+    supplementary_review_stop_reason = "candidate_catalog_exhausted"
     for offset in range(0, len(pending), batch_size):
+        allowed, reason = runtime_budget.can_start_expensive("supplementary_review")
+        if not allowed:
+            supplementary_review_stop_reason = reason
+            break
         metadata_batch = pending[offset: offset + batch_size]
         label = f"metadata_only_{offset // batch_size + 1}"
         reviewed = _review_paper_batch(metadata_batch, batch_label=label)
@@ -917,12 +959,43 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         for item in accepted:
             accepted_ids.add(str(item.get("paper_id")))
             catalog_by_id[item.get("paper_id")] = item
+    runtime_budget.finish_stage("supplementary_review", supplementary_review_stop_reason)
+    runtime_budget.finish_stage("relevance", "completed_or_deterministic_after_budget")
 
     paper_catalog = [
         catalog_by_id[paper_id]
         for paper_id in catalog_order
         if paper_id in accepted_ids and paper_id in catalog_by_id
     ]
+
+    # Phase 3: analyze only the globally ranked comparison pool. The success
+    # target is 50 primary reports; the comparison pool and attempt/time budgets
+    # are independent hard ceilings.
+    comparison_pool = rank_papers(
+        [item for item in paper_catalog if (item.get("evidence_status") or {}).get("has_verified_evidence")],
+        profile,
+    )
+    analysis_ranked_catalog = comparison_pool
+    comparison_pool = comparison_pool[:comparison_target]
+    analysis_attempt_limit = max(
+        comparison_target,
+        int(round(comparison_target * max(1.0, settings.paper_analysis_attempt_multiplier))),
+    )
+    analysis_queue = analysis_ranked_catalog[:analysis_attempt_limit]
+    analysis_stop_reason = "analysis_candidate_queue_exhausted"
+    for item in analysis_queue:
+        if len(primary_ready) >= settings.max_papers:
+            analysis_stop_reason = "primary_success_target_reached"
+            break
+        if paper_analysis_processed >= analysis_attempt_limit:
+            analysis_stop_reason = "analysis_attempt_budget_exhausted"
+            break
+        allowed, reason = runtime_budget.can_start_expensive("paper_processing")
+        if not allowed:
+            analysis_stop_reason = reason
+            break
+        _analyze_translate_paper(item)
+    runtime_budget.finish_stage("paper_processing", analysis_stop_reason)
     papers_after_final_gate = len(paper_catalog)
     paper_post_enrichment_rejected = paper_gate_rejected
     paper_content_rejected = 0
@@ -941,13 +1014,15 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         "processed": completion_processed,
         "evidence_ready": evidence_ready_final,
         "metadata_only": len(full_paper_catalog) - evidence_ready_final,
+        "comparison_pool_size": len(comparison_pool),
+        "analysis_candidate_queue_size": len(analysis_queue),
         "primary_ready": len(primary_ready),
+        "analysis_attempt_limit": analysis_attempt_limit,
+        "analysis_attempts": paper_analysis_processed,
+        "analysis_stop_reason": analysis_stop_reason,
+        "supplementary_review_stop_reason": supplementary_review_stop_reason,
         "batches": completion_batches,
-        "stop_reason": (
-            "comparison_pool_target_reached" if len(primary_ready) >= comparison_target
-            else "completion_budget_exhausted" if completion_processed >= settings.max_fulltexts
-            else "candidate_catalog_exhausted"
-        ),
+        "stop_reason": completion_stop_reason,
     }
     relevance_review_summary = {
         "policy_version": "v15-completion-before-final-relevance-2",
@@ -986,71 +1061,103 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         primary_ready=len(primary_ready), comparison_target=comparison_target, stop_reason=literature_completion_audit["stop_reason"],
     )
 
-    # News keeps its existing body identity/circuit gates, but channel-specific
-    # WeChat length never determines whether a standard news record survives.
+    # News is split into deep main-news records and a supplementary catalog.
+    # Every candidate here already passed date, source, topic, URL/title and
+    # semantic deduplication plus pre-fetch relevance. Failure to retrieve a
+    # publisher body no longer erases a trustworthy RSS-level record.
     news_queue = rank_news(news)
     news_queue_cap = min(
         len(news_queue),
         settings.max_news_fetches,
         settings.max_news + max(0, settings.display_candidate_buffer),
     )
-    news = news_queue[:news_queue_cap]
-    news_enrichment_selected = len(news)
+    news_queue = news_queue[:news_queue_cap]
+    news_enrichment_selected = len(news_queue)
     news_content_rejected = 0
     news_resolver_rejected_records: list[dict[str, Any]] = []
-    if not demo:
-        progress("display_content_enrichment", "start", kind="news", selected=len(news), cap=settings.max_news_fetches)
-        news_workers = max(1, min(6, int(os.getenv("PIF_NEWS_ENRICH_WORKERS", "4"))))
-        fetched_news = _parallel_map(
-            list(news),
-            lambda item: resolve_and_extract_news(http, item, news_profile),
-            workers=news_workers,
-        )
-        fetched_by_id = {item.get("news_id"): item for item in fetched_news}
-        news = [fetched_by_id.get(item.get("news_id"), item) for item in news]
-        news_resolver_rejected_records = [
-            {
-                "news_id": item.get("news_id"),
-                "title": item.get("title"),
-                "source": item.get("source"),
-                "url": item.get("url"),
-                "resolved_url": item.get("resolved_url"),
-                "content_status": item.get("content_status"),
-                "content_identity": item.get("content_identity"),
-                "content_audit": item.get("content_audit"),
-            }
-            for item in news
-            if item.get("content_status") not in {"full", "partial", "syndicated_summary"} or not clean_space(item.get("content"))
-        ]
-        news_content_rejected = len(news_resolver_rejected_records)
-        news = [
-            item for item in news
-            if item.get("content_status") in {"full", "partial", "syndicated_summary"} and clean_space(item.get("content"))
-        ]
-        progress(
-            "display_content_enrichment", "complete", kind="news",
-            enriched=len(fetched_news), retained=len(news), rejected_no_body=news_content_rejected,
-        )
+    supplementary_news_candidates: list[dict[str, Any]] = []
+    fetched_main_candidates: list[dict[str, Any]] = []
 
-    news, news_circuit_summary = apply_news_content_circuit_breaker(news)
+    runtime_budget.start_stage("news_enrichment")
+    news_enrichment_stop_reason = "completed"
+    progress("display_content_enrichment", "start", kind="news", selected=len(news_queue), cap=settings.max_news_fetches)
+    if demo:
+        fetched_main_candidates = list(news_queue)
+    else:
+        news_workers = max(1, min(6, int(os.getenv("PIF_NEWS_ENRICH_WORKERS", "4"))))
+        chunk_size = max(news_workers, news_workers * 2)
+        for offset in range(0, len(news_queue), chunk_size):
+            allowed, reason = runtime_budget.can_start_expensive("news_enrichment")
+            if not allowed:
+                news_enrichment_stop_reason = reason
+                for pending_article in news_queue[offset:]:
+                    pending_article = dict(pending_article)
+                    pending_article["supplementary_reason"] = "news_enrichment_time_budget_not_reached"
+                    supplementary_news_candidates.append(pending_article)
+                break
+            chunk = news_queue[offset: offset + chunk_size]
+            fetched_news = _parallel_map(
+                list(chunk),
+                lambda item: resolve_and_extract_news(http, item, news_profile),
+                workers=news_workers,
+            )
+            fetched_by_id = {item.get("news_id"): item for item in fetched_news}
+            for original_article in chunk:
+                article = fetched_by_id.get(original_article.get("news_id"), original_article)
+                has_body = article.get("content_status") in {"full", "partial", "syndicated_summary"} and bool(clean_space(article.get("content")))
+                if has_body:
+                    fetched_main_candidates.append(article)
+                    continue
+                news_content_rejected += 1
+                rejected_row = {
+                    "news_id": article.get("news_id"), "title": article.get("title"),
+                    "source": article.get("source"), "url": article.get("url"),
+                    "resolved_url": article.get("resolved_url"), "content_status": article.get("content_status"),
+                    "content_identity": article.get("content_identity"), "content_audit": article.get("content_audit"),
+                }
+                news_resolver_rejected_records.append(rejected_row)
+                supplementary = dict(article)
+                supplementary["supplementary_reason"] = "publisher_body_unavailable_rss_record_retained"
+                supplementary_news_candidates.append(supplementary)
+    runtime_budget.finish_stage("news_enrichment", news_enrichment_stop_reason)
+    progress(
+        "display_content_enrichment", "complete", kind="news",
+        enriched=len(fetched_main_candidates), retained=len(fetched_main_candidates),
+        rejected_no_body=news_content_rejected, supplementary_candidates=len(supplementary_news_candidates),
+        stop_reason=news_enrichment_stop_reason,
+    )
+
+    news, news_circuit_summary = apply_news_content_circuit_breaker(fetched_main_candidates)
+    circuit_kept_ids = {item.get("news_id") for item in news}
+    for rejected in fetched_main_candidates:
+        if rejected.get("news_id") not in circuit_kept_ids:
+            fallback = dict(rejected)
+            fallback["supplementary_reason"] = "main_news_content_circuit_rejected_metadata_retained"
+            supplementary_news_candidates.append(fallback)
     news, news_post_enrichment_summary = filter_post_enrichment(news, news_profile, "news")
-    # Every remaining item has passed title/source/date/body identity, duplicate,
-    # error-page and final relevance gates. Translation is deliberately not part
-    # of this source qualification decision.
+    post_kept_ids = {item.get("news_id") for item in news}
+    for rejected in fetched_main_candidates:
+        if rejected.get("news_id") in circuit_kept_ids and rejected.get("news_id") not in post_kept_ids:
+            fallback = dict(rejected)
+            fallback["supplementary_reason"] = "post_enrichment_deep_news_rejected_metadata_retained"
+            supplementary_news_candidates.append(fallback)
+
     for article in news:
         article["relevance_ready"] = True
         mark_source_qualified(article, True, reason="source_date_body_identity_and_final_relevance_passed")
     news_post_enrichment_rejected = news_post_enrichment_summary["rejected"]
     news_circuit_rejected = news_circuit_summary["rejected"]
     news_content_gate_summary = {
-        "policy_version": "v15-news-content-channel-independent-1",
+        "policy_version": "v16-main-and-supplementary-news-1",
         "resolver": {
             "input": news_enrichment_selected,
             "rejected": news_content_rejected,
             "rejected_records": news_resolver_rejected_records,
+            "stop_reason": news_enrichment_stop_reason,
         },
         "circuit_breaker": news_circuit_summary,
         "post_enrichment": news_post_enrichment_summary,
+        "supplementary_candidates": len(supplementary_news_candidates),
     }
     progress(
         "post_enrichment_gate", "complete",
@@ -1058,13 +1165,27 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         news_retained=len(news), news_resolver_rejected=news_content_rejected,
         news_circuit_rejected=news_circuit_rejected,
         news_relevance_rejected=news_post_enrichment_rejected,
+        supplementary_news_candidates=len(supplementary_news_candidates),
     )
 
     news, paper_catalog = attach_news_to_papers(news, paper_catalog)
 
-    # Analyze/translate qualified news independently from its channel rendering.
+    # Analyze and translate main news until either the 30-minute stage budget or
+    # the global finalization reserve is reached. Remaining qualified records are
+    # preserved as supplementary news rather than lost.
     analyzed_news: list[dict[str, Any]] = []
-    for article in rank_news(news):
+    runtime_budget.start_stage("news_analysis")
+    news_analysis_stop_reason = "completed"
+    ranked_main_news = rank_news(news)
+    for index, article in enumerate(ranked_main_news):
+        allowed, reason = runtime_budget.can_start_expensive("news_analysis")
+        if not allowed:
+            news_analysis_stop_reason = reason
+            for pending_article in ranked_main_news[index:]:
+                fallback = dict(pending_article)
+                fallback["supplementary_reason"] = "news_analysis_time_budget_not_reached"
+                supplementary_news_candidates.append(fallback)
+            break
         key = analysis_cache_key("news", article)
         cached = analysis_cache.get(key) if settings.analysis_cache_enabled else None
         cached_analysis = (cached or {}).get("analysis") if isinstance(cached, dict) else None
@@ -1090,7 +1211,11 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             )
         finalize_news_state(article)
         analyzed_news.append(article)
-    progress("deep_analysis", "complete", papers=paper_analysis_processed, news=len(analyzed_news))
+    runtime_budget.finish_stage("news_analysis", news_analysis_stop_reason)
+    progress(
+        "deep_analysis", "complete", papers=paper_analysis_processed, news=len(analyzed_news),
+        news_stop_reason=news_analysis_stop_reason,
+    )
 
     # Rank the full evidence-bearing comparison pool globally only after content
     # completion, final relevance, analysis and translation. Top50 is selected from
@@ -1109,6 +1234,12 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         if demo:
             item["title_zh"] = demo_titles.get(item.get("title"), item.get("title"))
             item["supplementary_translation_audit"] = {"ready": True, "title": {"status": "demo"}}
+        elif runtime_budget.should_finalize():
+            item["title_zh"] = clean_space(item.get("title"))
+            item["supplementary_translation_audit"] = {
+                "ready": False,
+                "title": {"status": "english_fallback", "reason": "finalization_reserve_entered"},
+            }
         else:
             translate_title_only(
                 item, profile=profile, llm=llm, prompts_dir=prompts_dir,
@@ -1137,6 +1268,50 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         item["display_rank"] = display_rank
         item["selected_for_display"] = display_rank <= settings.max_news
     news = ranked_news_ready_pool[: settings.max_news]
+
+    # Build a separate, metadata-safe supplementary news catalog. Main-news IDs
+    # always win. Title translation is the only LLM/translation work performed.
+    main_news_ids = {clean_space(item.get("news_id")) for item in news}
+    supplementary_news: list[dict[str, Any]] = []
+    supplementary_seen: set[str] = set()
+    for candidate in rank_news(supplementary_news_candidates):
+        key = clean_space(candidate.get("news_id")) or sha256_text(
+            clean_space(candidate.get("title")).casefold() + "|" + clean_space(candidate.get("published_date"))
+        )
+        if not key or key in main_news_ids or key in supplementary_seen:
+            continue
+        title = clean_space(candidate.get("title"))
+        if not title:
+            continue
+        supplementary_seen.add(key)
+        item = dict(candidate)
+        item["display_mode"] = "supplementary_news"
+        item["analysis"] = {}
+        item.pop("elements_en", None)
+        item.pop("elements_zh", None)
+        item.pop("analysis_en", None)
+        item.pop("analysis_zh", None)
+        if item.get("snippet_duplicate_of_title"):
+            item["excerpt"] = ""
+        if demo:
+            item["title_zh"] = demo_titles.get(item.get("title"), item.get("title"))
+            item["supplementary_translation_audit"] = {"ready": True, "title": {"status": "demo"}}
+        elif runtime_budget.should_finalize():
+            item["title_zh"] = clean_space(item.get("title"))
+            item["translation_status"] = "english_fallback"
+            item["supplementary_translation_audit"] = {
+                "ready": False,
+                "title": {"status": "english_fallback", "reason": "finalization_reserve_entered"},
+            }
+        else:
+            translate_title_only(
+                item, profile=profile, llm=llm, prompts_dir=prompts_dir,
+                cache=translation_cache,
+            )
+        supplementary_news.append(item)
+        if len(supplementary_news) >= settings.max_supplementary_news:
+            break
+
     translation_rejected_news = sum(1 for item in analyzed_news if not item.get("translation_complete"))
     news_display_rejected = len(analyzed_news) - len(news_ready_pool)
     news_top_n_excluded = max(0, len(ranked_news_ready_pool) - len(news))
@@ -1145,7 +1320,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         primary_ready_pool=len(primary_ready), papers_retained=len(papers), papers_rejected=translation_rejected_papers,
         paper_top_n_limit=settings.max_papers, paper_top_n_excluded=paper_top_n_excluded,
         supplementary_retained=len(supplementary_papers), supplementary_limit=settings.max_supplementary_papers,
-        news_ready_pool=len(news_ready_pool), news_retained=len(news), news_display_rejected=news_display_rejected,
+        news_ready_pool=len(news_ready_pool), news_retained=len(news), supplementary_news_retained=len(supplementary_news), news_display_rejected=news_display_rejected,
         news_translation_incomplete=translation_rejected_news,
         news_top_n_limit=settings.max_news, news_top_n_excluded=news_top_n_excluded,
         selection_policy="primary_top_n_plus_supplementary_catalog",
@@ -1170,6 +1345,9 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     translated_primary_and_news = sum(1 for item in papers + news if has_real_title_translation(item))
     translated_supplementary_titles = sum(
         1 for item in supplementary_papers if clean_space(item.get("title_zh"))
+    )
+    translated_supplementary_news_titles = sum(
+        1 for item in supplementary_news if clean_space(item.get("title_zh"))
     )
     analysis_quality_displayed = summarize_analysis_quality(
         papers,
@@ -1221,6 +1399,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         maximum=settings.overview_max_items,
         window_start=start.isoformat(),
         window_end=end.isoformat(),
+        allow_llm=not runtime_budget.should_finalize(),
     )
     source_status = source_audit.summary()
     anchor_coverage = _anchor_coverage(profile, query_sets, source_audit.entries)
@@ -1298,6 +1477,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "top_n_excluded": news_top_n_excluded,
             "selection_policy": "qualification_independent_from_wechat_length",
             "displayed": len(news),
+            "supplementary_displayed": len(supplementary_news),
+            "supplementary_limit": settings.max_supplementary_news,
         },
     }
 
@@ -1318,6 +1499,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         "profile": profile,
         "core_term_contract": core_term_contract,
         "post_retrieval_vocabulary": post_retrieval_vocabulary,
+        "review_vocabulary_lifecycle": review_vocabulary_audit,
+        "runtime_budget": runtime_budget.audit(),
         "controlled_supplemental_query_audit": controlled_supplemental_query_audit,
         "query_plan": plan,
         "source_status": source_status,
@@ -1354,6 +1537,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         "papers": papers,
         "supplementary_papers": supplementary_papers,
         "news": news,
+        "supplementary_news": supplementary_news,
         "metrics": {
             "raw_papers": raw_papers_before_window,
             # Backward-compatible alias: `papers` remains the number of deep
@@ -1368,8 +1552,10 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "reviews": sum(1 for p in papers if p.get("paper_type") == "review"),
             "raw_news": raw_news_before_window,
             "news": len(news),
+            "supplementary_news": len(supplementary_news),
             "translated": translated_primary_and_news,
             "supplementary_titles_translated": translated_supplementary_titles,
+            "supplementary_news_titles_translated": translated_supplementary_news_titles,
             "analysis_passed": (analysis_quality_displayed.get("combined") or {}).get("passed", 0),
             "analysis_fallback": (analysis_quality_displayed.get("combined") or {}).get("fallback", 0),
             "analysis_fallback_ratio": (analysis_quality_displayed.get("combined") or {}).get("fallback_ratio", 0.0),
@@ -1382,14 +1568,20 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "news_ready_before_top_n": len(ranked_news_ready_pool),
             "news_top_n_limit": settings.max_news,
             "news_top_n_excluded": news_top_n_excluded,
+            "supplementary_news_limit": settings.max_supplementary_news,
         },
     }
     write_issue(settings.output_dir, issue)
     cover_meta = ensure_profile_cover(settings, profile, issue_date)
     issue["cover"] = cover_meta
     write_issue(settings.output_dir, issue)
+    runtime_budget.start_stage("finalization")
     render_site(issue, settings.output_dir)
-    render_wechat_package(issue, settings.output_dir, cover_meta)
+    wechat_content_budget = render_wechat_package(issue, settings.output_dir, cover_meta)
+    runtime_budget.finish_stage("finalization", "completed")
+    issue["wechat_content_budget"] = wechat_content_budget
+    issue["runtime_budget"] = runtime_budget.audit()
+    write_issue(settings.output_dir, issue)
 
     audit_dir = settings.output_dir / "data" / "audit"
     audit_dir.mkdir(parents=True, exist_ok=True)
@@ -1415,6 +1607,9 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     dump_json(audit_dir / "event_query_expansion.json", event_query_plan)
     dump_json(audit_dir / "news_content_gate.json", news_content_gate_summary)
     dump_json(audit_dir / "paper_post_enrichment_gate.json", paper_post_enrichment_summary)
+    dump_json(audit_dir / "runtime_budget.json", runtime_budget.audit())
+    dump_json(audit_dir / "review_vocabulary_lifecycle.json", review_vocabulary_audit)
+    dump_json(audit_dir / "wechat_content_budget.json", wechat_content_budget)
     dump_json(audit_dir / "display_selection.json", {
         "policy_version": "v15.1-global-comparison-pool-top50-supplementary-top100-1",
         "selection_policy": "verified_primary_top_n_plus_verified_supplementary_catalog",
@@ -1439,6 +1634,9 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "excluded_by_top_n": news_top_n_excluded,
             "selected_ids": [item.get("news_id") for item in news],
             "excluded_ids": [item.get("news_id") for item in ranked_news_ready_pool[settings.max_news:]],
+            "supplementary_limit": settings.max_supplementary_news,
+            "supplementary_displayed": len(supplementary_news),
+            "supplementary_ids": [item.get("news_id") for item in supplementary_news],
         },
     })
 
@@ -1447,6 +1645,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         audit_dir / "supplementary_papers.jsonl",
         audit_dir / "literature_catalog.jsonl",
         audit_dir / "news.jsonl",
+        audit_dir / "supplementary_news.jsonl",
         audit_dir / "eligible_news.jsonl",
     ]
     for jsonl_path in jsonl_paths:
@@ -1480,6 +1679,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         })
     for paper in supplementary_papers:
         append_jsonl(audit_dir / "supplementary_papers.jsonl", paper)
+    for article in supplementary_news:
+        append_jsonl(audit_dir / "supplementary_news.jsonl", article)
     for article in news:
         append_jsonl(audit_dir / "news.jsonl", {
             "news_id": article.get("news_id"),
@@ -1491,6 +1692,13 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "content_identity": article.get("content_identity"),
             "relevance_post_enrichment": article.get("relevance_post_enrichment"),
         })
+    dump_json(audit_dir / "supplementary_news.json", {
+        "policy_version": "v16-supplementary-news-1",
+        "candidate_count": len(supplementary_news_candidates),
+        "displayed": len(supplementary_news),
+        "limit": settings.max_supplementary_news,
+        "records": supplementary_news,
+    })
     save_state(settings.state_dir, state)
     progress("pipeline", "complete", profile=settings.profile_id, issue_id=issue.get("issue_id"), metrics=issue.get("metrics"))
     return issue

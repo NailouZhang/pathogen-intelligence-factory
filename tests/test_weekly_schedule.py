@@ -23,7 +23,7 @@ def test_monday_required_order():
         now=datetime(2026, 7, 20, 2, 0, tzinfo=ZoneInfo("Asia/Shanghai")),
     )
     assert reason == "monday"
-    assert profiles == ["seasonal_influenza", "sars_cov_2", "respiratory_syncytial_virus"]
+    assert profiles == ["sars_cov_2", "mpox_virus", "marburg_virus"]
 
 
 def test_each_remaining_day_has_three():

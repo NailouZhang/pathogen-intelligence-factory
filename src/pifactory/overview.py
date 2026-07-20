@@ -200,11 +200,25 @@ def select_overview_items(
     return selected[:maximum]
 
 
+
+def _paper_citation_id(item: dict[str, Any]) -> str:
+    doi = clean_space(item.get("doi"))
+    if doi:
+        return doi
+    ids = item.get("source_ids") or {}
+    pmid = clean_space(item.get("pmid") or ids.get("pmid"))
+    if pmid:
+        return f"PMID:{pmid}"
+    pmcid = clean_space(item.get("pmcid") or ids.get("pmcid"))
+    if pmcid:
+        return f"PMCID:{pmcid}"
+    return clean_space(item.get("title"))[:120] or "unidentified-publication"
+
 def _paper_payload(item: dict[str, Any]) -> dict[str, Any]:
     analysis_en = item.get("elements_en") or item.get("analysis_en") or (item.get("analysis") or {}).get("analysis") or {}
     analysis_zh = item.get("elements_zh") or item.get("analysis_zh") or {}
     return {
-        "paper_id": item.get("paper_id"),
+        "paper_id": _paper_citation_id(item),
         "paper_type": item.get("paper_type") or "research",
         "priority_tier": item.get("priority_tier"),
         "quality_score": item.get("quality_score"),
@@ -332,16 +346,16 @@ def _literature_fallback(profile: dict[str, Any], papers: list[dict[str, Any]]) 
         if text and _is_chinese(text, 12, 0.30):
             clipped = _clip_complete_sentences(text, 230)
             if clipped and not any(sentence_similarity(clipped, x) >= 0.90 for x in findings):
-                findings.append(clipped + (f" [{paper.get('paper_id')}]" if paper.get("paper_id") else ""))
-                ids.append(clean_space(paper.get("paper_id")))
+                findings.append(clipped + f" [{_paper_citation_id(paper)}]")
+                ids.append(_paper_citation_id(paper))
         if len(findings) >= 5:
             break
     while len(findings) < 3 and papers:
         paper = papers[len(findings) % len(papers)]
         title = _clean_for_overview(paper.get("title_zh") or paper.get("title"))
         date_text = _published_date(paper)
-        findings.append(f"{date_text or '本期'}发表的《{title}》进入本期重点文献清单，详细证据见下方单篇解读。 [{paper.get('paper_id')}]" )
-        ids.append(clean_space(paper.get("paper_id")))
+        findings.append(f"{date_text or '本期'}发表的《{title}》进入本期重点文献清单，详细证据见下方单篇解读。 [{_paper_citation_id(paper)}]" )
+        ids.append(_paper_citation_id(paper))
     data = {
         "headline_zh": f"{name}本期文献呈现多方向研究进展",
         "lead_zh": f"本期重点文献按发表日期、相关性、证据等级和研究质量综合排序，研究结果与综述证据分别核验后形成以下进展。",
@@ -356,7 +370,7 @@ def _literature_fallback(profile: dict[str, Any], papers: list[dict[str, Any]]) 
                     "main_results" if paper.get("paper_type") != "review" else "consensus_and_key_conclusions"
                 ) or paper.get("abstract") or paper.get("title")),
                 320,
-            ) + (f" [{paper.get('paper_id')}]" if paper.get("paper_id") else "")
+            ) + f" [{_paper_citation_id(paper)}]"
             for paper in papers[:5]
         ] or ["No literature item passed all publication, relevance, content and analysis gates."],
         "trend_or_risk_en": "The direction of this week's research is defined by the clinical, epidemiological, ecological, diagnostic and molecular topics actually represented by the eligible publications.",
@@ -451,10 +465,11 @@ def _news_fallback(profile: dict[str, Any], news: list[dict[str, Any]]) -> dict[
 def build_literature_overview(
     profile: dict[str, Any], papers: list[dict[str, Any]], llm: LLMRouter, prompts_dir: Any,
     *, minimum: int = 15, maximum: int = 25, window_start: date | str | None = None, window_end: date | str | None = None,
+    allow_llm: bool = True,
 ) -> dict[str, Any]:
     selected = select_overview_items(papers, minimum=minimum, maximum=maximum, window_start=window_start, window_end=window_end, kind="literature")
     fallback = _literature_fallback(profile, selected)
-    if not selected or not llm.available:
+    if not selected or not llm.available or not allow_llm:
         return fallback
     records = [_paper_payload(item) for item in selected]
     valid_ids = {clean_space(item.get("paper_id")) for item in records if clean_space(item.get("paper_id"))}
@@ -485,6 +500,7 @@ def build_literature_overview(
 def build_news_overview(
     profile: dict[str, Any], news: list[dict[str, Any]], llm: LLMRouter, prompts_dir: Any,
     *, minimum: int = 15, maximum: int = 25, window_start: date | str | None = None, window_end: date | str | None = None,
+    allow_llm: bool = True,
 ) -> dict[str, Any]:
     eligible = [
         item for item in news
@@ -500,7 +516,7 @@ def build_news_overview(
     ]
     selected = select_overview_items(eligible, minimum=minimum, maximum=maximum, window_start=window_start, window_end=window_end, kind="news")
     fallback = _news_fallback(profile, selected)
-    if not selected or not llm.available:
+    if not selected or not llm.available or not allow_llm:
         return fallback
     records = [_news_payload(item) for item in selected]
     valid_ids = {clean_space(item.get("news_id")) for item in records if clean_space(item.get("news_id"))}
@@ -535,9 +551,10 @@ def build_news_overview(
 def build_overviews(
     profile: dict[str, Any], papers: list[dict[str, Any]], news: list[dict[str, Any]], llm: LLMRouter, prompts_dir: Any,
     *, minimum: int = 15, maximum: int = 25, window_start: date | str | None = None, window_end: date | str | None = None,
+    allow_llm: bool = True,
 ) -> dict[str, Any]:
-    literature = build_literature_overview(profile, papers, llm, prompts_dir, minimum=minimum, maximum=maximum, window_start=window_start, window_end=window_end)
-    news_brief = build_news_overview(profile, news, llm, prompts_dir, minimum=minimum, maximum=maximum, window_start=window_start, window_end=window_end)
+    literature = build_literature_overview(profile, papers, llm, prompts_dir, minimum=minimum, maximum=maximum, window_start=window_start, window_end=window_end, allow_llm=allow_llm)
+    news_brief = build_news_overview(profile, news, llm, prompts_dir, minimum=minimum, maximum=maximum, window_start=window_start, window_end=window_end, allow_llm=allow_llm)
     return {
         "literature": literature,
         "news": news_brief,

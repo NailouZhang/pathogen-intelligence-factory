@@ -1,4 +1,4 @@
-name: Weekly 21-Virus Intelligence Cycle v15.3
+name: Weekly 21-Virus Intelligence Cycle v16.0
 
 on:
   schedule:
@@ -24,7 +24,12 @@ on:
         type: choice
         options: [scheduled, all]
       refresh_profile:
-        description: Rebuild terminology and lean five-concept retrieval profiles from authoritative sources
+        description: Rebuild the frozen runtime profile from authoritative sources
+        required: false
+        default: false
+        type: boolean
+      refresh_review_vocabulary:
+        description: Force one atomic rebuild of all downstream review/topic vocabularies
         required: false
         default: false
         type: boolean
@@ -58,7 +63,7 @@ concurrency:
 jobs:
   cycle:
     runs-on: ubuntu-latest
-    timeout-minutes: 330
+    timeout-minutes: 355
     outputs:
       pages_ready: ${{ steps.portal.outputs.pages_ready }}
     steps:
@@ -163,6 +168,7 @@ jobs:
           GEMINI_IMAGE_MODEL: ${{ vars.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-image' }}
           PIF_USER_AGENT: ${{ vars.PIF_USER_AGENT }}
           PIF_REFRESH_PROFILE: ${{ github.event_name == 'schedule' && 'false' || inputs.refresh_profile || 'false' }}
+          PIF_REFRESH_REVIEW_VOCABULARY: ${{ github.event_name == 'schedule' && 'false' || inputs.refresh_review_vocabulary || 'false' }}
           PIF_COVER_IMAGE_MODE: ${{ github.event_name == 'schedule' && vars.PIF_COVER_IMAGE_MODE || inputs.cover_image_mode || vars.PIF_COVER_IMAGE_MODE || 'auto' }}
           PIF_CONTENT_SOURCE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
           PIF_WINDOW_DAYS: ${{ steps.plan.outputs.window_days }}
@@ -231,10 +237,12 @@ jobs:
           # Shared across all sequential profiles in this workflow and persisted
           # on intelligence-data so later pathogens do not retry exhausted quotas.
           PIF_PROVIDER_STATE_FILE: /tmp/pif_data_repo/shared/state/provider_quota_daily.json
-          PIF_LLM_EXTRACT_PROVIDER_ORDER: ${{ vars.PIF_LLM_EXTRACT_PROVIDER_ORDER || 'bigmodel,siliconflow,mistral,groq,deepseek,openrouter,gemini' }}
-          PIF_LLM_RESCUE_PROVIDER_ORDER: ${{ vars.PIF_LLM_RESCUE_PROVIDER_ORDER || 'bigmodel,deepseek,mistral,gemini,openrouter,groq,siliconflow' }}
-          PIF_LLM_OVERVIEW_PROVIDER_ORDER: ${{ vars.PIF_LLM_OVERVIEW_PROVIDER_ORDER || 'bigmodel,deepseek,mistral,gemini,openrouter,groq,siliconflow' }}
-          PIF_LLM_RELEVANCE_PROVIDER_ORDER: ${{ vars.PIF_LLM_RELEVANCE_PROVIDER_ORDER || 'groq,bigmodel,siliconflow,mistral,deepseek,gemini,openrouter' }}
+          PIF_LLM_EXTRACT_PROVIDER_ORDER: ${{ vars.PIF_LLM_EXTRACT_PROVIDER_ORDER || 'gemini,bigmodel,siliconflow,mistral,deepseek,openrouter,groq' }}
+          PIF_LLM_RESCUE_PROVIDER_ORDER: ${{ vars.PIF_LLM_RESCUE_PROVIDER_ORDER || 'gemini,deepseek,bigmodel,mistral,siliconflow,openrouter,groq' }}
+          PIF_LLM_OVERVIEW_PROVIDER_ORDER: ${{ vars.PIF_LLM_OVERVIEW_PROVIDER_ORDER || 'gemini,deepseek,bigmodel,mistral,siliconflow,openrouter,groq' }}
+          PIF_LLM_RELEVANCE_PROVIDER_ORDER: ${{ vars.PIF_LLM_RELEVANCE_PROVIDER_ORDER || 'gemini,bigmodel,siliconflow,mistral,deepseek,openrouter,groq' }}
+          PIF_TRANSLATION_PROVIDER_ORDER: ${{ vars.PIF_TRANSLATION_PROVIDER_ORDER || 'gemini,bigmodel,mistral,siliconflow,deepseek,openrouter,groq' }}
+          PIF_LLM_ALLOW_PAID: ${{ vars.PIF_LLM_ALLOW_PAID || 'false' }}
           PIF_OPENROUTER_FREE_ONLY: ${{ vars.PIF_OPENROUTER_FREE_ONLY || 'true' }}
           PIF_OPENROUTER_HTTP_REFERER: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
           PIF_OPENROUTER_APP_TITLE: Pathogen Intelligence Factory
@@ -246,13 +254,25 @@ jobs:
           PIF_OVERVIEW_MIN_ITEMS: "15"
           PIF_OVERVIEW_MAX_ITEMS: "25"
           PIF_WECHAT_NEWS_MAX_ZH_CHARS: "500"
+          PIF_NEWS_BRIEF_MIN_SOURCE_CHARS: ${{ vars.PIF_NEWS_BRIEF_MIN_SOURCE_CHARS || '500' }}
+          PIF_MAX_SUPPLEMENTARY_NEWS: ${{ vars.PIF_MAX_SUPPLEMENTARY_NEWS || '100' }}
+          PIF_WECHAT_MAX_VISIBLE_CHARS: ${{ vars.PIF_WECHAT_MAX_VISIBLE_CHARS || '48000' }}
+          PIF_WECHAT_MIN_FULL_PAPERS: ${{ vars.PIF_WECHAT_MIN_FULL_PAPERS || '10' }}
           PIF_DISPLAY_CANDIDATE_BUFFER: ${{ vars.PIF_DISPLAY_CANDIDATE_BUFFER || '100' }}
           PIF_MAX_SUPPLEMENTARY_PAPERS: ${{ vars.PIF_MAX_SUPPLEMENTARY_PAPERS || '100' }}
           PIF_FULLTEXT_BATCH_SIZE: ${{ vars.PIF_FULLTEXT_BATCH_SIZE || '25' }}
           PIF_HTTP_TIMEOUT: "18"
           PIF_HTTP_RETRIES: "2"
           PIF_LLM_HTTP_TIMEOUT: "55"
-          PIF_PROFILE_RUNTIME_MINUTES: ${{ vars.PIF_PROFILE_RUNTIME_MINUTES || '90' }}
+          PIF_PROFILE_RUNTIME_MINUTES: ${{ vars.PIF_PROFILE_RUNTIME_MINUTES || '150' }}
+          PIF_FINALIZATION_RESERVE_MINUTES: ${{ vars.PIF_FINALIZATION_RESERVE_MINUTES || '30' }}
+          PIF_RETRIEVAL_MAX_MINUTES: ${{ vars.PIF_RETRIEVAL_MAX_MINUTES || '15' }}
+          PIF_RELEVANCE_MAX_MINUTES: ${{ vars.PIF_RELEVANCE_MAX_MINUTES || '25' }}
+          PIF_PAPER_PROCESSING_MAX_MINUTES: ${{ vars.PIF_PAPER_PROCESSING_MAX_MINUTES || '90' }}
+          PIF_SUPPLEMENTARY_REVIEW_MAX_MINUTES: ${{ vars.PIF_SUPPLEMENTARY_REVIEW_MAX_MINUTES || '5' }}
+          PIF_NEWS_ENRICHMENT_MAX_MINUTES: ${{ vars.PIF_NEWS_ENRICHMENT_MAX_MINUTES || '10' }}
+          PIF_NEWS_ANALYSIS_MAX_MINUTES: ${{ vars.PIF_NEWS_ANALYSIS_MAX_MINUTES || '30' }}
+          PIF_PAPER_ANALYSIS_ATTEMPT_MULTIPLIER: ${{ vars.PIF_PAPER_ANALYSIS_ATTEMPT_MULTIPLIER || '1.5' }}
           PYTHONUNBUFFERED: "1"
           SHOULD_DISPATCH: ${{ github.event_name == 'schedule' || inputs.dispatch_wechat }}
         run: |
@@ -292,7 +312,7 @@ jobs:
             fi
 
             set +e
-            PROFILE_MINUTES="${PIF_PROFILE_RUNTIME_MINUTES:-90}"
+            PROFILE_MINUTES="${PIF_PROFILE_RUNTIME_MINUTES:-150}"
             echo "[workflow] starting $PROFILE_ID with ${PROFILE_MINUTES}m profile timeout"
             PIF_CONTENT_SOURCE_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/profiles/$PROFILE_ID/" \
             timeout --signal=TERM --kill-after=30s "${PROFILE_MINUTES}m" \
@@ -305,8 +325,15 @@ jobs:
             set -e
             if [[ $STATUS -ne 0 ]]; then
               tail -n 300 "/tmp/${PROFILE_ID}.combined.log" >&2 || true
-              printf '%s\tfailed\t%s\n' "$PROFILE_ID" "$STATUS" >> /tmp/pif_cycle_results.tsv
-              echo "::error::Profile $PROFILE_ID failed; continuing with the next queued profile."
+              mkdir -p "$OUT/data/audit"
+              python scripts/classify_profile_failure.py \
+                --log "/tmp/${PROFILE_ID}.combined.log" \
+                --output-dir "$OUT" \
+                --exit-status "$STATUS" \
+                --json-out "$OUT/data/audit/profile_failure_classification.json" || true
+              FAILURE_CLASS="$(python -c 'import json,sys; p=sys.argv[1]; print(json.load(open(p,encoding="utf-8")).get("classification","unknown_failure"))' "$OUT/data/audit/profile_failure_classification.json" 2>/dev/null || echo unknown_failure)"
+              printf '%s\tfailed:%s\t%s\n' "$PROFILE_ID" "$FAILURE_CLASS" "$STATUS" >> /tmp/pif_cycle_results.tsv
+              echo "::error::Profile $PROFILE_ID failed ($FAILURE_CLASS); continuing with the next queued profile."
               echo "::endgroup::"
               continue
             fi
@@ -365,6 +392,10 @@ jobs:
             echo "::endgroup::"
           done
 
+          python scripts/recommend_weekly_schedule.py \
+            --data-root /tmp/pif_data_repo \
+            --json-out /tmp/pif_schedule_recommendation.json || true
+
           {
             echo '### Weekly 21-virus cycle'
             echo
@@ -393,6 +424,7 @@ jobs:
           path: |
             /tmp/pif_runs
             /tmp/pif_cycle_results.tsv
+            /tmp/pif_schedule_recommendation.json
           if-no-files-found: warn
           retention-days: 30
 

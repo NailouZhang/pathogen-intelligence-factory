@@ -20,10 +20,11 @@ def test_pipeline_completes_after_dedup_and_replenishes_primary_report():
     completion = text.index("complete_literature_catalog(", lifecycle)
     final_review = text.index("_review_paper_batch(completed", completion)
     analysis = text.index("_analyze_translate_paper(item)", final_review)
-    replenishment = text.index('"primary_report_replenishment", "batch_complete"', analysis)
-    selection = text.index("select_primary_and_supplementary(", replenishment)
-    assert dedup < lifecycle < completion < final_review < analysis < replenishment < selection
+    comparison_pool = text.index("comparison_pool = rank_papers", final_review)
+    selection = text.index("select_primary_and_supplementary(", comparison_pool)
+    assert dedup < lifecycle < completion < final_review < comparison_pool < analysis < selection
     assert "max_budget=len(current)" in text
     assert "completion_processed < settings.max_fulltexts" in text
-    assert "len(primary_ready) < comparison_target" in text
+    assert "len(primary_ready) >= settings.max_papers" in text
+    assert "analysis_attempt_budget_exhausted" in text
     assert "supplementary_limit=settings.max_supplementary_papers" in text

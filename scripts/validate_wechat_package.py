@@ -4,7 +4,25 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
+from html.parser import HTMLParser
 from pathlib import Path
+
+
+class VisibleTextParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+
+    def handle_data(self, data: str) -> None:
+        text = " ".join(data.split())
+        if text:
+            self.parts.append(text)
+
+
+def visible_text_count(text: str) -> int:
+    parser = VisibleTextParser()
+    parser.feed(text)
+    return len("".join(parser.parts))
 
 
 def sha256(path: Path) -> str:
@@ -25,9 +43,25 @@ def main() -> int:
         raise SystemExit(f'missing manifest fields: {missing}')
     if data['schema_version'] != 2:
         raise SystemExit('schema_version must be 2')
+    if data.get('contract') != 'pathogen-wechat-package/v2':
+        raise SystemExit('contract must be pathogen-wechat-package/v2')
     content = (package / data['content_file']).resolve()
     if package not in content.parents or not content.is_file():
         raise SystemExit('invalid content_file')
+    content_text = content.read_text(encoding='utf-8')
+    visible = visible_text_count(content_text)
+    budget_path = package / 'content-budget-audit.json'
+    if budget_path.is_file():
+        budget = json.loads(budget_path.read_text(encoding='utf-8'))
+        maximum = int(budget.get('max_visible_chars') or 48000)
+        if visible > maximum or budget.get('within_budget') is not True:
+            raise SystemExit(f'wechat visible text budget exceeded: {visible}>{maximum}')
+        if int(budget.get('visible_chars_after') or -1) != visible:
+            raise SystemExit('wechat content budget audit does not match article.html')
+        if int(budget.get('minimum_full_papers') or 0) < 10:
+            raise SystemExit('wechat minimum full papers must be at least 10')
+    elif visible > 48000:
+        raise SystemExit(f'wechat visible text budget exceeded without audit: {visible}>48000')
     cover = data['cover']
     cover_file = (package / cover['file']).resolve()
     if package not in cover_file.parents or not cover_file.is_file():
@@ -35,7 +69,7 @@ def main() -> int:
     actual = sha256(cover_file)
     if cover.get('sha256') != actual:
         raise SystemExit(f'cover sha mismatch: {actual}')
-    print(json.dumps({'status':'ok','publish_key':data['publish_key'],'cover_sha256':actual}, ensure_ascii=False))
+    print(json.dumps({'status':'ok','publish_key':data['publish_key'],'cover_sha256':actual,'visible_chars':visible}, ensure_ascii=False))
     return 0
 
 

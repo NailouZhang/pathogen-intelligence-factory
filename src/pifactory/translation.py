@@ -429,7 +429,7 @@ def translate_text(
             ensure_ascii=False,
         )
         try:
-            result = llm.json_task(system=prompt_text, prompt=prompt, provider_order=getattr(llm, "provider_order", lambda purpose: ())("rescue"), max_models_per_provider=2, temperature=0.05, task_name="translation_single_rescue")
+            result = llm.json_task(system=prompt_text, prompt=prompt, provider_order=getattr(llm, "provider_order", lambda purpose: ())("translation"), max_models_per_provider=2, temperature=0.05, task_name="translation_single_rescue")
             attempts.extend(result.attempts)
             raw = ""
             if isinstance(result.data, dict):
@@ -567,7 +567,7 @@ def _translate_field_map(
             ensure_ascii=False,
         )
         try:
-            result = llm.json_task(system=prompt_text, prompt=prompt, provider_order=getattr(llm, "provider_order", lambda purpose: ())("rescue"), max_models_per_provider=2, temperature=0.05, task_name="translation_batch_rescue")
+            result = llm.json_task(system=prompt_text, prompt=prompt, provider_order=getattr(llm, "provider_order", lambda purpose: ())("translation"), max_models_per_provider=2, temperature=0.05, task_name="translation_batch_rescue")
             response_fields = result.data.get("translations") if isinstance(result.data, dict) else {}
             if not isinstance(response_fields, dict):
                 response_fields = {}

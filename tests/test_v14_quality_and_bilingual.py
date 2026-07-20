@@ -191,7 +191,7 @@ def test_public_page_renders_real_english_elements(tmp_path: Path) -> None:
 def test_workflow_persists_daily_provider_state_and_runs_profiles_sequentially() -> None:
     root = Path(__file__).resolve().parents[1]
     text = (root / ".github/workflows/daily-intelligence.yml").read_text(encoding="utf-8")
-    assert "Weekly 21-Virus Intelligence Cycle v15.3" in text
+    assert "Weekly 21-Virus Intelligence Cycle v16.0" in text
     assert "for PROFILE_ID in" in text
     assert "PIF_PROVIDER_STATE_FILE: /tmp/pif_data_repo/shared/state/provider_quota_daily.json" in text
     assert 'git add -A "profiles/$PROFILE_ID" "shared/state"' in text

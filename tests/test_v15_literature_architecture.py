@@ -68,12 +68,13 @@ def test_all_profiles_use_exactly_five_frozen_simple_terms() -> None:
 
 def test_pipeline_dynamic_replenishment_stops_on_final_primary_or_budget() -> None:
     text = (ROOT / "src/pifactory/pipeline_v15.py").read_text(encoding="utf-8")
-    assert "len(primary_ready) < comparison_target" in text
+    assert "comparison_pool = rank_papers" in text
+    assert "analysis_attempt_budget_exhausted" in text
     assert "completion_processed < settings.max_fulltexts" in text
     assert "_review_paper_batch(completed" in text
     assert "_analyze_translate_paper(item)" in text
     assert "metadata_only_" in text
-    assert "v15-dedup-first-dynamic-completion-2" in text
+    assert "v16-dedup-first-comparison-pool-1" in text
 
 def test_post_retrieval_vocabulary_is_purpose_specific_and_not_bulk_queries() -> None:
     seed = yaml.safe_load((ROOT / "profiles/hantavirus/seed.yaml").read_text(encoding="utf-8"))
@@ -255,8 +256,8 @@ def test_public_page_orders_primary_supplementary_news_and_hides_backend_quality
     render_site(issue, tmp_path)
     html = (tmp_path / "site/index.html").read_text(encoding="utf-8")
     assert html.index("📘 主报告：研究论文 / Primary Research") < html.index("📎 补充文献 / Supplementary Literature") < html.index("🚨 突发动态与新闻 / Health News")
-    assert "摘要尚未公开" in html
-    assert "不生成研究结论和结构化要素" in html
+    assert "摘要尚未公开" not in html
+    assert "不生成研究结论和结构化要素" not in html
     assert "不应出现在前台" not in html
     assert "LLM" not in html
     audit = audit_html(tmp_path / "site/index.html")

@@ -210,7 +210,8 @@ def test_metadata_verification_rejects_monotonic_identifier_conflict() -> None:
 def test_pipeline_uses_comparison_pool_and_second_date_gate() -> None:
     text = (ROOT / "src/pifactory/pipeline_v15.py").read_text(encoding="utf-8")
     assert "comparison_target =" in text
-    assert "len(primary_ready) < comparison_target" in text
+    assert "comparison_pool = rank_papers" in text
+    assert "analysis_attempt_budget_exhausted" in text
     assert "ranked_primary_ready = rank_papers(primary_ready, profile)" in text
     assert 'stage="post_dedup_recalculation"' in text
     assert 'stage=f"post_completion_{batch_number}"' in text

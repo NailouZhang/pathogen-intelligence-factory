@@ -199,10 +199,23 @@ def _is_news_aggregator_url(value: str | None) -> bool:
 def dedup_news(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     by_url: dict[str, dict[str, Any]] = {}
-    for record in records:
+    for source_record in records:
+        record = dict(source_record)
         title = _title_signature(record.get("title"))
         if not title:
             continue
+        excerpt = clean_space(record.get("excerpt"))
+        if excerpt:
+            excerpt_signature = _title_signature(excerpt)
+            duplicate_score = token_set_ratio(title, excerpt_signature) if excerpt_signature else 0
+            if excerpt_signature == title or duplicate_score >= 96:
+                record["excerpt_original"] = excerpt
+                record["excerpt"] = ""
+                record["snippet_duplicate_of_title"] = True
+                record["snippet_title_similarity"] = duplicate_score
+            else:
+                record["snippet_duplicate_of_title"] = False
+                record["snippet_title_similarity"] = duplicate_score
         canonical = _canonical_url(record.get("resolved_url") or record.get("url"))
         duplicate = by_url.get(canonical) if canonical else None
         if duplicate is None:

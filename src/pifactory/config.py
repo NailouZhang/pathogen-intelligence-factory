@@ -93,7 +93,19 @@ class Settings:
     llm_preflight_file: str = field(default_factory=lambda: os.getenv("PIF_LLM_PREFLIGHT_FILE", "").strip())
     news_context_query_limit: int = field(default_factory=lambda: env_int("PIF_NEWS_CONTEXT_QUERY_LIMIT", 0))
     news_event_query_limit: int = field(default_factory=lambda: env_int("PIF_NEWS_EVENT_QUERY_LIMIT", 4))
-    profile_runtime_minutes: int = field(default_factory=lambda: env_int("PIF_PROFILE_RUNTIME_MINUTES", 90))
+    profile_runtime_minutes: int = field(default_factory=lambda: env_int("PIF_PROFILE_RUNTIME_MINUTES", 150))
+    finalization_reserve_minutes: int = field(default_factory=lambda: env_int("PIF_FINALIZATION_RESERVE_MINUTES", 30))
+    retrieval_max_minutes: int = field(default_factory=lambda: env_int("PIF_RETRIEVAL_MAX_MINUTES", 15))
+    relevance_max_minutes: int = field(default_factory=lambda: env_int("PIF_RELEVANCE_MAX_MINUTES", 25))
+    paper_processing_max_minutes: int = field(default_factory=lambda: env_int("PIF_PAPER_PROCESSING_MAX_MINUTES", 90))
+    supplementary_review_max_minutes: int = field(default_factory=lambda: env_int("PIF_SUPPLEMENTARY_REVIEW_MAX_MINUTES", 5))
+    news_enrichment_max_minutes: int = field(default_factory=lambda: env_int("PIF_NEWS_ENRICHMENT_MAX_MINUTES", 10))
+    news_analysis_max_minutes: int = field(default_factory=lambda: env_int("PIF_NEWS_ANALYSIS_MAX_MINUTES", 30))
+    paper_analysis_attempt_multiplier: float = field(default_factory=lambda: env_float("PIF_PAPER_ANALYSIS_ATTEMPT_MULTIPLIER", 1.5))
+    max_supplementary_news: int = field(default_factory=lambda: env_int("PIF_MAX_SUPPLEMENTARY_NEWS", 100))
+    news_brief_min_source_chars: int = field(default_factory=lambda: env_int("PIF_NEWS_BRIEF_MIN_SOURCE_CHARS", 500))
+    wechat_max_visible_chars: int = field(default_factory=lambda: env_int("PIF_WECHAT_MAX_VISIBLE_CHARS", 48000))
+    wechat_min_full_papers: int = field(default_factory=lambda: env_int("PIF_WECHAT_MIN_FULL_PAPERS", 10))
     overview_min_items: int = field(default_factory=lambda: env_int("PIF_OVERVIEW_MIN_ITEMS", 15))
     overview_max_items: int = field(default_factory=lambda: env_int("PIF_OVERVIEW_MAX_ITEMS", 25))
     wechat_news_max_zh_chars: int = field(default_factory=lambda: env_int("PIF_WECHAT_NEWS_MAX_ZH_CHARS", 500))
@@ -137,6 +149,10 @@ class Settings:
     @property
     def refresh_profile(self) -> bool:
         return env_bool("PIF_REFRESH_PROFILE", False)
+
+    @property
+    def refresh_review_vocabulary(self) -> bool:
+        return env_bool("PIF_REFRESH_REVIEW_VOCABULARY", False)
 
     @property
     def cover_image_mode(self) -> str:

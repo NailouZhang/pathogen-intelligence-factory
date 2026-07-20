@@ -9,7 +9,7 @@ from .llm import LLMError, LLMRouter
 from .utils import clean_space, sha256_text, unique_strings
 
 
-REVIEW_POLICY_VERSION = "v7-python-first-ambiguous-1"
+REVIEW_POLICY_VERSION = "v16-python-first-topic-preserving-1"
 
 
 def _contains(text: str, term: str) -> bool:
@@ -294,7 +294,7 @@ def _deterministic_medium_accept(record: dict[str, Any], assessment: dict[str, A
     abbreviation_supported = bool(assessment.get("qualified_identity_hits"))
     return bool(
         assessment.get("identity_present")
-        and not exclusions
+        and not (exclusions and not (title_hits or body_hits or abbreviation_supported))
         and (
             title_hits
             or body_hits
@@ -571,7 +571,7 @@ def _review_cache_key(record: dict[str, Any], profile: dict[str, Any], kind: str
         or record.get("url")
         or record.get("title")
     )
-    profile_fingerprint = clean_space(profile.get("profile_fingerprint") or profile.get("seed_hash") or profile.get("profile_id"))
+    profile_fingerprint = clean_space(profile.get("profile_semantic_fingerprint") or profile.get("profile_fingerprint") or profile.get("seed_hash") or profile.get("profile_id"))
     return sha256_text("|".join([REVIEW_POLICY_VERSION, kind, profile_fingerprint, identity, evidence]))
 
 
@@ -589,6 +589,7 @@ def final_filter(
     # longer impose document or character cutoffs.
     max_llm_reviews: int | None = None,
     review_body_chars: int | None = None,
+    continue_check: Callable[[], tuple[bool, str]] | None = None,
 ) -> list[dict[str, Any]]:
     """Python-assess every candidate and send only ambiguous cases to LLM.
 
@@ -634,8 +635,14 @@ def final_filter(
             record["relevance_review_cache"] = "miss"
             pending.append((record, build_compact_evidence_packet(record, profile, kind, rid)))
 
+    review_stop_reason = ""
     if llm.available:
         for batch in pack_by_token_budget(pending, token_budget=max(2000, compact_batch_tokens)):
+            if continue_check is not None:
+                allowed, reason = continue_check()
+                if not allowed:
+                    review_stop_reason = reason
+                    break
             decisions.update(_review_batches_resilient(llm, profile, kind, batch, escalated=False))
     # Cache compact decisions immediately.  Missing model decisions intentionally
     # fall back to deterministic evidence rules and never disappear silently.
@@ -653,6 +660,11 @@ def final_filter(
     escalated_decisions: dict[str, dict[str, Any]] = {}
     if llm.available:
         for batch in pack_by_token_budget(uncertain, token_budget=max(2000, escalation_batch_tokens), fixed_prompt_tokens=1000):
+            if continue_check is not None:
+                allowed, reason = continue_check()
+                if not allowed:
+                    review_stop_reason = review_stop_reason or reason
+                    break
             escalated_decisions.update(_review_batches_resilient(llm, profile, kind, batch, escalated=True))
     for rid, result in escalated_decisions.items():
         record = record_by_id.get(rid)
@@ -686,10 +698,14 @@ def final_filter(
         if deterministic_accept:
             record["relevance_decision"] = "accept_after_deterministic_full_review"
             record["relevance_review_method"] = "python_full_corpus_fallback"
+            if review_stop_reason:
+                record["relevance_review_stop_reason"] = review_stop_reason
             accepted.append(record)
         else:
             record["relevance_decision"] = "reject_after_deterministic_full_review"
             record["relevance_review_method"] = "python_full_corpus_fallback"
+            if review_stop_reason:
+                record["relevance_review_stop_reason"] = review_stop_reason
 
     # In balanced/uncertain mode, deterministic high-confidence records not
     # queued above still need to be retained.

@@ -289,7 +289,8 @@ def build_paper_evidence(work: dict[str, Any]) -> dict[str, Any]:
 
 
 def build_news_evidence(article: dict[str, Any]) -> dict[str, Any]:
-    content = clean_space(article.get("content"))
+    content = clean_space(article.get("content") or article.get("excerpt"))
+    minimum = max(1, int(os.getenv("PIF_NEWS_BRIEF_MIN_SOURCE_CHARS", "500")))
     return {
         "policy_version": ANALYSIS_POLICY_VERSION,
         "news_id": article.get("news_id"),
@@ -299,6 +300,8 @@ def build_news_evidence(article: dict[str, Any]) -> dict[str, Any]:
         "url": article.get("resolved_url") or article.get("url"),
         "content_status": article.get("content_status"),
         "content_method": article.get("content_method"),
+        "source_char_count": len(content),
+        "generate_brief": len(content) >= minimum,
         "evidence": _evidence_payload(content, "N", 70, default_role="general"),
     }
 
@@ -451,7 +454,7 @@ def _paper_validator(kind: str, valid_ids: set[str], role_map: dict[str, str] | 
     return validator
 
 
-def _news_validator(valid_ids: set[str]):
+def _news_validator(valid_ids: set[str], *, require_brief: bool = True):
     def validator(data: Any) -> tuple[bool, str]:
         if not isinstance(data, dict):
             return False, "not object"
@@ -480,8 +483,10 @@ def _news_validator(valid_ids: set[str]):
             return False, "brief_en must be a string"
         brief = clean_space(data.get("brief_en"))
         words = len(brief.split())
-        if words < 55 or words > 170:
-            return False, "brief_en must contain 55-170 words"
+        if require_brief and (words < 100 or words > 220):
+            return False, "brief_en must contain 100-220 words when a brief is requested"
+        if not require_brief and brief:
+            return False, "brief_en must be empty for short-source records"
         if clean_space(data.get("source_assessment")) not in {
             "official",
             "reputable_media",
@@ -814,6 +819,7 @@ def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> di
     system = (prompts_dir / prompt_file).read_text(encoding="utf-8")
     prompt_payload = compact_analysis_payload(payload)
     valid_ids = _valid_evidence_ids(prompt_payload)
+    require_brief = bool(payload.get("generate_brief"))
     try:
         result = llm.json_task(
             system=system,
@@ -970,17 +976,24 @@ def analyze_news(article: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> 
     system = (prompts_dir / "news_analysis.md").read_text(encoding="utf-8")
     prompt_payload = compact_analysis_payload(payload)
     valid_ids = _valid_evidence_ids(prompt_payload)
+    require_brief = bool(payload.get("generate_brief"))
     try:
         result = llm.json_task(
             system=system,
             prompt=json.dumps(prompt_payload, ensure_ascii=False),
             provider_order=getattr(llm, "provider_order", lambda purpose: None)("extract"),
-            validator=_news_validator(valid_ids),
+            validator=_news_validator(valid_ids, require_brief=require_brief),
             max_models_per_provider=2,
             temperature=0.05,
             task_name="news_analysis",
         )
         data = result.data if isinstance(result.data, dict) else {}
+        if require_brief:
+            data["brief_generation"] = "llm_from_verified_body"
+        else:
+            source_text = clean_space(article.get("content") or article.get("excerpt"))
+            data["brief_en"] = source_text
+            data["brief_generation"] = "source_short_evidence_no_llm_expansion"
         data["summary_en"] = clean_space(data.get("brief_en"))
         data.update(
             {
@@ -999,6 +1012,10 @@ def analyze_news(article: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> 
     except LLMError as exc:
         attempts, category, error = _llm_failure_details(exc)
         fallback = _fallback_news(payload, error, attempts=attempts, failure_category=category)
+        if not require_brief:
+            fallback["brief_en"] = clean_space(article.get("content") or article.get("excerpt"))
+            fallback["summary_en"] = fallback["brief_en"]
+            fallback["brief_generation"] = "source_short_evidence_no_llm_expansion"
         fallback["prompt_compaction"] = prompt_payload.get("prompt_compaction") or {}
         article["analysis"] = deduplicate_structured_analysis(fallback, payload, "news")
         article["analysis_ready"] = True

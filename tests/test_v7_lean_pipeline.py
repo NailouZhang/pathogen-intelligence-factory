@@ -72,5 +72,6 @@ def test_workflow_and_pipeline_use_v15_completion_and_supplementary_budgets():
     analysis = pipeline.index("_analyze_translate_paper(item)", final_review)
     selection = pipeline.index("select_primary_and_supplementary(", analysis)
     assert dedup < lifecycle < completion < final_review < analysis < selection
-    assert "len(primary_ready) < comparison_target" in pipeline
+    assert "comparison_pool = rank_papers" in pipeline
+    assert "analysis_attempt_budget_exhausted" in pipeline
     assert "completion_processed < settings.max_fulltexts" in pipeline

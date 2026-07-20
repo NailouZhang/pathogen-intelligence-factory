@@ -1,4 +1,4 @@
-name: CI v15.3
+name: CI v16.0
 on:
   workflow_dispatch:
   push:
@@ -19,8 +19,13 @@ jobs:
             requirements.txt
       - run: PIF_PYTHON_BIN=python bash scripts/install_python_project.sh editable
       - run: python -m pytest
+      - run: python scripts/validate_all_profiles.py
+      - run: python scripts/audit_query_coverage.py --project-root . --output /tmp/query-coverage.json
       - run: |
           rm -rf /tmp/pdi_demo
           python scripts/run_daily.py --profile hantavirus --output-dir /tmp/pdi_demo --state-dir /tmp/pdi_demo/data/state --demo
           test -s /tmp/pdi_demo/data/latest.json
           test -s /tmp/pdi_demo/site/index.html
+          test -s /tmp/pdi_demo/wechat-package/content-budget-audit.json
+          python scripts/audit_rendered_html.py /tmp/pdi_demo/site/index.html --json-out /tmp/pdi_demo/data/audit/rendered-html-ci.json
+          python scripts/validate_wechat_package.py /tmp/pdi_demo/wechat-package

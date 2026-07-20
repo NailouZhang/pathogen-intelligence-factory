@@ -281,8 +281,8 @@ def build_relevance_rules(profile: dict[str, Any]) -> dict[str, Any]:
         "excluded_entity_patterns": exclusions,
         "core_concept_patterns": unique_strings(x["scholarly"] for x in concepts),
         "reject_if_only_context_terms": True,
-        "minimum_relevance_score": int((profile.get("query_policy") or {}).get("minimum_relevance_score", 6)),
-        "review_score_min": int((profile.get("query_policy") or {}).get("review_score_min", 3)),
+        "minimum_relevance_score": int((profile.get("query_policy") or {}).get("minimum_relevance_score", 5)),
+        "review_score_min": int((profile.get("query_policy") or {}).get("review_score_min", 2)),
         "scoring_rules": [
             "+6 title identity anchor",
             "+5 title allowed member",

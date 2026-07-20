@@ -58,6 +58,7 @@ def main() -> None:
         "profile_count": len(rows),
         "ready_count": sum(x["status"] == "ready" for x in rows),
         "all_ready": all(x["status"] == "ready" for x in rows),
+        "provider_queries_total": sum(int(x.get("provider_query_count") or 0) for x in rows),
     }
     text = json.dumps(payload, ensure_ascii=False, indent=2)
     if args.output:

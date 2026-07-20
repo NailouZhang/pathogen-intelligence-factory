@@ -1,4 +1,4 @@
-# pathogen-intelligence-factory v15.3
+# pathogen-intelligence-factory v16.0
 
 公开仓负责“病原文献与新闻抓取—规范化—跨库去重—内容补全—相关性终审—双语结构化分析—GitHub Pages—不可变微信公众号发布包”。私有公众号仓只消费公开仓生成的 `pathogen-wechat-package/v2`，两条发布链互不阻塞。
 
@@ -198,3 +198,9 @@ gh workflow run daily-intelligence.yml \
 ## v15.3测试与新闻来源状态
 
 公开仓pytest可在独立克隆目录运行，不依赖两仓工程根目录。测试默认禁用真实Playwright网络；浏览器测试显式注入HTML。Google/Bing聚合页只有解析到出版商最终地址后才允许形成`full/partial`，否则使用`syndicated_summary`或拒绝标题项。
+
+## v16.0 生产增强
+
+v16.0 增加 Profile 150 分钟硬上限、阶段墙钟预算和 30 分钟最终化保留；文献先形成全局比较池，最多分析 150 次并在 50 篇成功后停止；新增语义指纹、一次性终审词库及 Profile 变化联动重建；LLM 默认 Gemini 首选、Groq 最终兜底；新闻支持一次生成简报与五要素以及 `supplementary_news`；微信包执行 48,000 可见字符硬审计。
+
+详细安装、更新和十六项验收见完整两仓发行包中的 `V16_OPTIMIZATION_AND_ARCHITECTURE_ZH.md`、`INSTALL_CONFIG_RUN_V16_ZH.md` 和 `VALIDATION_REPORT_V16.txt`。

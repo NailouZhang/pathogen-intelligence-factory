@@ -130,8 +130,8 @@ def test_primary_top_n_and_supplementary_are_selected_after_analysis_translation
     pipeline = Path("src/pifactory/pipeline_v15.py").read_text(encoding="utf-8")
     analysis = pipeline.index("def _analyze_translate_paper")
     primary_ready = pipeline.index("primary_ready.append(item)", analysis)
-    replenishment = pipeline.index('"primary_report_replenishment", "batch_complete"', primary_ready)
-    supplementary_titles = pipeline.index("supplementary_title_candidates", replenishment)
+    comparison_pool = pipeline.index("comparison_pool = rank_papers", primary_ready)
+    supplementary_titles = pipeline.index("supplementary_title_candidates", comparison_pool)
     selection = pipeline.index("select_primary_and_supplementary(", supplementary_titles)
-    assert analysis < primary_ready < replenishment < supplementary_titles < selection
+    assert analysis < primary_ready < comparison_pool < supplementary_titles < selection
     assert '"supplementary_papers": supplementary_papers' in pipeline

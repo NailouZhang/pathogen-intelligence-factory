@@ -254,16 +254,45 @@ class LLMRouter:
             "rescue": "PIF_LLM_RESCUE_PROVIDER_ORDER",
             "overview": "PIF_LLM_OVERVIEW_PROVIDER_ORDER",
             "relevance": "PIF_LLM_RELEVANCE_PROVIDER_ORDER",
+            "translation": "PIF_TRANSLATION_PROVIDER_ORDER",
         }.get(purpose, "PIF_LLM_PROVIDER_ORDER")
         default = {
-            "extract": "bigmodel,siliconflow,mistral,groq,deepseek,openrouter,gemini",
-            "rescue": "bigmodel,deepseek,mistral,gemini,openrouter,groq,siliconflow",
-            "overview": "bigmodel,deepseek,mistral,gemini,openrouter,groq,siliconflow",
-            "relevance": "groq,bigmodel,siliconflow,mistral,deepseek,gemini,openrouter",
-        }.get(purpose, "bigmodel,siliconflow,mistral,groq,deepseek,openrouter,gemini")
+            "extract": "gemini,bigmodel,siliconflow,mistral,deepseek,openrouter,groq",
+            "rescue": "gemini,deepseek,bigmodel,mistral,siliconflow,openrouter,groq",
+            "overview": "gemini,deepseek,bigmodel,mistral,siliconflow,openrouter,groq",
+            "relevance": "gemini,bigmodel,siliconflow,mistral,deepseek,openrouter,groq",
+            "translation": "gemini,bigmodel,mistral,siliconflow,deepseek,openrouter,groq",
+        }.get(purpose, "gemini,bigmodel,siliconflow,mistral,deepseek,openrouter,groq")
         values = _split_csv(os.getenv(env_name, "") or default)
         known = [value.lower() for value in values if value.lower() in self.keys]
         return tuple(dict.fromkeys(known))
+
+    def paid_requests_allowed(self) -> bool:
+        return os.getenv("PIF_LLM_ALLOW_PAID", "false").strip().lower() in {"1", "true", "yes", "on"}
+
+    def _billing_guard(self, provider: str, model: str) -> tuple[bool, str]:
+        """Best-effort no-paid-route guard.
+
+        Provider account billing configuration is outside the process and cannot
+        always be queried.  With paid requests disabled we only allow providers
+        and models explicitly present in the operator's free allowlists.
+        """
+        if self.paid_requests_allowed():
+            return True, "paid_requests_allowed"
+        providers = {x.lower() for x in _split_csv(os.getenv(
+            "PIF_LLM_FREE_PROVIDER_ALLOWLIST",
+            "gemini,bigmodel,siliconflow,mistral,deepseek,openrouter,groq",
+        ))}
+        if provider not in providers:
+            return False, "provider_not_in_free_allowlist"
+        # The process cannot reliably discover account billing mode for every
+        # provider. Provider admission therefore remains an explicit operator
+        # allowlist. OpenRouter is the one route with a machine-readable free
+        # model convention and is additionally restricted to /free models.
+        if provider == "openrouter" and os.getenv("PIF_OPENROUTER_FREE_ONLY", "true").strip().lower() in {"1", "true", "yes", "on"}:
+            if "free" not in model.casefold():
+                return False, "openrouter_non_free_model_blocked"
+        return True, "provider_in_operator_free_allowlist"
 
     def record_task_failure(self, task_name: str, error: LLMError, **context: Any) -> None:
         row = {
@@ -674,6 +703,14 @@ class LLMRouter:
             )
 
             for model in models:
+                billing_allowed, billing_reason = self._billing_guard(provider, model)
+                if not billing_allowed:
+                    attempts.append({
+                        "task": task_name, "provider": provider, "model": model,
+                        "at": utc_now_iso(), "status": "skipped",
+                        "failure_category": "paid_route_blocked", "error": billing_reason,
+                    })
+                    continue
                 if not state.model_available(model):
                     attempts.append({
                         "task": task_name,
@@ -755,6 +792,11 @@ class LLMRouter:
                 "rescue": list(self.provider_order("rescue")),
                 "overview": list(self.provider_order("overview")),
                 "relevance": list(self.provider_order("relevance")),
+                "translation": list(self.provider_order("translation")),
+            },
+            "billing_guard": {
+                "allow_paid": self.paid_requests_allowed(),
+                "free_provider_allowlist": _split_csv(os.getenv("PIF_LLM_FREE_PROVIDER_ALLOWLIST", "gemini,bigmodel,siliconflow,mistral,deepseek,openrouter,groq")),
             },
             "task_failures": list(self.task_failures),
             "providers": {
