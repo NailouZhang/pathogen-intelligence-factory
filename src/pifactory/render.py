@@ -6,7 +6,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
-from .utils import clean_space, dump_json, html_escape
+from .utils import clean_space, dump_json, html_escape, truncate
 
 COLORS = {
     "navy": "#2c3e50", "paper_green": "#27ae60", "paper_green_dark": "#1e7e34",
@@ -97,13 +97,16 @@ def _analysis_quality_banner(issue: dict[str, Any], *, wechat: bool = False) -> 
 
 
 def paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
+    if wechat and work.get("wechat_omitted"):
+        return ""
     kind = work.get("paper_type") or "research"
-    title_en = clean_space(work.get("title")) or "Untitled"
-    title_zh = clean_space(work.get("title_zh")) or title_en
-    abstract_zh = clean_space(work.get("abstract_zh") or work.get("summary_zh"))
+    title_en = clean_space(work.get("wechat_title_en") if wechat else work.get("title")) or clean_space(work.get("title")) or "Untitled"
+    title_zh = clean_space(work.get("wechat_title_zh") if wechat else work.get("title_zh")) or clean_space(work.get("title_zh")) or title_en
+    abstract_zh = clean_space(work.get("wechat_abstract_zh") if wechat else (work.get("abstract_zh") or work.get("summary_zh")))
     original = clean_space(work.get("abstract") or work.get("full_text_excerpt"))
-    authors = ", ".join((work.get("authors") or [])[:10]) or "Authors unavailable"
-    elements_zh = work.get("elements_zh") or work.get("analysis_zh") or {}
+    authors = clean_space(work.get("wechat_authors")) if wechat else ""
+    authors = authors or ", ".join((work.get("authors") or [])[:10]) or "Authors unavailable"
+    elements_zh = (work.get("wechat_elements_zh") if wechat else None) or work.get("elements_zh") or work.get("analysis_zh") or {}
     elements_en = work.get("elements_en") or work.get("analysis_en") or ((work.get("analysis") or {}).get("analysis") or {})
     hide_details = bool(work.get("wechat_compact_details_removed"))
     ids = work.get("source_ids") or {}
@@ -122,6 +125,8 @@ def paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
 
 
 def supplementary_paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
+    if wechat and work.get("wechat_omitted"):
+        return ""
     title_en = clean_space(work.get("title")) or "Untitled"
     title_zh = clean_space(work.get("title_zh")) or title_en
     authors = ", ".join((work.get("authors") or [])[:10]) or "Authors unavailable"
@@ -138,25 +143,34 @@ def supplementary_paper_card(work: dict[str, Any], *, wechat: bool = False) -> s
 
 
 def news_card(article: dict[str, Any], *, wechat: bool = False) -> str:
-    title_en = clean_space(article.get("title")) or "Untitled"
-    title_zh = clean_space(article.get("title_zh")) or title_en
-    brief_zh = clean_space(article.get("content_zh") or article.get("summary_zh") or article.get("wechat_summary_zh"))
+    if wechat and article.get("wechat_omitted"):
+        return ""
+    title_en = clean_space(article.get("wechat_title_en") if wechat else article.get("title")) or clean_space(article.get("title")) or "Untitled"
+    title_zh = clean_space(article.get("wechat_title_zh") if wechat else article.get("title_zh")) or clean_space(article.get("title_zh")) or title_en
+    brief_zh_full = clean_space(article.get("content_zh") or article.get("summary_zh") or article.get("wechat_summary_zh"))
+    wechat_brief_limit = max(100, int(os.getenv("PIF_WECHAT_NEWS_MAX_ZH_CHARS", "500")))
+    brief_zh_wechat = truncate(
+        article.get("wechat_summary_zh") or article.get("content_zh") or article.get("summary_zh"),
+        wechat_brief_limit,
+    )
     brief_en = clean_space((article.get("analysis") or {}).get("brief_en") or article.get("brief_en") or article.get("content") or article.get("excerpt"))
-    elements_zh = article.get("elements_zh") or article.get("analysis_zh") or {}
+    elements_zh = (article.get("wechat_elements_zh") if wechat else None) or article.get("elements_zh") or article.get("analysis_zh") or {}
     elements_en = article.get("elements_en") or article.get("analysis_en") or ((article.get("analysis") or {}).get("analysis") or {})
     link = html_escape(article.get("resolved_url") or article.get("url"))
     hide_brief = bool(article.get("wechat_brief_removed"))
     fallback_note = "（中文翻译失败，本栏显示英文回退。）" if article.get("translation_status") == "english_fallback" else ""
     if wechat:
-        brief_html = "" if hide_brief else f'<section style="margin:7px 0;padding:10px 12px;border-radius:6px;background:{COLORS["news_red_bg"]};font-size:15px;line-height:1.75;"><strong style="display:block;margin-bottom:4px;color:{COLORS["news_red"]};">新闻简报</strong>{html_escape(brief_zh or brief_en)}{html_escape(fallback_note)}</section>'
+        brief_html = "" if hide_brief else f'<section style="margin:7px 0;padding:10px 12px;border-radius:6px;background:{COLORS["news_red_bg"]};font-size:15px;line-height:1.75;"><strong style="display:block;margin-bottom:4px;color:{COLORS["news_red"]};">新闻简报</strong>{html_escape(brief_zh_wechat or truncate(brief_en, wechat_brief_limit))}{html_escape(fallback_note)}</section>'
         return f'''<section style="margin:0 0 10px;border:1px solid {COLORS['line']};border-radius:9px;overflow:hidden;background:#fff;"><p style="margin:0;padding:7px 11px;background:{COLORS['panel']};font-size:12px;color:#666;line-height:1.55;"><strong>Published:</strong> {html_escape(article.get('published_date'))} &nbsp;|&nbsp; <strong>Publisher:</strong> {html_escape(article.get('publisher') or article.get('source'))}</p><section style="padding:11px 13px;"><p style="margin:0 0 3px;color:{COLORS['news_red']};font-size:12px;font-weight:bold;">{_tier_badge(article, wechat=True)}公共卫生新闻</p><h3 style="margin:0;color:#1a365d;font-size:18px;line-height:1.45;">{html_escape(title_zh)}</h3><p style="margin:3px 0 5px;color:{COLORS['muted']};font-size:13px;font-style:italic;line-height:1.45;">{html_escape(title_en)}</p>{brief_html}<section style="margin-top:6px;padding:9px 11px;border-left:4px solid {COLORS['amber_line']};background:{COLORS['amber_bg']};font-size:14px;line-height:1.65;"><strong style="color:{COLORS['amber']};">新闻五要素</strong><dl style="margin:5px 0 0;">{_five_elements(elements_zh, _news_fields())}</dl></section></section></section>'''
-    return f'''<article class="card news"><div class="meta-strip"><strong>Published:</strong> {html_escape(article.get('published_date'))} &nbsp;|&nbsp; <strong>Publisher:</strong> {html_escape(article.get('publisher') or article.get('source'))}</div><div class="card-body"><div class="lang-zh"><div style="font-size:12px;color:{COLORS['news_red']};font-weight:700;margin-bottom:4px;">{_tier_badge(article)}公共卫生新闻</div><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div><div class="translated-body"><strong>新闻简报</strong>{html_escape(brief_zh or brief_en)}{html_escape(fallback_note)}</div><details><summary>查看新闻五要素</summary><dl class="five-grid">{_five_elements(elements_zh, _news_fields())}</dl></details></div><div class="lang-en" hidden><div style="font-size:12px;color:{COLORS['news_red']};font-weight:700;margin-bottom:4px;">{_tier_badge_en(article)}Public-health news</div><h3>{html_escape(title_en)}</h3><div class="original"><strong>News Brief</strong><br>{html_escape(brief_en)}</div><details><summary>View five news elements</summary><dl class="five-grid">{_five_elements(elements_en, _news_fields_en(), 'Not reported in the supplied evidence.')}</dl></details></div><div class="links"><a href="{link}">原文 / Source</a></div></div></article>'''
+    return f'''<article class="card news"><div class="meta-strip"><strong>Published:</strong> {html_escape(article.get('published_date'))} &nbsp;|&nbsp; <strong>Publisher:</strong> {html_escape(article.get('publisher') or article.get('source'))}</div><div class="card-body"><div class="lang-zh"><div style="font-size:12px;color:{COLORS['news_red']};font-weight:700;margin-bottom:4px;">{_tier_badge(article)}公共卫生新闻</div><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div><div class="translated-body"><strong>新闻简报</strong>{html_escape(brief_zh_full or brief_en)}{html_escape(fallback_note)}</div><details><summary>查看新闻五要素</summary><dl class="five-grid">{_five_elements(elements_zh, _news_fields())}</dl></details></div><div class="lang-en" hidden><div style="font-size:12px;color:{COLORS['news_red']};font-weight:700;margin-bottom:4px;">{_tier_badge_en(article)}Public-health news</div><h3>{html_escape(title_en)}</h3><div class="original"><strong>News Brief</strong><br>{html_escape(brief_en)}</div><details><summary>View five news elements</summary><dl class="five-grid">{_five_elements(elements_en, _news_fields_en(), 'Not reported in the supplied evidence.')}</dl></details></div><div class="links"><a href="{link}">原文 / Source</a></div></div></article>'''
 
 
 def supplementary_news_card(article: dict[str, Any], *, wechat: bool = False) -> str:
+    if wechat and article.get("wechat_omitted"):
+        return ""
     title_en = clean_space(article.get("title")) or "Untitled"
     title_zh = clean_space(article.get("title_zh")) or title_en
-    snippet = "" if article.get("snippet_duplicate_of_title") else clean_space(article.get("excerpt") or article.get("content"))
+    snippet = "" if article.get("snippet_duplicate_of_title") or (wechat and article.get("wechat_excerpt_removed")) else clean_space(article.get("excerpt") or article.get("content"))
     link = html_escape(article.get("resolved_url") or article.get("url"))
     publisher = clean_space(article.get("publisher") or article.get("source"))
     date = clean_space(article.get("published_date"))
@@ -193,7 +207,7 @@ def _overview_statlines(issue: dict[str, Any], *, wechat: bool = False) -> str:
     )
     zh_news = (
         f"新闻概览：检索 {int(news.get('raw') or 0):,} 条；时间窗内 {int(news.get('after_window') or 0):,} 条；"
-        f"主新闻 {main_news:,} 条，补充新闻 {supplementary_news:,} 条。新闻资格不受公众号字符上限影响。"
+        f"主新闻 {main_news:,} 条，补充新闻 {supplementary_news:,} 条。完整资格清单不因公众号字符上限改变。"
     )
     en_paper = (
         f"Literature: {int(papers.get('raw') or 0):,} database records; {int(papers.get('after_window') or 0):,} in the canonical publication window; "
@@ -201,7 +215,7 @@ def _overview_statlines(issue: dict[str, Any], *, wechat: bool = False) -> str:
         f"{primary:,} primary reports and {supplementary:,} supplementary records."
     )
     en_news = f"News: {int(news.get('raw') or 0):,} retrieved; {main_news:,} main reports and {supplementary_news:,} supplementary records."
-    note_zh = "Top50表示进入深度主报告，而不是删除阈值；其余通过终审的文献进入补充文献区。完整审计保存在 data/audit。"
+    note_zh = "Top50表示进入深度主报告，而不是删除阈值；其余通过终审的文献进入补充文献区。完整审计保存在 data/audit；公众号正文可能按篇幅策略精简展示，完整清单保留在网页版。"
     note_en = "Top 50 means selection for deep reporting, not deletion. Other verified relevant records remain supplementary."
     if wechat:
         return f'<section style="padding:9px 20px;background:#edf2f7;border-bottom:1px solid #e2e8f0;font-size:13px;line-height:1.65;font-weight:700;color:#2d3748;"><p style="margin:2px 0;">{html_escape(zh_paper)}</p><p style="margin:2px 0;">{html_escape(zh_news)}</p><p style="margin:5px 0 0;font-size:11px;font-weight:400;color:#586069;">{html_escape(note_zh)}</p></section>'
@@ -254,7 +268,7 @@ class _VisibleTextParser(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.parts: list[str] = []
     def handle_data(self, data: str) -> None:
-        text = clean_space(data)
+        text = " ".join(data.split())
         if text:
             self.parts.append(text)
 
@@ -265,16 +279,169 @@ def visible_text_count(html: str) -> int:
     return len("".join(parser.parts))
 
 
+def _truncate_with_audit(value: Any, limit: int) -> tuple[str, bool]:
+    text = clean_space(value)
+    if not text or limit <= 0 or len(text) <= limit:
+        return text, False
+    return truncate(text, limit), True
+
+
+def _prepare_wechat_display_copy(working: dict[str, Any]) -> dict[str, int]:
+    limits = {
+        "title": max(40, int(os.getenv("PIF_WECHAT_TITLE_MAX_CHARS", "220"))),
+        "authors": max(60, int(os.getenv("PIF_WECHAT_AUTHORS_MAX_CHARS", "300"))),
+        "paper_abstract": max(100, int(os.getenv("PIF_WECHAT_PAPER_ABSTRACT_MAX_CHARS", "500"))),
+        "paper_element": max(60, int(os.getenv("PIF_WECHAT_PAPER_ELEMENT_MAX_CHARS", "120"))),
+        "news_element": max(60, int(os.getenv("PIF_WECHAT_NEWS_ELEMENT_MAX_CHARS", "100"))),
+        "overview": max(200, int(os.getenv("PIF_WECHAT_OVERVIEW_MAX_CHARS", "1200"))),
+    }
+    counts = {"titles": 0, "authors": 0, "paper_abstracts": 0, "paper_elements": 0, "news_elements": 0, "overviews": 0}
+    for key in ("papers", "supplementary_papers", "news", "supplementary_news"):
+        for record in working.get(key) or []:
+            for src, dst in (("title", "wechat_title_en"), ("title_zh", "wechat_title_zh")):
+                value, cut = _truncate_with_audit(record.get(src), limits["title"])
+                record[dst] = value
+                counts["titles"] += int(cut)
+    for record in working.get("papers") or []:
+        authors = ", ".join((record.get("authors") or [])[:10]) or "Authors unavailable"
+        record["wechat_authors"], cut = _truncate_with_audit(authors, limits["authors"])
+        counts["authors"] += int(cut)
+        record["wechat_abstract_zh"], cut = _truncate_with_audit(record.get("abstract_zh") or record.get("summary_zh"), limits["paper_abstract"])
+        counts["paper_abstracts"] += int(cut)
+        elements = record.get("elements_zh") or record.get("analysis_zh") or {}
+        compact: dict[str, str] = {}
+        for name, value in elements.items():
+            compact[name], cut = _truncate_with_audit(value, limits["paper_element"])
+            counts["paper_elements"] += int(cut)
+        record["wechat_elements_zh"] = compact
+    for record in working.get("news") or []:
+        elements = record.get("elements_zh") or record.get("analysis_zh") or {}
+        compact: dict[str, str] = {}
+        for name, value in elements.items():
+            compact[name], cut = _truncate_with_audit(value, limits["news_element"])
+            counts["news_elements"] += int(cut)
+        record["wechat_elements_zh"] = compact
+    overview = working.get("overview") or {}
+    for section in ("literature", "news"):
+        block = overview.get(section) or {}
+        if isinstance(block, dict) and block.get("zh"):
+            block["zh"], cut = _truncate_with_audit(block.get("zh"), limits["overview"])
+            counts["overviews"] += int(cut)
+    working["_wechat_field_limits"] = {"limits": limits, "truncated_fields": counts}
+    return counts
+
+
+def _wechat_budget_state(working: dict[str, Any], original: dict[str, Any]) -> dict[str, Any]:
+    papers = working.get("papers") or []
+    supplementary = working.get("supplementary_papers") or []
+    news = working.get("news") or []
+    supplementary_news = working.get("supplementary_news") or []
+    state = {
+        "primary_papers_total": len(original.get("papers") or []),
+        "primary_papers_displayed": sum(not bool(x.get("wechat_omitted")) for x in papers),
+        "primary_papers_omitted": sum(bool(x.get("wechat_omitted")) for x in papers),
+        "primary_papers_compacted": sum(bool(x.get("wechat_compact_details_removed")) and not bool(x.get("wechat_omitted")) for x in papers),
+        "supplementary_papers_total": len(original.get("supplementary_papers") or []),
+        "supplementary_papers_displayed": sum(not bool(x.get("wechat_omitted")) for x in supplementary),
+        "supplementary_papers_omitted": sum(bool(x.get("wechat_omitted")) for x in supplementary),
+        "main_news_total": len(original.get("news") or []),
+        "main_news_displayed": sum(not bool(x.get("wechat_omitted")) for x in news),
+        "main_news_omitted": sum(bool(x.get("wechat_omitted")) for x in news),
+        "main_news_briefs_removed": sum(bool(x.get("wechat_brief_removed")) for x in news),
+        "supplementary_news_total": len(original.get("supplementary_news") or []),
+        "supplementary_news_displayed": sum(not bool(x.get("wechat_omitted")) for x in supplementary_news),
+        "supplementary_news_omitted": sum(bool(x.get("wechat_omitted")) for x in supplementary_news),
+        "supplementary_news_excerpts_removed": sum(bool(x.get("wechat_excerpt_removed")) for x in supplementary_news),
+    }
+    state["notice_required"] = any(
+        int(state[key]) > 0
+        for key in (
+            "primary_papers_compacted",
+            "primary_papers_omitted",
+            "main_news_briefs_removed",
+            "supplementary_news_excerpts_removed",
+            "supplementary_papers_omitted",
+            "supplementary_news_omitted",
+            "main_news_omitted",
+        )
+    )
+    working["_wechat_budget"] = state
+    return state
+
+
+def _wechat_budget_notice(issue: dict[str, Any]) -> str:
+    state = issue.get("_wechat_budget") or {}
+    if not state.get("notice_required"):
+        return ""
+    details: list[str] = []
+    field_limits = issue.get("_wechat_field_limits") or {}
+    truncated_total = sum(int(x) for x in (field_limits.get("truncated_fields") or {}).values())
+    if truncated_total:
+        details.append(f"对超长摘要、要素、标题或总览执行显示长度保护 {truncated_total} 处")
+    if state.get("primary_papers_compacted"):
+        details.append(f"精简末位主文献详情 {int(state['primary_papers_compacted'])} 篇")
+    if state.get("primary_papers_omitted"):
+        details.append(
+            f"极端篇幅兜底下主报告文献共 {int(state['primary_papers_total'])} 篇，本页展示 "
+            f"{int(state['primary_papers_displayed'])} 篇，未在正文展开 "
+            f"{int(state['primary_papers_omitted'])} 篇"
+        )
+    if state.get("main_news_briefs_removed"):
+        details.append(f"省略末位主新闻简报 {int(state['main_news_briefs_removed'])} 条")
+    if state.get("supplementary_news_excerpts_removed"):
+        details.append(f"省略补充新闻简讯 {int(state['supplementary_news_excerpts_removed'])} 条")
+    if state.get("supplementary_papers_omitted"):
+        details.append(
+            f"补充文献共 {int(state['supplementary_papers_total'])} 篇，本页展示 "
+            f"{int(state['supplementary_papers_displayed'])} 篇，未在正文展开 "
+            f"{int(state['supplementary_papers_omitted'])} 篇"
+        )
+    if state.get("supplementary_news_omitted"):
+        details.append(
+            f"补充新闻共 {int(state['supplementary_news_total'])} 条，本页展示 "
+            f"{int(state['supplementary_news_displayed'])} 条，未在正文展开 "
+            f"{int(state['supplementary_news_omitted'])} 条"
+        )
+    if state.get("main_news_omitted"):
+        details.append(
+            f"极端篇幅兜底下主新闻共 {int(state['main_news_total'])} 条，本页展示 "
+            f"{int(state['main_news_displayed'])} 条，未在正文展开 "
+            f"{int(state['main_news_omitted'])} 条"
+        )
+    text = "；".join(details) + "。完整文献与新闻清单、全部来源及结构化内容请查看网页版。"
+    return (
+        '<section data-wechat-budget-notice="true" '
+        'style="margin:0;padding:10px 20px;background:#fff7ed;border-bottom:1px solid #fed7aa;'
+        'font-size:12px;line-height:1.7;color:#9a3412;">'
+        '<strong>微信公众号篇幅说明：</strong>' + html_escape(text) + '</section>'
+    )
+
+
 def _wechat_body(issue: dict[str, Any], source_url: str) -> str:
-    papers = issue.get("papers") or []
-    supplementary = issue.get("supplementary_papers") or []
-    news = issue.get("news") or []
-    supplementary_news = issue.get("supplementary_news") or []
+    papers_all = issue.get("papers") or []
+    papers = [x for x in papers_all if not x.get("wechat_omitted")]
+    supplementary_all = issue.get("supplementary_papers") or []
+    news_all = issue.get("news") or []
+    supplementary_news_all = issue.get("supplementary_news") or []
+    supplementary = [x for x in supplementary_all if not x.get("wechat_omitted")]
+    news = [x for x in news_all if not x.get("wechat_omitted")]
+    supplementary_news = [x for x in supplementary_news_all if not x.get("wechat_omitted")]
     overview = issue.get("overview") or {}
     supplementary_html = "".join(supplementary_paper_card(x, wechat=True) for x in supplementary)
     supplementary_news_html = "".join(supplementary_news_card(x, wechat=True) for x in supplementary_news)
     source_link = f'<p style="margin:8px 0;text-align:right;font-weight:700;"><a href="{html_escape(source_url)}">查看完整网页</a></p>' if source_url else ""
-    return f'''<section style="font-family:Arial,'Noto Sans CJK SC',sans-serif;color:#333;line-height:1.75;"><section style="padding:17px 20px;background:{COLORS['navy']};color:#fff;text-align:center;"><h1 style="margin:0;font-size:24px;">{html_escape(issue['title_zh'])}</h1><p style="margin:5px 0 0;font-size:13px;opacity:.85;">{html_escape(issue['issue_date'])} | 文献与公共卫生新闻</p></section>{_overview_statlines(issue, wechat=True)}{_overview_html(overview.get('literature') or {}, '📚 本期文献进展', wechat=True)}{_overview_html(overview.get('news') or {}, '📰 本期新闻动态', wechat=True)}<h2 style="margin:15px 0 8px;border-left:6px solid {COLORS['paper_green']};padding-left:10px;color:{COLORS['paper_green']};font-size:20px;">📘 主报告文献</h2>{"".join(paper_card(x, wechat=True) for x in papers) or '<p>本期无满足主报告证据标准的文献。</p>'}<h2 style="margin:15px 0 8px;border-left:6px solid #a0aec0;padding-left:10px;color:#4a5568;font-size:20px;">📎 补充文献目录</h2>{supplementary_html or '<p>本期无补充文献。</p>'}<h2 style="margin:15px 0 8px;border-left:6px solid {COLORS['news_red']};padding-left:10px;color:{COLORS['news_red']};font-size:20px;">🚨 突发动态与新闻</h2>{"".join(news_card(x, wechat=True) for x in news) or '<p>本期无通过主新闻证据门禁的记录。</p>'}<h2 style="margin:15px 0 8px;border-left:6px solid #a0aec0;padding-left:10px;color:#4a5568;font-size:20px;">🗂️ 补充新闻</h2>{supplementary_news_html or '<p>本期无补充新闻。</p>'}{source_link}<p style="margin:12px 0 0;padding:12px;background:{COLORS['navy']};color:#fff;text-align:center;font-size:11px;">标准数据与完整可点击来源请通过阅读原文进入 GitHub Pages 查看。</p></section>'''
+    primary_heading = f"📘 主报告文献（微信展示 {len(papers)}/{len(papers_all)}）"
+    supp_heading = f"📎 补充文献目录（微信展示 {len(supplementary)}/{len(supplementary_all)}）"
+    supp_news_heading = f"🗂️ 补充新闻（微信展示 {len(supplementary_news)}/{len(supplementary_news_all)}）"
+    main_news_heading = f"🚨 突发动态与新闻（微信展示 {len(news)}/{len(news_all)}）"
+    return f'''<section style="font-family:Arial,'Noto Sans CJK SC',sans-serif;color:#333;line-height:1.75;"><section style="padding:17px 20px;background:{COLORS['navy']};color:#fff;text-align:center;"><h1 style="margin:0;font-size:24px;">{html_escape(issue['title_zh'])}</h1><p style="margin:5px 0 0;font-size:13px;opacity:.85;">{html_escape(issue['issue_date'])} | 文献与公共卫生新闻</p></section>{_overview_statlines(issue, wechat=True)}{_wechat_budget_notice(issue)}{_overview_html(overview.get('literature') or {}, '📚 本期文献进展', wechat=True)}{_overview_html(overview.get('news') or {}, '📰 本期新闻动态', wechat=True)}<h2 style="margin:15px 0 8px;border-left:6px solid {COLORS['paper_green']};padding-left:10px;color:{COLORS['paper_green']};font-size:20px;">{html_escape(primary_heading)}</h2>{"".join(paper_card(x, wechat=True) for x in papers) or '<p>本期无满足主报告证据标准的文献。</p>'}<h2 style="margin:15px 0 8px;border-left:6px solid #a0aec0;padding-left:10px;color:#4a5568;font-size:20px;">{html_escape(supp_heading)}</h2>{supplementary_html or '<p>本期无在微信正文中展示的补充文献；完整目录请查看网页版。</p>'}<h2 style="margin:15px 0 8px;border-left:6px solid {COLORS['news_red']};padding-left:10px;color:{COLORS['news_red']};font-size:20px;">{html_escape(main_news_heading)}</h2>{"".join(news_card(x, wechat=True) for x in news) or '<p>本期无在微信正文中展示的主新闻；完整目录请查看网页版。</p>'}<h2 style="margin:15px 0 8px;border-left:6px solid #a0aec0;padding-left:10px;color:#4a5568;font-size:20px;">{html_escape(supp_news_heading)}</h2>{supplementary_news_html or '<p>本期无在微信正文中展示的补充新闻；完整目录请查看网页版。</p>'}{source_link}<p style="margin:12px 0 0;padding:12px;background:{COLORS['navy']};color:#fff;text-align:center;font-size:11px;">标准数据与完整可点击来源请通过阅读原文进入 GitHub Pages 查看。</p></section>'''
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return clean_space(raw).lower() in {"1", "true", "yes", "on"}
 
 
 def render_wechat_package(issue: dict[str, Any], output_dir: Path, cover_meta: dict[str, Any]) -> dict[str, Any]:
@@ -283,46 +450,195 @@ def render_wechat_package(issue: dict[str, Any], output_dir: Path, cover_meta: d
     source_url = os.getenv("PIF_CONTENT_SOURCE_URL", "").strip()
     max_chars = max(1000, int(os.getenv("PIF_WECHAT_MAX_VISIBLE_CHARS", "48000")))
     min_full = max(0, int(os.getenv("PIF_WECHAT_MIN_FULL_PAPERS", "10")))
+    remove_supplementary_news_excerpts = _env_bool("PIF_WECHAT_REMOVE_SUPPLEMENTARY_NEWS_EXCERPTS", True)
+    allow_supplementary_paper_omission = _env_bool("PIF_WECHAT_ALLOW_SUPPLEMENTARY_PAPER_OMISSION", True)
+    min_supplementary_papers = max(0, int(os.getenv("PIF_WECHAT_MIN_SUPPLEMENTARY_PAPERS", "0")))
+    allow_supplementary_news_omission = _env_bool("PIF_WECHAT_ALLOW_SUPPLEMENTARY_NEWS_OMISSION", True)
+    min_supplementary_news = max(0, int(os.getenv("PIF_WECHAT_MIN_SUPPLEMENTARY_NEWS", "0")))
+    allow_main_news_omission = _env_bool("PIF_WECHAT_ALLOW_MAIN_NEWS_OMISSION", True)
+    min_main_news = max(0, int(os.getenv("PIF_WECHAT_MIN_MAIN_NEWS", "10")))
+    allow_primary_paper_omission = _env_bool("PIF_WECHAT_ALLOW_PRIMARY_PAPER_OMISSION", True)
+    min_primary_papers = max(min_full, int(os.getenv("PIF_WECHAT_MIN_PRIMARY_PAPERS", str(min_full))))
+
     working = copy.deepcopy(issue)
-    body = _wechat_body(working, source_url)
-    before = visible_text_count(body)
+    field_truncation_counts = _prepare_wechat_display_copy(working)
+    steps: list[dict[str, Any]] = []
+
+    def rerender() -> tuple[str, int]:
+        _wechat_budget_state(working, issue)
+        current = _wechat_body(working, source_url)
+        return current, visible_text_count(current)
+
+    def record_step(action: str, record_id: str, old_count: int, new_count: int) -> None:
+        steps.append({
+            "action": action,
+            "record_id": record_id,
+            "visible_chars_before": old_count,
+            "visible_chars_after": new_count,
+            "saved_chars": max(0, old_count - new_count),
+        })
+
+    body, before = rerender()
+    current_count = before
     compacted_paper_ids: list[str] = []
     removed_news_brief_ids: list[str] = []
-    if before > max_chars:
+    removed_supplementary_news_excerpt_ids: list[str] = []
+    omitted_supplementary_paper_ids: list[str] = []
+    omitted_supplementary_news_ids: list[str] = []
+    omitted_main_news_ids: list[str] = []
+    omitted_primary_paper_ids: list[str] = []
+
+    if current_count > max_chars:
         papers = working.get("papers") or []
         for index in range(len(papers) - 1, min_full - 1, -1):
+            record_id = clean_space(papers[index].get("paper_id")) or f"paper-index-{index}"
+            old_count = current_count
             papers[index]["wechat_compact_details_removed"] = True
-            compacted_paper_ids.append(clean_space(papers[index].get("paper_id")))
-            body = _wechat_body(working, source_url)
-            if visible_text_count(body) <= max_chars:
+            compacted_paper_ids.append(record_id)
+            body, current_count = rerender()
+            record_step("compact_primary_paper_details", record_id, old_count, current_count)
+            if current_count <= max_chars:
                 break
-    if visible_text_count(body) > max_chars:
+
+    if current_count > max_chars:
         news = working.get("news") or []
         for index in range(len(news) - 1, -1, -1):
+            record_id = clean_space(news[index].get("news_id")) or f"news-index-{index}"
+            old_count = current_count
             news[index]["wechat_brief_removed"] = True
-            removed_news_brief_ids.append(clean_space(news[index].get("news_id")))
-            body = _wechat_body(working, source_url)
-            if visible_text_count(body) <= max_chars:
+            removed_news_brief_ids.append(record_id)
+            body, current_count = rerender()
+            record_step("remove_main_news_brief", record_id, old_count, current_count)
+            if current_count <= max_chars:
                 break
+
+    if current_count > max_chars and remove_supplementary_news_excerpts:
+        supplementary_news = working.get("supplementary_news") or []
+        for index in range(len(supplementary_news) - 1, -1, -1):
+            if supplementary_news[index].get("snippet_duplicate_of_title"):
+                continue
+            has_excerpt = bool(clean_space(supplementary_news[index].get("excerpt") or supplementary_news[index].get("content")))
+            if not has_excerpt:
+                continue
+            record_id = clean_space(supplementary_news[index].get("news_id")) or f"supp-news-index-{index}"
+            old_count = current_count
+            supplementary_news[index]["wechat_excerpt_removed"] = True
+            removed_supplementary_news_excerpt_ids.append(record_id)
+            body, current_count = rerender()
+            record_step("remove_supplementary_news_excerpt", record_id, old_count, current_count)
+            if current_count <= max_chars:
+                break
+
+    if current_count > max_chars and allow_supplementary_paper_omission:
+        supplementary = working.get("supplementary_papers") or []
+        stop_index = min(len(supplementary), min_supplementary_papers)
+        for index in range(len(supplementary) - 1, stop_index - 1, -1):
+            record_id = clean_space(supplementary[index].get("paper_id")) or f"supp-paper-index-{index}"
+            old_count = current_count
+            supplementary[index]["wechat_omitted"] = True
+            omitted_supplementary_paper_ids.append(record_id)
+            body, current_count = rerender()
+            record_step("omit_supplementary_paper_card", record_id, old_count, current_count)
+            if current_count <= max_chars:
+                break
+
+    if current_count > max_chars and allow_supplementary_news_omission:
+        supplementary_news = working.get("supplementary_news") or []
+        stop_index = min(len(supplementary_news), min_supplementary_news)
+        for index in range(len(supplementary_news) - 1, stop_index - 1, -1):
+            if supplementary_news[index].get("wechat_omitted"):
+                continue
+            record_id = clean_space(supplementary_news[index].get("news_id")) or f"supp-news-index-{index}"
+            old_count = current_count
+            supplementary_news[index]["wechat_omitted"] = True
+            omitted_supplementary_news_ids.append(record_id)
+            body, current_count = rerender()
+            record_step("omit_supplementary_news_card", record_id, old_count, current_count)
+            if current_count <= max_chars:
+                break
+
+    if current_count > max_chars and allow_main_news_omission:
+        news = working.get("news") or []
+        stop_index = min(len(news), min_main_news)
+        for index in range(len(news) - 1, stop_index - 1, -1):
+            if news[index].get("wechat_omitted"):
+                continue
+            record_id = clean_space(news[index].get("news_id")) or f"news-index-{index}"
+            old_count = current_count
+            news[index]["wechat_omitted"] = True
+            omitted_main_news_ids.append(record_id)
+            body, current_count = rerender()
+            record_step("omit_main_news_card_emergency", record_id, old_count, current_count)
+            if current_count <= max_chars:
+                break
+
+    if current_count > max_chars and allow_primary_paper_omission:
+        papers = working.get("papers") or []
+        stop_index = min(len(papers), min_primary_papers)
+        for index in range(len(papers) - 1, stop_index - 1, -1):
+            if papers[index].get("wechat_omitted"):
+                continue
+            record_id = clean_space(papers[index].get("paper_id")) or f"paper-index-{index}"
+            old_count = current_count
+            papers[index]["wechat_omitted"] = True
+            omitted_primary_paper_ids.append(record_id)
+            body, current_count = rerender()
+            record_step("omit_primary_paper_card_emergency", record_id, old_count, current_count)
+            if current_count <= max_chars:
+                break
+
+    state = _wechat_budget_state(working, issue)
+    body = _wechat_body(working, source_url)
     after = visible_text_count(body)
     if after > max_chars:
         raise RuntimeError(
-            f"WeChat visible text remains above hard budget after permitted compaction: {after}>{max_chars}"
+            "wechat_budget_unresolvable: visible text remains above hard budget after all configured "
+            f"fallback stages: {after}>{max_chars}; minimum_full_papers={min_full}, "
+            f"minimum_primary_papers={min_primary_papers}, minimum_main_news={min_main_news}"
         )
+
     audit = {
-        "policy_version": "v16-wechat-visible-text-budget-1",
+        "policy_version": "v16.1-wechat-visible-text-budget-2",
         "max_visible_chars": max_chars,
         "minimum_full_papers": min_full,
+        "minimum_primary_papers": min_primary_papers,
+        "field_display_limits": (working.get("_wechat_field_limits") or {}).get("limits") or {},
+        "truncated_display_fields": field_truncation_counts,
+        "minimum_supplementary_papers": min_supplementary_papers,
+        "minimum_supplementary_news": min_supplementary_news,
+        "minimum_main_news": min_main_news,
         "visible_chars_before": before,
         "visible_chars_after": after,
         "within_budget": after <= max_chars,
+        "compaction_steps": steps,
         "compacted_primary_papers": len(compacted_paper_ids),
         "compacted_primary_paper_ids": compacted_paper_ids,
+        "primary_papers_total": len(issue.get("papers") or []),
+        "primary_papers_displayed": sum(not bool(x.get("wechat_omitted")) for x in working.get("papers") or []),
+        "primary_papers_omitted": len(omitted_primary_paper_ids),
+        "omitted_primary_paper_ids": omitted_primary_paper_ids,
         "removed_main_news_briefs": len(removed_news_brief_ids),
         "removed_main_news_brief_ids": removed_news_brief_ids,
+        "removed_supplementary_news_excerpts": len(removed_supplementary_news_excerpt_ids),
+        "removed_supplementary_news_excerpt_ids": removed_supplementary_news_excerpt_ids,
+        "supplementary_papers_total": state["supplementary_papers_total"],
+        "supplementary_papers_displayed": state["supplementary_papers_displayed"],
+        "supplementary_papers_omitted": state["supplementary_papers_omitted"],
+        "supplementary_paper_ids_omitted": omitted_supplementary_paper_ids,
+        "supplementary_news_total": state["supplementary_news_total"],
+        "supplementary_news_displayed": state["supplementary_news_displayed"],
+        "supplementary_news_omitted": state["supplementary_news_omitted"],
+        "supplementary_news_ids_omitted": omitted_supplementary_news_ids,
+        "main_news_total": state["main_news_total"],
+        "main_news_displayed": state["main_news_displayed"],
+        "main_news_omitted": state["main_news_omitted"],
+        "main_news_ids_omitted": omitted_main_news_ids,
+        "budget_notice_rendered": bool(state.get("notice_required")),
+        "full_catalog_preserved_in_source_data": True,
         "supplementary_literature_preserved": len(issue.get("supplementary_papers") or []),
         "supplementary_news_preserved": len(issue.get("supplementary_news") or []),
         "main_news_elements_preserved": True,
+        "main_news_elements_preserved_for_displayed_cards": True,
     }
     (package / "article.html").write_text(body, encoding="utf-8")
     overview = issue.get("overview") or {}
@@ -334,7 +650,25 @@ def render_wechat_package(issue: dict[str, Any], output_dir: Path, cover_meta: d
         "content_file": "article.html", "content_source_url": source_url, "show_cover_pic": 1,
         "need_open_comment": 0, "only_fans_can_comment": 0, "images": [],
         "cover": {"file": "cover.jpg", "sha256": cover_meta.get("cover_sha256"), "asset_key": issue["profile_id"], "generator": cover_meta.get("generator"), "profile_fingerprint": cover_meta.get("profile_fingerprint")},
-        "source": {"profile_id": issue["profile_id"], "issue_id": issue["issue_id"], "generated_at": issue["generated_at"], "issue_schema_version": issue.get("schema_version"), "primary_papers": len(issue.get("papers") or []), "supplementary_papers": len(issue.get("supplementary_papers") or []), "news": len(issue.get("news") or []), "supplementary_news": len(issue.get("supplementary_news") or []), "wechat_visible_chars": after},
+        "source": {
+            "profile_id": issue["profile_id"], "issue_id": issue["issue_id"], "generated_at": issue["generated_at"],
+            "issue_schema_version": issue.get("schema_version"),
+            "primary_papers": len(issue.get("papers") or []),
+            "primary_papers": len(issue.get("papers") or []),
+            "primary_papers_displayed_wechat": audit["primary_papers_displayed"],
+            "primary_papers_omitted_wechat": audit["primary_papers_omitted"],
+            "supplementary_papers": len(issue.get("supplementary_papers") or []),
+            "supplementary_papers_displayed_wechat": state["supplementary_papers_displayed"],
+            "supplementary_papers_omitted_wechat": state["supplementary_papers_omitted"],
+            "news": len(issue.get("news") or []),
+            "news_displayed_wechat": state["main_news_displayed"],
+            "news_omitted_wechat": state["main_news_omitted"],
+            "supplementary_news": len(issue.get("supplementary_news") or []),
+            "supplementary_news_displayed_wechat": state["supplementary_news_displayed"],
+            "supplementary_news_omitted_wechat": state["supplementary_news_omitted"],
+            "wechat_visible_chars": after,
+            "wechat_budget_policy_version": audit["policy_version"],
+        },
     }
     dump_json(package / "manifest.json", manifest)
     dump_json(package / "content-budget-audit.json", audit)

@@ -60,6 +60,20 @@ def main() -> int:
             raise SystemExit('wechat content budget audit does not match article.html')
         if int(budget.get('minimum_full_papers') or 0) < 10:
             raise SystemExit('wechat minimum full papers must be at least 10')
+        if budget.get('policy_version') == 'v16.1-wechat-visible-text-budget-2':
+            for prefix in ('primary_papers', 'supplementary_papers', 'supplementary_news', 'main_news'):
+                total = int(budget.get(f'{prefix}_total') or 0)
+                displayed = int(budget.get(f'{prefix}_displayed') or 0)
+                omitted = int(budget.get(f'{prefix}_omitted') or 0)
+                if min(total, displayed, omitted) < 0 or displayed + omitted != total:
+                    raise SystemExit(f'invalid WeChat display accounting for {prefix}')
+            omitted_total = sum(int(budget.get(key) or 0) for key in (
+                'primary_papers_omitted', 'supplementary_papers_omitted', 'supplementary_news_omitted', 'main_news_omitted'
+            ))
+            if omitted_total and '微信公众号篇幅说明' not in content_text:
+                raise SystemExit('WeChat omission notice missing from article.html')
+            if budget.get('full_catalog_preserved_in_source_data') is not True:
+                raise SystemExit('source catalog preservation flag must be true')
     elif visible > 48000:
         raise SystemExit(f'wechat visible text budget exceeded without audit: {visible}>48000')
     cover = data['cover']

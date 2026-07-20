@@ -1,4 +1,4 @@
-# pathogen-intelligence-factory v16.0
+# pathogen-intelligence-factory v16.1
 
 公开仓负责“病原文献与新闻抓取—规范化—跨库去重—内容补全—相关性终审—双语结构化分析—GitHub Pages—不可变微信公众号发布包”。私有公众号仓只消费公开仓生成的 `pathogen-wechat-package/v2`，两条发布链互不阻塞。
 
@@ -11,6 +11,18 @@ Conda Prefix: /home/stone/github-projects/pathogen-intelligence-factory/.conda-e
 数据分支: intelligence-data
 公众号协议: pathogen-wechat-package/v2
 issue schema: 6.2
+```
+
+
+## v16.1 微信公众号48,000字符多级兜底
+
+微信公众号发布包先使用每条新闻不超过500字符的微信专用简报，再按以下顺序逐项重渲染和重新计数：末位主文献详情精简、末位主新闻简报省略、补充新闻RSS简讯省略、末位补充文献卡片省略、末位补充新闻卡片省略，最后才允许极端省略末位主新闻卡片。所有省略只影响微信公众号正文；GitHub Pages、latest.json、审计和完整目录不删除。微信开头公开显示总数、展示数和因篇幅未展开数量。
+
+预算审计写入：
+
+```text
+wechat-package/content-budget-audit.json
+data/audit/wechat_content_budget.json
 ```
 
 ## v15.3文献生命周期

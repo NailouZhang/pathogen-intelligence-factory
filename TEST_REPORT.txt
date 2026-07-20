@@ -1,130 +1,53 @@
-Pathogen Weekly 21 v16.0 发行验证报告
-====================================
+Pathogen Weekly 21 v16.1 发行验证报告
 
 版本
-----
-两仓系统                         v16.0
-公开仓                           pathogen-intelligence-factory 16.0.0
-私有仓                           pathogen-wechat-publisher 6.0.0
-标准 issue schema                6.2
-微信包 contract                  pathogen-wechat-package/v2
-manifest schema_version          2
+两仓系统                         v16.1
+公开仓                           pathogen-intelligence-factory 16.1.0
+私有仓                           pathogen-wechat-publisher 6.1.0
+issue schema                     6.2
+微信包契约                       pathogen-wechat-package/v2
+manifest schema                  2
 
-一、工程验证
-------------
+代码与契约验收
+公开仓 pytest                    225 passed
+私有仓 pytest                    12 passed
+YAML 解析                        26 files PASS
+Profile 契约                     21 profiles PASS
 Python compileall                PASS
-YAML 解析                        PASS（26 个 YAML/YML 文件）
-Shell bash -n                    PASS（16 个 Shell 文件）
-公开仓 pytest                    PASS（220 tests）
-私有仓 pytest                    PASS（9 tests）
-总计 pytest                      PASS（229 tests）
-21 个 Profile                    PASS（21/21 ready；每个恰好 5 个冻结核心词）
-查询覆盖审计                     PASS（1199 个 provider queries）
-离线关键流程                     PASS（hantavirus demo）
-标准 issue                       PASS（schema 6.2）
-HTML 成品审计                    PASS（critical=0，warning=0）
-微信发布包                       PASS（v2/schema 2）
-微信可见字符审计                 PASS（demo 2277 <= 48000）
-私有 Publisher 包复核            PASS
-两仓 Bundle 静态验证             PASS
-v15.4→v16.0 补丁 apply --check  PASS
-补丁应用                         PASS
-补丁后文件树一致性               PASS（排除补丁自身与自引用发行清单）
-ZIP 完整性                       PASS（发行后以 unzip -t 复核）
-SHA-256                          PASS（工程内 SHA256SUMS 与外部 release SHA 清单）
+Shell bash -n                    PASS
+Bundle 静态验证                  PASS
+LLM测试环境隔离                  PASS
+唯一固定路径与持久工具入口       PASS
 
-二、十六项问题逐项验收
-----------------------
-1. 分阶段墙钟预算
-   PASS。Profile 150 分钟、Job 355 分钟；15/25/90/5/10/30 分钟阶段上限；
-   30 分钟最终化保留；高耗时循环和总览/补充标题翻译均受全局保留线约束。
+微信公众号字符预算压力测试
+输入                              50主文献+100补充文献+50主新闻+100补充新闻
+人为放大内容                      长摘要、长七要素、长五要素、长RSS简讯、长总览
+压缩前可见字符                    341679
+压缩后可见字符                    47331
+最大预算                          48000
+前10篇完整主文献保护              PASS
+微信专用字段显示上限              PASS
+主文献末位详情精简                PASS
+主新闻简报删除                    PASS
+补充新闻简讯删除                  PASS
+补充文献从末位向前省略            PASS
+补充新闻从末位向前省略            PASS
+极端主新闻省略与最低保留          PASS
+顶部篇幅说明                      PASS
+Pages完整补充目录                 PASS
+公开微信包校验器                  PASS
+私有Publisher二次校验             PASS
 
-2. 21 Profile 负载交叉排班
-   PASS。源码排班与 21 个 Seed 一致，每天 3 个、每周各 1 次。
-   新增失败分类和只读排班建议；仅负载型失败参与调班。
+升级与发行验收
+v16.0→v16.1补丁git apply --check PASS
+补丁实际应用                      PASS
+补丁后代码树一致性                PASS
+完整ZIP unzip -t                 PASS
+公开仓ZIP unzip -t               PASS
+私有仓ZIP unzip -t               PASS
+完整ZIP内部SHA-256               PASS
+从完整ZIP运行Bundle验证           PASS
+update_from_tmp-v16.1 validate    PASS
 
-3. 全部主题词库统一管理
-   PASS。覆盖冻结五词、补充词、新闻身份词、身份/成员/疾病/上下文/排除/
-   排序/文献类型词、翻译术语、复合查询和后置规则。
-
-4. Profile 语义指纹
-   PASS。core_terms_hash、topic_contract_hash、review_vocabulary_input_hash、
-   profile_semantic_fingerprint、prompt_version 均已实现；排班变化不触发语义重建。
-
-5. Profile/五词变化联动重建
-   PASS。Seed 或运行时 Profile 的主题范围、五词、词库和术语变化会使下游词库过期，
-   重新编译查询/终审/排序/翻译派生产物。
-
-6. 首次或变化时生成终审词库
-   PASS。首次、语义变化、提示词版本变化或显式 refresh_review_vocabulary=true 才重建；
-   相同指纹周运行不再次调用 LLM。
-
-7. 原子词库重建和失败降级
-   PASS。临时文件校验后原子替换；失败使用当前 Seed 的确定性保守词库，
-   不复用旧语义词库，也不在相同失败指纹下周周重试。
-
-8. Profile 级缓存失效
-   PASS。语义变化只失效该 Profile 的 relevance/analysis/translation 缓存；
-   相关性缓存键包含 Profile 语义指纹。
-
-9. LLM 顺序与额度保护
-   PASS。extract/relevance/rescue/overview/translation 均 Gemini 第一、Groq 最后；
-   PIF_LLM_ALLOW_PAID=false、OpenRouter free-only、DeepSeek赠送余额保护、每模型 1 次尝试。
-   注意：是否真正不计费仍需在各供应商账户侧确认计费层和额度。
-
-10. 文献终审放宽但保留主题硬边界
-    PASS。比较、共感染、疫苗、治疗、监测、多病原研究只要有目标病毒独立结果即可保留；
-    背景/列表/参考文献式提及仍拒绝；终审原因可审计。
-
-11. 文献比较池、成功目标和尝试上限
-    PASS。最多 100 篇比较池，成功 50 篇停止，默认最多尝试 150 篇，
-    全文补全 150 篇，文献阶段 90 分钟；其余合格记录进入补充文献。
-
-12. 新闻简报与五要素流程
-    PASS。>=500 字符在一次 LLM 调用中生成英文简报和五要素，再翻译标题/简报/要素；
-    短证据不扩写简报；Fetched Original Body 不前台展示。
-
-13. 补充新闻
-    PASS。正文失败但可信 RSS/简讯/元数据存在时进入 supplementary_news；
-    标题/简讯重复保留标题；只翻译标题，不生成五要素，不进入顶部总览。
-
-14. 微信 48000 字硬预算
-    PASS。先从末位主报告删除摘要及五/七要素，至少保留前 10 篇完整；
-    仍超限再删除末位主新闻简报，保留新闻五要素；补充文献/新闻不删除；
-    允许压缩后仍超限则拒绝生成发布包。
-
-15. 页面、标识和留白
-    PASS。Pages 保留可点击 DOI/PubMed/PMC/来源；微信删除不可点击标识；
-    卡片外部和内部间距收紧、正文行高不变；补充文献固定说明删除；
-    Literature Brief 使用 DOI→PMID→PMCID→标题，不显示 paper-*。
-
-16. 审计
-    PASS。新增 runtime_budget、review_vocabulary_lifecycle、wechat_content_budget、
-    supplementary_news、profile_failure_classification 和 schedule recommendation；
-    Provider、模型、尝试、停止原因、分流和压缩均可追踪。
-
-三、对话确认
-------------
-以下固定生产约束来自用户确认，并在工程中保持不变：
-- 两仓不合并；公开抓取/Pages 与私有微信发布相互独立。
-- 固定仓库、Conda Prefix、Runner、Runtime 和 publisher.env 路径不迁移。
-- 21 个 Profile ID、每个 5 个冻结核心词、每周一次、北京时间 02:00 保持。
-- repository_dispatch 事件、Runner 标签、微信发布路径和 v2 协议保持。
-
-四、待生产环境复核
-------------------
-本发行环境未执行并不得描述为成功：
-- 真实 PubMed、Europe PMC、Crossref、Semantic Scholar、OpenAlex、预印本和新闻在线全流程；
-- 真实 Gemini/BigModel/SiliconFlow/Mistral/DeepSeek/OpenRouter/Groq 鉴权、免费额度与计费；
-- 真实 GitHub Actions 355 分钟 Job、Pages 部署及 intelligence-data 推送；
-- 真实跨仓 repository_dispatch；
-- 真实 self-hosted Runner 在线接单和 TLS/代理状态；
-- 真实微信公众号 stable_token、永久素材、正文图片及 draft/add。
-
-五、生产首周观察重点
---------------------
-- 确认 Gemini 实际首选、Groq 仅最后兜底；检查 provider quota/cooldown 审计。
-- 确认 Profile 未变化时不重复生成终审词库；修改一个核心词测试下游联动重建。
-- 检查各 Profile runtime_budget 和 failure_classification。
-- 一周后审查 pif_schedule_recommendation.json，人工决定是否调整下一周排班。
-- 检查微信 content-budget-audit.json 和公众号后台实际草稿。
+生产边界
+正在运行的旧GitHub Actions任务固定使用启动时的commit，不会热加载v16.1。它可以继续完成，但必须在v16.1推送main后重新触发Profile，才能验收真实GitHub、外部数据源、LLM、Pages、跨仓dispatch、本地Runner和微信公众号draft/add链路中的新预算逻辑。
