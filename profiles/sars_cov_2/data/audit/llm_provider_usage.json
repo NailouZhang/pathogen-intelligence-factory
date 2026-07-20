@@ -1,12 +1,73 @@
 {
-  "schema_version": 1,
-  "day": "2026-07-21",
+  "schema_version": 2,
+  "generated_at": "2026-07-20T17:28:01+00:00",
+  "shared_state_file": "/tmp/pif_data_repo/shared/state/provider_quota_daily.json",
+  "provider_order": {
+    "extract": [
+      "gemini",
+      "bigmodel",
+      "siliconflow",
+      "mistral",
+      "deepseek",
+      "openrouter",
+      "groq"
+    ],
+    "rescue": [
+      "gemini",
+      "deepseek",
+      "bigmodel",
+      "mistral",
+      "siliconflow",
+      "openrouter",
+      "groq"
+    ],
+    "overview": [
+      "gemini",
+      "deepseek",
+      "bigmodel",
+      "mistral",
+      "siliconflow",
+      "openrouter",
+      "groq"
+    ],
+    "relevance": [
+      "gemini",
+      "bigmodel",
+      "siliconflow",
+      "mistral",
+      "deepseek",
+      "openrouter",
+      "groq"
+    ],
+    "translation": [
+      "gemini",
+      "bigmodel",
+      "mistral",
+      "siliconflow",
+      "deepseek",
+      "openrouter",
+      "groq"
+    ]
+  },
+  "billing_guard": {
+    "allow_paid": false,
+    "free_provider_allowlist": [
+      "gemini",
+      "bigmodel",
+      "siliconflow",
+      "mistral",
+      "deepseek",
+      "openrouter",
+      "groq"
+    ]
+  },
+  "task_failures": [],
   "providers": {
     "gemini": {
+      "configured": true,
       "provider": "gemini",
       "status": "authentication_failed",
       "disabled_reason": "authentication_failed",
-      "cooldown_until": 1784564751.39065,
       "requests": 5,
       "successes": 0,
       "failures": 5,
@@ -19,28 +80,28 @@
           "failures": 4,
           "last_failure_category": "authentication_failed",
           "status": "authentication_failed",
-          "cooldown_until": 1784564812.6731398
+          "cooldown_remaining_seconds": 0
         },
         "gemini-2.5-flash-lite": {
           "requests": 1,
           "failures": 1,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_until": 1784564529.7206612
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "key_fingerprint": "2a88218d49c96276",
       "last_failure_category": "authentication_failed",
-      "last_failure_at": 1784564813.6733003
+      "last_failure_at": 1784564813.6733003,
+      "cooldown_remaining_seconds": 0
     },
     "groq": {
+      "configured": true,
       "provider": "groq",
       "status": "quota_exhausted",
       "disabled_reason": "quota_exhausted",
-      "cooldown_until": 0.0,
       "requests": 3,
       "successes": 1,
       "failures": 2,
@@ -56,27 +117,29 @@
           "completion_tokens": 9,
           "total_tokens": 77,
           "failures": 1,
-          "last_failure_category": "quota_exhausted"
+          "last_failure_category": "quota_exhausted",
+          "cooldown_remaining_seconds": 0
         },
         "qwen/qwen3.6-27b": {
           "requests": 1,
           "failures": 1,
           "last_failure_category": "quota_exhausted",
-          "status": "quota_exhausted"
+          "status": "quota_exhausted",
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "key_fingerprint": "a8e20d7d74e17a6b",
       "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1784564502.3085177
+      "last_failure_at": 1784564502.3085177,
+      "cooldown_remaining_seconds": 0
     },
     "openrouter": {
+      "configured": true,
       "provider": "openrouter",
       "status": "healthy",
       "disabled_reason": "",
-      "cooldown_until": 0.0,
       "requests": 51,
       "successes": 0,
       "failures": 51,
@@ -89,14 +152,14 @@
           "failures": 26,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_until": 1784568492.3174691
+          "cooldown_remaining_seconds": 10.6
         },
         "cohere/north-mini-code:free": {
           "requests": 25,
           "failures": 25,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_until": 1784568492.4714408
+          "cooldown_remaining_seconds": 10.8
         }
       },
       "account": {
@@ -108,15 +171,15 @@
         "usage_weekly": 0,
         "usage_monthly": 0
       },
-      "key_fingerprint": "6505954eadef4e10",
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1784568432.4714398
+      "last_failure_at": 1784568432.4714398,
+      "cooldown_remaining_seconds": 0
     },
     "mistral": {
+      "configured": true,
       "provider": "mistral",
       "status": "healthy",
       "disabled_reason": "",
-      "cooldown_until": 0.0,
       "requests": 141,
       "successes": 26,
       "failures": 115,
@@ -132,7 +195,8 @@
           "completion_tokens": 16752,
           "total_tokens": 77755,
           "failures": 59,
-          "last_failure_category": "validation_failed"
+          "last_failure_category": "validation_failed",
+          "cooldown_remaining_seconds": 0
         },
         "mistral-small-2506": {
           "requests": 59,
@@ -142,21 +206,22 @@
           "successes": 3,
           "prompt_tokens": 7809,
           "completion_tokens": 2226,
-          "total_tokens": 10035
+          "total_tokens": 10035,
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "key_fingerprint": "f6e0d567fde1313a",
       "last_failure_category": "invalid_json",
-      "last_failure_at": 1784568473.894648
+      "last_failure_at": 1784568473.894648,
+      "cooldown_remaining_seconds": 0
     },
     "siliconflow": {
+      "configured": true,
       "provider": "siliconflow",
       "status": "authentication_failed",
       "disabled_reason": "authentication_failed",
-      "cooldown_until": 0.0,
       "requests": 1,
       "successes": 0,
       "failures": 1,
@@ -168,7 +233,8 @@
           "requests": 1,
           "failures": 1,
           "last_failure_category": "authentication_failed",
-          "status": "authentication_failed"
+          "status": "authentication_failed",
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
@@ -178,15 +244,15 @@
         "charge_balance": "0",
         "total_balance": "0"
       },
-      "key_fingerprint": "40a15ddbbb0c6185",
       "last_failure_category": "authentication_failed",
-      "last_failure_at": 1784564460.9523947
+      "last_failure_at": 1784564460.9523947,
+      "cooldown_remaining_seconds": 0
     },
     "bigmodel": {
+      "configured": true,
       "provider": "bigmodel",
       "status": "healthy",
       "disabled_reason": "",
-      "cooldown_until": 0.0,
       "requests": 1081,
       "successes": 1002,
       "failures": 79,
@@ -202,21 +268,22 @@
           "completion_tokens": 105451,
           "total_tokens": 859195,
           "failures": 79,
-          "last_failure_category": "validation_failed"
+          "last_failure_category": "validation_failed",
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "key_fingerprint": "574aa919642b8f5b",
       "last_failure_category": "validation_failed",
-      "last_failure_at": 1784568451.90159
+      "last_failure_at": 1784568451.90159,
+      "cooldown_remaining_seconds": 0
     },
     "deepseek": {
+      "configured": true,
       "provider": "deepseek",
       "status": "quota_exhausted",
       "disabled_reason": "quota_exhausted",
-      "cooldown_until": 0.0,
       "requests": 1,
       "successes": 0,
       "failures": 1,
@@ -228,7 +295,8 @@
           "requests": 1,
           "failures": 1,
           "last_failure_category": "quota_exhausted",
-          "status": "quota_exhausted"
+          "status": "quota_exhausted",
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
@@ -247,10 +315,9 @@
           }
         ]
       },
-      "key_fingerprint": "fc6ec53d6b13d92f",
       "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1784564463.9190328
+      "last_failure_at": 1784564463.9190328,
+      "cooldown_remaining_seconds": 0
     }
-  },
-  "updated_at_epoch": 1784568473.8949344
+  }
 }
