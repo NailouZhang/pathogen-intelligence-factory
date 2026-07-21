@@ -12,9 +12,16 @@ from .evidence_selector import select_evidence_rows
 from .utils import clean_space, split_sentences, truncate
 from .postprocess import contains_cross_field_overlap, deduplicate_structured_analysis, complete_text
 from .language_contract import annotate_source_language, sanitize_english_analysis
+from .structured_contract import (
+    candidate_error_count,
+    merge_repair,
+    normalize_structured_candidate,
+    repair_targets,
+    validate_structured_candidate,
+)
 
 
-ANALYSIS_POLICY_VERSION = "v17.1-source-language-safe-analysis-1"
+ANALYSIS_POLICY_VERSION = "v17.2-normalize-field-repair-evidence-strict-1"
 
 REVIEW_HINTS = re.compile(
     r"\b(review|systematic review|meta-analysis|narrative review|scoping review|umbrella review|viewpoint|perspective|commentary|consensus statement)\b",
@@ -411,96 +418,28 @@ FIELD_ALLOWED_ROLES = {
 def _paper_validator(kind: str, valid_ids: set[str], role_map: dict[str, str] | None = None):
     required = RESEARCH_FIELDS if kind == "research" else REVIEW_FIELDS
 
-    def validator(data: Any) -> tuple[bool, str]:
-        if not isinstance(data, dict):
-            return False, "not object"
-        analysis = data.get("analysis")
-        evidence_ids = data.get("evidence_ids")
-        if not isinstance(analysis, dict):
-            return False, "analysis missing"
-        if not isinstance(evidence_ids, dict):
-            return False, "evidence_ids missing"
-        for key in required:
-            raw_value = analysis.get(key)
-            if not isinstance(raw_value, str):
-                return False, f"{key} must be a string, got {type(raw_value).__name__}"
-            value = clean_space(raw_value)
-            if len(value) < 12:
-                return False, f"{key} too short"
-            if len(re.findall(r"[\u4e00-\u9fff]", value)) > max(2, int(len(value) * 0.05)):
-                return False, f"{key} must be English for the source-language entity"
-            if _contains_bad_placeholder(value):
-                return False, f"{key} contains invalid placeholder"
-            refs = evidence_ids.get(key)
-            if not isinstance(refs, list) or not refs or not all(isinstance(ref, str) for ref in refs):
-                return False, f"{key} lacks string evidence ids"
-            unknown = [ref for ref in refs if clean_space(ref) not in valid_ids]
-            if unknown:
-                return False, f"{key} contains unknown evidence ids"
-            if role_map:
-                allowed = FIELD_ALLOWED_ROLES.get(key, {"general"})
-                cited_roles = {role_map.get(clean_space(ref), "general") for ref in refs}
-                if not cited_roles.intersection(allowed):
-                    return False, f"{key} cites evidence assigned to the wrong rhetorical role: {sorted(cited_roles)}"
-        overlap, reason = contains_cross_field_overlap(analysis, required)
-        if overlap:
-            return False, reason
-        if not isinstance(data.get("summary_en"), str):
-            return False, "summary_en must be a string"
-        summary = clean_space(data.get("summary_en"))
-        if len(summary) < 80 or len(summary.split()) > 260:
-            return False, "summary_en length invalid"
-        if clean_space(data.get("confidence")) not in {"high", "moderate", "low"}:
-            return False, "confidence invalid"
-        return True, "ok"
+    def validator(data: Any) -> tuple[bool, dict[str, Any]]:
+        return validate_structured_candidate(
+            data,
+            required_fields=required,
+            valid_ids=valid_ids,
+            kind=kind,
+            role_map=role_map,
+            allowed_roles=FIELD_ALLOWED_ROLES,
+        )
 
     return validator
 
 
 def _news_validator(valid_ids: set[str], *, require_brief: bool = True):
-    def validator(data: Any) -> tuple[bool, str]:
-        if not isinstance(data, dict):
-            return False, "not object"
-        analysis = data.get("analysis")
-        evidence_ids = data.get("evidence_ids")
-        if not isinstance(analysis, dict) or not isinstance(evidence_ids, dict):
-            return False, "analysis or evidence_ids missing"
-        for key in NEWS_FIELDS:
-            raw_value = analysis.get(key)
-            if not isinstance(raw_value, str):
-                return False, f"{key} must be a string, got {type(raw_value).__name__}"
-            value = clean_space(raw_value)
-            if len(value) < 8:
-                return False, f"{key} too short"
-            if len(re.findall(r"[\u4e00-\u9fff]", value)) > max(2, int(len(value) * 0.05)):
-                return False, f"{key} must be English for the source-language entity"
-            refs = evidence_ids.get(key)
-            if not isinstance(refs, list) or not refs or not all(isinstance(ref, str) for ref in refs):
-                return False, f"{key} lacks string evidence ids"
-            if any(clean_space(ref) not in valid_ids for ref in refs):
-                return False, f"{key} contains unknown evidence ids"
-        overlap, reason = contains_cross_field_overlap(analysis, NEWS_FIELDS, threshold=0.92)
-        if overlap:
-            return False, reason
-        if not isinstance(data.get("brief_en"), str):
-            return False, "brief_en must be a string"
-        brief = clean_space(data.get("brief_en"))
-        words = len(brief.split())
-        if require_brief and (words < 100 or words > 220):
-            return False, "brief_en must contain 100-220 words when a brief is requested"
-        if not require_brief and brief:
-            return False, "brief_en must be empty for short-source records"
-        if clean_space(data.get("source_assessment")) not in {
-            "official",
-            "reputable_media",
-            "secondary_media",
-            "aggregator",
-            "unclear",
-        }:
-            return False, "source_assessment invalid"
-        if clean_space(data.get("confidence")) not in {"high", "moderate", "low"}:
-            return False, "confidence invalid"
-        return True, "ok"
+    def validator(data: Any) -> tuple[bool, dict[str, Any]]:
+        return validate_structured_candidate(
+            data,
+            required_fields=NEWS_FIELDS,
+            valid_ids=valid_ids,
+            kind="news",
+            require_brief=require_brief,
+        )
 
     return validator
 
@@ -802,6 +741,201 @@ def _crosscheck_agreement(primary: dict[str, Any], secondary: dict[str, Any], ki
             scores.append(SequenceMatcher(None, left, right).ratio())
     return round(sum(scores) / len(scores), 3) if scores else 0.0
 
+def _normalizer(
+    payload: dict[str, Any],
+    *,
+    kind: str,
+    source_language: str,
+    require_brief: bool = False,
+):
+    fields = NEWS_FIELDS if kind == "news" else RESEARCH_FIELDS if kind == "research" else REVIEW_FIELDS
+
+    def normalize(data: Any) -> tuple[dict[str, Any], dict[str, Any]]:
+        return normalize_structured_candidate(
+            data,
+            payload=payload,
+            kind=kind,
+            required_fields=fields,
+            source_language=source_language,
+            require_brief=require_brief,
+        )
+
+    return normalize
+
+
+def _best_invalid_candidate(exc: LLMError) -> dict[str, Any] | None:
+    candidates = [row for row in (getattr(exc, "candidates", []) or []) if isinstance(row, dict) and isinstance(row.get("data"), dict)]
+    if not candidates:
+        return None
+    return min(candidates, key=candidate_error_count)
+
+
+def _field_repair_payload(
+    *,
+    kind: str,
+    targets: list[str],
+    validation: dict[str, Any],
+    candidate: dict[str, Any],
+    prompt_payload: dict[str, Any],
+) -> dict[str, Any]:
+    analysis = candidate.get("analysis") or {}
+    evidence_ids = candidate.get("evidence_ids") or {}
+    preserved_fields = {
+        field: {"text": analysis.get(field), "evidence_ids": evidence_ids.get(field) or []}
+        for field in (NEWS_FIELDS if kind == "news" else RESEARCH_FIELDS if kind == "research" else REVIEW_FIELDS)
+        if field not in targets
+    }
+    return {
+        "task": "repair_only_failed_fields",
+        "kind": kind,
+        "failed_targets": targets,
+        "validation_issues": validation.get("issues") or [],
+        "preserved_fields_do_not_rewrite": preserved_fields,
+        "current_candidate": {
+            "analysis": analysis,
+            "evidence_ids": evidence_ids,
+            "summary_en": candidate.get("summary_en"),
+            "brief_en": candidate.get("brief_en"),
+            "confidence": candidate.get("confidence"),
+            "source_assessment": candidate.get("source_assessment"),
+        },
+        "evidence": prompt_payload.get("evidence") or [],
+    }
+
+
+def _attempt_field_repair(
+    *,
+    exc: LLMError,
+    llm: LLMRouter,
+    prompts_dir: Path,
+    prompt_payload: dict[str, Any],
+    payload: dict[str, Any],
+    kind: str,
+    source_language: str,
+    valid_ids: set[str],
+    role_map: dict[str, str] | None = None,
+    require_brief: bool = False,
+) -> tuple[dict[str, Any] | None, dict[str, Any]]:
+    audit: dict[str, Any] = {
+        "policy_version": "v17.2-field-level-repair-2",
+        "enabled": os.getenv("PIF_LLM_FIELD_REPAIR_ENABLED", "true").strip().lower() in {"1", "true", "yes", "on"},
+        "rounds": [],
+        "status": "not_attempted",
+        "initial_attempts": list(getattr(exc, "attempts", []) or []),
+    }
+    if not audit["enabled"] or clean_space(getattr(exc, "category", "")) != "validation_failed":
+        audit["status"] = "disabled_or_not_validation_failure"
+        return None, audit
+    best = _best_invalid_candidate(exc)
+    if not best:
+        audit["status"] = "no_parsed_candidate"
+        return None, audit
+
+    required = NEWS_FIELDS if kind == "news" else RESEARCH_FIELDS if kind == "research" else REVIEW_FIELDS
+    candidate, normalization = normalize_structured_candidate(
+        best["data"], payload=payload, kind=kind, required_fields=required,
+        source_language=source_language, require_brief=require_brief,
+    )
+    validator = (
+        _news_validator(valid_ids, require_brief=require_brief)
+        if kind == "news"
+        else _paper_validator(kind, valid_ids, role_map)
+    )
+    valid, validation = validator(candidate)
+    audit["initial_candidate"] = {
+        "provider": best.get("provider"),
+        "model": best.get("model"),
+        "normalization": normalization,
+        "validation": validation,
+    }
+    if valid:
+        audit["status"] = "passed_after_local_normalization"
+        return candidate, audit
+
+    system = (prompts_dir / "field_repair.md").read_text(encoding="utf-8")
+    max_rounds = max(1, int(os.getenv("PIF_LLM_FIELD_REPAIR_ROUNDS", "2")))
+    for round_index in range(1, max_rounds + 1):
+        targets = repair_targets(validation, required, kind)
+        if not targets:
+            audit["status"] = "no_repairable_targets"
+            break
+        repair_prompt = _field_repair_payload(
+            kind=kind,
+            targets=targets,
+            validation=validation,
+            candidate=candidate,
+            prompt_payload=prompt_payload,
+        )
+
+        def repair_normalizer(repair_data: Any) -> tuple[dict[str, Any], dict[str, Any]]:
+            target_fields = [field for field in targets if field in required]
+            partial, partial_audit = normalize_structured_candidate(
+                repair_data,
+                payload=payload,
+                kind=kind,
+                required_fields=target_fields,
+                source_language=source_language,
+                require_brief=require_brief,
+            )
+            merged = merge_repair(candidate, partial, targets)
+            normalized, full_audit = normalize_structured_candidate(
+                merged,
+                payload=payload,
+                kind=kind,
+                required_fields=required,
+                source_language=source_language,
+                require_brief=require_brief,
+            )
+            return normalized, {"partial": partial_audit, "merged": full_audit, "targets": targets}
+
+        try:
+            result = llm.json_task(
+                system=system,
+                prompt=json.dumps(repair_prompt, ensure_ascii=False),
+                provider_order=getattr(llm, "provider_order", lambda purpose: None)("rescue"),
+                validator=validator,
+                normalizer=repair_normalizer,
+                max_models_per_provider=1,
+                temperature=0.0,
+                task_name=f"{kind}_field_repair_round_{round_index}",
+            )
+            candidate = result.data if isinstance(result.data, dict) else candidate
+            valid, validation = validator(candidate)
+            audit["rounds"].append({
+                "round": round_index,
+                "targets": targets,
+                "status": "passed" if valid else "failed",
+                "provider": result.provider,
+                "model": result.model,
+                "attempts": result.attempts,
+                "validation": validation,
+            })
+            if valid:
+                audit["status"] = "passed_after_field_repair"
+                audit["final_validation"] = validation
+                return candidate, audit
+        except LLMError as repair_exc:
+            repair_best = _best_invalid_candidate(repair_exc)
+            if repair_best:
+                candidate = repair_best["data"]
+                valid, validation = validator(candidate)
+            audit["rounds"].append({
+                "round": round_index,
+                "targets": targets,
+                "status": "failed",
+                "failure_category": getattr(repair_exc, "category", "unknown"),
+                "error": clean_space(repair_exc)[:1000],
+                "attempts": getattr(repair_exc, "attempts", []) or [],
+                "validation": validation,
+            })
+            if valid:
+                audit["status"] = "passed_from_best_repair_candidate"
+                return candidate, audit
+    audit["status"] = audit.get("status") if audit.get("status") not in {"not_attempted", ""} else "failed"
+    audit["final_validation"] = validation
+    return None, audit
+
+
 def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> dict[str, Any]:
     source_language = annotate_source_language(work, kind="paper")
     kind = classify_paper(work)
@@ -830,6 +964,7 @@ def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> di
             prompt=json.dumps(prompt_payload, ensure_ascii=False),
             provider_order=getattr(llm, "provider_order", lambda purpose: None)("extract"),
             validator=_paper_validator(kind, valid_ids, _evidence_role_map(prompt_payload)),
+            normalizer=_normalizer(payload, kind=kind, source_language=source_language),
             max_models_per_provider=2,
             temperature=0.05,
             task_name=f"paper_{kind}_analysis",
@@ -860,6 +995,7 @@ def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> di
                     prompt=json.dumps(prompt_payload, ensure_ascii=False),
                     provider_order=rescue_order,
                     validator=_paper_validator(kind, valid_ids, _evidence_role_map(prompt_payload)),
+                    normalizer=_normalizer(payload, kind=kind, source_language=source_language),
                     max_models_per_provider=1,
                     temperature=0.0,
                     task_name=f"paper_{kind}_crosscheck",
@@ -885,18 +1021,59 @@ def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> di
         work["analysis"] = data
         work["analysis_ready"] = True
     except LLMError as exc:
-        attempts, category, error = _llm_failure_details(exc)
-        fallback = (
-            _fallback_research(payload, error, attempts=attempts, failure_category=category)
-            if kind == "research"
-            else _fallback_review(payload, error, attempts=attempts, failure_category=category)
+        repaired, repair_audit = _attempt_field_repair(
+            exc=exc,
+            llm=llm,
+            prompts_dir=prompts_dir,
+            prompt_payload=prompt_payload,
+            payload=payload,
+            kind=kind,
+            source_language=source_language,
+            valid_ids=valid_ids,
+            role_map=_evidence_role_map(prompt_payload),
         )
-        fallback["prompt_compaction"] = prompt_payload.get("prompt_compaction") or {}
-        work["analysis"] = sanitize_english_analysis(
-            deduplicate_structured_analysis(fallback, payload, kind),
-            kind="paper", source_language=source_language,
-        )
-        work["analysis_ready"] = True
+        if repaired is not None:
+            repair_status = clean_space(repair_audit.get("status"))
+            repair_rounds = list(repair_audit.get("rounds") or [])
+            last_round = repair_rounds[-1] if repair_rounds else {}
+            initial_candidate = repair_audit.get("initial_candidate") or {}
+            combined_attempts = list(getattr(exc, "attempts", []) or [])
+            for round_row in repair_rounds:
+                combined_attempts.extend(round_row.get("attempts") or [])
+            repaired.update({
+                "status": (
+                    "passed_after_local_normalization"
+                    if repair_status == "passed_after_local_normalization"
+                    else "passed_after_field_repair"
+                ),
+                "kind": kind,
+                "provider": last_round.get("provider") or initial_candidate.get("provider") or "",
+                "model": last_round.get("model") or initial_candidate.get("model") or "",
+                "attempts": combined_attempts,
+                "failure_category": "",
+                "repair_audit": repair_audit,
+                "prompt_compaction": prompt_payload.get("prompt_compaction") or {},
+                "policy_version": ANALYSIS_POLICY_VERSION,
+                "analysis_level": payload.get("analysis_level"),
+                "evidence_scope": payload.get("evidence_scope"),
+                "evidence_selector": payload.get("evidence_selector") or {},
+            })
+            work["analysis"] = repaired
+            work["analysis_ready"] = True
+        else:
+            attempts, category, error = _llm_failure_details(exc)
+            fallback = (
+                _fallback_research(payload, error, attempts=attempts, failure_category=category)
+                if kind == "research"
+                else _fallback_review(payload, error, attempts=attempts, failure_category=category)
+            )
+            fallback["repair_audit"] = repair_audit
+            fallback["prompt_compaction"] = prompt_payload.get("prompt_compaction") or {}
+            work["analysis"] = sanitize_english_analysis(
+                deduplicate_structured_analysis(fallback, payload, kind),
+                kind="paper", source_language=source_language,
+            )
+            work["analysis_ready"] = True
     return work
 
 
@@ -992,6 +1169,7 @@ def analyze_news(article: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> 
             prompt=json.dumps(prompt_payload, ensure_ascii=False),
             provider_order=getattr(llm, "provider_order", lambda purpose: None)("extract"),
             validator=_news_validator(valid_ids, require_brief=require_brief),
+            normalizer=_normalizer(payload, kind="news", source_language=source_language, require_brief=require_brief),
             max_models_per_provider=2,
             temperature=0.05,
             task_name="news_analysis",
@@ -1020,16 +1198,57 @@ def analyze_news(article: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> 
         article["analysis"] = data
         article["analysis_ready"] = True
     except LLMError as exc:
-        attempts, category, error = _llm_failure_details(exc)
-        fallback = _fallback_news(payload, error, attempts=attempts, failure_category=category)
-        if not require_brief:
-            fallback["brief_en"] = clean_space(article.get("content") or article.get("excerpt"))
-            fallback["summary_en"] = fallback["brief_en"]
-            fallback["brief_generation"] = "source_short_evidence_no_llm_expansion"
-        fallback["prompt_compaction"] = prompt_payload.get("prompt_compaction") or {}
-        article["analysis"] = sanitize_english_analysis(
-            deduplicate_structured_analysis(fallback, payload, "news"),
-            kind="news", source_language=source_language,
+        repaired, repair_audit = _attempt_field_repair(
+            exc=exc,
+            llm=llm,
+            prompts_dir=prompts_dir,
+            prompt_payload=prompt_payload,
+            payload=payload,
+            kind="news",
+            source_language=source_language,
+            valid_ids=valid_ids,
+            require_brief=require_brief,
         )
-        article["analysis_ready"] = True
+        if repaired is not None:
+            if not require_brief:
+                repaired["brief_en"] = clean_space(article.get("content") or article.get("excerpt"))
+                repaired["summary_en"] = repaired["brief_en"]
+                repaired["brief_generation"] = "source_short_evidence_no_llm_expansion"
+            repair_status = clean_space(repair_audit.get("status"))
+            repair_rounds = list(repair_audit.get("rounds") or [])
+            last_round = repair_rounds[-1] if repair_rounds else {}
+            initial_candidate = repair_audit.get("initial_candidate") or {}
+            combined_attempts = list(getattr(exc, "attempts", []) or [])
+            for round_row in repair_rounds:
+                combined_attempts.extend(round_row.get("attempts") or [])
+            repaired.update({
+                "status": (
+                    "passed_after_local_normalization"
+                    if repair_status == "passed_after_local_normalization"
+                    else "passed_after_field_repair"
+                ),
+                "provider": last_round.get("provider") or initial_candidate.get("provider") or "",
+                "model": last_round.get("model") or initial_candidate.get("model") or "",
+                "attempts": combined_attempts,
+                "failure_category": "",
+                "repair_audit": repair_audit,
+                "prompt_compaction": prompt_payload.get("prompt_compaction") or {},
+                "policy_version": ANALYSIS_POLICY_VERSION,
+            })
+            article["analysis"] = repaired
+            article["analysis_ready"] = True
+        else:
+            attempts, category, error = _llm_failure_details(exc)
+            fallback = _fallback_news(payload, error, attempts=attempts, failure_category=category)
+            if not require_brief:
+                fallback["brief_en"] = clean_space(article.get("content") or article.get("excerpt"))
+                fallback["summary_en"] = fallback["brief_en"]
+                fallback["brief_generation"] = "source_short_evidence_no_llm_expansion"
+            fallback["repair_audit"] = repair_audit
+            fallback["prompt_compaction"] = prompt_payload.get("prompt_compaction") or {}
+            article["analysis"] = sanitize_english_analysis(
+                deduplicate_structured_analysis(fallback, payload, "news"),
+                kind="news", source_language=source_language,
+            )
+            article["analysis_ready"] = True
     return article

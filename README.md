@@ -1,31 +1,46 @@
-# Pathogen Intelligence Factory v17.1
+# Pathogen Intelligence Factory v17.2
 
-这是三仓系统的私有生产仓。它负责21种病毒的文献与新闻召回、去重、正文获取、相关性终审、双语分析、公开静态站生成、微信公众号发布包生成和后台审计。
+这是三仓系统中的私有生产仓，负责21种病原的文献与新闻召回、权威日期门禁、去重、全文/正文补全、相关性终审、双语结构化分析、公开静态站生成、微信公众号不可变发布包和完整后台审计。
 
-v17.1 的生产词库全部内置于 `config/vocabularies/<profile_id>/`，包括 SARS-CoV-2 在内的21个 Profile 均重新生成。生产默认禁止把核心检索词当作最终终审词库。
+v17.2保持21个Profile ID、5个冻结核心概念、受控补充查询、词库bundle `2026.07-v17.1`、Top50/补充目录规则和输出Schema不变，重点修复：
 
-主要改动：公开内容统一经过 `display_issue` 净化；顶部统计改为紧凑灰色小字；Literature Brief 与 News Brief 改为3至5个项目；新闻正文增加中文/英文导航、Cookie、栏目矩阵和重复推荐内容诊断；相关性终审按标题、摘要/简讯、正文分别设阈值，并提供三级终审恢复、低量输出和空结果合法输出；非英文来源通过多语言契约与二次审计隔离；Pages 改由独立公开仓部署。
+1. 候选数达到10且终审通过率低于30%时启动异常复核；30%仅为触发线，安全恢复目标仍独立为15%，硬身份冲突永不恢复。
+2. 每条新闻终审拒绝均记录原因；正文失败仍只进入补充目录。
+3. 合法日文、韩文、西里尔文等原始标题以明确元数据身份渲染，不再被误判为补充卡正文。
+4. LLM输出先标准化、去重和语言清理，再严格校验；只重写失败字段，仍失败才进入保守规则兜底。
+5. Pages和微信公众号包采用正常渲染、确定性修复、元数据安全回退、应急元数据输出四层连续性保护。
 
-## 本地安装
+## 固定本地目录
+
+```text
+仓库：/home/stone/github-projects/pathogen-intelligence-factory
+Conda：/home/stone/github-projects/pathogen-intelligence-factory/.conda-env
+```
+
+## 安装与测试
 
 ```bash
-bash /home/stone/pathogen-wechat-publisher/releases/current/install_three_repos.sh install --run-tests
+TOOLS=/home/stone/pathogen-wechat-publisher/releases/current
+bash "$TOOLS/install_three_repos.sh" install --run-tests
+
+cd /home/stone/github-projects/pathogen-intelligence-factory
+PYTHONPATH=src ./.conda-env/bin/python -m pytest -o addopts='' -q
+bash scripts/doctor_local.sh
 ```
 
 ## 运行
 
 ```bash
 TOOLS=/home/stone/pathogen-wechat-publisher/releases/current
-bash "$TOOLS/factory_manager.sh" run-today true
-bash "$TOOLS/factory_manager.sh" run-one sars_cov_2 false false false deterministic balanced
+bash "$TOOLS/system_manager.sh" run-one respiratory_syncytial_virus false
+bash "$TOOLS/system_manager.sh" run-today true
 bash "$TOOLS/factory_manager.sh" publish-pages
 ```
 
-## 测试
+完整配置和业务逻辑见工程包根目录：
 
-```bash
-bash scripts/doctor_local.sh
-/home/stone/github-projects/pathogen-intelligence-factory/.conda-env/bin/python -m pytest -q
+```text
+INSTALL_CONFIG_RUN_V17_2_ZH.md
+ARCHITECTURE_AND_RUN_LOGIC_V17_2_ZH.md
+V17_2_NEWS_RENDER_LLM_RELIABILITY_ZH.md
 ```
-
-完整安装、Token、三仓迁移和运行说明见工程包根目录 `INSTALL_CONFIG_RUN_V17_ZH.md`。

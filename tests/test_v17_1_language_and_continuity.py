@@ -157,3 +157,73 @@ def test_zero_candidates_are_explicit_empty_valid_output() -> None:
     assert audit["continuity_status"] == "empty_valid_issue"
     assert audit["publication_must_continue"] is True
     assert audit["fabricated_acceptance_forbidden"] is True
+
+
+def test_medium_news_pool_acceptance_ratio_triggers_recovery(monkeypatch) -> None:
+    monkeypatch.setenv("PIF_REVIEW_CLIFF_GUARD_MIN_CANDIDATES", "100")
+    monkeypatch.setenv("PIF_REVIEW_CLIFF_GUARD_RATIO_MIN_CANDIDATES", "20")
+    monkeypatch.setenv("PIF_REVIEW_CLIFF_GUARD_MIN_ACCEPTED", "10")
+    monkeypatch.setenv("PIF_REVIEW_CLIFF_GUARD_MIN_ACCEPTED_RATIO", "0.15")
+    candidates = [
+        {
+            "news_id": f"n{i}",
+            "title": "H5N1 avian influenza outbreak update",
+            "excerpt": (
+                "Health authorities reported avian influenza virus infections "
+                "in poultry and continued epidemiological surveillance."
+            ),
+            "url": f"https://example.org/news/{i}",
+        }
+        for i in range(87)
+    ]
+    output, audit = apply_relevance_cliff_guard(
+        candidates,
+        candidates[:1],
+        _avian_profile(),
+        kind="news",
+        previous_accepted=None,
+    )
+    assert audit["triggered"] is True
+    assert "candidate_acceptance_ratio" in audit["trigger_reasons"]
+    assert audit["target_accepted"] == 14
+    assert len(output) >= 14
+
+
+def test_supplementary_original_non_english_title_is_metadata_not_deep_content(
+    tmp_path: Path,
+) -> None:
+    supplementary = {
+        "paper_id": "supp-uk",
+        "paper_type": "research",
+        "title": "КЛІНІКО-ПАТОГЕНЕТИЧНІ ТЕНДЕНЦІЇ ПНЕВМОНІЙ У ДІТЕЙ",
+        "title_zh": "儿童肺炎的临床与发病机制趋势",
+        "title_en": "Clinical and pathogenetic trends of pneumonia in children",
+        "source_language": "uk",
+        "authors": ["A"],
+        "journal": "Journal",
+        "availability_date": "2026-07-21",
+        "publication_date_status": "in_window",
+    }
+    issue = {
+        "title_zh": "测试周报",
+        "title_en": "Test Weekly Intelligence",
+        "issue_date": "2026-07-21",
+        "window_start": "2026-07-14",
+        "window_end": "2026-07-21",
+        "papers": [],
+        "supplementary_papers": [supplementary],
+        "news": [],
+        "supplementary_news": [],
+        "metrics": {"supplementary_papers": 1},
+        "overview": {},
+        "retrieval_funnel": {"papers": {}, "news": {}},
+    }
+    render_site(issue, tmp_path)
+    html = (tmp_path / "site/index.html").read_text(encoding="utf-8")
+    assert 'data-metadata-role="title"' in html
+    result = audit_html(tmp_path / "site/index.html")
+    assert result["status"] == "passed"
+    assert not any(
+        row["code"] == "supplementary_card_contains_deep_content"
+        for row in result["findings"]
+    )

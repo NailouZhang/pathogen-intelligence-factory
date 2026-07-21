@@ -10,6 +10,14 @@ The input contains content_status:
 - syndicated_summary: a substantive RSS/syndicated summary used because the original article body could not be extracted.
 When content_status is syndicated_summary, explicitly preserve that limitation in response_status_and_uncertainty and do not claim that the full original article was reviewed.
 
+PROVIDER-COMPATIBILITY CONTRACT (MANDATORY)
+- Return one complete JSON object only. No Markdown fence, comments, preface, suffix, trailing comma, Python literal, null analytical fields, or alternate field names.
+- Use the exact key spelling and nesting shown in RETURN JSON ONLY / RETURN EXACTLY. Key order does not matter.
+- Every analytical value is a JSON string. Every evidence mapping value is a JSON array of exact evidence-ID strings.
+- confidence and source_assessment, where applicable, must use only the enumerated values.
+- Before returning, parse the object mentally as strict JSON and verify that every opening bracket and quote is closed.
+- The downstream parser may repair harmless representation differences, but factual and evidence requirements are never relaxed.
+
 NON-NEGOTIABLE RULES
 1. Never convert a headline, allegation, media inference, historical background statement, or syndicated summary into a stronger confirmed event than the evidence supports.
 2. Preserve confirmed, suspected, probable, possible, reported, preliminary, and under-investigation status.

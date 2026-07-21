@@ -49,6 +49,14 @@ INCLUDE: design limitations, bias, confounding, sample size, controls, generalis
 EXCLUDE: methods unless they constitute a concrete limitation; do not repeat the design description.
 Use 1-2 complete sentences.
 
+PROVIDER-COMPATIBILITY CONTRACT (MANDATORY)
+- Return one complete JSON object only. No Markdown fence, comments, preface, suffix, trailing comma, Python literal, null analytical fields, or alternate field names.
+- Use the exact key spelling and nesting shown in RETURN JSON ONLY / RETURN EXACTLY. Key order does not matter.
+- Every analytical value is a JSON string. Every evidence mapping value is a JSON array of exact evidence-ID strings.
+- confidence and source_assessment, where applicable, must use only the enumerated values.
+- Before returning, parse the object mentally as strict JSON and verify that every opening bracket and quote is closed.
+- The downstream parser may repair harmless representation differences, but factual and evidence requirements are never relaxed.
+
 NON-NEGOTIABLE FACT RULES
 - Do not invent any place, sample, method, result, number, effect, P value, confidence interval, comparator or causal conclusion.
 - Preserve every reported number, unit, negation, uncertainty term, virus name, host, assay, drug and vaccine.

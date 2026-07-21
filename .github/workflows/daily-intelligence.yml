@@ -1,4 +1,4 @@
-name: Weekly 21-Virus Intelligence Cycle v17.1
+name: Weekly 21-Virus Intelligence Cycle v17.2
 
 on:
   schedule:
@@ -179,8 +179,10 @@ jobs:
           PIF_REVIEW_ALLOW_CORE_TERMS_FALLBACK: "false"
           PIF_REVIEW_CLIFF_GUARD_ENABLED: ${{ vars.PIF_REVIEW_CLIFF_GUARD_ENABLED || 'true' }}
           PIF_REVIEW_CLIFF_GUARD_MIN_CANDIDATES: ${{ vars.PIF_REVIEW_CLIFF_GUARD_MIN_CANDIDATES || '100' }}
+          PIF_REVIEW_CLIFF_GUARD_RATIO_MIN_CANDIDATES: ${{ vars.PIF_REVIEW_CLIFF_GUARD_RATIO_MIN_CANDIDATES || '10' }}
           PIF_REVIEW_CLIFF_GUARD_MIN_ACCEPTED: ${{ vars.PIF_REVIEW_CLIFF_GUARD_MIN_ACCEPTED || '10' }}
           PIF_REVIEW_CLIFF_GUARD_PREVIOUS_RATIO: ${{ vars.PIF_REVIEW_CLIFF_GUARD_PREVIOUS_RATIO || '0.20' }}
+          PIF_REVIEW_CLIFF_GUARD_TRIGGER_RATIO: ${{ vars.PIF_REVIEW_CLIFF_GUARD_TRIGGER_RATIO || '0.30' }}
           PIF_REVIEW_CLIFF_GUARD_MIN_ACCEPTED_RATIO: ${{ vars.PIF_REVIEW_CLIFF_GUARD_MIN_ACCEPTED_RATIO || '0.15' }}
           PIF_RENDER_OPERATIONAL_NOTICES: "false"
           PIF_PUBLIC_OVERVIEW_COMPACT: ${{ vars.PIF_PUBLIC_OVERVIEW_COMPACT || 'true' }}
@@ -259,6 +261,9 @@ jobs:
           PIF_ANALYSIS_FULLTEXT_TOP_N: ${{ vars.PIF_ANALYSIS_FULLTEXT_TOP_N || '12' }}
           PIF_ANALYSIS_CROSSCHECK_TOP_N: ${{ vars.PIF_ANALYSIS_CROSSCHECK_TOP_N || '5' }}
           PIF_LLM_CACHE_SUCCESS_ONLY: ${{ vars.PIF_LLM_CACHE_SUCCESS_ONLY || 'true' }}
+          PIF_LLM_FIELD_REPAIR_ENABLED: ${{ vars.PIF_LLM_FIELD_REPAIR_ENABLED || 'true' }}
+          PIF_LLM_FIELD_REPAIR_ROUNDS: ${{ vars.PIF_LLM_FIELD_REPAIR_ROUNDS || '2' }}
+          PIF_RELEVANCE_REJECTION_AUDIT_MAX: ${{ vars.PIF_RELEVANCE_REJECTION_AUDIT_MAX || '500' }}
           PIF_LLM_DISABLE_THINKING: ${{ vars.PIF_LLM_DISABLE_THINKING || 'true' }}
           PIF_LLM_PROVIDER_COOLDOWN_SECONDS: ${{ vars.PIF_LLM_PROVIDER_COOLDOWN_SECONDS || '60' }}
           PIF_DEEPSEEK_GRANTED_BALANCE_ONLY: ${{ vars.PIF_DEEPSEEK_GRANTED_BALANCE_ONLY || 'true' }}
@@ -382,18 +387,72 @@ jobs:
               continue
             fi
 
-            python scripts/validate_wechat_package.py "$OUT/wechat-package"
+            # Validate both public HTML and the immutable WeChat package. A
+            # legitimate source language or recoverable card structure must not
+            # terminate the profile after the evidence pipeline has succeeded.
             set +e
+            python scripts/validate_wechat_package.py "$OUT/wechat-package" \
+              >"/tmp/${PROFILE_ID}.wechat-validate.initial.log" 2>&1
+            WECHAT_VALIDATE_STATUS=$?
             python scripts/audit_rendered_html.py \
               "$OUT/site/index.html" \
               --json-out "$OUT/data/audit/rendered_html_quality.initial.json"
             HTML_AUDIT_STATUS=$?
             set -e
-            if [[ $HTML_AUDIT_STATUS -ne 0 ]]; then
-              echo "::warning::Initial rendered HTML audit failed; applying deterministic language-contract recovery and rerendering."
-              python scripts/recover_language_contract.py --output-dir "$OUT"
-              python scripts/validate_wechat_package.py "$OUT/wechat-package"
+
+            if [[ $WECHAT_VALIDATE_STATUS -ne 0 || $HTML_AUDIT_STATUS -ne 0 ]]; then
+              cat "/tmp/${PROFILE_ID}.wechat-validate.initial.log" >&2 || true
+              if [[ ! -s "$OUT/data/audit/rendered_html_quality.initial.json" ]]; then
+                printf '{"status":"failed","findings":[{"severity":"critical","code":"wechat_package_validation_failed"}]}\n' \
+                  > "$OUT/data/audit/rendered_html_quality.initial.json"
+              fi
+              echo "::warning::Initial output-contract validation failed; applying deterministic language, metadata and supplementary-structure recovery."
+              python scripts/recover_render_contract.py \
+                --output-dir "$OUT" \
+                --audit-json "$OUT/data/audit/rendered_html_quality.initial.json"
             fi
+
+            set +e
+            python scripts/validate_wechat_package.py "$OUT/wechat-package" \
+              >"/tmp/${PROFILE_ID}.wechat-validate.recovered.log" 2>&1
+            RECOVERED_WECHAT_STATUS=$?
+            python scripts/audit_rendered_html.py \
+              "$OUT/site/index.html" \
+              --json-out "$OUT/data/audit/rendered_html_quality.recovered.json"
+            RECOVERED_HTML_STATUS=$?
+            set -e
+
+            if [[ $RECOVERED_WECHAT_STATUS -ne 0 || $RECOVERED_HTML_STATUS -ne 0 ]]; then
+              cat "/tmp/${PROFILE_ID}.wechat-validate.recovered.log" >&2 || true
+              echo "::warning::Recovered output remains unsafe; rebuilding both Pages and WeChat outputs from metadata-only records while preserving private source data."
+              python scripts/build_safe_render_fallback.py \
+                --output-dir "$OUT" \
+                --source-audit "$OUT/data/audit/rendered_html_quality.recovered.json"
+            fi
+
+            set +e
+            python scripts/validate_wechat_package.py "$OUT/wechat-package" \
+              >"/tmp/${PROFILE_ID}.wechat-validate.safe.log" 2>&1
+            SAFE_WECHAT_STATUS=$?
+            python scripts/audit_rendered_html.py \
+              "$OUT/site/index.html" \
+              --json-out "$OUT/data/audit/rendered_html_quality.safe.json"
+            SAFE_HTML_STATUS=$?
+            set -e
+
+            if [[ $SAFE_WECHAT_STATUS -ne 0 || $SAFE_HTML_STATUS -ne 0 ]]; then
+              cat "/tmp/${PROFILE_ID}.wechat-validate.safe.log" >&2 || true
+              echo "::warning::Metadata renderer still failed validation; using dependency-light emergency metadata output."
+              python scripts/build_emergency_output.py \
+                --output-dir "$OUT" \
+                --reason "wechat=${SAFE_WECHAT_STATUS},html=${SAFE_HTML_STATUS}"
+            fi
+
+            # These final checks validate the emergency output as well. They can
+            # fail only when the validator itself or local filesystem is broken;
+            # multilingual source metadata and card structure have already been
+            # quarantined by the preceding deterministic stages.
+            python scripts/validate_wechat_package.py "$OUT/wechat-package"
             python scripts/audit_rendered_html.py \
               "$OUT/site/index.html" \
               --json-out "$OUT/data/audit/rendered_html_quality.json"

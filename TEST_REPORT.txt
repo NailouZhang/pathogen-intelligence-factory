@@ -1,49 +1,26 @@
-Pathogen Weekly21 v17.1 三仓生产工程验证报告
+Pathogen Intelligence Factory v17.2 验证报告
 生成日期                         2026-07-21
 
-系统版本                         v17.1
-私有 Factory                     pathogen-intelligence-factory 17.1.0
-公开 Pages                       pathogen-intelligence-pages v17.1
-私有 Publisher                   pathogen-wechat-publisher 7.1.0
-
-核心修复
---------------------------------
-非英文原文与英文结构化字段分离   PASS
-日文/中文/韩文/西里尔文识别      PASS
-错误语言元数据强脚本覆盖         PASS
-日文不再误报为中文               PASS
-渲染层英文要素二次净化           PASS
-工作流失败后确定性重渲染         PASS
-标准+三级终审恢复                PASS
-首次运行低接受比例15%保护         PASS
-硬身份冲突永不放宽               PASS
-低量报告继续发布                 PASS
-零安全记录合法输出               PASS
-禁止核心检索词替代终审词库       PASS
-
-完整验收
---------------------------------
-静态修改验收                     22/22 PASS
-内置病毒词库                     21/21 ready
-词库 JSON                         168 PASS
-词库 bundle                       2026.07-v17.1
-词库生成来源                     chatgpt-curated-bundled-vocabulary-v17.1
-Provider 查询覆盖                1199
-GitHub Actions YAML              6 PASS
-Shell bash -n                     PASS
+版本                              17.2.0
+pytest                            254 PASS
 Python compileall                 PASS
-Factory pytest                    244 PASS
-Publisher pytest                  14 PASS
-禽流感19/156首次低比例触发测试    PASS
-原始日文回归字符串测试           PASS
-空结果Factory→Pages→微信包        PASS
-微信包协议与字符预算校验          PASS
+Workflow YAML                     PASS
+21个Profile                       PASS
+内置词库JSON                      168 PASS
+词库bundle                        2026.07-v17.1（有意保持）
+新闻10条/30%断崖触发              PASS
+30%触发线与15%恢复目标分离        PASS
+逐条拒绝原因审计                  PASS
+硬病原身份冲突拒绝                PASS
+多语种原始标题元数据标记          PASS
+补充卡深度内容仍禁止              PASS
+LLM格式标准化和字段别名归一化     PASS
+失败字段定向修补                  PASS
+不存在证据ID严格拒绝              PASS
+正常/恢复/安全/应急四层输出        PASS
+RSV离线演示和公众号包校验          PASS
 HTML最终审计                      PASS
 
-输出连续性边界
---------------------------------
-系统保证生成可信的 recovered_output、qualified_low_volume_output 或 empty_valid_issue。
-系统不保证固定文献数量，也不会为达到数量目标接受无病毒身份记录。
-词库哈希/Schema损坏、发布包哈希不一致、无法解决的48,000字符预算、二次审计仍存在结构错误、Git鉴权或推送失败仍会阻止对应发布。
+离线测试不能替代真实GitHub、LLM、外部新闻站、公众号API及公网白名单集成测试；这些外部步骤会在生产工作流中记录网络、权限、配额和Provider错误。
 
-最终结果                         FINAL_RELEASE=PASS
+FINAL_RELEASE=PASS

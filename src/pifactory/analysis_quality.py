@@ -43,9 +43,10 @@ FAILURE_LABELS_EN = {
 
 def _group_summary(items: list[dict[str, Any]]) -> dict[str, Any]:
     statuses = Counter(clean_space((item.get("analysis") or {}).get("status")) or "missing" for item in items)
-    analyzable = statuses.get("passed", 0) + statuses.get("fallback_source_extract", 0)
+    passed_statuses = {"passed", "passed_after_local_normalization", "passed_after_field_repair"}
+    passed = sum(statuses.get(status, 0) for status in passed_statuses)
+    analyzable = passed + statuses.get("fallback_source_extract", 0)
     fallback = statuses.get("fallback_source_extract", 0)
-    passed = statuses.get("passed", 0)
     return {
         "total_items": len(items),
         "analyzable": analyzable,
@@ -74,6 +75,10 @@ def summarize_analysis_quality(
     provider_attempts: Counter[str] = Counter()
     model_attempts: Counter[str] = Counter()
     fallback_records: list[dict[str, Any]] = []
+    validation_issue_counts: Counter[str] = Counter()
+    normalization_repair_counts: Counter[str] = Counter()
+    field_repair_status_counts: Counter[str] = Counter()
+    field_repair_records: list[dict[str, Any]] = []
 
     for item_type, items in (("paper", papers), ("news", news)):
         for item in items:
@@ -85,6 +90,28 @@ def summarize_analysis_quality(
                 model_attempts[f"{provider}/{model}:{attempt.get('status') or 'unknown'}"] += 1
                 if attempt.get("status") == "failed":
                     attempt_failure_counts[clean_space(attempt.get("failure_category")) or "unknown"] += 1
+                validation = attempt.get("validation") or {}
+                for issue in validation.get("issues") or []:
+                    validation_issue_counts[clean_space(issue.get("category")) or "unknown"] += 1
+                normalization = attempt.get("normalization_audit") or {}
+                for repair in normalization.get("repairs") or []:
+                    normalization_repair_counts[clean_space(repair) or "unknown"] += 1
+            repair_audit = analysis.get("repair_audit") or {}
+            if repair_audit:
+                status = clean_space(repair_audit.get("status")) or "unknown"
+                field_repair_status_counts[status] += 1
+                initial_validation = (repair_audit.get("initial_candidate") or {}).get("validation") or {}
+                for issue in initial_validation.get("issues") or []:
+                    validation_issue_counts[clean_space(issue.get("category")) or "unknown"] += 1
+                field_repair_records.append({
+                    "type": item_type,
+                    "id": item.get("paper_id") or item.get("news_id"),
+                    "title": item.get("title"),
+                    "status": status,
+                    "rounds": repair_audit.get("rounds") or [],
+                    "initial_candidate": repair_audit.get("initial_candidate") or {},
+                    "final_validation": repair_audit.get("final_validation") or {},
+                })
             if analysis.get("status") == "fallback_source_extract":
                 category = clean_space(analysis.get("failure_category")) or "unknown"
                 failure_counts[category] += 1
@@ -153,7 +180,7 @@ def summarize_analysis_quality(
         message_en = "No global structured-analysis degradation warning was triggered."
 
     return {
-        "policy_version": "v14.5-final-display-quality-1",
+        "policy_version": "v17.2-normalization-field-repair-quality-1",
         "scope": scope,
         "severity": severity,
         "warning_ratio": warning_ratio,
@@ -167,6 +194,10 @@ def summarize_analysis_quality(
         "provider_attempts": dict(sorted(provider_attempts.items())),
         "model_attempts": dict(sorted(model_attempts.items())),
         "attempt_failure_categories": dict(sorted(attempt_failure_counts.items())),
+        "validation_issue_categories": dict(sorted(validation_issue_counts.items())),
+        "normalization_repairs": dict(sorted(normalization_repair_counts.items())),
+        "field_repair_statuses": dict(sorted(field_repair_status_counts.items())),
+        "field_repair_records": field_repair_records,
         "preflight": preflight or {},
         "fallback_records": fallback_records,
     }

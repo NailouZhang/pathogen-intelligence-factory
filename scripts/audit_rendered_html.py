@@ -115,6 +115,9 @@ class RenderAuditParser(HTMLParser):
             "lang_zh": effective_lang == "zh",
             "effective_lang": effective_lang,
             "source_original": bool(parent.get("source_original")) or "source-original" in classes,
+            "original_title_metadata": bool(parent.get("original_title_metadata"))
+            or "original-title-metadata" in classes
+            or attr.get("data-metadata-role") == "title",
             "supplementary_scope": bool(parent.get("supplementary_scope")) or "supplementary-card" in classes or "supplementary" in classes,
             "text": [],
         }
@@ -160,7 +163,7 @@ class RenderAuditParser(HTMLParser):
                     "source_original": bool(row.get("source_original")),
                 }
             )
-        if row.get("supplementary_scope") and (
+        if row.get("supplementary_scope") and not row.get("original_title_metadata") and (
             row["tag"] in {"details", "dl", "dd"}
             or "translated-body" in row["classes"]
             or "original" in row["classes"]

@@ -95,14 +95,22 @@ def _source_language(record: dict[str, Any], text: str) -> str:
     return detect_text_language(text, record.get("source_language") or record.get("language"))
 
 
-def _original_source_block(record: dict[str, Any], text: str, label: str) -> str:
+def _original_source_block(
+    record: dict[str, Any],
+    text: str,
+    label: str,
+    *,
+    metadata_role: str = "",
+) -> str:
     value = clean_space(text)
     if not value:
         return ""
     language = _source_language(record, value)
+    extra_class = " original-title-metadata" if metadata_role == "title" else ""
+    role_attr = f' data-metadata-role="{html_escape(metadata_role)}"' if metadata_role else ""
     return (
-        f'<div class="original source-original" lang="{html_escape(language)}" '
-        f'data-source-language="{html_escape(language)}"><strong>{html_escape(label)} '
+        f'<div class="original source-original{extra_class}" lang="{html_escape(language)}" '
+        f'data-source-language="{html_escape(language)}"{role_attr}><strong>{html_escape(label)} '
         f'({html_escape(language_label(language))})</strong><br>{html_escape(value)}</div>'
     )
 
@@ -176,7 +184,7 @@ def supplementary_paper_card(work: dict[str, Any], *, wechat: bool = False) -> s
     raw_title = clean_space(work.get("title_original") or work.get("title"))
     title_en = _english_display_title(work, raw_title, "Academic paper")
     title_zh = clean_space(work.get("title_zh")) or raw_title or title_en
-    original_title_block = _original_source_block(work, raw_title, "Original title") if raw_title and not is_verified_english(raw_title) else ""
+    original_title_block = _original_source_block(work, raw_title, "Original title", metadata_role="title") if raw_title and not is_verified_english(raw_title) else ""
     authors = ", ".join((work.get("authors") or [])[:10]) or "Authors unavailable"
     ids = work.get("source_ids") or {}
     links: list[str] = []
@@ -224,7 +232,7 @@ def supplementary_news_card(article: dict[str, Any], *, wechat: bool = False) ->
     raw_title = clean_space(article.get("title_original") or article.get("title"))
     title_en = _english_display_title(article, raw_title, "News article")
     title_zh = clean_space(article.get("title_zh")) or raw_title or title_en
-    original_title_block = _original_source_block(article, raw_title, "Original title") if raw_title and not is_verified_english(raw_title) else ""
+    original_title_block = _original_source_block(article, raw_title, "Original title", metadata_role="title") if raw_title and not is_verified_english(raw_title) else ""
     snippet = "" if article.get("snippet_duplicate_of_title") or (wechat and article.get("wechat_excerpt_removed")) else clean_space(article.get("excerpt") or article.get("content"))
     link = html_escape(article.get("resolved_url") or article.get("url"))
     publisher = clean_space(article.get("publisher") or article.get("source"))
@@ -729,7 +737,6 @@ def render_wechat_package(issue: dict[str, Any], output_dir: Path, cover_meta: d
         "source": {
             "profile_id": issue["profile_id"], "issue_id": issue["issue_id"], "generated_at": issue["generated_at"],
             "issue_schema_version": issue.get("schema_version"),
-            "primary_papers": len(issue.get("papers") or []),
             "primary_papers": len(issue.get("papers") or []),
             "primary_papers_displayed_wechat": audit["primary_papers_displayed"],
             "primary_papers_omitted_wechat": audit["primary_papers_omitted"],

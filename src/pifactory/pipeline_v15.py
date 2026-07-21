@@ -141,17 +141,74 @@ def _parallel_map(items: list[dict[str, Any]], fn: Any, workers: int) -> list[di
     return output
 
 
+def _review_rejection_detail(record: dict[str, Any]) -> dict[str, Any]:
+    assessment = record.get("relevance_final") or {}
+    identity = record.get("content_identity") or {}
+    reason_codes: list[str] = []
+    if record.get("identifier_conflict") or (record.get("metadata_verification") or {}).get("conflict"):
+        reason_codes.append("identifier_conflict")
+    if clean_space(record.get("content_identity_status")) == "identity_conflict":
+        reason_codes.append("content_identity_conflict")
+    if identity and identity.get("accepted") is False:
+        reason_codes.append(clean_space(identity.get("reason")) or "content_identity_rejected")
+    llm_code = clean_space(record.get("relevance_llm_code"))
+    if llm_code == "N":
+        reason_codes.append("llm_wrong_entity_or_not_relevant")
+    elif llm_code == "B":
+        reason_codes.append("llm_background_only")
+    elif llm_code == "U":
+        reason_codes.append("llm_unresolved")
+    if assessment.get("ambiguous_abbreviation_hits"):
+        reason_codes.append("ambiguous_abbreviation_without_required_context")
+    if assessment.get("excluded_hits"):
+        reason_codes.append("excluded_entity_or_wrong_meaning")
+    if not assessment.get("identity_present"):
+        reason_codes.append("virus_identity_not_established")
+    if assessment.get("decision") == "reject":
+        reason_codes.append("deterministic_score_below_threshold")
+    if not reason_codes:
+        reason_codes.append(clean_space(record.get("relevance_decision")) or "unclassified_rejection")
+    return {
+        "id": record.get("paper_id") or record.get("news_id"),
+        "title": record.get("title"),
+        "source": record.get("source"),
+        "decision": record.get("relevance_decision"),
+        "method": record.get("relevance_review_method"),
+        "cache": record.get("relevance_review_cache"),
+        "llm_code": llm_code,
+        "llm_reason": clean_space(record.get("relevance_llm_reason")),
+        "score": assessment.get("score"),
+        "identity_hits": assessment.get("identity_hits") or [],
+        "ambiguous_abbreviation_hits": assessment.get("ambiguous_abbreviation_hits") or [],
+        "excluded_hits": assessment.get("excluded_hits") or [],
+        "reason_codes": list(dict.fromkeys(reason_codes)),
+    }
+
+
 def _review_summary(rows: list[dict[str, Any]], accepted_count: int) -> dict[str, Any]:
     methods = Counter(clean_space(x.get("relevance_review_method")) or "not_recorded" for x in rows)
     decisions = Counter(clean_space(x.get("relevance_decision")) or "not_recorded" for x in rows)
     cache = Counter(clean_space(x.get("relevance_review_cache")) or "not_used" for x in rows)
+    rejected_rows = [
+        row for row in rows
+        if not clean_space(row.get("relevance_decision")).startswith("accept")
+    ]
+    details = [_review_rejection_detail(row) for row in rejected_rows]
+    reason_counts: Counter[str] = Counter()
+    for detail in details:
+        reason_counts.update(detail.get("reason_codes") or [])
+    audit_cap = max(0, int(os.getenv("PIF_RELEVANCE_REJECTION_AUDIT_MAX", "500")))
     return {
+        "policy_version": "v17.2-rejection-reason-audit-1",
         "candidates_reviewed_by_python": len(rows),
         "accepted": accepted_count,
         "rejected": max(0, len(rows) - accepted_count),
         "review_methods": dict(sorted(methods.items())),
         "review_decisions": dict(sorted(decisions.items())),
         "cache": dict(sorted(cache.items())),
+        "rejection_reason_counts": dict(sorted(reason_counts.items())),
+        "rejected_records": details[:audit_cap] if audit_cap else [],
+        "rejected_records_omitted": max(0, len(details) - audit_cap),
         "document_count_cutoff": None,
         "character_prefix_cutoff": None,
     }

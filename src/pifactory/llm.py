@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import os
@@ -77,35 +78,100 @@ class LLMError(RuntimeError):
         *,
         attempts: list[dict[str, Any]] | None = None,
         category: str = "unknown",
+        candidates: list[dict[str, Any]] | None = None,
     ) -> None:
         super().__init__(message)
         self.attempts = list(attempts or [])
         self.category = category or "unknown"
+        # Invalid-but-parsed candidates are retained for bounded field-level
+        # repair. They contain no credentials and remain in the private audit.
+        self.candidates = list(candidates or [])
 
 
-def _extract_json(text: str) -> dict[str, Any] | list[Any]:
-    raw = text.strip()
-    if raw.startswith("```"):
-        raw = re.sub(r"^```(?:json)?\s*", "", raw)
-        raw = re.sub(r"\s*```$", "", raw)
-    try:
-        return json.loads(raw)
-    except json.JSONDecodeError:
-        start_obj = raw.find("{")
-        end_obj = raw.rfind("}")
-        start_arr = raw.find("[")
-        end_arr = raw.rfind("]")
-        candidates: list[str] = []
-        if start_obj >= 0 and end_obj > start_obj:
-            candidates.append(raw[start_obj : end_obj + 1])
-        if start_arr >= 0 and end_arr > start_arr:
-            candidates.append(raw[start_arr : end_arr + 1])
-        for candidate in candidates:
+def _balanced_json_candidates(raw: str) -> list[str]:
+    candidates: list[str] = []
+    for opening, closing in (("{", "}"), ("[", "]")):
+        for start in (index for index, char in enumerate(raw) if char == opening):
+            depth = 0
+            in_string = False
+            escaped = False
+            for index in range(start, len(raw)):
+                char = raw[index]
+                if in_string:
+                    if escaped:
+                        escaped = False
+                    elif char == "\\":
+                        escaped = True
+                    elif char == '"':
+                        in_string = False
+                    continue
+                if char == '"':
+                    in_string = True
+                elif char == opening:
+                    depth += 1
+                elif char == closing:
+                    depth -= 1
+                    if depth == 0:
+                        candidates.append(raw[start : index + 1])
+                        break
+            if candidates:
+                break
+    return candidates
+
+
+def _attach_parser_audit(value: Any, audit: dict[str, Any]) -> Any:
+    if isinstance(value, dict):
+        output = dict(value)
+        output["_pif_parser_audit"] = audit
+        return output
+    return value
+
+
+def _extract_json(text: str, *, truncated: bool = False) -> dict[str, Any] | list[Any]:
+    raw = str(text or "").replace("\ufeff", "").strip()
+    raw = re.sub(r"^```(?:json|javascript|python)?\s*", "", raw, flags=re.I)
+    raw = re.sub(r"\s*```\s*$", "", raw)
+    attempts: list[tuple[str, str]] = [("direct_json", raw)]
+    attempts.extend(("balanced_json", candidate) for candidate in _balanced_json_candidates(raw))
+
+    seen: set[str] = set()
+    for method, candidate in attempts:
+        if not candidate or candidate in seen:
+            continue
+        seen.add(candidate)
+        variants = [(method, candidate)]
+        cleaned = re.sub(r",\s*([}\]])", r"\1", candidate)
+        if cleaned != candidate:
+            variants.append((f"{method}_trailing_comma_repair", cleaned))
+        for variant_method, variant in variants:
             try:
-                return json.loads(candidate)
+                value = json.loads(variant)
+                return _attach_parser_audit(value, {
+                    "policy_version": "v17.2-flexible-json-parser-1",
+                    "method": variant_method,
+                    "response_chars": len(raw),
+                    "repaired": variant_method != "direct_json",
+                    "truncated_signal": bool(truncated),
+                })
             except json.JSONDecodeError:
-                continue
-    raise LLMError("Model response did not contain valid JSON", category="invalid_json")
+                pass
+            try:
+                value = ast.literal_eval(variant)
+                if isinstance(value, (dict, list)):
+                    return _attach_parser_audit(value, {
+                        "policy_version": "v17.2-flexible-json-parser-1",
+                        "method": f"{variant_method}_python_literal_repair",
+                        "response_chars": len(raw),
+                        "repaired": True,
+                        "truncated_signal": bool(truncated),
+                    })
+            except (SyntaxError, ValueError):
+                pass
+    category = "context_or_output_limit" if truncated or (raw.count("{") > raw.count("}")) else "invalid_json"
+    raise LLMError(
+        "Model response did not contain valid complete JSON",
+        category=category,
+    )
 
 
 def classify_llm_failure(error: Any) -> str:
@@ -428,15 +494,17 @@ class LLMRouter:
         candidates = body.get("candidates") or []
         if not candidates:
             raise LLMError(f"Gemini returned no candidates: {body}", category="empty_response")
-        parts = candidates[0].get("content", {}).get("parts", [])
+        candidate = candidates[0]
+        parts = candidate.get("content", {}).get("parts", [])
         text = "".join(str(part.get("text", "")) for part in parts)
+        finish_reason = clean_space(candidate.get("finishReason"))
         usage = body.get("usageMetadata") or {}
         normalized = {
             "prompt_tokens": usage.get("promptTokenCount") or 0,
             "completion_tokens": usage.get("candidatesTokenCount") or 0,
             "total_tokens": usage.get("totalTokenCount") or 0,
         }
-        return _extract_json(text), normalized, clean_space(body.get("modelVersion")) or model
+        return _extract_json(text, truncated=finish_reason in {"MAX_TOKENS", "RECITATION"}), normalized, clean_space(body.get("modelVersion")) or model
 
     def _openai_compatible_call(
         self,
@@ -497,8 +565,13 @@ class LLMRouter:
         choices = body.get("choices") or []
         if not choices:
             raise LLMError(f"{provider} returned no choices: {body}", category="empty_response")
-        message = choices[0].get("message") or {}
-        return _extract_json(message.get("content", "")), body.get("usage") or {}, clean_space(body.get("model")) or model
+        choice = choices[0]
+        message = choice.get("message") or {}
+        finish_reason = clean_space(choice.get("finish_reason"))
+        return _extract_json(
+            message.get("content", ""),
+            truncated=finish_reason in {"length", "max_tokens"},
+        ), body.get("usage") or {}, clean_space(body.get("model")) or model
 
     def _groq_call(self, model: str, system: str, prompt: str, temperature: float) -> tuple[Any, dict[str, Any], str]:
         return self._openai_compatible_call("groq", model, system, prompt, temperature)
@@ -633,6 +706,7 @@ class LLMRouter:
         provider_order: tuple[str, ...] | None = None,
         temperature: float = 0.1,
         validator: Any | None = None,
+        normalizer: Any | None = None,
         max_models_per_provider: int = 3,
         task_name: str = "json_task",
     ) -> LLMResult:
@@ -656,6 +730,7 @@ class LLMRouter:
         attempts_per_model = max(1, int(os.getenv("PIF_LLM_ATTEMPTS_PER_MODEL", "1")))
         cooldown_seconds = max(1, int(os.getenv("PIF_LLM_PROVIDER_COOLDOWN_SECONDS", "60")))
         configured_provider_seen = False
+        invalid_candidates: list[dict[str, Any]] = []
 
         for provider in provider_order:
             provider = provider.lower()
@@ -736,16 +811,41 @@ class LLMRouter:
                     try:
                         raw_result = caller(model, system, prompt, temperature)
                         data, usage, response_model = self._normalize_call_result(raw_result, model)
+                        parser_audit = dict(data.pop("_pif_parser_audit", {}) or {}) if isinstance(data, dict) else {}
+                        normalization_audit: dict[str, Any] = {}
+                        if normalizer:
+                            normalized = normalizer(data)
+                            if isinstance(normalized, tuple) and len(normalized) == 2:
+                                data, normalization_audit = normalized
+                            else:
+                                data = normalized
                         if validator:
-                            valid, reason = validator(data)
+                            validation = validator(data)
+                            valid = bool(validation[0]) if isinstance(validation, tuple) else bool(validation)
+                            reason = validation[1] if isinstance(validation, tuple) and len(validation) > 1 else "validation failed"
                             if not valid:
-                                raise LLMError(f"validation_failed: {reason}", category="validation_failed")
+                                detail = reason if isinstance(reason, (dict, list)) else {"message": clean_space(reason)}
+                                invalid_candidates.append({
+                                    "provider": provider,
+                                    "model": response_model,
+                                    "data": data,
+                                    "validation": detail,
+                                    "parser_audit": parser_audit,
+                                    "normalization_audit": normalization_audit,
+                                })
+                                raise LLMError(
+                                    f"validation_failed: {json.dumps(detail, ensure_ascii=False)[:1200]}",
+                                    category="validation_failed",
+                                    candidates=invalid_candidates,
+                                )
                         state.mark_success(model, usage)
                         self._persist_states()
                         attempt.update({
                             "status": "success",
                             "response_model": response_model,
                             "elapsed_ms": round((time.monotonic() - started) * 1000),
+                            "parser_audit": parser_audit,
+                            "normalization_audit": normalization_audit,
                             "usage": {
                                 "prompt_tokens": int(usage.get("prompt_tokens") or usage.get("input_tokens") or 0),
                                 "completion_tokens": int(usage.get("completion_tokens") or usage.get("output_tokens") or 0),
@@ -756,6 +856,8 @@ class LLMRouter:
                         return LLMResult(data=data, provider=provider, model=response_model, attempts=attempts)
                     except Exception as exc:
                         category = classify_llm_failure(exc)
+                        if isinstance(exc, LLMError) and getattr(exc, "candidates", None):
+                            invalid_candidates = list(exc.candidates)
                         state.mark_failure(model, category, cooldown_seconds=self._failure_cooldown_seconds(exc, cooldown_seconds))
                         self._persist_states()
                         attempt.update({
@@ -765,6 +867,11 @@ class LLMRouter:
                             "error": self._safe_error_text(exc),
                             "elapsed_ms": round((time.monotonic() - started) * 1000),
                         })
+                        if category == "validation_failed" and invalid_candidates:
+                            latest_invalid = invalid_candidates[-1]
+                            attempt["validation"] = latest_invalid.get("validation") or {}
+                            attempt["parser_audit"] = latest_invalid.get("parser_audit") or {}
+                            attempt["normalization_audit"] = latest_invalid.get("normalization_audit") or {}
                         attempts.append(attempt)
                         retryable = category in {
                             "rate_limited", "timeout", "provider_unavailable", "network_error", "empty_response",
@@ -780,7 +887,7 @@ class LLMRouter:
         else:
             category = summarize_attempt_categories(attempts)
             message = f"All configured LLM attempts failed ({category})"
-        raise LLMError(message, attempts=attempts, category=category)
+        raise LLMError(message, attempts=attempts, category=category, candidates=invalid_candidates)
 
     def usage_snapshot(self) -> dict[str, Any]:
         return {

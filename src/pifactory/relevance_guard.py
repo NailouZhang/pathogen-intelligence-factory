@@ -127,9 +127,16 @@ def _relaxed_accept(record: dict[str, Any], profile: dict[str, Any], kind: str, 
 
 def _guard_settings() -> dict[str, float | int]:
     return {
+        # The absolute-count floor remains conservative for large pools.
         "min_candidates": int(os.getenv("PIF_REVIEW_CLIFF_GUARD_MIN_CANDIDATES", "100")),
+        # Ratio/historical collapse detection covers medium pools independently
+        # from the conservative absolute-count gate.
+        "ratio_min_candidates": int(os.getenv("PIF_REVIEW_CLIFF_GUARD_RATIO_MIN_CANDIDATES", "10")),
         "min_accepted": int(os.getenv("PIF_REVIEW_CLIFF_GUARD_MIN_ACCEPTED", "10")),
         "previous_ratio": float(os.getenv("PIF_REVIEW_CLIFF_GUARD_PREVIOUS_RATIO", "0.20")),
+        # Trigger and recovery target are intentionally different. A 30% trigger
+        # requests review; it never means that 30% must be force-accepted.
+        "trigger_acceptance_ratio": float(os.getenv("PIF_REVIEW_CLIFF_GUARD_TRIGGER_RATIO", "0.30")),
         "minimum_acceptance_ratio": float(os.getenv("PIF_REVIEW_CLIFF_GUARD_MIN_ACCEPTED_RATIO", "0.15")),
     }
 
@@ -138,23 +145,74 @@ def _cliff_detected(candidate_count: int, accepted_count: int, previous_accepted
     settings = _guard_settings()
     reasons: list[str] = []
     min_candidates = int(settings["min_candidates"])
+    ratio_min_candidates = int(settings["ratio_min_candidates"])
     if candidate_count >= min_candidates and accepted_count < int(settings["min_accepted"]):
         reasons.append("absolute_acceptance_floor")
-    if candidate_count >= min_candidates and candidate_count and accepted_count / candidate_count < float(settings["minimum_acceptance_ratio"]):
+    if (
+        candidate_count >= ratio_min_candidates
+        and candidate_count
+        and accepted_count / candidate_count < float(settings["trigger_acceptance_ratio"])
+    ):
         reasons.append("candidate_acceptance_ratio")
-    if previous_accepted and previous_accepted >= int(settings["min_accepted"]) and accepted_count < previous_accepted * float(settings["previous_ratio"]):
+    if (
+        candidate_count >= ratio_min_candidates
+        and previous_accepted
+        and previous_accepted >= int(settings["min_accepted"])
+        and accepted_count < previous_accepted * float(settings["previous_ratio"])
+    ):
         reasons.append("historical_acceptance_ratio")
     return bool(reasons), reasons
 
 
 def _target_count(candidate_count: int, previous_accepted: int | None, reasons: list[str]) -> int:
     settings = _guard_settings()
-    targets = [int(settings["min_accepted"])]
+    targets: list[int] = []
+    # The fixed ten-record floor belongs only to the large-pool absolute-floor
+    # alarm.  A ratio-only alarm in a 10-record pool must not request all ten.
+    if "absolute_acceptance_floor" in reasons:
+        targets.append(int(settings["min_accepted"]))
     if "candidate_acceptance_ratio" in reasons:
         targets.append(math.ceil(candidate_count * float(settings["minimum_acceptance_ratio"])))
-    if previous_accepted:
+    if "historical_acceptance_ratio" in reasons and previous_accepted:
         targets.append(math.ceil(previous_accepted * float(settings["previous_ratio"])))
-    return min(candidate_count, max(targets))
+    return min(candidate_count, max(targets or [0]))
+
+
+def _initial_rejection_diagnostic(record: dict[str, Any], profile: dict[str, Any], kind: str) -> dict[str, Any]:
+    final = record.get("relevance_final") or {}
+    identity = record.get("content_identity") or {}
+    codes: list[str] = []
+    if record.get("identifier_conflict") or (record.get("metadata_verification") or {}).get("conflict"):
+        codes.append("identifier_conflict")
+    if clean_space(record.get("content_identity_status")) == "identity_conflict":
+        codes.append("content_identity_conflict")
+    if identity and identity.get("accepted") is False:
+        codes.append(clean_space(identity.get("reason")) or "content_identity_rejected")
+    llm_code = clean_space(record.get("relevance_llm_code"))
+    if llm_code:
+        codes.append(f"llm_code_{llm_code}")
+    if final.get("ambiguous_abbreviation_hits"):
+        codes.append("ambiguous_abbreviation_without_context")
+    if final.get("excluded_hits"):
+        codes.append("excluded_entity_hit")
+    if not final.get("identity_present"):
+        codes.append("identity_not_established")
+    if final.get("decision") == "reject":
+        codes.append("score_below_final_threshold")
+    if not codes:
+        codes.append(clean_space(record.get("relevance_decision")) or "unclassified_rejection")
+    fields = _field_assessments(record, profile, kind)
+    return {
+        "id": record.get("paper_id") or record.get("news_id"),
+        "title": record.get("title"),
+        "decision": record.get("relevance_decision"),
+        "method": record.get("relevance_review_method"),
+        "llm_code": llm_code,
+        "llm_reason": clean_space(record.get("relevance_llm_reason")),
+        "reason_codes": list(dict.fromkeys(codes)),
+        "final_assessment": final,
+        "field_assessments": fields,
+    }
 
 
 def apply_relevance_cliff_guard(
@@ -169,7 +227,7 @@ def apply_relevance_cliff_guard(
     detected, reasons = _cliff_detected(len(candidates), len(accepted), previous_accepted)
     target = _target_count(len(candidates), previous_accepted, reasons) if detected else len(accepted)
     audit: dict[str, Any] = {
-        "policy_version": "v17.1-three-level-field-aware-output-continuity-1",
+        "policy_version": "v17.2-ratio-trigger-reasoned-recovery-1",
         "kind": kind,
         "enabled": enabled,
         "candidate_count": len(candidates),
@@ -178,6 +236,12 @@ def apply_relevance_cliff_guard(
         "triggered": bool(enabled and detected),
         "trigger_reasons": reasons,
         "target_accepted": target,
+        "guard_settings": _guard_settings(),
+        "initial_rejection_diagnostics": [
+            _initial_rejection_diagnostic(record, profile, kind)
+            for record in candidates
+            if record not in accepted
+        ],
         "levels": [],
         "field_thresholds": {
             "paper": {"title": [4, 3, 2, 1], "abstract": [5, 4, 3, 2], "full_body": [4, 3, 2, 1]},
@@ -185,7 +249,13 @@ def apply_relevance_cliff_guard(
         }[kind],
         "hard_conflicts_never_relaxed": True,
         "core_search_terms_fallback": False,
+        "target_cap_enforced": True,
     }
+    reason_counts: dict[str, int] = {}
+    for row in audit["initial_rejection_diagnostics"]:
+        for code in row.get("reason_codes") or []:
+            reason_counts[code] = reason_counts.get(code, 0) + 1
+    audit["initial_rejection_reason_counts"] = dict(sorted(reason_counts.items()))
     if not enabled or not detected:
         audit["final_accepted"] = len(accepted)
         audit["recovered"] = 0
@@ -201,6 +271,8 @@ def apply_relevance_cliff_guard(
         recovered: list[dict[str, Any]] = []
         rejected_audits: list[dict[str, Any]] = []
         for record in candidates:
+            if len(output) + len(recovered) >= target:
+                break
             if id(record) in output_identity_ids:
                 continue
             ok, record_audit = _relaxed_accept(record, profile, kind, level)
