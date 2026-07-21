@@ -1,0 +1,69 @@
+{
+  "policy_version": "v15-completion-before-final-relevance-2",
+  "mode": "balanced",
+  "compact_batch_tokens": 12000,
+  "escalation_batch_tokens": 10000,
+  "papers": {
+    "candidates_reviewed_by_python": 162,
+    "accepted": 15,
+    "rejected": 147,
+    "review_methods": {
+      "compact_llm": 52,
+      "python": 13,
+      "python_full_corpus_fallback": 97
+    },
+    "review_decisions": {
+      "accept": 12,
+      "accept_python_high_confidence": 1,
+      "reject": 1,
+      "reject_after_compact_llm_review": 52,
+      "reject_after_deterministic_full_review": 94,
+      "review": 2
+    },
+    "cache": {
+      "miss": 149,
+      "not_used": 13
+    },
+    "document_count_cutoff": null,
+    "character_prefix_cutoff": null
+  },
+  "news": {
+    "candidates_reviewed_by_python": 149,
+    "accepted": 15,
+    "rejected": 134,
+    "review_methods": {
+      "compact_llm": 12,
+      "python": 14,
+      "python_full_corpus_fallback": 123
+    },
+    "review_decisions": {
+      "accept_after_compact_llm_review": 1,
+      "accept_python_high_confidence": 14,
+      "reject_after_compact_llm_review": 11,
+      "reject_after_deterministic_full_review": 123
+    },
+    "cache": {
+      "miss": 135,
+      "not_used": 14
+    },
+    "document_count_cutoff": null,
+    "character_prefix_cutoff": null
+  },
+  "paper_stage_order": [
+    "candidate_gate",
+    "cross_source_dedup",
+    "ranked_batch",
+    "content_completion",
+    "final_relevance",
+    "identity_gate",
+    "analysis_translation",
+    "dynamic_replenishment"
+  ],
+  "news_stage_order": [
+    "candidate_gate",
+    "dedup",
+    "pre_fetch_relevance",
+    "body_resolution",
+    "post_fetch_relevance"
+  ]
+}
