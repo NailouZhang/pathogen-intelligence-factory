@@ -1,12 +1,17 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+PAGES_ROOT = ROOT.parent / "pathogen-intelligence-pages"
 
 
 def test_workflow_runs_at_beijing_0200_and_has_no_google_cse():
     text = (ROOT / ".github/workflows/daily-intelligence.yml").read_text(encoding="utf-8")
+    pages = (PAGES_ROOT / ".github/workflows/deploy-pages.yml").read_text(encoding="utf-8")
     assert "cron: '0 18 * * *'" in text or 'cron: "0 18 * * *"' in text
-    assert "deploy-pages@v4" in text
+    assert "deploy-pages@v4" not in text
+    assert "publish_pages_repository.sh" in text
+    assert "PAGES_REPO_TOKEN" in text
+    assert "deploy-pages@v4" in pages
     assert "intelligence-data" in text
     assert "GOOGLE_CSE" not in text
     assert "for PROFILE_ID" in text
@@ -17,4 +22,5 @@ def test_wechat_dispatch_is_best_effort_and_cannot_block_pages():
     assert "if curl --fail-with-body" in text
     assert "WeChat dispatch failed" in text
     assert "Pages generation will continue" in text
-    assert text.index("if curl --fail-with-body") < text.index("Build multi-profile Pages portal")
+    assert text.index("if curl --fail-with-body") < text.index("Build public static portal")
+    assert "continue-on-error: true" in text

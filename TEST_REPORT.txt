@@ -1,53 +1,49 @@
-Pathogen Weekly 21 v16.1 发行验证报告
+Pathogen Weekly21 v17.1 三仓生产工程验证报告
+生成日期                         2026-07-21
 
-版本
-两仓系统                         v16.1
-公开仓                           pathogen-intelligence-factory 16.1.0
-私有仓                           pathogen-wechat-publisher 6.1.0
-issue schema                     6.2
-微信包契约                       pathogen-wechat-package/v2
-manifest schema                  2
+系统版本                         v17.1
+私有 Factory                     pathogen-intelligence-factory 17.1.0
+公开 Pages                       pathogen-intelligence-pages v17.1
+私有 Publisher                   pathogen-wechat-publisher 7.1.0
 
-代码与契约验收
-公开仓 pytest                    225 passed
-私有仓 pytest                    12 passed
-YAML 解析                        26 files PASS
-Profile 契约                     21 profiles PASS
-Python compileall                PASS
-Shell bash -n                    PASS
-Bundle 静态验证                  PASS
-LLM测试环境隔离                  PASS
-唯一固定路径与持久工具入口       PASS
+核心修复
+--------------------------------
+非英文原文与英文结构化字段分离   PASS
+日文/中文/韩文/西里尔文识别      PASS
+错误语言元数据强脚本覆盖         PASS
+日文不再误报为中文               PASS
+渲染层英文要素二次净化           PASS
+工作流失败后确定性重渲染         PASS
+标准+三级终审恢复                PASS
+首次运行低接受比例15%保护         PASS
+硬身份冲突永不放宽               PASS
+低量报告继续发布                 PASS
+零安全记录合法输出               PASS
+禁止核心检索词替代终审词库       PASS
 
-微信公众号字符预算压力测试
-输入                              50主文献+100补充文献+50主新闻+100补充新闻
-人为放大内容                      长摘要、长七要素、长五要素、长RSS简讯、长总览
-压缩前可见字符                    341679
-压缩后可见字符                    47331
-最大预算                          48000
-前10篇完整主文献保护              PASS
-微信专用字段显示上限              PASS
-主文献末位详情精简                PASS
-主新闻简报删除                    PASS
-补充新闻简讯删除                  PASS
-补充文献从末位向前省略            PASS
-补充新闻从末位向前省略            PASS
-极端主新闻省略与最低保留          PASS
-顶部篇幅说明                      PASS
-Pages完整补充目录                 PASS
-公开微信包校验器                  PASS
-私有Publisher二次校验             PASS
+完整验收
+--------------------------------
+静态修改验收                     22/22 PASS
+内置病毒词库                     21/21 ready
+词库 JSON                         168 PASS
+词库 bundle                       2026.07-v17.1
+词库生成来源                     chatgpt-curated-bundled-vocabulary-v17.1
+Provider 查询覆盖                1199
+GitHub Actions YAML              6 PASS
+Shell bash -n                     PASS
+Python compileall                 PASS
+Factory pytest                    244 PASS
+Publisher pytest                  14 PASS
+禽流感19/156首次低比例触发测试    PASS
+原始日文回归字符串测试           PASS
+空结果Factory→Pages→微信包        PASS
+微信包协议与字符预算校验          PASS
+HTML最终审计                      PASS
 
-升级与发行验收
-v16.0→v16.1补丁git apply --check PASS
-补丁实际应用                      PASS
-补丁后代码树一致性                PASS
-完整ZIP unzip -t                 PASS
-公开仓ZIP unzip -t               PASS
-私有仓ZIP unzip -t               PASS
-完整ZIP内部SHA-256               PASS
-从完整ZIP运行Bundle验证           PASS
-update_from_tmp-v16.1 validate    PASS
+输出连续性边界
+--------------------------------
+系统保证生成可信的 recovered_output、qualified_low_volume_output 或 empty_valid_issue。
+系统不保证固定文献数量，也不会为达到数量目标接受无病毒身份记录。
+词库哈希/Schema损坏、发布包哈希不一致、无法解决的48,000字符预算、二次审计仍存在结构错误、Git鉴权或推送失败仍会阻止对应发布。
 
-生产边界
-正在运行的旧GitHub Actions任务固定使用启动时的commit，不会热加载v16.1。它可以继续完成，但必须在v16.1推送main后重新触发Profile，才能验收真实GitHub、外部数据源、LLM、Pages、跨仓dispatch、本地Runner和微信公众号draft/add链路中的新预算逻辑。
+最终结果                         FINAL_RELEASE=PASS

@@ -142,14 +142,10 @@ def test_overview_statistics_are_rendered_as_v15_lifecycle_lines():
     }
     html = _overview_statlines(issue)
     assert 'class="overview-statline"' in html
-    assert "数据库记录 2,208 条" in html
-    assert "跨库去重后 224 条" in html
-    assert "终审后形成 96 条可核验目录" in html
-    assert "有摘要或全文 82 条" in html
-    assert "仅元数据 14 条" in html
-    assert "主报告 50 篇" in html
-    assert "补充文献 46 篇" in html
-    assert "Top50表示进入深度主报告，而不是删除阈值" in html
+    assert "文献：检索2,208｜日期窗1,800｜去重224｜终审96｜主报告50｜补充46" in html
+    assert "新闻：检索111｜日期窗90｜主新闻20｜补充0" in html
+    assert "Top50" not in html
+    assert "证据边界" not in html
 
 
 def test_news_url_cleaning_removes_tracking_parameters():

@@ -1,0 +1,65 @@
+name: Rebuild and Publish Public Pages v17.1
+
+on:
+  workflow_dispatch:
+    inputs:
+      required_profile:
+        description: Optional profile that must exist in the public portal
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pathogen-intelligence-pages-sync
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout private Factory code
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          path: app
+
+      - name: Checkout durable intelligence data
+        uses: actions/checkout@v6
+        with:
+          ref: intelligence-data
+          path: data
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install portal dependency
+        run: python -m pip install --disable-pip-version-check PyYAML
+
+      - name: Rebuild public-only portal
+        shell: bash
+        env:
+          REQUIRED_PROFILE: ${{ inputs.required_profile }}
+        run: |
+          set -Eeuo pipefail
+          python app/scripts/build_portal.py \
+            --data-root data \
+            --output /tmp/pages_site \
+            --schedule app/config/weekly_virus_schedule.yaml
+          test -s /tmp/pages_site/index.html
+          test -s /tmp/pages_site/portal.json
+          if [[ -n "$REQUIRED_PROFILE" ]]; then
+            test -s "/tmp/pages_site/profiles/$REQUIRED_PROFILE/index.html"
+          fi
+
+      - name: Sync public Pages repository
+        shell: bash
+        env:
+          PAGES_REPO_TOKEN: ${{ secrets.PAGES_REPO_TOKEN }}
+          PAGES_REPO: ${{ vars.PAGES_REPO || 'NailouZhang/pathogen-intelligence-pages' }}
+          PAGES_REPO_BRANCH: ${{ vars.PAGES_REPO_BRANCH || 'main' }}
+        run: bash app/scripts/publish_pages_repository.sh /tmp/pages_site

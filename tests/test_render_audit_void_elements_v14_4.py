@@ -49,6 +49,8 @@ def test_void_tags_never_remain_on_parser_stack() -> None:
             "text": "中文字段内容足够长，用于检查语言继承。",
             "lang_en": False,
             "lang_zh": True,
+            "effective_lang": "zh",
+            "source_original": False,
         }
     ]
 

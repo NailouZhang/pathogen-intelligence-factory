@@ -93,7 +93,7 @@ def main() -> int:
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);font-family:Arial,"Noto Sans CJK SC","Microsoft YaHei",sans-serif;color:#263442}}
 .hero{{background:linear-gradient(135deg,#263b50,#344e65);color:white;padding:42px 22px;text-align:center}}
 .hero h1{{margin:0;font-size:30px}}.hero p{{opacity:.86;line-height:1.8}}
-.wrap{{max-width:1180px;margin:26px auto;padding:0 18px}}.notice{{background:var(--cream);border-left:6px solid #fbd38d;padding:18px 20px;border-radius:10px;margin-bottom:22px;line-height:1.8}}
+.wrap{{max-width:1180px;margin:26px auto;padding:0 18px}}
 .grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}}
 .card{{display:block;background:white;border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;box-shadow:0 5px 20px rgba(25,55,80,.09);transition:.2s}}
 .card:hover{{transform:translateY(-3px);box-shadow:0 9px 28px rgba(25,55,80,.15)}}.card img{{width:100%;height:150px;object-fit:cover;background:#2c3e50}}
@@ -102,8 +102,7 @@ h2{{margin:13px 0 5px;color:#1a365d;font-size:21px}}.en{{color:var(--muted);min-
 .metrics span{{background:#f0fff4;color:#1e7e34;border-radius:8px;padding:7px 10px;font-size:13px}}footer{{text-align:center;color:#718096;padding:30px}}.empty{{padding:30px;background:white;border-radius:12px}}
 </style></head><body>
 <section class="hero"><h1>全球病毒文献情报周循环</h1><p>北京时间每日 02:00 顺序运行 · 每种病毒每周一次 · 过去 7 天高质量文献与权威新闻</p></section>
-<main class="wrap"><div class="notice"><strong>调度策略：</strong>周一 3 种病毒，其余每天 2 种；每个病原最多展示质量排序后的前 50 篇文献和前 50 条权威新闻。点击卡片进入该病原的完整双语日报。</div>
-<div class="grid">{card_html}</div></main><footer>Pathogen Intelligence Factory · GitHub Actions + Evidence-aware LLM pipeline</footer></body></html>'''
+<main class="wrap"><div class="grid">{card_html}</div></main><footer>病原文献与新闻情报 · Pathogen literature and news intelligence</footer></body></html>'''
     (output / "index.html").write_text(index, encoding="utf-8")
     (output / "portal.json").write_text(json.dumps(cards, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print({"profiles": len(cards), "output": str(output)})

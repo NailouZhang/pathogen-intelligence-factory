@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from datetime import date, datetime
 from typing import Any
@@ -321,18 +322,36 @@ def _overview_validator(valid_ids: set[str], kind: str):
     return validator
 
 
+def _brief_items(data: dict[str, Any], language: str) -> list[str]:
+    key = f"key_findings_{language}"
+    default_limit = 120 if language == "zh" else 220
+    env_key = "PIF_BRIEF_ZH_MAX_CHARS_PER_ITEM" if language == "zh" else "PIF_BRIEF_EN_MAX_CHARS_PER_ITEM"
+    try:
+        limit = max(40, min(500, int(os.getenv(env_key, str(default_limit)))))
+    except ValueError:
+        limit = default_limit
+    try:
+        max_items = max(3, min(8, int(os.getenv("PIF_BRIEF_MAX_ITEMS", "5"))))
+    except ValueError:
+        max_items = 5
+    items = [_clip_complete_sentences(x, limit) for x in data.get(key) or [] if clean_space(x)]
+    items = [x for x in items if x][:max_items]
+    lead = _clip_complete_sentences(data.get(f"lead_{language}"), limit)
+    if lead and not any(sentence_similarity(lead, x) >= 0.90 for x in items):
+        items.insert(0, lead)
+    return items[:max_items]
+
+
+def _finalize_block(data: dict[str, Any]) -> dict[str, Any]:
+    data["brief_items_zh"] = _brief_items(data, "zh")
+    data["brief_items_en"] = _brief_items(data, "en")
+    data["zh"] = "；".join(data["brief_items_zh"])
+    data["en"] = " ".join(data["brief_items_en"])
+    return data
+
+
 def _compose_zh(data: dict[str, Any]) -> str:
-    parts = [clean_space(data.get("lead_zh"))]
-    findings = [clean_space(x) for x in data.get("key_findings_zh") or [] if clean_space(x)]
-    if findings:
-        parts.append("核心进展：" + "；".join(findings))
-    trend = clean_space(data.get("trend_or_risk_zh"))
-    caveats = clean_space(data.get("caveats_zh"))
-    if trend:
-        parts.append(trend)
-    if caveats:
-        parts.append("证据边界：" + caveats)
-    return clean_space(" ".join(parts))
+    return "；".join(_brief_items(data, "zh"))
 
 
 def _literature_fallback(profile: dict[str, Any], papers: list[dict[str, Any]]) -> dict[str, Any]:
@@ -358,12 +377,12 @@ def _literature_fallback(profile: dict[str, Any], papers: list[dict[str, Any]]) 
         ids.append(_paper_citation_id(paper))
     data = {
         "headline_zh": f"{name}本期文献呈现多方向研究进展",
-        "lead_zh": f"本期重点文献按发表日期、相关性、证据等级和研究质量综合排序，研究结果与综述证据分别核验后形成以下进展。",
+        "lead_zh": f"本期{name}研究集中呈现以下进展。",
         "key_findings_zh": findings[:5] or ["本期未形成可公开发布的重点文献结论。"],
         "trend_or_risk_zh": "本期研究方向以入选文献实际覆盖的临床、流行病学、宿主生态、诊断或分子监测主题为准。",
-        "caveats_zh": "部分证据来自摘要、观察性研究或叙述性综述，结论应结合研究设计和证据等级理解。",
+        "caveats_zh": "",
         "headline_en": f"Recent {profile.get('display_name_en') or profile.get('profile_id')} literature",
-        "lead_en": "This literature brief prioritizes publications in the active reporting window and ranks them by relevance, evidence availability, study quality, recency and source convergence.",
+        "lead_en": "This reporting window highlights the following research developments.",
         "key_findings_en": [
             _clip_complete_sentences(
                 ((paper.get("elements_en") or paper.get("analysis_en") or (paper.get("analysis") or {}).get("analysis") or {}).get(
@@ -374,16 +393,14 @@ def _literature_fallback(profile: dict[str, Any], papers: list[dict[str, Any]]) 
             for paper in papers[:5]
         ] or ["No literature item passed all publication, relevance, content and analysis gates."],
         "trend_or_risk_en": "The direction of this week's research is defined by the clinical, epidemiological, ecological, diagnostic and molecular topics actually represented by the eligible publications.",
-        "caveats_en": "Some evidence is abstract-only, observational or derived from narrative reviews; conclusions should be interpreted in light of study design and evidence strength.",
+        "caveats_en": "",
         "brief_en": "This literature brief prioritizes papers published in the active reporting window and ranks them by relevance, evidence availability, study quality, recency, and independent-source convergence. Detailed study-specific evidence is retained in the article cards below.",
         "source_ids": unique_strings(ids),
         "status": "deterministic_editorial_fallback",
         "input_count": len(papers),
         "policy_version": OVERVIEW_POLICY_VERSION,
     }
-    data["zh"] = _compose_zh(data)
-    data["en"] = data["brief_en"]
-    return data
+    return _finalize_block(data)
 
 
 def _news_fallback(profile: dict[str, Any], news: list[dict[str, Any]]) -> dict[str, Any]:
@@ -431,8 +448,8 @@ def _news_fallback(profile: dict[str, Any], news: list[dict[str, Any]]) -> dict[
     if has_valid_news:
         zh_empty = "Qualified news exists, but no compact event field was available; see the verified reports below."
         en_empty = "Qualified news exists, but no compact event field was available; see the verified reports below."
-        lead_zh = "本期新闻资格由来源、日期、正文身份和相关性终审决定；中文翻译状态不影响有效新闻的保留。中文字段不可用时，本区域使用已核验英文内容填充。"
-        lead_en = "News eligibility is determined by source, date, body identity and final relevance. Translation completeness does not determine whether an eligible report is retained."
+        lead_zh = f"本期{name_zh}新闻集中呈现以下动态。"
+        lead_en = f"This reporting window highlights the following {name_en} news developments."
     else:
         zh_empty = "本期未获得通过来源、日期、正文身份和相关性终审的有效新闻。"
         en_empty = "No news report passed the source, date, body-identity and final-relevance gates in this reporting window."
@@ -444,12 +461,12 @@ def _news_fallback(profile: dict[str, Any], news: list[dict[str, Any]]) -> dict[
         "lead_zh": lead_zh,
         "key_findings_zh": findings_zh[:5] or [zh_empty],
         "trend_or_risk_zh": "风险判断仅依据入选来源已经确认的信息，不把媒体推测升级为官方结论。",
-        "caveats_zh": "中文翻译不完整时会以英文证据填充中文显示位置，并在后台记录translation_status=english_fallback。",
+        "caveats_zh": "",
         "headline_en": f"Recent {name_en} news",
         "lead_en": lead_en,
         "key_findings_en": findings_en[:5] or [en_empty],
         "trend_or_risk_en": "Risk statements are limited to information confirmed by eligible sources and do not upgrade media speculation into official conclusions.",
-        "caveats_en": "When Chinese translation is incomplete, verified English evidence fills the Chinese display slot and is audited as translation_status=english_fallback.",
+        "caveats_en": "",
         "brief_en": " ".join(findings_en[:5]) if findings_en else en_empty,
         "source_ids": all_ids,
         "status": "deterministic_editorial_fallback",
@@ -457,9 +474,7 @@ def _news_fallback(profile: dict[str, Any], news: list[dict[str, Any]]) -> dict[
         "qualified_news_count": len(news),
         "policy_version": OVERVIEW_POLICY_VERSION,
     }
-    data["zh"] = _compose_zh(data)
-    data["en"] = data["brief_en"]
-    return data
+    return _finalize_block(data)
 
 
 def build_literature_overview(
@@ -490,9 +505,7 @@ def build_literature_overview(
         if len(data.get("key_findings_zh") or []) < 3:
             return fallback
         data.update({"status": f"{result.provider}:{result.model}", "input_count": len(records), "policy_version": OVERVIEW_POLICY_VERSION})
-        data["zh"] = _compose_zh(data)
-        data["en"] = clean_space(data.get("brief_en"))
-        return data
+        return _finalize_block(data)
     except LLMError:
         return fallback
 
@@ -541,9 +554,7 @@ def build_news_overview(
         # of which items produced Chinese findings.
         data["source_ids"] = unique_strings(item.get("news_id") for item in records)
         data["qualified_news_count"] = len(records)
-        data["zh"] = _compose_zh(data)
-        data["en"] = clean_space(data.get("brief_en"))
-        return data
+        return _finalize_block(data)
     except LLMError:
         return fallback
 

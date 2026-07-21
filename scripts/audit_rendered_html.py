@@ -93,11 +93,28 @@ class RenderAuditParser(HTMLParser):
         attr = self._attrs(attrs)
         classes = set(attr.get("class", "").split())
         parent = self.stack[-1] if self.stack else {}
+        explicit_lang = (attr.get("lang") or attr.get("data-source-language") or "").strip().lower()
+        if explicit_lang.startswith("en"):
+            effective_lang = "en"
+        elif explicit_lang.startswith("zh"):
+            effective_lang = "zh"
+        elif explicit_lang.startswith("ja"):
+            effective_lang = "ja"
+        elif explicit_lang.startswith("ko"):
+            effective_lang = "ko"
+        elif "lang-en" in classes:
+            effective_lang = "en"
+        elif "lang-zh" in classes:
+            effective_lang = "zh"
+        else:
+            effective_lang = parent.get("effective_lang") or ""
         return {
             "tag": tag,
             "classes": classes,
-            "lang_en": bool(parent.get("lang_en")) or "lang-en" in classes,
-            "lang_zh": bool(parent.get("lang_zh")) or "lang-zh" in classes,
+            "lang_en": effective_lang == "en",
+            "lang_zh": effective_lang == "zh",
+            "effective_lang": effective_lang,
+            "source_original": bool(parent.get("source_original")) or "source-original" in classes,
             "supplementary_scope": bool(parent.get("supplementary_scope")) or "supplementary-card" in classes or "supplementary" in classes,
             "text": [],
         }
@@ -139,6 +156,8 @@ class RenderAuditParser(HTMLParser):
                     "text": text,
                     "lang_en": bool(row["lang_en"]),
                     "lang_zh": bool(row["lang_zh"]),
+                    "effective_lang": row.get("effective_lang") or "",
+                    "source_original": bool(row.get("source_original")),
                 }
             )
         if row.get("supplementary_scope") and (
@@ -176,10 +195,20 @@ class RenderAuditParser(HTMLParser):
             self.stack[-1]["text"].append(data)
 
 
-def _chinese_ratio(value: str) -> float:
-    chinese = len(re.findall(r"[\u4e00-\u9fff]", value))
-    letters = len(re.findall(r"[A-Za-z\u4e00-\u9fff]", value))
-    return chinese / letters if letters else 0.0
+def _script_counts(value: str) -> dict[str, int]:
+    return {
+        "latin": len(re.findall(r"[A-Za-z\u00C0-\u024F]", value)),
+        "han": len(re.findall(r"[\u3400-\u4DBF\u4E00-\u9FFF]", value)),
+        "hiragana": len(re.findall(r"[\u3040-\u309F]", value)),
+        "katakana": len(re.findall(r"[\u30A0-\u30FF\u31F0-\u31FF]", value)),
+        "hangul": len(re.findall(r"[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF]", value)),
+        "cyrillic": len(re.findall(r"[\u0400-\u04FF]", value)),
+    }
+
+
+def _han_ratio(value: str) -> float:
+    counts = _script_counts(value)
+    return counts["han"] / max(1, counts["latin"] + counts["han"])
 
 
 def audit_html(path: Path) -> dict[str, Any]:
@@ -215,8 +244,16 @@ def audit_html(path: Path) -> dict[str, Any]:
                     "matched_phrase": placeholder_phrase,
                     "excerpt": text[:300],
                 })
-            if len(text) >= 40 and _chinese_ratio(text) >= 0.35:
-                findings.append({"severity": "critical", "code": "chinese_text_in_english_element", "dd_index": index, "excerpt": text[:300]})
+            if len(text) >= 40 and not row.get("source_original"):
+                counts = _script_counts(text)
+                if counts["hiragana"] or counts["katakana"]:
+                    findings.append({"severity": "critical", "code": "japanese_text_in_english_element", "dd_index": index, "excerpt": text[:300]})
+                elif counts["hangul"]:
+                    findings.append({"severity": "critical", "code": "korean_text_in_english_element", "dd_index": index, "excerpt": text[:300]})
+                elif counts["cyrillic"] >= 2:
+                    findings.append({"severity": "critical", "code": "cyrillic_text_in_english_element", "dd_index": index, "excerpt": text[:300]})
+                elif counts["han"] >= 2 and _han_ratio(text) >= 0.08:
+                    findings.append({"severity": "critical", "code": "chinese_text_in_english_element", "dd_index": index, "excerpt": text[:300]})
 
     for violation in parser.supplementary_violations:
         findings.append({
@@ -235,7 +272,7 @@ def audit_html(path: Path) -> dict[str, Any]:
     critical = sum(row["severity"] == "critical" for row in findings)
     warnings = sum(row["severity"] == "warning" for row in findings)
     return {
-        "schema_version": 4,
+        "schema_version": 5,
         "file": str(path),
         "paper_card_markers": parser.paper_cards,
         "supplementary_card_markers": parser.supplementary_cards,

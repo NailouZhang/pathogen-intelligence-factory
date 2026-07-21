@@ -9,6 +9,7 @@ import os
 from typing import Any
 
 from .analysis import ANALYSIS_POLICY_VERSION, analyze_news, analyze_paper, build_paper_evidence
+from .language_contract import annotate_source_language, sanitize_english_analysis
 from .analysis_quality import summarize_analysis_quality
 from .bootstrap import _fallback_profile, build_profile
 from .config import Settings, load_profile, load_seed
@@ -19,7 +20,7 @@ from .http import HttpClient
 from .llm import LLMRouter
 from .news import filter_news_window, search_bing_news, search_gdelt, search_google_news, search_reliefweb, search_who
 from .news_state import finalize_news_state, mark_source_qualified
-from .query_plan import build_query_plan, compile_query_sets
+from .query_plan import build_query_plan, build_relevance_rules, compile_query_sets
 from .event_query import (
     append_event_queries_to_plan,
     augment_news_query_sets,
@@ -28,6 +29,7 @@ from .event_query import (
     news_relevance_profile,
 )
 from .relevance import candidate_filter_news, candidate_filter_papers, filter_post_enrichment, final_filter
+from .relevance_guard import apply_relevance_cliff_guard, baseline_value, update_baseline
 from .source_status import SourceAudit
 from .ranking import rank_news, rank_papers
 from .render import render_site, render_wechat_package
@@ -305,6 +307,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     post_retrieval_vocabulary = build_post_retrieval_vocabulary(profile)
     profile["core_term_contract"] = core_term_contract
     profile["post_retrieval_vocabulary"] = post_retrieval_vocabulary
+    profile["post_retrieval_relevance_rules"] = build_relevance_rules(profile)
     query_sets = compile_query_sets(profile)
     profile["query_sets"] = query_sets
     plan = build_query_plan(profile, max_groups=120)
@@ -590,6 +593,20 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         continue_check=lambda: runtime_budget.can_start_expensive("relevance"),
     )
     progress("relevance_review", "complete", kind="news", accepted=len(news))
+    news, news_cliff_guard_audit = apply_relevance_cliff_guard(
+        news_review_population,
+        news,
+        news_profile,
+        kind="news",
+        previous_accepted=baseline_value(state, settings.profile_id, "news"),
+    )
+    update_baseline(state, settings.profile_id, "news", len(news))
+    progress(
+        "relevance_cliff_guard", "complete", kind="news",
+        triggered=news_cliff_guard_audit.get("triggered"),
+        recovered=news_cliff_guard_audit.get("recovered"),
+        accepted=len(news),
+    )
     news_after_final_gate = len(news)
 
     # v15 literature lifecycle is orchestrated in ranked batches. Existing
@@ -824,9 +841,12 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         if isinstance(cached_analysis, dict) and (
             not settings.analysis_cache_success_only or cached_analysis.get("status") == "passed"
         ):
-            item["analysis"] = cached_analysis
+            source_language = annotate_source_language(item, kind="paper")
+            item["analysis"] = sanitize_english_analysis(
+                dict(cached_analysis), kind="paper", source_language=source_language
+            )
             item["paper_type"] = cached.get("paper_type") or item.get("paper_type") or "research"
-            item["analysis_cache"] = "hit"
+            item["analysis_cache"] = "hit_language_contract_checked"
         else:
             analyze_paper(item, llm, prompts_dir)
             item["analysis_cache"] = "miss"
@@ -967,6 +987,38 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         for paper_id in catalog_order
         if paper_id in accepted_ids and paper_id in catalog_by_id
     ]
+    paper_catalog, paper_cliff_guard_audit = apply_relevance_cliff_guard(
+        paper_review_population,
+        paper_catalog,
+        profile,
+        kind="paper",
+        previous_accepted=baseline_value(state, settings.profile_id, "paper"),
+    )
+    # Recovered scholarly records must still pass the existing post-enrichment
+    # identity/metadata gate; the cliff guard only relaxes topical exclusion.
+    recovered_ids = {
+        str(item.get("paper_id")) for item in paper_catalog
+        if clean_space(item.get("relevance_decision")).startswith("accept_cliff_guard_level_")
+    }
+    if recovered_ids:
+        original_ids = set(accepted_ids)
+        recovered_rows = [item for item in paper_catalog if str(item.get("paper_id")) in recovered_ids]
+        gated_recovered = _identity_gate_paper_batch(recovered_rows, batch_label="cliff_guard_recovery")
+        accepted_recovered_ids = {str(item.get("paper_id")) for item in gated_recovered}
+        paper_catalog = [
+            item for item in paper_catalog
+            if str(item.get("paper_id")) in original_ids or str(item.get("paper_id")) in accepted_recovered_ids
+        ]
+        paper_cliff_guard_audit["identity_gate_recovered_input"] = len(recovered_rows)
+        paper_cliff_guard_audit["identity_gate_recovered_accepted"] = len(gated_recovered)
+        paper_cliff_guard_audit["final_accepted"] = len(paper_catalog)
+    update_baseline(state, settings.profile_id, "paper", len(paper_catalog))
+    progress(
+        "relevance_cliff_guard", "complete", kind="paper",
+        triggered=paper_cliff_guard_audit.get("triggered"),
+        recovered=paper_cliff_guard_audit.get("recovered"),
+        accepted=len(paper_catalog),
+    )
 
     # Phase 3: analyze only the globally ranked comparison pool. The success
     # target is 50 primary reports; the comparison pool and attempt/time budgets
@@ -1031,6 +1083,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         "escalation_batch_tokens": settings.llm_escalation_batch_tokens,
         "papers": _review_summary(paper_review_population, papers_after_final_gate),
         "news": _review_summary(news_review_population, news_after_final_gate),
+        "cliff_guard": {"papers": paper_cliff_guard_audit, "news": news_cliff_guard_audit},
         "paper_stage_order": [
             "candidate_gate", "cross_source_dedup", "ranked_batch",
             "content_completion", "final_relevance", "identity_gate",
@@ -1192,8 +1245,11 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         if isinstance(cached_analysis, dict) and (
             not settings.analysis_cache_success_only or cached_analysis.get("status") == "passed"
         ):
-            article["analysis"] = cached_analysis
-            article["analysis_cache"] = "hit"
+            source_language = annotate_source_language(article, kind="news")
+            article["analysis"] = sanitize_english_analysis(
+                dict(cached_analysis), kind="news", source_language=source_language
+            )
+            article["analysis_cache"] = "hit_language_contract_checked"
         else:
             analyze_news(article, llm, prompts_dir)
             article["analysis_cache"] = "miss"
@@ -1484,8 +1540,28 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
 
     core_term_contract = validate_frozen_core_terms(profile, strict=True)
     post_retrieval_vocabulary = build_post_retrieval_vocabulary(profile)
+    publication_continuity = {
+        "policy_version": "v17.1-valid-output-continuity-1",
+        "papers": {
+            "status": paper_cliff_guard_audit.get("continuity_status", "standard_output"),
+            "resolved_to_target": bool(paper_cliff_guard_audit.get("resolved", True)),
+            "accepted": len(paper_catalog),
+            "target": paper_cliff_guard_audit.get("target_accepted", len(paper_catalog)),
+        },
+        "news": {
+            "status": news_cliff_guard_audit.get("continuity_status", "standard_output"),
+            "resolved_to_target": bool(news_cliff_guard_audit.get("resolved", True)),
+            "accepted": len(news),
+            "target": news_cliff_guard_audit.get("target_accepted", len(news)),
+        },
+        "publication_continues_when_low_volume": True,
+        "empty_sections_are_valid": True,
+        "hard_identity_conflicts_never_relaxed": True,
+        "fabricated_records_forbidden": True,
+    }
+
     issue = {
-        "schema_version": "6.2",
+        "schema_version": "6.3",
         "issue_id": f"{settings.profile_id}-{issue_date}",
         "profile_id": settings.profile_id,
         "issue_date": issue_date,
@@ -1506,6 +1582,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         "source_status": source_status,
         "anchor_coverage": anchor_coverage,
         "relevance_review": relevance_review_summary,
+        "publication_continuity": publication_continuity,
         "analysis_quality": analysis_quality,
         "llm_usage": llm.usage_snapshot(),
         "retrieval_funnel": retrieval_funnel,
@@ -1593,6 +1670,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     dump_json(audit_dir / "source_status.json", source_status)
     dump_json(audit_dir / "anchor_coverage.json", anchor_coverage)
     dump_json(audit_dir / "relevance_review.json", relevance_review_summary)
+    dump_json(audit_dir / "relevance_cliff_guard.json", {"papers": paper_cliff_guard_audit, "news": news_cliff_guard_audit})
+    dump_json(audit_dir / "publication_continuity.json", publication_continuity)
     dump_json(audit_dir / "analysis_quality.json", {
         "candidate_pool": analysis_quality_pool,
         "displayed_primary_and_news": analysis_quality_displayed,

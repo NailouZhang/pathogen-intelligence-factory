@@ -125,13 +125,14 @@ def test_wechat_omits_bottom_supplementary_papers_and_discloses_count(tmp_path: 
     html = (tmp_path / "wechat-package/article.html").read_text(encoding="utf-8")
     manifest = json.loads((tmp_path / "wechat-package/manifest.json").read_text(encoding="utf-8"))
 
-    assert audit["policy_version"] == "v16.1-wechat-visible-text-budget-2"
+    assert audit["policy_version"] == "v17-wechat-visible-text-budget-audit-only-1"
     assert audit["within_budget"] is True
     assert audit["supplementary_papers_total"] == 100
     assert audit["supplementary_papers_omitted"] > 0
     assert audit["supplementary_papers_displayed"] + audit["supplementary_papers_omitted"] == 100
-    assert "微信公众号篇幅说明" in html
-    assert f"未在正文展开 {audit['supplementary_papers_omitted']} 篇" in html
+    assert "微信公众号篇幅说明" not in html
+    assert "未在正文展开" not in html
+    assert audit["operational_notice_rendered"] is False
     assert visible_text_count(html) <= 9000
     assert manifest["source"]["supplementary_papers"] == 100
     assert manifest["source"]["supplementary_papers_omitted_wechat"] == audit["supplementary_papers_omitted"]
@@ -175,7 +176,8 @@ def test_emergency_main_news_omission_is_audited_and_disclosed(tmp_path: Path, m
     assert audit["main_news_omitted"] > 0
     assert audit["main_news_displayed"] >= 10
     assert audit["main_news_displayed"] + audit["main_news_omitted"] == 30
-    assert "极端篇幅兜底下主新闻共 30 条" in html
+    assert "极端篇幅兜底" not in html
+    assert audit["operational_notice_rendered"] is False
     assert visible_text_count(html) <= 10500
 
 
@@ -196,4 +198,5 @@ def test_oversized_protected_content_uses_field_limits_and_can_omit_bottom_prima
     assert audit["primary_papers_displayed"] >= 10
     assert audit["primary_papers_displayed"] + audit["primary_papers_omitted"] == 30
     assert visible_text_count(html) <= 18000
-    assert "微信公众号篇幅说明" in html
+    assert "微信公众号篇幅说明" not in html
+    assert audit["operational_notice_rendered"] is False

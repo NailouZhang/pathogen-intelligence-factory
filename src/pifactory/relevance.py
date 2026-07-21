@@ -9,7 +9,7 @@ from .llm import LLMError, LLMRouter
 from .utils import clean_space, sha256_text, unique_strings
 
 
-REVIEW_POLICY_VERSION = "v16-python-first-topic-preserving-1"
+REVIEW_POLICY_VERSION = "v17-field-aware-topic-preserving-1"
 
 
 def _contains(text: str, term: str) -> bool:

@@ -11,9 +11,10 @@ from .llm import LLMError, LLMRouter, classify_llm_failure, summarize_attempt_ca
 from .evidence_selector import select_evidence_rows
 from .utils import clean_space, split_sentences, truncate
 from .postprocess import contains_cross_field_overlap, deduplicate_structured_analysis, complete_text
+from .language_contract import annotate_source_language, sanitize_english_analysis
 
 
-ANALYSIS_POLICY_VERSION = "v15.1-profile-document-type-analysis-2"
+ANALYSIS_POLICY_VERSION = "v17.1-source-language-safe-analysis-1"
 
 REVIEW_HINTS = re.compile(
     r"\b(review|systematic review|meta-analysis|narrative review|scoping review|umbrella review|viewpoint|perspective|commentary|consensus statement)\b",
@@ -259,6 +260,7 @@ def build_paper_evidence(work: dict[str, Any]) -> dict[str, Any]:
         "analysis_level": analysis_level,
         "paper_id": work.get("paper_id"),
         "title": work.get("title"),
+        "source_language": work.get("source_language") or "und",
         "bibliography": {
             "authors": (work.get("authors") or [])[:20],
             "journal": work.get("journal"),
@@ -295,6 +297,7 @@ def build_news_evidence(article: dict[str, Any]) -> dict[str, Any]:
         "policy_version": ANALYSIS_POLICY_VERSION,
         "news_id": article.get("news_id"),
         "title": article.get("title"),
+        "source_language": article.get("source_language") or "und",
         "publisher": article.get("publisher") or article.get("source"),
         "published_date": article.get("published_date"),
         "url": article.get("resolved_url") or article.get("url"),
@@ -800,6 +803,7 @@ def _crosscheck_agreement(primary: dict[str, Any], secondary: dict[str, Any], ki
     return round(sum(scores) / len(scores), 3) if scores else 0.0
 
 def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> dict[str, Any]:
+    source_language = annotate_source_language(work, kind="paper")
     kind = classify_paper(work)
     work["paper_type"] = kind
     payload = build_paper_evidence(work)
@@ -844,6 +848,7 @@ def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> di
             }
         )
         data = deduplicate_structured_analysis(data, payload, kind)
+        data = sanitize_english_analysis(data, kind="paper", source_language=source_language)
         data["analysis_level"] = payload.get("analysis_level")
         data["evidence_scope"] = payload.get("evidence_scope")
         data["evidence_selector"] = payload.get("evidence_selector") or {}
@@ -887,7 +892,10 @@ def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> di
             else _fallback_review(payload, error, attempts=attempts, failure_category=category)
         )
         fallback["prompt_compaction"] = prompt_payload.get("prompt_compaction") or {}
-        work["analysis"] = deduplicate_structured_analysis(fallback, payload, kind)
+        work["analysis"] = sanitize_english_analysis(
+            deduplicate_structured_analysis(fallback, payload, kind),
+            kind="paper", source_language=source_language,
+        )
         work["analysis_ready"] = True
     return work
 
@@ -961,6 +969,7 @@ def _fallback_news(payload: dict[str, Any], error: str, *, attempts: list[dict[s
 
 
 def analyze_news(article: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> dict[str, Any]:
+    source_language = annotate_source_language(article, kind="news")
     payload = build_news_evidence(article)
     if not payload["evidence"]:
         article["analysis"] = {
@@ -1007,6 +1016,7 @@ def analyze_news(article: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> 
             }
         )
         data = deduplicate_structured_analysis(data, payload, "news")
+        data = sanitize_english_analysis(data, kind="news", source_language=source_language)
         article["analysis"] = data
         article["analysis_ready"] = True
     except LLMError as exc:
@@ -1017,6 +1027,9 @@ def analyze_news(article: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> 
             fallback["summary_en"] = fallback["brief_en"]
             fallback["brief_generation"] = "source_short_evidence_no_llm_expansion"
         fallback["prompt_compaction"] = prompt_payload.get("prompt_compaction") or {}
-        article["analysis"] = deduplicate_structured_analysis(fallback, payload, "news")
+        article["analysis"] = sanitize_english_analysis(
+            deduplicate_structured_analysis(fallback, payload, "news"),
+            kind="news", source_language=source_language,
+        )
         article["analysis_ready"] = True
     return article

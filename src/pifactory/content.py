@@ -18,6 +18,7 @@ from .literature.enrichment import classify_scholarly_payload
 from .literature.identity import assess_completion_identity, merge_verified_candidate, register_identity_assessment
 from .browser_fetch import browser_enabled, fetch_rendered_html
 from .relevance import relevance_assessment
+from .news_quality import clean_article_dom, diagnose_news_text
 from .utils import clean_space, extract_doi, normalize_title, sha256_text, split_sentences, strip_tags, truncate, unique_strings, utc_now_iso
 
 
@@ -404,11 +405,15 @@ def _news_text_quality(text: str, title: str, *, official: bool = False) -> tupl
             "accept cookies",
         )
     )
-    standard_valid = len(value) >= 260 and len(sentences) >= 2 and not title_only and unique_ratio >= 0.10
+    diagnostic = diagnose_news_text(value, title=title, official=official)
+    standard_valid = (
+        len(value) >= 260 and len(sentences) >= 2 and not title_only
+        and unique_ratio >= 0.10 and not diagnostic.get("boilerplate_contaminated")
+    )
     # Official public-health notices are often concise. Their eligibility is
     # determined by verified source metadata and the separate pathogen body
     # identity gate, not by a minimum character count.
-    official_valid = bool(official and value and not title_only and navigation_noise == 0)
+    official_valid = bool(official and value and not title_only and navigation_noise == 0 and not diagnostic.get("boilerplate_contaminated"))
     valid = standard_valid or official_valid
     score = min(len(value), 12000) / 50 + len(sentences) * 3 + unique_ratio * 40 - navigation_noise * 10
     if title_only:
@@ -421,6 +426,7 @@ def _news_text_quality(text: str, title: str, *, official: bool = False) -> tupl
         "title_only": title_only,
         "navigation_noise": navigation_noise,
         "official_short_notice_override": bool(official_valid and not standard_valid),
+        **diagnostic,
     }
 
 
@@ -432,13 +438,15 @@ def _news_summary_quality(text: str, title: str, *, official: bool = False) -> t
     similarity = ratio(title_norm, value_norm) / 100 if title_norm and value_norm else 0.0
     tokens = re.findall(r"[A-Za-z0-9\u4e00-\u9fff]+", value)
     sentences = split_sentences(value, max_sentences=20)
+    diagnostic = diagnose_news_text(value, title=title, official=official, content_kind="summary")
     standard_valid = (
-        len(value) >= int(os.getenv("PIF_NEWS_EXCERPT_MIN_CHARS", "100"))
+        not diagnostic.get("boilerplate_contaminated")
+        and len(value) >= int(os.getenv("PIF_NEWS_EXCERPT_MIN_CHARS", "100"))
         and len(tokens) >= 18
         and similarity < 0.90
         and (len(sentences) >= 2 or len(value) >= 220)
     )
-    official_valid = bool(official and value and similarity < 0.90)
+    official_valid = bool(official and value and similarity < 0.90 and not diagnostic.get("boilerplate_contaminated"))
     valid = standard_valid or official_valid
     return valid, {
         "chars": len(value),
@@ -447,6 +455,7 @@ def _news_summary_quality(text: str, title: str, *, official: bool = False) -> t
         "title_body_similarity": round(similarity, 3),
         "title_only": similarity >= 0.90 and len(value) < 300,
         "official_short_notice_override": bool(official_valid and not standard_valid),
+        **diagnostic,
     }
 
 
@@ -529,6 +538,7 @@ def _news_content_identity(
 
 
 def _extract_news_candidates(raw: str, soup: BeautifulSoup, url: str = "") -> list[tuple[str, str]]:
+    cleaned_soup = clean_article_dom(soup, _host(url))
     _, jsonld_body = _extract_jsonld(soup)
     candidates: list[tuple[str, str]] = []
     if jsonld_body:
@@ -566,10 +576,10 @@ def _extract_news_candidates(raw: str, soup: BeautifulSoup, url: str = "") -> li
     except Exception:
         pass
 
-    article = soup.find("article") or soup.find("main") or soup.find(attrs={"role": "main"})
+    article = cleaned_soup.find("article") or cleaned_soup.find("main") or cleaned_soup.find(attrs={"role": "main"})
     if article:
         candidates.append(("article_or_main", article.get_text(" ")))
-    paragraphs = _paragraph_text(soup)
+    paragraphs = _paragraph_text(cleaned_soup)
     if paragraphs:
         candidates.append(("paragraph_selector", paragraphs))
     try:
@@ -728,7 +738,11 @@ def resolve_and_extract_news(
         best_quality = summary_quality
         best_identity = summary_identity
     else:
-        content_status = "unavailable"
+        contaminated_attempts = [
+            row for row in audit.get("extraction_attempts") or []
+            if row.get("content_quality_status") == "boilerplate_contaminated"
+        ]
+        content_status = "boilerplate_contaminated" if contaminated_attempts else "unavailable"
         content = ""
 
     record["resolved_url"] = best_url or final_url or clean_news_url(record.get("url"))

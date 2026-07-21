@@ -56,6 +56,8 @@ def _settings(tmp_path: Path) -> Settings:
     project = tmp_path / "project"
     (project / "profiles" / "hantavirus").mkdir(parents=True)
     (project / "prompts").mkdir(parents=True)
+    import shutil
+    shutil.copytree(ROOT / "config" / "vocabularies" / "hantavirus", project / "config" / "vocabularies" / "hantavirus", dirs_exist_ok=True)
     source_seed = ROOT / "profiles" / "hantavirus" / "seed.yaml"
     (project / "profiles" / "hantavirus" / "seed.yaml").write_text(source_seed.read_text(encoding="utf-8"), encoding="utf-8")
     (project / "prompts" / "review_vocabulary_v1.md").write_text("test", encoding="utf-8")
@@ -148,21 +150,21 @@ def test_review_vocabulary_builds_once_then_rebuilds_on_semantic_change(tmp_path
     settings = _settings(tmp_path)
     seed_path = settings.project_root / "profiles/hantavirus/seed.yaml"
     seed = yaml.safe_load(seed_path.read_text(encoding="utf-8"))
-    profile = deterministic_profile(seed, [])
-    first, audit1 = ensure_review_vocabulary(settings, profile, HttpClient("test"), UnavailableLLM(), demo=False)
+    first, audit1 = ensure_review_vocabulary(settings, deterministic_profile(seed, []), HttpClient("test"), UnavailableLLM(), demo=False)
     assert audit1["rebuild_required"] is True
-    assert audit1["generated_by"].startswith("deterministic_seed_vocabulary")
+    assert audit1["generated_by"] == "chatgpt-curated-bundled-vocabulary-v17.1"
+    assert audit1["fallback_to_core_search_terms"] is False
 
     second, audit2 = ensure_review_vocabulary(settings, deterministic_profile(seed, []), HttpClient("test"), UnavailableLLM(), demo=False)
     assert audit2["rebuild_required"] is False
     assert second["profile_semantic_fingerprint"] == first["profile_semantic_fingerprint"]
 
+    # Runtime seed edits cannot silently replace the reviewed bundled contract.
     seed["search_strategy"]["concepts"][0]["scholarly"] += " changed"
-    seed_path.write_text(yaml.safe_dump(seed, allow_unicode=True, sort_keys=False), encoding="utf-8")
     changed, audit3 = ensure_review_vocabulary(settings, deterministic_profile(seed, []), HttpClient("test"), UnavailableLLM(), demo=False)
-    assert audit3["rebuild_required"] is True
-    assert audit3["trigger"] == "profile_semantic_change"
-    assert changed["profile_semantic_fingerprint"] != first["profile_semantic_fingerprint"]
+    assert audit3["rebuild_required"] is False
+    assert audit3["trigger"] == "validated_bundled_reuse"
+    assert changed["profile_semantic_fingerprint"] == first["profile_semantic_fingerprint"]
 
 
 def test_all_llm_routes_start_gemini_and_end_groq(monkeypatch) -> None:

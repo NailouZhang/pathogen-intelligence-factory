@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import copy
 import os
+import re
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
 from .utils import clean_space, dump_json, html_escape, truncate
+from .public_display import build_display_issue
+from .language_contract import detect_text_language, is_verified_english, language_label
 
 COLORS = {
     "navy": "#2c3e50", "paper_green": "#27ae60", "paper_green_dark": "#1e7e34",
@@ -17,7 +20,7 @@ COLORS = {
 
 SITE_CSS = """
 :root{--navy:#2c3e50;--green:#27ae60;--red:#c53030;--amber:#c05621;--line:#e2e8f0;--muted:#718096}
-*{box-sizing:border-box}body{margin:0;background:#f4f7f9;color:#333;font-family:Arial,'Noto Sans CJK SC',sans-serif}a{color:#0366d6;text-decoration:none}.page{max-width:1040px;margin:18px auto;background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1)}.hero{background:var(--navy);color:#fff;text-align:center}.hero img{width:100%;display:block;max-height:442px;object-fit:cover}.hero-text{padding:16px 26px 20px}.hero h1{margin:0;font-size:30px}.hero p{margin:6px 0 0;opacity:.82}.overview{padding:18px 22px;background:#fffcf0;border-bottom:4px solid #fbd38d}.overview h2{color:var(--amber);margin:0 0 8px;font-size:19px}.overview p{margin:5px 0;line-height:1.75}.overview-statline{padding:10px 22px;background:#edf2f7;border-bottom:1px solid var(--line);font-size:14px;line-height:1.65;font-weight:700;color:#2d3748}.overview-statline p{margin:2px 0}.statistics-note{padding:7px 22px;background:#f8fafc;border-bottom:1px solid var(--line);font-size:12px;line-height:1.6;color:#586069}.toolbar{display:flex;justify-content:flex-end;gap:8px;padding:9px 24px;border-bottom:1px solid var(--line)}button{font:inherit;border:1px solid var(--line);background:#fff;padding:6px 10px;cursor:pointer}.stats{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--line)}.stats div{padding:12px 8px;text-align:center;border-right:1px solid var(--line)}.stats div:last-child{border-right:0}.stats strong{font-size:25px;color:var(--red);display:block}.content{padding:22px}.content section{margin-top:24px}.content section:first-child{margin-top:0}.section-title{font-size:21px;padding-left:12px;margin:0 0 11px;border-left:6px solid}.section-title.research,.section-title.review{color:var(--green);border-color:var(--green)}.section-title.supplementary{color:#4a5568;border-color:#a0aec0}.section-title.news{color:var(--red);border-color:var(--red)}.card{margin-bottom:10px;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff}.supplementary-card{border-style:dashed;background:#fbfdff}.meta-strip{padding:7px 12px;background:#f8fafc;border-bottom:1px solid var(--line);font-size:12px;color:#666;line-height:1.55}.card-body{padding:12px 14px}.card h3{font-size:18px;color:#1a365d;line-height:1.45;margin:0}.title-en{font-size:13px;color:var(--muted);font-style:italic;margin-top:3px;line-height:1.45}.authors{font-size:13px;color:#586069;margin:5px 0}.translated-body{font-size:15px;line-height:1.75;margin:7px 0;padding:10px 12px;border-radius:6px;background:#f0fff4}.news .translated-body{background:#fff5f5}.translated-body strong{display:block;margin-bottom:4px;color:#1e7e34}.news .translated-body strong{color:var(--red)}details{margin-top:7px;border-top:1px dotted var(--line);border-bottom:1px dotted var(--line);padding:6px 0}summary{cursor:pointer;font-weight:700;color:var(--amber)}.five-grid{display:grid;grid-template-columns:88px 1fr;gap:5px 9px;margin-top:6px;font-size:14px;line-height:1.55}.five-grid dt{font-weight:700;color:var(--amber)}.five-grid dd{margin:0}.original{font-size:13px;line-height:1.65;color:#666;background:#f8fafc;padding:9px 11px;margin-top:6px;border-radius:6px}.links{text-align:right;font-size:13px;margin-top:7px;font-weight:700}.tier-badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:700;margin-right:6px}.tier-A{background:#e6fffa;color:#06735f}.tier-B{background:#ebf8ff;color:#2b6cb0}.tier-C{background:#f7fafc;color:#718096;border:1px solid #e2e8f0}footer{background:var(--navy);color:#fff;padding:16px;text-align:center;font-size:11px;line-height:1.6}[hidden]{display:none!important}@media(max-width:700px){.page{margin:0;border-radius:0}.content{padding:14px}.stats{grid-template-columns:repeat(2,1fr)}.five-grid{grid-template-columns:70px 1fr}.toolbar{justify-content:center;padding:8px}}
+*{box-sizing:border-box}body{margin:0;background:#f4f7f9;color:#333;font-family:Arial,'Noto Sans CJK SC',sans-serif}a{color:#0366d6;text-decoration:none}.page{max-width:1040px;margin:18px auto;background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.1)}.hero{background:var(--navy);color:#fff;text-align:center}.hero img{width:100%;display:block;max-height:442px;object-fit:cover}.hero-text{padding:16px 26px 20px}.hero h1{margin:0;font-size:30px}.hero p{margin:6px 0 0;opacity:.82}.overview{padding:14px 22px;background:#fffcf0;border-bottom:3px solid #fbd38d}.overview h2{color:var(--amber);margin:0 0 8px;font-size:19px}.overview ul{margin:5px 0 0;padding-left:21px;line-height:1.7}.overview li{margin:4px 0}.overview-statline{padding:7px 22px;background:#fff;border-bottom:1px solid var(--line);font-size:12px;line-height:1.5;font-weight:400;color:#888}.overview-statline p{margin:1px 0}.toolbar{display:flex;justify-content:flex-end;gap:8px;padding:9px 24px;border-bottom:1px solid var(--line)}button{font:inherit;border:1px solid var(--line);background:#fff;padding:6px 10px;cursor:pointer}.stats{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--line)}.stats div{padding:12px 8px;text-align:center;border-right:1px solid var(--line)}.stats div:last-child{border-right:0}.stats strong{font-size:25px;color:var(--red);display:block}.content{padding:22px}.content section{margin-top:24px}.content section:first-child{margin-top:0}.section-title{font-size:21px;padding-left:12px;margin:0 0 11px;border-left:6px solid}.section-title.research,.section-title.review{color:var(--green);border-color:var(--green)}.section-title.supplementary{color:#4a5568;border-color:#a0aec0}.section-title.news{color:var(--red);border-color:var(--red)}.card{margin-bottom:10px;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff}.supplementary-card{border-style:dashed;background:#fbfdff}.meta-strip{padding:7px 12px;background:#f8fafc;border-bottom:1px solid var(--line);font-size:12px;color:#666;line-height:1.55}.card-body{padding:12px 14px}.card h3{font-size:18px;color:#1a365d;line-height:1.45;margin:0}.title-en{font-size:13px;color:var(--muted);font-style:italic;margin-top:3px;line-height:1.45}.authors{font-size:13px;color:#586069;margin:5px 0}.translated-body{font-size:15px;line-height:1.75;margin:7px 0;padding:10px 12px;border-radius:6px;background:#f0fff4}.news .translated-body{background:#fff5f5}.translated-body strong{display:block;margin-bottom:4px;color:#1e7e34}.news .translated-body strong{color:var(--red)}details{margin-top:7px;border-top:1px dotted var(--line);border-bottom:1px dotted var(--line);padding:6px 0}summary{cursor:pointer;font-weight:700;color:var(--amber)}.five-grid{display:grid;grid-template-columns:88px 1fr;gap:5px 9px;margin-top:6px;font-size:14px;line-height:1.55}.five-grid dt{font-weight:700;color:var(--amber)}.five-grid dd{margin:0}.original{font-size:13px;line-height:1.65;color:#666;background:#f8fafc;padding:9px 11px;margin-top:6px;border-radius:6px}.links{text-align:right;font-size:13px;margin-top:7px;font-weight:700}.tier-badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:700;margin-right:6px}.tier-A{background:#e6fffa;color:#06735f}.tier-B{background:#ebf8ff;color:#2b6cb0}.tier-C{background:#f7fafc;color:#718096;border:1px solid #e2e8f0}footer{background:var(--navy);color:#fff;padding:16px;text-align:center;font-size:11px;line-height:1.6}[hidden]{display:none!important}@media(max-width:700px){.page{margin:0;border-radius:0}.content{padding:14px}.stats{grid-template-columns:repeat(2,1fr)}.five-grid{grid-template-columns:70px 1fr}.toolbar{justify-content:center;padding:8px}}
 """
 
 SITE_JS = r"""
@@ -72,8 +75,47 @@ def _news_fields_en() -> list[tuple[str, str]]:
     return [("Time", "time"), ("Location and population", "location_and_population"), ("Event", "event"), ("Scale, impact and risk", "scale_impact_and_risk"), ("Response, status and uncertainty", "response_status_and_uncertainty")]
 
 
-def _five_elements(data: dict[str, Any], fields: list[tuple[str, str]], missing_text: str = "原始证据未报告") -> str:
-    return "".join(f"<dt>{html_escape(label)}</dt><dd>{html_escape(data.get(key) or missing_text)}</dd>" for label, key in fields)
+def _five_elements(
+    data: dict[str, Any],
+    fields: list[tuple[str, str]],
+    missing_text: str = "原始证据未报告",
+    *,
+    language: str = "zh",
+) -> str:
+    rows: list[str] = []
+    for label, key in fields:
+        value = clean_space(data.get(key)) or missing_text
+        if language == "en" and not is_verified_english(value):
+            value = "The supplied source-language evidence could not be converted into verified English for this element."
+        rows.append(f'<dt>{html_escape(label)}</dt><dd lang="{html_escape(language)}">{html_escape(value)}</dd>')
+    return "".join(rows)
+
+
+def _source_language(record: dict[str, Any], text: str) -> str:
+    return detect_text_language(text, record.get("source_language") or record.get("language"))
+
+
+def _original_source_block(record: dict[str, Any], text: str, label: str) -> str:
+    value = clean_space(text)
+    if not value:
+        return ""
+    language = _source_language(record, value)
+    return (
+        f'<div class="original source-original" lang="{html_escape(language)}" '
+        f'data-source-language="{html_escape(language)}"><strong>{html_escape(label)} '
+        f'({html_escape(language_label(language))})</strong><br>{html_escape(value)}</div>'
+    )
+
+
+def _english_display_title(record: dict[str, Any], original_title: str, kind_label: str) -> str:
+    translated = clean_space(record.get("title_en"))
+    if translated and is_verified_english(translated):
+        return translated
+    original = clean_space(original_title)
+    if original and is_verified_english(original):
+        return original
+    language = _source_language(record, original)
+    return f"{kind_label} ({language_label(language)} original; verified English title unavailable)"
 
 
 def _tier_badge(item: dict[str, Any], *, wechat: bool = False) -> str:
@@ -100,10 +142,14 @@ def paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
     if wechat and work.get("wechat_omitted"):
         return ""
     kind = work.get("paper_type") or "research"
-    title_en = clean_space(work.get("wechat_title_en") if wechat else work.get("title")) or clean_space(work.get("title")) or "Untitled"
-    title_zh = clean_space(work.get("wechat_title_zh") if wechat else work.get("title_zh")) or clean_space(work.get("title_zh")) or title_en
+    raw_title = clean_space(work.get("title_original") or work.get("title"))
+    title_en = clean_space(work.get("wechat_title_en")) if wechat else ""
+    title_en = title_en or _english_display_title(work, raw_title, "Academic paper")
+    title_zh = clean_space(work.get("wechat_title_zh") if wechat else work.get("title_zh")) or clean_space(work.get("title_zh")) or raw_title or title_en
+    original_title_block = _original_source_block(work, raw_title, "Original title") if raw_title and not is_verified_english(raw_title) else ""
     abstract_zh = clean_space(work.get("wechat_abstract_zh") if wechat else (work.get("abstract_zh") or work.get("summary_zh")))
-    original = clean_space(work.get("abstract") or work.get("full_text_excerpt"))
+    original = clean_space(work.get("abstract_original") or work.get("abstract") or work.get("full_text_excerpt"))
+    original_block = _original_source_block(work, original, "Original abstract")
     authors = clean_space(work.get("wechat_authors")) if wechat else ""
     authors = authors or ", ".join((work.get("authors") or [])[:10]) or "Authors unavailable"
     elements_zh = (work.get("wechat_elements_zh") if wechat else None) or work.get("elements_zh") or work.get("analysis_zh") or {}
@@ -121,14 +167,16 @@ def paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
     if wechat:
         deep_html = "" if hide_details else f'''<section style="margin:7px 0;padding:10px 12px;border-radius:6px;background:{COLORS['paper_green_bg']};font-size:15px;line-height:1.75;"><strong style="display:block;margin-bottom:4px;color:{COLORS['paper_green_dark']};">摘要中文翻译</strong>{html_escape(abstract_zh)}</section><section style="margin-top:6px;padding:9px 11px;border-left:4px solid {COLORS['amber_line']};background:{COLORS['amber_bg']};font-size:14px;line-height:1.65;"><strong style="color:{COLORS['amber']};">{analysis_label}</strong><dl style="margin:5px 0 0;">{_five_elements(elements_zh, _paper_fields(kind))}</dl></section>'''
         return f'''<section style="margin:0 0 10px;border:1px solid {COLORS['line']};border-radius:9px;overflow:hidden;background:#fff;"><p style="margin:0;padding:7px 11px;background:{COLORS['panel']};font-size:12px;color:#666;line-height:1.55;">{_paper_meta(work, wechat=True)}</p><section style="padding:11px 13px;"><p style="margin:0 0 3px;color:{COLORS['paper_green']};font-size:12px;font-weight:bold;">{_tier_badge(work, wechat=True)}学术文献 · {'综述' if kind == 'review' else '研究'}</p><h3 style="margin:0;color:#1a365d;font-size:18px;line-height:1.45;">{html_escape(title_zh)}</h3><p style="margin:3px 0 5px;color:{COLORS['muted']};font-size:13px;font-style:italic;line-height:1.45;">{html_escape(title_en)}</p><p style="margin:4px 0;color:#586069;font-size:13px;"><strong>Authors:</strong> {html_escape(authors)}</p>{deep_html}</section></section>'''
-    return f'''<article class="card paper"><div class="meta-strip">{_paper_meta(work)}</div><div class="card-body"><div style="font-size:12px;color:{COLORS['paper_green']};font-weight:700;margin-bottom:4px;"><span class="lang-zh">{_tier_badge(work)}学术文献 · {'综述' if kind == 'review' else '研究'}</span><span class="lang-en" hidden>{_tier_badge_en(work)}Academic literature · {'Review' if kind == 'review' else 'Research'}</span></div><div class="lang-zh"><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div><div class="authors"><strong>作者：</strong> {html_escape(authors)}</div><div class="translated-body"><strong>摘要中文翻译</strong>{html_escape(abstract_zh)}</div><details><summary>查看{analysis_label}</summary><dl class="five-grid">{_five_elements(elements_zh, _paper_fields(kind))}</dl></details></div><div class="lang-en" hidden><h3>{html_escape(title_en)}</h3><div class="authors"><strong>Authors:</strong> {html_escape(authors)}</div><div class="original"><strong>Original Abstract</strong><br>{html_escape(original)}</div><details><summary>View {'review five-element analysis' if kind == 'review' else 'research seven-element analysis'}</summary><dl class="five-grid">{_five_elements(elements_en, _paper_fields_en(kind), 'Not reported in the supplied evidence.')}</dl></details></div><div class="links"><span class="lang-zh">{' · '.join(links)}</span><span class="lang-en" hidden>{' · '.join(links)}</span></div></div></article>'''
+    return f'''<article class="card paper"><div class="meta-strip">{_paper_meta(work)}</div><div class="card-body"><div style="font-size:12px;color:{COLORS['paper_green']};font-weight:700;margin-bottom:4px;"><span class="lang-zh">{_tier_badge(work)}学术文献 · {'综述' if kind == 'review' else '研究'}</span><span class="lang-en" hidden>{_tier_badge_en(work)}Academic literature · {'Review' if kind == 'review' else 'Research'}</span></div><div class="lang-zh"><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div><div class="authors"><strong>作者：</strong> {html_escape(authors)}</div><div class="translated-body"><strong>摘要中文翻译</strong>{html_escape(abstract_zh)}</div><details><summary>查看{analysis_label}</summary><dl class="five-grid">{_five_elements(elements_zh, _paper_fields(kind))}</dl></details></div><div class="lang-en" hidden><h3>{html_escape(title_en)}</h3>{original_title_block}<div class="authors"><strong>Authors:</strong> {html_escape(authors)}</div>{original_block}<details><summary>View {'review five-element analysis' if kind == 'review' else 'research seven-element analysis'}</summary><dl class="five-grid">{_five_elements(elements_en, _paper_fields_en(kind), 'Not reported in the supplied evidence.', language='en')}</dl></details></div><div class="links"><span class="lang-zh">{' · '.join(links)}</span><span class="lang-en" hidden>{' · '.join(links)}</span></div></div></article>'''
 
 
 def supplementary_paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
     if wechat and work.get("wechat_omitted"):
         return ""
-    title_en = clean_space(work.get("title")) or "Untitled"
-    title_zh = clean_space(work.get("title_zh")) or title_en
+    raw_title = clean_space(work.get("title_original") or work.get("title"))
+    title_en = _english_display_title(work, raw_title, "Academic paper")
+    title_zh = clean_space(work.get("title_zh")) or raw_title or title_en
+    original_title_block = _original_source_block(work, raw_title, "Original title") if raw_title and not is_verified_english(raw_title) else ""
     authors = ", ".join((work.get("authors") or [])[:10]) or "Authors unavailable"
     ids = work.get("source_ids") or {}
     links: list[str] = []
@@ -139,37 +187,44 @@ def supplementary_paper_card(work: dict[str, Any], *, wechat: bool = False) -> s
         if work.get("url"): links.append(f'<a href="{html_escape(work["url"])}">来源</a>')
     if wechat:
         return f'''<section style="margin:0 0 7px;padding:9px 11px;border:1px dashed #a0aec0;background:#f8fafc;border-radius:8px;"><h3 style="margin:0;color:#2d3748;font-size:16px;line-height:1.45;">{html_escape(title_zh)}</h3><p style="margin:2px 0;color:#718096;font-size:12px;font-style:italic;">{html_escape(title_en)}</p><p style="margin:3px 0;font-size:12px;color:#586069;">{html_escape(work.get('journal'))} · {html_escape(work.get('canonical_publication_date') or work.get('availability_date'))}</p></section>'''
-    return f'''<article class="card supplementary-card supplementary"><div class="meta-strip">{_paper_meta(work)}</div><div class="card-body"><div class="lang-zh"><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div><div class="authors"><strong>作者：</strong> {html_escape(authors)}</div></div><div class="lang-en" hidden><h3>{html_escape(title_en)}</h3><div class="authors"><strong>Authors:</strong> {html_escape(authors)}</div></div><div class="links">{' · '.join(links)}</div></div></article>'''
+    return f'''<article class="card supplementary-card supplementary"><div class="meta-strip">{_paper_meta(work)}</div><div class="card-body"><div class="lang-zh"><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div><div class="authors"><strong>作者：</strong> {html_escape(authors)}</div></div><div class="lang-en" hidden><h3>{html_escape(title_en)}</h3>{original_title_block}<div class="authors"><strong>Authors:</strong> {html_escape(authors)}</div></div><div class="links">{' · '.join(links)}</div></div></article>'''
 
 
 def news_card(article: dict[str, Any], *, wechat: bool = False) -> str:
     if wechat and article.get("wechat_omitted"):
         return ""
-    title_en = clean_space(article.get("wechat_title_en") if wechat else article.get("title")) or clean_space(article.get("title")) or "Untitled"
-    title_zh = clean_space(article.get("wechat_title_zh") if wechat else article.get("title_zh")) or clean_space(article.get("title_zh")) or title_en
+    raw_title = clean_space(article.get("title_original") or article.get("title"))
+    title_en = clean_space(article.get("wechat_title_en")) if wechat else ""
+    title_en = title_en or _english_display_title(article, raw_title, "News article")
+    title_zh = clean_space(article.get("wechat_title_zh") if wechat else article.get("title_zh")) or clean_space(article.get("title_zh")) or raw_title or title_en
+    original_title_block = _original_source_block(article, raw_title, "Original title") if raw_title and not is_verified_english(raw_title) else ""
     brief_zh_full = clean_space(article.get("content_zh") or article.get("summary_zh") or article.get("wechat_summary_zh"))
     wechat_brief_limit = max(100, int(os.getenv("PIF_WECHAT_NEWS_MAX_ZH_CHARS", "500")))
     brief_zh_wechat = truncate(
         article.get("wechat_summary_zh") or article.get("content_zh") or article.get("summary_zh"),
         wechat_brief_limit,
     )
-    brief_en = clean_space((article.get("analysis") or {}).get("brief_en") or article.get("brief_en") or article.get("content") or article.get("excerpt"))
+    brief_en = clean_space((article.get("analysis") or {}).get("brief_en") or article.get("brief_en"))
+    source_news_text = clean_space(article.get("content_original") or article.get("content") or article.get("excerpt"))
+    source_news_block = _original_source_block(article, source_news_text, "Original source text")
     elements_zh = (article.get("wechat_elements_zh") if wechat else None) or article.get("elements_zh") or article.get("analysis_zh") or {}
     elements_en = article.get("elements_en") or article.get("analysis_en") or ((article.get("analysis") or {}).get("analysis") or {})
     link = html_escape(article.get("resolved_url") or article.get("url"))
     hide_brief = bool(article.get("wechat_brief_removed"))
-    fallback_note = "（中文翻译失败，本栏显示英文回退。）" if article.get("translation_status") == "english_fallback" else ""
+    fallback_note = ""
     if wechat:
         brief_html = "" if hide_brief else f'<section style="margin:7px 0;padding:10px 12px;border-radius:6px;background:{COLORS["news_red_bg"]};font-size:15px;line-height:1.75;"><strong style="display:block;margin-bottom:4px;color:{COLORS["news_red"]};">新闻简报</strong>{html_escape(brief_zh_wechat or truncate(brief_en, wechat_brief_limit))}{html_escape(fallback_note)}</section>'
         return f'''<section style="margin:0 0 10px;border:1px solid {COLORS['line']};border-radius:9px;overflow:hidden;background:#fff;"><p style="margin:0;padding:7px 11px;background:{COLORS['panel']};font-size:12px;color:#666;line-height:1.55;"><strong>Published:</strong> {html_escape(article.get('published_date'))} &nbsp;|&nbsp; <strong>Publisher:</strong> {html_escape(article.get('publisher') or article.get('source'))}</p><section style="padding:11px 13px;"><p style="margin:0 0 3px;color:{COLORS['news_red']};font-size:12px;font-weight:bold;">{_tier_badge(article, wechat=True)}公共卫生新闻</p><h3 style="margin:0;color:#1a365d;font-size:18px;line-height:1.45;">{html_escape(title_zh)}</h3><p style="margin:3px 0 5px;color:{COLORS['muted']};font-size:13px;font-style:italic;line-height:1.45;">{html_escape(title_en)}</p>{brief_html}<section style="margin-top:6px;padding:9px 11px;border-left:4px solid {COLORS['amber_line']};background:{COLORS['amber_bg']};font-size:14px;line-height:1.65;"><strong style="color:{COLORS['amber']};">新闻五要素</strong><dl style="margin:5px 0 0;">{_five_elements(elements_zh, _news_fields())}</dl></section></section></section>'''
-    return f'''<article class="card news"><div class="meta-strip"><strong>Published:</strong> {html_escape(article.get('published_date'))} &nbsp;|&nbsp; <strong>Publisher:</strong> {html_escape(article.get('publisher') or article.get('source'))}</div><div class="card-body"><div class="lang-zh"><div style="font-size:12px;color:{COLORS['news_red']};font-weight:700;margin-bottom:4px;">{_tier_badge(article)}公共卫生新闻</div><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div><div class="translated-body"><strong>新闻简报</strong>{html_escape(brief_zh_full or brief_en)}{html_escape(fallback_note)}</div><details><summary>查看新闻五要素</summary><dl class="five-grid">{_five_elements(elements_zh, _news_fields())}</dl></details></div><div class="lang-en" hidden><div style="font-size:12px;color:{COLORS['news_red']};font-weight:700;margin-bottom:4px;">{_tier_badge_en(article)}Public-health news</div><h3>{html_escape(title_en)}</h3><div class="original"><strong>News Brief</strong><br>{html_escape(brief_en)}</div><details><summary>View five news elements</summary><dl class="five-grid">{_five_elements(elements_en, _news_fields_en(), 'Not reported in the supplied evidence.')}</dl></details></div><div class="links"><a href="{link}">原文 / Source</a></div></div></article>'''
+    return f'''<article class="card news"><div class="meta-strip"><strong>Published:</strong> {html_escape(article.get('published_date'))} &nbsp;|&nbsp; <strong>Publisher:</strong> {html_escape(article.get('publisher') or article.get('source'))}</div><div class="card-body"><div class="lang-zh"><div style="font-size:12px;color:{COLORS['news_red']};font-weight:700;margin-bottom:4px;">{_tier_badge(article)}公共卫生新闻</div><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div><div class="translated-body"><strong>新闻简报</strong>{html_escape(brief_zh_full or brief_en)}{html_escape(fallback_note)}</div><details><summary>查看新闻五要素</summary><dl class="five-grid">{_five_elements(elements_zh, _news_fields())}</dl></details></div><div class="lang-en" hidden><div style="font-size:12px;color:{COLORS['news_red']};font-weight:700;margin-bottom:4px;">{_tier_badge_en(article)}Public-health news</div><h3>{html_escape(title_en)}</h3>{original_title_block}<div class="original" lang="en"><strong>News Brief</strong><br>{html_escape(brief_en)}</div>{source_news_block}<details><summary>View five news elements</summary><dl class="five-grid">{_five_elements(elements_en, _news_fields_en(), 'Not reported in the supplied evidence.', language='en')}</dl></details></div><div class="links"><a href="{link}">原文 / Source</a></div></div></article>'''
 
 
 def supplementary_news_card(article: dict[str, Any], *, wechat: bool = False) -> str:
     if wechat and article.get("wechat_omitted"):
         return ""
-    title_en = clean_space(article.get("title")) or "Untitled"
-    title_zh = clean_space(article.get("title_zh")) or title_en
+    raw_title = clean_space(article.get("title_original") or article.get("title"))
+    title_en = _english_display_title(article, raw_title, "News article")
+    title_zh = clean_space(article.get("title_zh")) or raw_title or title_en
+    original_title_block = _original_source_block(article, raw_title, "Original title") if raw_title and not is_verified_english(raw_title) else ""
     snippet = "" if article.get("snippet_duplicate_of_title") or (wechat and article.get("wechat_excerpt_removed")) else clean_space(article.get("excerpt") or article.get("content"))
     link = html_escape(article.get("resolved_url") or article.get("url"))
     publisher = clean_space(article.get("publisher") or article.get("source"))
@@ -180,15 +235,36 @@ def supplementary_news_card(article: dict[str, Any], *, wechat: bool = False) ->
         return f'''<section style="margin:0 0 7px;padding:9px 11px;border:1px dashed #d6a3a3;background:#fffafa;border-radius:8px;"><h3 style="margin:0;color:#7f1d1d;font-size:16px;line-height:1.45;">{html_escape(title_zh)}</h3><p style="margin:2px 0;color:#718096;font-size:12px;font-style:italic;">{html_escape(title_en)}</p><p style="margin:3px 0;font-size:12px;color:#586069;">{html_escape(date)} · {html_escape(publisher)}</p>{snippet_html}</section>'''
     zh_snippet = f'<p style="margin:5px 0;font-size:13px;line-height:1.65;color:#586069;">{html_escape(snippet_zh)}</p>' if snippet else ""
     en_snippet = f'<p style="margin:5px 0;font-size:13px;line-height:1.65;color:#586069;">{html_escape(snippet)}</p>' if snippet else ""
-    return f'''<article class="card supplementary-card supplementary news"><div class="meta-strip">{html_escape(date)} &nbsp;|&nbsp; {html_escape(publisher)}</div><div class="card-body"><div class="lang-zh"><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div>{zh_snippet}</div><div class="lang-en" hidden><h3>{html_escape(title_en)}</h3>{en_snippet}</div><div class="links"><a href="{link}">原文 / Source</a></div></div></article>'''
+    return f'''<article class="card supplementary-card supplementary news"><div class="meta-strip">{html_escape(date)} &nbsp;|&nbsp; {html_escape(publisher)}</div><div class="card-body"><div class="lang-zh"><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div>{zh_snippet}</div><div class="lang-en" hidden><h3>{html_escape(title_en)}</h3>{original_title_block}{en_snippet}</div><div class="links"><a href="{link}">原文 / Source</a></div></div></article>'''
 
 
 def _overview_html(block: dict[str, Any], title: str, *, wechat: bool = False) -> str:
     if not block:
         return ""
-    style = f' style="padding:16px 20px;background:{COLORS["amber_bg"]};border-bottom:4px solid {COLORS["amber_line"]};"' if wechat else ' class="overview"'
-    return f'<section{style}><h2 style="color:{COLORS["amber"]};margin:0 0 7px;font-size:18px;">{html_escape(title)}</h2><div class="lang-zh"><p>{html_escape(block.get("zh") or block.get("lead_zh"))}</p></div><div class="lang-en" hidden><p>{html_escape(block.get("en") or block.get("brief_en"))}</p></div></section>' if not wechat else f'<section{style}><h2 style="color:{COLORS["amber"]};margin:0 0 7px;font-size:18px;">{html_escape(title)}</h2><p style="margin:4px 0;line-height:1.75;">{html_escape(block.get("zh") or block.get("lead_zh"))}</p></section>'
-
+    zh_items = [clean_space(x) for x in block.get("brief_items_zh") or block.get("key_findings_zh") or [] if clean_space(x)][:5]
+    en_items = [clean_space(x) for x in block.get("brief_items_en") or block.get("key_findings_en") or [] if clean_space(x)][:5]
+    if not zh_items and clean_space(block.get("lead_zh")):
+        zh_items = [clean_space(block.get("lead_zh"))]
+    if not en_items and clean_space(block.get("lead_en") or block.get("brief_en")):
+        en_items = [clean_space(block.get("lead_en") or block.get("brief_en"))]
+    if wechat:
+        items = "".join(
+            f'<li style="margin:4px 0;line-height:1.7;">{html_escape(item)}</li>'
+            for item in zh_items
+        )
+        return (
+            f'<section style="padding:14px 20px;background:{COLORS["amber_bg"]};'
+            f'border-bottom:3px solid {COLORS["amber_line"]};">'
+            f'<h2 style="color:{COLORS["amber"]};margin:0 0 7px;font-size:18px;">{html_escape(title)}</h2>'
+            f'<ul style="margin:4px 0;padding-left:20px;font-size:14px;">{items}</ul></section>'
+        )
+    zh_html = "".join(f"<li>{html_escape(item)}</li>" for item in zh_items)
+    en_html = "".join(f"<li>{html_escape(item)}</li>" for item in en_items)
+    return (
+        f'<section class="overview"><h2>{html_escape(title)}</h2>'
+        f'<div class="lang-zh"><ul>{zh_html}</ul></div>'
+        f'<div class="lang-en" hidden><ul>{en_html}</ul></div></section>'
+    )
 
 def _overview_statlines(issue: dict[str, Any], *, wechat: bool = False) -> str:
     funnel = issue.get("retrieval_funnel") or {}
@@ -200,27 +276,50 @@ def _overview_statlines(issue: dict[str, Any], *, wechat: bool = False) -> str:
     main_news = int(news.get("displayed") or metrics.get("news") or 0)
     supplementary_news = int(news.get("supplementary_displayed") or metrics.get("supplementary_news") or 0)
     zh_paper = (
-        f"文献概览：数据库记录 {int(papers.get('raw') or 0):,} 条；规范发表日期窗口内 {int(papers.get('after_window') or 0):,} 条；"
-        f"跨库去重后 {int(papers.get('after_dedup') or 0):,} 条；终审后形成 {int(papers.get('relevant_catalog_after_completion_and_identity_gate') or 0):,} 条可核验目录；"
-        f"其中有摘要或全文 {int(papers.get('evidence_ready_catalog') or 0):,} 条、仅元数据 {int(papers.get('metadata_only_catalog') or 0):,} 条；"
-        f"主报告 {primary:,} 篇，补充文献 {supplementary:,} 篇。"
+        f"文献：检索{int(papers.get('raw') or 0):,}｜日期窗{int(papers.get('after_window') or 0):,}｜"
+        f"去重{int(papers.get('after_dedup') or 0):,}｜终审{int(papers.get('relevant_catalog_after_completion_and_identity_gate') or 0):,}｜"
+        f"主报告{primary:,}｜补充{supplementary:,}"
     )
     zh_news = (
-        f"新闻概览：检索 {int(news.get('raw') or 0):,} 条；时间窗内 {int(news.get('after_window') or 0):,} 条；"
-        f"主新闻 {main_news:,} 条，补充新闻 {supplementary_news:,} 条。完整资格清单不因公众号字符上限改变。"
+        f"新闻：检索{int(news.get('raw') or 0):,}｜日期窗{int(news.get('after_window') or 0):,}｜"
+        f"主新闻{main_news:,}｜补充{supplementary_news:,}"
     )
     en_paper = (
-        f"Literature: {int(papers.get('raw') or 0):,} database records; {int(papers.get('after_window') or 0):,} in the canonical publication window; "
-        f"{int(papers.get('after_dedup') or 0):,} after cross-source deduplication; {int(papers.get('relevant_catalog_after_completion_and_identity_gate') or 0):,} verified catalog records; "
-        f"{primary:,} primary reports and {supplementary:,} supplementary records."
+        f"Literature: retrieved {int(papers.get('raw') or 0):,} | window {int(papers.get('after_window') or 0):,} | "
+        f"deduplicated {int(papers.get('after_dedup') or 0):,} | reviewed {int(papers.get('relevant_catalog_after_completion_and_identity_gate') or 0):,} | "
+        f"primary {primary:,} | supplementary {supplementary:,}"
     )
-    en_news = f"News: {int(news.get('raw') or 0):,} retrieved; {main_news:,} main reports and {supplementary_news:,} supplementary records."
-    note_zh = "Top50表示进入深度主报告，而不是删除阈值；其余通过终审的文献进入补充文献区。完整审计保存在 data/audit；公众号正文可能按篇幅策略精简展示，完整清单保留在网页版。"
-    note_en = "Top 50 means selection for deep reporting, not deletion. Other verified relevant records remain supplementary."
+    en_news = (
+        f"News: retrieved {int(news.get('raw') or 0):,} | window {int(news.get('after_window') or 0):,} | "
+        f"main {main_news:,} | supplementary {supplementary_news:,}"
+    )
     if wechat:
-        return f'<section style="padding:9px 20px;background:#edf2f7;border-bottom:1px solid #e2e8f0;font-size:13px;line-height:1.65;font-weight:700;color:#2d3748;"><p style="margin:2px 0;">{html_escape(zh_paper)}</p><p style="margin:2px 0;">{html_escape(zh_news)}</p><p style="margin:5px 0 0;font-size:11px;font-weight:400;color:#586069;">{html_escape(note_zh)}</p></section>'
-    return f'<div class="overview-statline"><div class="lang-zh"><p>{html_escape(zh_paper)}</p><p>{html_escape(zh_news)}</p></div><div class="lang-en" hidden><p>{html_escape(en_paper)}</p><p>{html_escape(en_news)}</p></div></div><div class="statistics-note"><div class="lang-zh">{html_escape(note_zh)}</div><div class="lang-en" hidden>{html_escape(note_en)}</div></div>'
-
+        try:
+            font_size = max(10, min(16, int(os.getenv("PIF_PUBLIC_OVERVIEW_FONT_SIZE_PX", "12"))))
+        except ValueError:
+            font_size = 12
+        try:
+            line_height = max(1.2, min(2.2, float(os.getenv("PIF_PUBLIC_OVERVIEW_LINE_HEIGHT", "1.5"))))
+        except ValueError:
+            line_height = 1.5
+        try:
+            margin = max(0, min(24, int(os.getenv("PIF_PUBLIC_OVERVIEW_MARGIN_PX", "8"))))
+        except ValueError:
+            margin = 8
+        color = clean_space(os.getenv("PIF_PUBLIC_OVERVIEW_COLOR", "#888888"))
+        if not re.fullmatch(r"#[0-9A-Fa-f]{6}", color):
+            color = "#888888"
+        return (
+            f'<section style="padding:{margin}px 20px;background:#fff;border-bottom:1px solid #e2e8f0;'
+            f'font-size:{font_size}px;line-height:{line_height};font-weight:400;color:{color};">'
+            f'<p style="margin:1px 0;">{html_escape(zh_paper)}</p>'
+            f'<p style="margin:1px 0;">{html_escape(zh_news)}</p></section>'
+        )
+    return (
+        '<div class="overview-statline">'
+        f'<div class="lang-zh"><p>{html_escape(zh_paper)}</p><p>{html_escape(zh_news)}</p></div>'
+        f'<div class="lang-en" hidden><p>{html_escape(en_paper)}</p><p>{html_escape(en_news)}</p></div></div>'
+    )
 
 def _source_health(issue: dict[str, Any]) -> str:
     rows = ((issue.get("source_status") or {}).get("sources") or [])
@@ -234,6 +333,7 @@ def _section(title: str, cls: str, cards: list[str]) -> str:
 
 
 def render_site(issue: dict[str, Any], output_dir: Path) -> None:
+    issue = build_display_issue(issue)
     site_dir = output_dir / "site"
     site_dir.mkdir(parents=True, exist_ok=True)
     papers = issue.get("papers") or []
@@ -251,7 +351,15 @@ def render_site(issue: dict[str, Any], output_dir: Path) -> None:
         _section("🗂️ 补充新闻 / Supplementary News", "supplementary", [supplementary_news_card(x) for x in supplementary_news]),
     ]
     overview_html = _overview_html(overview.get("literature") or {}, "📚 本期文献进展 / Literature Brief") + _overview_html(overview.get("news") or {}, "📰 本期新闻动态 / News Brief")
-    html = f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html_escape(issue['title_zh'])}</title><style>{SITE_CSS}</style></head><body><main class="page"><header class="hero"><img src="assets/cover.jpg" alt="{html_escape(issue['title_zh'])}"><div class="hero-text"><div class="lang-zh"><h1>{html_escape(issue['title_zh'])}</h1><p>{html_escape(issue['issue_date'])} | 文献与公共卫生新闻 | {html_escape(issue['window_start'])}—{html_escape(issue['window_end'])}</p></div><div class="lang-en" hidden><h1>{html_escape(issue['title_en'])}</h1><p>{html_escape(issue['issue_date'])} | Literature and public-health news | {html_escape(issue['window_start'])}—{html_escape(issue['window_end'])}</p></div></div></header>{_overview_statlines(issue)}{overview_html}<div class="toolbar"><button class="language-toggle" data-language="zh">中文</button><button class="language-toggle" data-language="en">English</button></div><div class="stats"><div><strong>{len(research)}</strong><span class="lang-zh">主报告研究</span><span class="lang-en" hidden>Primary research</span></div><div><strong>{len(reviews)}</strong><span class="lang-zh">主报告综述</span><span class="lang-en" hidden>Primary reviews</span></div><div><strong>{len(supplementary)}</strong><span class="lang-zh">补充文献</span><span class="lang-en" hidden>Supplementary literature</span></div><div><strong>{len(news)}</strong><span class="lang-zh">主新闻</span><span class="lang-en" hidden>Main news</span></div><div><strong>{len(supplementary_news)}</strong><span class="lang-zh">补充新闻</span><span class="lang-en" hidden>Supplementary news</span></div><div><strong>{issue.get('metrics',{}).get('translated',0)}</strong><span class="lang-zh">深度双语记录</span><span class="lang-en" hidden>Deep bilingual records</span></div></div><div class="content">{"".join(sections)}</div><footer><span class="lang-zh">主报告和主新闻基于可核验证据；补充目录保留通过主题、日期、来源和去重门禁的元数据级记录。</span><span class="lang-en" hidden>Primary reports and main news use verifiable evidence; supplementary catalogs retain metadata-level records that passed topic, date, source, and deduplication gates.</span></footer></main><script>{SITE_JS}</script></body></html>'''
+    empty_state = ""
+    if not papers and not supplementary and not news and not supplementary_news:
+        empty_state = (
+            '<section class="card empty-state"><div class="card-body">'
+            '<p class="lang-zh">本期未发现通过身份、日期与相关性安全门禁的新增文献或新闻。</p>'
+            '<p class="lang-en" hidden>No new literature or news passed the identity, date, and relevance safety gates for this issue.</p>'
+            '</div></section>'
+        )
+    html = f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html_escape(issue['title_zh'])}</title><style>{SITE_CSS}</style></head><body><main class="page"><header class="hero"><img src="assets/cover.jpg" alt="{html_escape(issue['title_zh'])}"><div class="hero-text"><div class="lang-zh"><h1>{html_escape(issue['title_zh'])}</h1><p>{html_escape(issue['issue_date'])} | 文献与公共卫生新闻 | {html_escape(issue['window_start'])}—{html_escape(issue['window_end'])}</p></div><div class="lang-en" hidden><h1>{html_escape(issue['title_en'])}</h1><p>{html_escape(issue['issue_date'])} | Literature and public-health news | {html_escape(issue['window_start'])}—{html_escape(issue['window_end'])}</p></div></div></header>{_overview_statlines(issue)}{overview_html}<div class="toolbar"><button class="language-toggle" data-language="zh">中文</button><button class="language-toggle" data-language="en">English</button></div><div class="stats"><div><strong>{len(research)}</strong><span class="lang-zh">主报告研究</span><span class="lang-en" hidden>Primary research</span></div><div><strong>{len(reviews)}</strong><span class="lang-zh">主报告综述</span><span class="lang-en" hidden>Primary reviews</span></div><div><strong>{len(supplementary)}</strong><span class="lang-zh">补充文献</span><span class="lang-en" hidden>Supplementary literature</span></div><div><strong>{len(news)}</strong><span class="lang-zh">主新闻</span><span class="lang-en" hidden>Main news</span></div><div><strong>{len(supplementary_news)}</strong><span class="lang-zh">补充新闻</span><span class="lang-en" hidden>Supplementary news</span></div><div><strong>{issue.get('metrics',{}).get('translated',0)}</strong><span class="lang-zh">深度双语记录</span><span class="lang-en" hidden>Deep bilingual records</span></div></div><div class="content">{empty_state}{"".join(sections)}</div><footer><span class="lang-zh">病原文献与新闻情报</span><span class="lang-en" hidden>Pathogen literature and news intelligence</span></footer></main><script>{SITE_JS}</script></body></html>'''
     (site_dir / "index.html").write_text(html, encoding="utf-8")
     items: list[str] = []
     for item in papers[:10] + news[:10]:
@@ -370,52 +478,8 @@ def _wechat_budget_state(working: dict[str, Any], original: dict[str, Any]) -> d
 
 
 def _wechat_budget_notice(issue: dict[str, Any]) -> str:
-    state = issue.get("_wechat_budget") or {}
-    if not state.get("notice_required"):
-        return ""
-    details: list[str] = []
-    field_limits = issue.get("_wechat_field_limits") or {}
-    truncated_total = sum(int(x) for x in (field_limits.get("truncated_fields") or {}).values())
-    if truncated_total:
-        details.append(f"对超长摘要、要素、标题或总览执行显示长度保护 {truncated_total} 处")
-    if state.get("primary_papers_compacted"):
-        details.append(f"精简末位主文献详情 {int(state['primary_papers_compacted'])} 篇")
-    if state.get("primary_papers_omitted"):
-        details.append(
-            f"极端篇幅兜底下主报告文献共 {int(state['primary_papers_total'])} 篇，本页展示 "
-            f"{int(state['primary_papers_displayed'])} 篇，未在正文展开 "
-            f"{int(state['primary_papers_omitted'])} 篇"
-        )
-    if state.get("main_news_briefs_removed"):
-        details.append(f"省略末位主新闻简报 {int(state['main_news_briefs_removed'])} 条")
-    if state.get("supplementary_news_excerpts_removed"):
-        details.append(f"省略补充新闻简讯 {int(state['supplementary_news_excerpts_removed'])} 条")
-    if state.get("supplementary_papers_omitted"):
-        details.append(
-            f"补充文献共 {int(state['supplementary_papers_total'])} 篇，本页展示 "
-            f"{int(state['supplementary_papers_displayed'])} 篇，未在正文展开 "
-            f"{int(state['supplementary_papers_omitted'])} 篇"
-        )
-    if state.get("supplementary_news_omitted"):
-        details.append(
-            f"补充新闻共 {int(state['supplementary_news_total'])} 条，本页展示 "
-            f"{int(state['supplementary_news_displayed'])} 条，未在正文展开 "
-            f"{int(state['supplementary_news_omitted'])} 条"
-        )
-    if state.get("main_news_omitted"):
-        details.append(
-            f"极端篇幅兜底下主新闻共 {int(state['main_news_total'])} 条，本页展示 "
-            f"{int(state['main_news_displayed'])} 条，未在正文展开 "
-            f"{int(state['main_news_omitted'])} 条"
-        )
-    text = "；".join(details) + "。完整文献与新闻清单、全部来源及结构化内容请查看网页版。"
-    return (
-        '<section data-wechat-budget-notice="true" '
-        'style="margin:0;padding:10px 20px;background:#fff7ed;border-bottom:1px solid #fed7aa;'
-        'font-size:12px;line-height:1.7;color:#9a3412;">'
-        '<strong>微信公众号篇幅说明：</strong>' + html_escape(text) + '</section>'
-    )
-
+    del issue
+    return ""
 
 def _wechat_body(issue: dict[str, Any], source_url: str) -> str:
     papers_all = issue.get("papers") or []
@@ -430,11 +494,21 @@ def _wechat_body(issue: dict[str, Any], source_url: str) -> str:
     supplementary_html = "".join(supplementary_paper_card(x, wechat=True) for x in supplementary)
     supplementary_news_html = "".join(supplementary_news_card(x, wechat=True) for x in supplementary_news)
     source_link = f'<p style="margin:8px 0;text-align:right;font-weight:700;"><a href="{html_escape(source_url)}">查看完整网页</a></p>' if source_url else ""
-    primary_heading = f"📘 主报告文献（微信展示 {len(papers)}/{len(papers_all)}）"
-    supp_heading = f"📎 补充文献目录（微信展示 {len(supplementary)}/{len(supplementary_all)}）"
-    supp_news_heading = f"🗂️ 补充新闻（微信展示 {len(supplementary_news)}/{len(supplementary_news_all)}）"
-    main_news_heading = f"🚨 突发动态与新闻（微信展示 {len(news)}/{len(news_all)}）"
-    return f'''<section style="font-family:Arial,'Noto Sans CJK SC',sans-serif;color:#333;line-height:1.75;"><section style="padding:17px 20px;background:{COLORS['navy']};color:#fff;text-align:center;"><h1 style="margin:0;font-size:24px;">{html_escape(issue['title_zh'])}</h1><p style="margin:5px 0 0;font-size:13px;opacity:.85;">{html_escape(issue['issue_date'])} | 文献与公共卫生新闻</p></section>{_overview_statlines(issue, wechat=True)}{_wechat_budget_notice(issue)}{_overview_html(overview.get('literature') or {}, '📚 本期文献进展', wechat=True)}{_overview_html(overview.get('news') or {}, '📰 本期新闻动态', wechat=True)}<h2 style="margin:15px 0 8px;border-left:6px solid {COLORS['paper_green']};padding-left:10px;color:{COLORS['paper_green']};font-size:20px;">{html_escape(primary_heading)}</h2>{"".join(paper_card(x, wechat=True) for x in papers) or '<p>本期无满足主报告证据标准的文献。</p>'}<h2 style="margin:15px 0 8px;border-left:6px solid #a0aec0;padding-left:10px;color:#4a5568;font-size:20px;">{html_escape(supp_heading)}</h2>{supplementary_html or '<p>本期无在微信正文中展示的补充文献；完整目录请查看网页版。</p>'}<h2 style="margin:15px 0 8px;border-left:6px solid {COLORS['news_red']};padding-left:10px;color:{COLORS['news_red']};font-size:20px;">{html_escape(main_news_heading)}</h2>{"".join(news_card(x, wechat=True) for x in news) or '<p>本期无在微信正文中展示的主新闻；完整目录请查看网页版。</p>'}<h2 style="margin:15px 0 8px;border-left:6px solid #a0aec0;padding-left:10px;color:#4a5568;font-size:20px;">{html_escape(supp_news_heading)}</h2>{supplementary_news_html or '<p>本期无在微信正文中展示的补充新闻；完整目录请查看网页版。</p>'}{source_link}<p style="margin:12px 0 0;padding:12px;background:{COLORS['navy']};color:#fff;text-align:center;font-size:11px;">标准数据与完整可点击来源请通过阅读原文进入 GitHub Pages 查看。</p></section>'''
+    primary_heading = "📘 主报告文献"
+    supp_heading = "📎 补充文献目录"
+    supp_news_heading = "🗂️ 补充新闻"
+    main_news_heading = "🚨 突发动态与新闻"
+    supplementary_section = (
+        f'<h2 style="margin:15px 0 8px;border-left:6px solid #a0aec0;padding-left:10px;color:#4a5568;font-size:20px;">{html_escape(supp_heading)}</h2>{supplementary_html}'
+        if supplementary_html else ""
+    )
+    supplementary_news_section = (
+        f'<h2 style="margin:15px 0 8px;border-left:6px solid #a0aec0;padding-left:10px;color:#4a5568;font-size:20px;">{html_escape(supp_news_heading)}</h2>{supplementary_news_html}'
+        if supplementary_news_html else ""
+    )
+    paper_html = "".join(paper_card(x, wechat=True) for x in papers) or '<p>本期无满足主报告证据标准的文献。</p>'
+    news_html = "".join(news_card(x, wechat=True) for x in news) or '<p>本期无满足身份、正文与相关性标准的新闻。</p>'
+    return f'''<section style="font-family:Arial,'Noto Sans CJK SC',sans-serif;color:#333;line-height:1.75;"><section style="padding:17px 20px;background:{COLORS['navy']};color:#fff;text-align:center;"><h1 style="margin:0;font-size:24px;">{html_escape(issue['title_zh'])}</h1><p style="margin:5px 0 0;font-size:13px;opacity:.85;">{html_escape(issue['issue_date'])} | 文献与公共卫生新闻</p></section>{_overview_statlines(issue, wechat=True)}{_wechat_budget_notice(issue)}{_overview_html(overview.get('literature') or {}, '📚 本期文献进展', wechat=True)}{_overview_html(overview.get('news') or {}, '📰 本期新闻动态', wechat=True)}<h2 style="margin:15px 0 8px;border-left:6px solid {COLORS['paper_green']};padding-left:10px;color:{COLORS['paper_green']};font-size:20px;">{html_escape(primary_heading)}</h2>{paper_html}{supplementary_section}<h2 style="margin:15px 0 8px;border-left:6px solid {COLORS['news_red']};padding-left:10px;color:{COLORS['news_red']};font-size:20px;">{html_escape(main_news_heading)}</h2>{news_html}{supplementary_news_section}{source_link}</section>'''
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -445,6 +519,7 @@ def _env_bool(name: str, default: bool) -> bool:
 
 
 def render_wechat_package(issue: dict[str, Any], output_dir: Path, cover_meta: dict[str, Any]) -> dict[str, Any]:
+    issue = build_display_issue(issue)
     package = output_dir / "wechat-package"
     package.mkdir(parents=True, exist_ok=True)
     source_url = os.getenv("PIF_CONTENT_SOURCE_URL", "").strip()
@@ -598,7 +673,7 @@ def render_wechat_package(issue: dict[str, Any], output_dir: Path, cover_meta: d
         )
 
     audit = {
-        "policy_version": "v16.1-wechat-visible-text-budget-2",
+        "policy_version": "v17-wechat-visible-text-budget-audit-only-1",
         "max_visible_chars": max_chars,
         "minimum_full_papers": min_full,
         "minimum_primary_papers": min_primary_papers,
@@ -633,7 +708,8 @@ def render_wechat_package(issue: dict[str, Any], output_dir: Path, cover_meta: d
         "main_news_displayed": state["main_news_displayed"],
         "main_news_omitted": state["main_news_omitted"],
         "main_news_ids_omitted": omitted_main_news_ids,
-        "budget_notice_rendered": bool(state.get("notice_required")),
+        "budget_notice_rendered": False,
+        "operational_notice_rendered": False,
         "full_catalog_preserved_in_source_data": True,
         "supplementary_literature_preserved": len(issue.get("supplementary_papers") or []),
         "supplementary_news_preserved": len(issue.get("supplementary_news") or []),

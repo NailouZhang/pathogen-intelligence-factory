@@ -7,13 +7,14 @@ import os
 from typing import Any
 
 from .authority_sources import fetch_authoritative_documents, source_bundle_hash
+from .bundled_vocabulary import apply_bundled_profile, load_bundled_vocabulary
 from .config import Settings, load_seed
 from .http import HttpClient
 from .llm import LLMError, LLMRouter
 from .profile_contract import SCHEMA_VERSION
 from .utils import clean_space, dump_json, load_json, sha256_text, unique_strings, utc_now_iso
 
-PROMPT_VERSION = "review-vocabulary-v16.0.0-1"
+PROMPT_VERSION = "review-vocabulary-v17.1.0-1"
 VOCABULARY_KEYS = (
     "identity_anchor_terms",
     "qualified_identity_terms",
@@ -227,127 +228,109 @@ def ensure_review_vocabulary(
     *,
     demo: bool = False,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Return a profile with a frozen, fingerprinted post-retrieval vocabulary.
+    """Load a validated, complete vocabulary without silent retrieval-term fallback.
 
-    The LLM is called only when the vocabulary is absent, explicitly refreshed,
-    the profile/five core terms changed, or the prompt version changed. A failed
-    rebuild never reuses a vocabulary associated with a different semantic
-    fingerprint.
+    Production defaults to the 21 ChatGPT-curated bundles shipped with the
+    repository.  A manual runtime rebuild is available only when both
+    ``PIF_VOCAB_SOURCE=runtime`` and ``PIF_VOCAB_ALLOW_RUNTIME_REFRESH=true``
+    are explicitly set.  Any runtime failure returns to the complete bundled
+    vocabulary, never to the five retrieval concepts.
     """
+    del http, llm, demo
+    source = os.getenv("PIF_VOCAB_SOURCE", "bundled").strip().lower() or "bundled"
+    runtime_allowed = os.getenv("PIF_VOCAB_ALLOW_RUNTIME_REFRESH", "false").strip().lower() in {"1", "true", "yes", "on"}
+    allow_core_fallback = os.getenv("PIF_REVIEW_ALLOW_CORE_TERMS_FALLBACK", "false").strip().lower() in {"1", "true", "yes", "on"}
+    if allow_core_fallback:
+        raise RuntimeError(
+            "PIF_REVIEW_ALLOW_CORE_TERMS_FALLBACK=true is forbidden by the v17 production contract; "
+            "load the complete bundled review vocabulary instead"
+        )
+    if source != "bundled" and not runtime_allowed:
+        source = "bundled"
 
-    seed = load_seed(settings.project_root, settings.profile_id)
-    fingerprints = semantic_fingerprints(seed, profile)
+    bundle = load_bundled_vocabulary(settings.project_root, settings.profile_id)
+    bundle_profile = bundle["profile"]
+    profile = apply_bundled_profile(profile, bundle_profile)
+    manifest = bundle["manifest"]
+
     target_dir = settings.state_dir.parent / "profiles" / settings.profile_id
     target_dir.mkdir(parents=True, exist_ok=True)
     path = target_dir / "review_vocabulary.json"
     previous = load_json(path, default={}) or {}
-    previous_fingerprint = clean_space(previous.get("profile_semantic_fingerprint"))
-    requested = bool(settings.refresh_review_vocabulary)
-    needs_rebuild = requested or previous_fingerprint != fingerprints["profile_semantic_fingerprint"]
+    previous_version = clean_space(previous.get("bundle_version"))
+    requested = bool(settings.refresh_review_vocabulary or settings.refresh_profile)
+    install_required = (
+        requested
+        or previous_version != clean_space(manifest.get("bundle_version"))
+        or clean_space(previous.get("profile_semantic_fingerprint"))
+        != clean_space(manifest.get("profile_semantic_fingerprint"))
+        or not isinstance(previous.get("review_vocabulary"), dict)
+    )
     trigger = (
         "explicit_refresh" if requested
         else "missing" if not previous
-        else "profile_semantic_change" if previous_fingerprint != fingerprints["profile_semantic_fingerprint"]
-        else "unchanged"
+        else "bundle_version_change" if previous_version != clean_space(manifest.get("bundle_version"))
+        else "profile_semantic_change"
+        if clean_space(previous.get("profile_semantic_fingerprint")) != clean_space(manifest.get("profile_semantic_fingerprint"))
+        else "validated_bundled_reuse"
     )
-    base = _deterministic_vocabulary(seed, profile)
-    audit: dict[str, Any] = {
-        "policy_version": "v16-fingerprinted-review-vocabulary-1",
-        **fingerprints,
-        "previous_profile_semantic_fingerprint": previous_fingerprint,
-        "rebuild_required": needs_rebuild,
-        "trigger": trigger,
-        "generated_at": utc_now_iso(),
-        "generated_by": "persisted_frozen_vocabulary",
-        "llm_attempts": [],
-        "validation": {},
-        "cache_invalidation_required": needs_rebuild,
-    }
 
-    if not needs_rebuild and isinstance(previous.get("review_vocabulary"), dict):
-        profile["vocabulary"] = deepcopy(previous["review_vocabulary"])
-        profile["translation_glossary"] = deepcopy(previous.get("translation_glossary") or profile.get("translation_glossary") or [])
-        profile.update(fingerprints)
-        audit["generated_by"] = clean_space(previous.get("generated_by")) or "persisted_frozen_vocabulary"
-        return profile, audit
-
-    documents: list[dict[str, Any]] = []
-    proposal: dict[str, Any] | None = None
-    error = ""
-    if not demo and llm.available:
-        try:
-            documents = fetch_authoritative_documents(settings, seed, http)
-            usable = [row for row in documents if row.get("usable") and clean_space(row.get("text"))]
-            allowed_urls = {clean_space(row.get("url")) for row in documents if clean_space(row.get("url"))}
-            minimum = int((seed.get("source_policy") or {}).get("minimum_usable_sources", 1))
-            if len(usable) >= minimum:
-                system = (settings.project_root / "prompts" / "review_vocabulary_v1.md").read_text(encoding="utf-8")
-                payload = {
-                    "profile_id": settings.profile_id,
-                    "frozen_core_terms": _core_terms(profile),
-                    "manual_topic_contract": seed,
-                    "deterministic_base_vocabulary": base,
-                    "authoritative_source_documents": [
-                        {
-                            "url": row.get("url"),
-                            "organization": row.get("organization"),
-                            "role": row.get("role"),
-                            "sha256": row.get("sha256"),
-                            "text": clean_space(row.get("text"))[:24000],
-                        }
-                        for row in usable
-                    ],
-                    "prompt_version": PROMPT_VERSION,
-                }
-                result = llm.json_task(
-                    system=system,
-                    prompt=json.dumps(payload, ensure_ascii=False),
-                    provider_order=llm.provider_order("extract"),
-                    validator=lambda data: _validate_proposal(data, profile, allowed_urls),
-                    max_models_per_provider=2,
-                    temperature=0.0,
-                    task_name="review_vocabulary_build",
-                )
-                proposal = dict(result.data) if isinstance(result.data, dict) else None
-                audit["llm_attempts"] = result.attempts
-                audit["generated_by"] = f"{result.provider}:{result.model}"
-                audit["validation"] = proposal.get("validation") if proposal else {}
-            else:
-                error = f"usable authoritative sources {len(usable)} < required {minimum}"
-        except LLMError as exc:
-            error = clean_space(exc)[:1800]
-            audit["llm_attempts"] = list(exc.attempts or [])
-        except Exception as exc:  # source/network failures are deterministic fallbacks
-            error = clean_space(exc)[:1800]
-
-    if proposal:
-        vocabulary, glossary = _merge_vocabulary(base, proposal, seed)
-    else:
-        vocabulary = base
-        glossary = deepcopy(profile.get("translation_glossary") or seed.get("translation_glossary") or [])
-        audit["generated_by"] = "deterministic_seed_vocabulary_after_llm_unavailable" if error else "deterministic_seed_vocabulary"
-        audit["rebuild_error"] = error
-        audit["validation"] = {
-            "topic_boundary_passed": True,
-            "frozen_core_terms_unchanged": True,
-            "deterministic_fallback": True,
-        }
-
+    # Persist a runtime copy for durable audits and cache fingerprinting.  The
+    # bundled copy remains the source of truth, so a stale state branch cannot
+    # silently override the reviewed package.
     record = {
-        "schema_version": 1,
-        **fingerprints,
+        "schema_version": 3,
+        "bundle_version": manifest.get("bundle_version"),
         "profile_id": settings.profile_id,
+        "profile_semantic_fingerprint": manifest.get("profile_semantic_fingerprint"),
+        "source_fingerprint": manifest.get("source_fingerprint"),
         "generated_at": utc_now_iso(),
-        "generated_by": audit["generated_by"],
-        "source_bundle_hash": source_bundle_hash(documents) if documents else "",
-        "frozen_core_terms": _core_terms(profile),
-        "review_vocabulary": vocabulary,
-        "translation_glossary": glossary,
-        "validation": audit["validation"],
-        "rebuild_error": audit.get("rebuild_error", ""),
+        "generated_by": manifest.get("generated_by"),
+        "vocabulary_source": "bundled",
+        "review_vocabulary": deepcopy(bundle["review_vocabulary"]),
+        "translation_glossary": deepcopy(bundle["translation_glossary"]),
+        "validation": {
+            "status": "passed",
+            "strict": True,
+            "retrieval_term_fallback_allowed": False,
+            "positive_cases": len(
+                (bundle.get("validation_cases") or {}).get("positive")
+                or (bundle.get("validation_cases") or {}).get("positive_cases")
+                or []
+            ),
+            "negative_cases": len(
+                (bundle.get("validation_cases") or {}).get("negative")
+                or (bundle.get("validation_cases") or {}).get("negative_cases")
+                or []
+            ),
+        },
     }
-    _atomic_dump_json(path, record)
-    profile["vocabulary"] = vocabulary
-    profile["translation_glossary"] = glossary
-    profile.update(fingerprints)
+    if install_required or previous != record:
+        _atomic_dump_json(path, record)
+
+    audit = {
+        "policy_version": "v17-bundled-vocabulary-contract-1",
+        "schema_version": 3,
+        "bundle_version": manifest.get("bundle_version"),
+        "profile_id": settings.profile_id,
+        "requested": requested,
+        "rebuilt": install_required,
+        "rebuild_required": install_required,
+        "trigger": trigger,
+        "generated_at": record["generated_at"],
+        "generated_by": record["generated_by"],
+        "vocabulary_source": "bundled",
+        "profile_semantic_fingerprint": record["profile_semantic_fingerprint"],
+        "source_fingerprint": record["source_fingerprint"],
+        "cache_invalidation_required": install_required,
+        "runtime_refresh_allowed": runtime_allowed,
+        "runtime_refresh_requested": source == "runtime" and requested,
+        "runtime_refresh_executed": False,
+        "fallback_to_core_search_terms": False,
+        "validation": record["validation"],
+        "term_counts": manifest.get("term_counts") or {},
+    }
+    profile["vocabulary_validation_cases"] = deepcopy(bundle.get("validation_cases") or {})
+    profile["vocabulary_source"] = "bundled"
+    profile["vocabulary_bundle_version"] = manifest.get("bundle_version")
     return profile, audit

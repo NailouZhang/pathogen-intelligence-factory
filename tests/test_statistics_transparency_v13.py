@@ -37,19 +37,19 @@ def _issue() -> dict:
 
 def test_top_n_means_deep_report_not_deletion():
     html = _overview_statlines(_issue())
-    assert "15 条可核验目录" in html
-    assert "有摘要或全文 12 条" in html
-    assert "仅元数据 3 条" in html
-    assert "主报告 10 篇" in html
-    assert "补充文献 5 篇" in html
-    assert "Top50表示进入深度主报告，而不是删除阈值" in html
+    assert "文献：检索2,620｜日期窗24｜去重18｜终审15｜主报告10｜补充5" in html
+    assert "新闻：检索87｜日期窗30｜主新闻10｜补充0" in html
+    assert "Top50" not in html
+    assert "完整审计" not in html
 
 
 def test_wechat_receives_primary_and_supplementary_definition():
     html = _overview_statlines(_issue(), wechat=True)
-    assert "主报告 10 篇" in html
-    assert "补充文献 5 篇" in html
-    assert "完整审计保存在 data/audit" in html
+    assert "font-size:12px" in html
+    assert "color:#888888" in html
+    assert "主报告10" in html
+    assert "补充5" in html
+    assert "data/audit" not in html
 
 
 def test_source_health_is_backend_compatibility_only():
