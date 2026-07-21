@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-07-21T01:47:27+00:00",
+  "generated_at": "2026-07-21T16:10:43+00:00",
   "shared_state_file": "/tmp/pif_data_repo/shared/state/provider_quota_daily.json",
   "provider_order": {
     "extract": [
@@ -64,7 +64,7 @@
   "task_failures": [
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:32+00:00",
+      "at": "2026-07-21T16:07:44+00:00",
       "failure_category": "rate_limited",
       "error": "All configured LLM attempts failed (rate_limited)",
       "attempts": [
@@ -72,25 +72,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:31+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:31+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:31+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -99,59 +99,58 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "llama-3.1-8b-instant",
           "retry_index": 0,
-          "at": "2026-07-21T01:46:31+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "system_chars": 283,
-          "prompt_chars": 1363,
+          "prompt_chars": 3812,
           "status": "failed",
           "failure_category": "rate_limited",
           "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-          "elapsed_ms": 234
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:31+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "retry_index": 0,
-          "at": "2026-07-21T01:46:31+00:00",
-          "system_chars": 283,
-          "prompt_chars": 1363,
-          "status": "failed",
-          "failure_category": "rate_limited",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1784678400000\"},\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Rate limit excee",
-          "elapsed_ms": 724
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
+          "error": "HTTP request failed: https://api.groq.com/openai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit reached for model `llama-3.1-8b-instant` in organization `org_01kxfxy383e72t9rgc2e5r3bja` service tier `on_demand` on tokens per minute (TPM): Limit 6000, Used 3850, Requested 2441. Please try again in 2.91s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}",
+          "elapsed_ms": 32
         }
       ],
       "context": {
         "kind": "paper",
         "record_ids": [
-          "r25"
+          "r28",
+          "r29",
+          "r30",
+          "r31",
+          "r32"
         ]
       }
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:32+00:00",
+      "at": "2026-07-21T16:07:44+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -159,25 +158,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -186,7 +185,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:32+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -195,7 +194,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -204,7 +203,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:32+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -212,23 +211,24 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
         "kind": "paper",
         "record_ids": [
-          "r26"
+          "r28",
+          "r29"
         ]
       }
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:32+00:00",
+      "at": "2026-07-21T16:07:44+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -236,25 +236,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -263,7 +263,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:32+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -272,7 +272,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -281,7 +281,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:32+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -289,166 +289,11 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r27",
-          "r28"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:32+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:32+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r27"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:32+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:32+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
         }
       ],
       "context": {
@@ -460,7 +305,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:44+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -468,25 +313,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -495,7 +340,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -504,7 +349,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -513,7 +358,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -521,11 +366,476 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r29"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-07-21T16:07:44+00:00",
+      "failure_category": "unknown",
+      "error": "All configured LLM attempts failed (unknown)",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "network_error"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r30",
+          "r31",
+          "r32"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-07-21T16:07:44+00:00",
+      "failure_category": "unknown",
+      "error": "All configured LLM attempts failed (unknown)",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "network_error"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r30"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-07-21T16:07:44+00:00",
+      "failure_category": "unknown",
+      "error": "All configured LLM attempts failed (unknown)",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "network_error"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r31",
+          "r32"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-07-21T16:07:44+00:00",
+      "failure_category": "unknown",
+      "error": "All configured LLM attempts failed (unknown)",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "network_error"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r31"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-07-21T16:07:44+00:00",
+      "failure_category": "unknown",
+      "error": "All configured LLM attempts failed (unknown)",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "network_error"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:44+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r32"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-07-21T16:07:58+00:00",
+      "failure_category": "unknown",
+      "error": "All configured LLM attempts failed (unknown)",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
+          "model": "",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "network_error"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -542,17 +852,13 @@
           "r8",
           "r9",
           "r10",
-          "r11",
-          "r12",
-          "r13",
-          "r14",
-          "r15"
+          "r11"
         ]
       }
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -560,25 +866,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -587,7 +893,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -596,7 +902,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -605,7 +911,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -613,11 +919,11 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -628,15 +934,13 @@
           "r2",
           "r3",
           "r4",
-          "r5",
-          "r6",
-          "r7"
+          "r5"
         ]
       }
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -644,25 +948,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -671,7 +975,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -680,7 +984,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -689,7 +993,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -697,11 +1001,11 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -709,14 +1013,13 @@
         "record_ids": [
           "r0",
           "r1",
-          "r2",
-          "r3"
+          "r2"
         ]
       }
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -724,25 +1027,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -751,7 +1054,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -760,7 +1063,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -769,7 +1072,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -777,89 +1080,11 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r0",
-          "r1"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
         }
       ],
       "context": {
@@ -871,7 +1096,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -879,25 +1104,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -906,7 +1131,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -915,7 +1140,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -924,7 +1149,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -932,11 +1157,89 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r1",
+          "r2"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-07-21T16:07:58+00:00",
+      "failure_category": "unknown",
+      "error": "All configured LLM attempts failed (unknown)",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "network_error"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -948,7 +1251,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -956,25 +1259,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -983,7 +1286,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -992,7 +1295,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -1001,7 +1304,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1009,89 +1312,11 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r2",
-          "r3"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
         }
       ],
       "context": {
@@ -1103,7 +1328,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -1111,25 +1336,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -1138,7 +1363,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1147,7 +1372,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -1156,7 +1381,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1164,11 +1389,90 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r3",
+          "r4",
+          "r5"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-07-21T16:07:58+00:00",
+      "failure_category": "unknown",
+      "error": "All configured LLM attempts failed (unknown)",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "network_error"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -1180,7 +1484,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -1188,25 +1492,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -1215,7 +1519,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1224,7 +1528,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -1233,7 +1537,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1241,91 +1545,11 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r4",
-          "r5",
-          "r6",
-          "r7"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
         }
       ],
       "context": {
@@ -1338,7 +1562,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -1346,25 +1570,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -1373,7 +1597,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1382,7 +1606,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -1391,7 +1615,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1399,11 +1623,11 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -1415,7 +1639,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -1423,25 +1647,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -1450,7 +1674,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1459,7 +1683,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -1468,7 +1692,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1476,11 +1700,11 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -1492,7 +1716,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -1500,25 +1724,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -1527,7 +1751,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1536,7 +1760,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -1545,7 +1769,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1553,24 +1777,28 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
         "kind": "paper",
         "record_ids": [
           "r6",
-          "r7"
+          "r7",
+          "r8",
+          "r9",
+          "r10",
+          "r11"
         ]
       }
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -1578,25 +1806,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -1605,7 +1833,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1614,7 +1842,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -1623,7 +1851,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1631,11 +1859,90 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r6",
+          "r7",
+          "r8"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-07-21T16:07:58+00:00",
+      "failure_category": "unknown",
+      "error": "All configured LLM attempts failed (unknown)",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "network_error"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -1647,7 +1954,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -1655,25 +1962,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -1682,7 +1989,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1691,7 +1998,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -1700,7 +2007,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1708,11 +2015,89 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r7",
+          "r8"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-07-21T16:07:58+00:00",
+      "failure_category": "unknown",
+      "error": "All configured LLM attempts failed (unknown)",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "network_error"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -1724,7 +2109,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -1732,25 +2117,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -1759,7 +2144,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1768,7 +2153,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -1777,7 +2162,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -1785,253 +2170,11 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r8",
-          "r9",
-          "r10",
-          "r11",
-          "r12",
-          "r13",
-          "r14",
-          "r15"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r8",
-          "r9",
-          "r10",
-          "r11"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r8",
-          "r9"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
         }
       ],
       "context": {
@@ -2043,7 +2186,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -2051,25 +2194,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -2078,7 +2221,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -2087,7 +2230,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -2096,7 +2239,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -2104,11 +2247,90 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r9",
+          "r10",
+          "r11"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-07-21T16:07:58+00:00",
+      "failure_category": "unknown",
+      "error": "All configured LLM attempts failed (unknown)",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "network_error"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -2120,7 +2342,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -2128,25 +2350,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -2155,7 +2377,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -2164,7 +2386,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -2173,7 +2395,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -2181,11 +2403,11 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -2198,7 +2420,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -2206,25 +2428,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -2233,7 +2455,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -2242,7 +2464,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -2251,7 +2473,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -2259,11 +2481,11 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -2275,7 +2497,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:07:58+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -2283,25 +2505,25 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "cooldown",
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "glm-4.7-flash",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -2310,7 +2532,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -2319,7 +2541,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -2328,7 +2550,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -2336,11 +2558,11 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:07:58+00:00",
           "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -2352,7 +2574,7 @@
     },
     {
       "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
+      "at": "2026-07-21T16:08:09+00:00",
       "failure_category": "unknown",
       "error": "All configured LLM attempts failed (unknown)",
       "attempts": [
@@ -2360,643 +2582,16 @@
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
+          "at": "2026-07-21T16:08:09+00:00",
           "status": "skipped",
           "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r12",
-          "r13",
-          "r14",
-          "r15"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r12",
-          "r13"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r12"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r13"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r14",
-          "r15"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r14"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:46:48+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:46:48+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r15"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:47:12+00:00",
-      "failure_category": "rate_limited",
-      "error": "All configured LLM attempts failed (rate_limited)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:47:11+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "error": "network_error"
         },
         {
           "task": "relevance_compact_review",
           "provider": "bigmodel",
           "model": "glm-4.7-flash",
-          "retry_index": 0,
-          "at": "2026-07-21T01:47:11+00:00",
-          "system_chars": 283,
-          "prompt_chars": 1060,
-          "status": "failed",
-          "failure_category": "rate_limited",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1302\",\"message\":\"Rate limit reached for requests\"}}",
-          "elapsed_ms": 1196
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:47:12+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:47:12+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:47:12+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:47:12+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:47:12+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r0",
-          "r1"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:47:12+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:47:12+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "glm-4.7-flash",
-          "at": "2026-07-21T01:47:12+00:00",
+          "at": "2026-07-21T16:08:09+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -3005,7 +2600,7 @@
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "",
-          "at": "2026-07-21T01:47:12+00:00",
+          "at": "2026-07-21T16:08:09+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -3014,7 +2609,7 @@
           "task": "relevance_compact_review",
           "provider": "mistral",
           "model": "mistral-small-latest",
-          "at": "2026-07-21T01:47:12+00:00",
+          "at": "2026-07-21T16:08:09+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -3023,7 +2618,7 @@
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-07-21T01:47:12+00:00",
+          "at": "2026-07-21T16:08:09+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -3032,7 +2627,7 @@
           "task": "relevance_compact_review",
           "provider": "openrouter",
           "model": "openrouter/free",
-          "at": "2026-07-21T01:47:12+00:00",
+          "at": "2026-07-21T16:08:09+00:00",
           "status": "skipped",
           "failure_category": "model_cooldown",
           "error": "model is temporarily cooling down"
@@ -3040,11 +2635,11 @@
         {
           "task": "relevance_compact_review",
           "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:47:12+00:00",
+          "model": "llama-3.1-8b-instant",
+          "at": "2026-07-21T16:08:09+00:00",
           "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
         }
       ],
       "context": {
@@ -3053,109 +2648,32 @@
           "r0"
         ]
       }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-07-21T01:47:12+00:00",
-      "failure_category": "unknown",
-      "error": "All configured LLM attempts failed (unknown)",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-07-21T01:47:12+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "glm-4.7-flash",
-          "at": "2026-07-21T01:47:12+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-07-21T01:47:12+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-07-21T01:47:12+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-07-21T01:47:12+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "at": "2026-07-21T01:47:12+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-07-21T01:47:12+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r1"
-        ]
-      }
     }
   ],
   "providers": {
     "gemini": {
       "configured": true,
       "provider": "gemini",
-      "status": "authentication_failed",
-      "disabled_reason": "authentication_failed",
-      "requests": 5,
+      "status": "cooldown",
+      "disabled_reason": "network_error",
+      "requests": 8,
       "successes": 0,
-      "failures": 5,
+      "failures": 8,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
       "models": {
         "gemini-2.5-flash": {
-          "requests": 4,
-          "failures": 4,
-          "last_failure_category": "authentication_failed",
-          "status": "authentication_failed",
-          "cooldown_remaining_seconds": 0
+          "requests": 7,
+          "failures": 7,
+          "last_failure_category": "network_error",
+          "status": "cooldown",
+          "cooldown_remaining_seconds": 1.6
         },
         "gemini-2.5-flash-lite": {
           "requests": 1,
           "failures": 1,
-          "last_failure_category": "rate_limited",
+          "last_failure_category": "network_error",
           "status": "cooldown",
           "cooldown_remaining_seconds": 0
         }
@@ -3163,77 +2681,73 @@
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "authentication_failed",
-      "last_failure_at": 1784564813.6733003,
-      "cooldown_remaining_seconds": 0
+      "last_failure_category": "network_error",
+      "last_failure_at": 1784650184.6767461,
+      "cooldown_remaining_seconds": 1.6
     },
     "groq": {
       "configured": true,
       "provider": "groq",
-      "status": "quota_exhausted",
-      "disabled_reason": "quota_exhausted",
-      "requests": 3,
-      "successes": 1,
-      "failures": 2,
-      "prompt_tokens": 68,
-      "completion_tokens": 9,
-      "total_tokens": 77,
+      "status": "cooldown",
+      "disabled_reason": "network_error",
+      "requests": 6,
+      "successes": 3,
+      "failures": 3,
+      "prompt_tokens": 1063,
+      "completion_tokens": 90,
+      "total_tokens": 1153,
       "models": {
         "llama-3.1-8b-instant": {
-          "status": "quota_exhausted",
-          "requests": 2,
-          "successes": 1,
-          "prompt_tokens": 68,
-          "completion_tokens": 9,
-          "total_tokens": 77,
-          "failures": 1,
-          "last_failure_category": "quota_exhausted",
+          "status": "failed",
+          "requests": 5,
+          "successes": 3,
+          "prompt_tokens": 1063,
+          "completion_tokens": 90,
+          "total_tokens": 1153,
+          "failures": 2,
+          "last_failure_category": "validation_failed",
           "cooldown_remaining_seconds": 0
         },
         "qwen/qwen3.6-27b": {
           "requests": 1,
           "failures": 1,
-          "last_failure_category": "quota_exhausted",
-          "status": "quota_exhausted",
-          "cooldown_remaining_seconds": 0
+          "last_failure_category": "network_error",
+          "status": "cooldown",
+          "cooldown_remaining_seconds": 59.6
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1784564502.3085177,
-      "cooldown_remaining_seconds": 0
+      "last_failure_category": "network_error",
+      "last_failure_at": 1784650242.7203274,
+      "cooldown_remaining_seconds": 59.6
     },
     "openrouter": {
       "configured": true,
       "provider": "openrouter",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 199,
-      "successes": 5,
-      "failures": 194,
-      "prompt_tokens": 9141,
-      "completion_tokens": 1121,
-      "total_tokens": 10262,
+      "requests": 4,
+      "successes": 0,
+      "failures": 4,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
       "models": {
         "openrouter/free": {
-          "requests": 107,
-          "failures": 102,
+          "requests": 3,
+          "failures": 3,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "successes": 5,
-          "prompt_tokens": 9141,
-          "completion_tokens": 1121,
-          "total_tokens": 10262,
-          "cooldown_remaining_seconds": 4.7
+          "cooldown_remaining_seconds": 55.2
         },
         "cohere/north-mini-code:free": {
-          "requests": 92,
-          "failures": 92,
+          "requests": 1,
+          "failures": 1,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 49.1
+          "cooldown_remaining_seconds": 55.4
         }
       },
       "account": {
@@ -3246,7 +2760,7 @@
         "usage_monthly": 0
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1784598436.8692837,
+      "last_failure_at": 1784650238.5112853,
       "cooldown_remaining_seconds": 0
     },
     "mistral": {
@@ -3254,41 +2768,41 @@
       "provider": "mistral",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 1112,
-      "successes": 722,
-      "failures": 390,
-      "prompt_tokens": 688477,
-      "completion_tokens": 101438,
-      "total_tokens": 789915,
+      "requests": 56,
+      "successes": 53,
+      "failures": 3,
+      "prompt_tokens": 42368,
+      "completion_tokens": 2684,
+      "total_tokens": 45052,
       "models": {
         "mistral-small-latest": {
-          "status": "cooldown",
-          "requests": 907,
-          "successes": 703,
-          "prompt_tokens": 640516,
-          "completion_tokens": 87810,
-          "total_tokens": 728326,
-          "failures": 204,
-          "last_failure_category": "rate_limited",
-          "cooldown_remaining_seconds": 4.0
+          "status": "failed",
+          "requests": 54,
+          "successes": 52,
+          "prompt_tokens": 40583,
+          "completion_tokens": 1856,
+          "total_tokens": 42439,
+          "failures": 2,
+          "last_failure_category": "validation_failed",
+          "cooldown_remaining_seconds": 0
         },
         "mistral-small-2506": {
-          "requests": 205,
-          "failures": 186,
-          "last_failure_category": "invalid_json",
           "status": "failed",
-          "successes": 19,
-          "prompt_tokens": 47961,
-          "completion_tokens": 13628,
-          "total_tokens": 61589,
+          "requests": 2,
+          "successes": 1,
+          "prompt_tokens": 1785,
+          "completion_tokens": 828,
+          "total_tokens": 2613,
+          "failures": 1,
+          "last_failure_category": "validation_failed",
           "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "invalid_json",
-      "last_failure_at": 1784598447.4724882,
+      "last_failure_category": "validation_failed",
+      "last_failure_at": 1784650238.145167,
       "cooldown_remaining_seconds": 0
     },
     "siliconflow": {
@@ -3319,7 +2833,7 @@
         "total_balance": "0"
       },
       "last_failure_category": "authentication_failed",
-      "last_failure_at": 1784564460.9523947,
+      "last_failure_at": 1784649623.3783748,
       "cooldown_remaining_seconds": 0
     },
     "bigmodel": {
@@ -3327,30 +2841,30 @@
       "provider": "bigmodel",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 1976,
-      "successes": 1762,
-      "failures": 214,
-      "prompt_tokens": 1370022,
-      "completion_tokens": 203534,
-      "total_tokens": 1573556,
+      "requests": 32,
+      "successes": 29,
+      "failures": 3,
+      "prompt_tokens": 29845,
+      "completion_tokens": 4210,
+      "total_tokens": 34055,
       "models": {
         "glm-4.7-flash": {
-          "status": "cooldown",
-          "requests": 1976,
-          "successes": 1762,
-          "prompt_tokens": 1370022,
-          "completion_tokens": 203534,
-          "total_tokens": 1573556,
-          "failures": 214,
-          "last_failure_category": "rate_limited",
-          "cooldown_remaining_seconds": 45.1
+          "status": "failed",
+          "requests": 32,
+          "successes": 29,
+          "prompt_tokens": 29845,
+          "completion_tokens": 4210,
+          "total_tokens": 34055,
+          "failures": 3,
+          "last_failure_category": "validation_failed",
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "rate_limited",
-      "last_failure_at": 1784598432.8106189,
+      "last_failure_category": "validation_failed",
+      "last_failure_at": 1784650224.813291,
       "cooldown_remaining_seconds": 0
     },
     "deepseek": {
@@ -3390,7 +2904,7 @@
         ]
       },
       "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1784564463.9190328,
+      "last_failure_at": 1784649652.7265348,
       "cooldown_remaining_seconds": 0
     }
   }
