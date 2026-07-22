@@ -37,24 +37,29 @@
     },
     "top_failure_categories": [],
     "provider_attempts": {
+      "bigmodel:failed": 1,
       "bigmodel:skipped": 1,
-      "bigmodel:success": 2,
-      "gemini:failed": 1,
-      "gemini:skipped": 3,
-      "mistral:success": 1,
-      "siliconflow:skipped": 1
+      "bigmodel:success": 1,
+      "gemini:failed": 3,
+      "gemini:skipped": 2,
+      "mistral:success": 2,
+      "siliconflow:skipped": 2
     },
     "model_attempts": {
+      "bigmodel/glm-4.7-flash:failed": 1,
       "bigmodel/glm-4.7-flash:skipped": 1,
-      "bigmodel/glm-4.7-flash:success": 2,
-      "gemini/gemini-2.5-flash-lite:failed": 1,
+      "bigmodel/glm-4.7-flash:success": 1,
+      "gemini/gemini-2.5-flash-lite:failed": 2,
+      "gemini/gemini-2.5-flash:failed": 1,
       "gemini/gemini-2.5-flash:skipped": 1,
-      "gemini/not_selected:skipped": 2,
-      "mistral/mistral-small-latest:success": 1,
-      "siliconflow/not_selected:skipped": 1
+      "gemini/not_selected:skipped": 1,
+      "mistral/mistral-small-latest:success": 2,
+      "siliconflow/not_selected:skipped": 2
     },
     "attempt_failure_categories": {
-      "rate_limited": 1
+      "network_error": 1,
+      "rate_limited": 2,
+      "timeout": 1
     },
     "validation_issue_categories": {},
     "normalization_repairs": {},
@@ -62,7 +67,7 @@
     "field_repair_records": [],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-07-22T11:54:09+00:00",
+      "generated_at": "2026-07-22T12:53:31+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -263,28 +268,28 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-07-22T11:53:55+00:00",
+              "at": "2026-07-22T12:53:19+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
-              "failure_category": "context_or_output_limit",
-              "error_type": "LLMError",
-              "error": "Model response did not contain valid complete JSON",
-              "elapsed_ms": 4636
+              "failure_category": "provider_unavailable",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 503: retryable status 503; response={ \"error\": { \"code\": 503, \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\", \"status\": \"UNAVAILABLE\" } }",
+              "elapsed_ms": 844
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.0-flash",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:00+00:00",
+              "at": "2026-07-22T12:53:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent: HTTP status 429: retryable status 429; response={ \"error\": { \"code\": 429, \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash\\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\\nPlease",
-              "elapsed_ms": 121
+              "elapsed_ms": 134
             }
           ]
         },
@@ -353,12 +358,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:00+00:00",
+              "at": "2026-07-22T12:53:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 514,
+              "elapsed_ms": 331,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -378,7 +383,7 @@
         {
           "provider": "openrouter",
           "status": "passed",
-          "model": "google/gemma-4-26b-a4b-it:free",
+          "model": "nvidia/nemotron-nano-9b-v2:free",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -465,12 +470,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:01+00:00",
+              "at": "2026-07-22T12:53:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
-              "response_model": "google/gemma-4-26b-a4b-it:free",
-              "elapsed_ms": 820,
+              "response_model": "nvidia/nemotron-nano-9b-v2:free",
+              "elapsed_ms": 2282,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -480,8 +485,8 @@
               },
               "normalization_audit": {},
               "usage": {
-                "prompt_tokens": 87,
-                "completion_tokens": 6,
+                "prompt_tokens": 29,
+                "completion_tokens": 64,
                 "total_tokens": 93
               }
             }
@@ -610,12 +615,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:02+00:00",
+              "at": "2026-07-22T12:53:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 594,
+              "elapsed_ms": 447,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -759,12 +764,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:04+00:00",
+              "at": "2026-07-22T12:53:25+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 963,
+              "elapsed_ms": 897,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -840,12 +845,12 @@
               "provider": "bigmodel",
               "model": "glm-4.5",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:06+00:00",
+              "at": "2026-07-22T12:53:27+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "glm-4.5",
-              "elapsed_ms": 1729,
+              "elapsed_ms": 2587,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -914,12 +919,12 @@
               "provider": "deepseek",
               "model": "deepseek-v4-flash",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:08+00:00",
+              "at": "2026-07-22T12:53:30+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "deepseek-v4-flash",
-              "elapsed_ms": 751,
+              "elapsed_ms": 1104,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1078,24 +1083,29 @@
     },
     "top_failure_categories": [],
     "provider_attempts": {
+      "bigmodel:failed": 1,
       "bigmodel:skipped": 1,
-      "bigmodel:success": 2,
-      "gemini:failed": 1,
-      "gemini:skipped": 3,
-      "mistral:success": 1,
-      "siliconflow:skipped": 1
+      "bigmodel:success": 1,
+      "gemini:failed": 3,
+      "gemini:skipped": 2,
+      "mistral:success": 2,
+      "siliconflow:skipped": 2
     },
     "model_attempts": {
+      "bigmodel/glm-4.7-flash:failed": 1,
       "bigmodel/glm-4.7-flash:skipped": 1,
-      "bigmodel/glm-4.7-flash:success": 2,
-      "gemini/gemini-2.5-flash-lite:failed": 1,
+      "bigmodel/glm-4.7-flash:success": 1,
+      "gemini/gemini-2.5-flash-lite:failed": 2,
+      "gemini/gemini-2.5-flash:failed": 1,
       "gemini/gemini-2.5-flash:skipped": 1,
-      "gemini/not_selected:skipped": 2,
-      "mistral/mistral-small-latest:success": 1,
-      "siliconflow/not_selected:skipped": 1
+      "gemini/not_selected:skipped": 1,
+      "mistral/mistral-small-latest:success": 2,
+      "siliconflow/not_selected:skipped": 2
     },
     "attempt_failure_categories": {
-      "rate_limited": 1
+      "network_error": 1,
+      "rate_limited": 2,
+      "timeout": 1
     },
     "validation_issue_categories": {},
     "normalization_repairs": {},
@@ -1103,7 +1113,7 @@
     "field_repair_records": [],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-07-22T11:54:09+00:00",
+      "generated_at": "2026-07-22T12:53:31+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -1304,28 +1314,28 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-07-22T11:53:55+00:00",
+              "at": "2026-07-22T12:53:19+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
-              "failure_category": "context_or_output_limit",
-              "error_type": "LLMError",
-              "error": "Model response did not contain valid complete JSON",
-              "elapsed_ms": 4636
+              "failure_category": "provider_unavailable",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 503: retryable status 503; response={ \"error\": { \"code\": 503, \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\", \"status\": \"UNAVAILABLE\" } }",
+              "elapsed_ms": 844
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.0-flash",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:00+00:00",
+              "at": "2026-07-22T12:53:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent: HTTP status 429: retryable status 429; response={ \"error\": { \"code\": 429, \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash\\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\\nPlease",
-              "elapsed_ms": 121
+              "elapsed_ms": 134
             }
           ]
         },
@@ -1394,12 +1404,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:00+00:00",
+              "at": "2026-07-22T12:53:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 514,
+              "elapsed_ms": 331,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1419,7 +1429,7 @@
         {
           "provider": "openrouter",
           "status": "passed",
-          "model": "google/gemma-4-26b-a4b-it:free",
+          "model": "nvidia/nemotron-nano-9b-v2:free",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -1506,12 +1516,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:01+00:00",
+              "at": "2026-07-22T12:53:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
-              "response_model": "google/gemma-4-26b-a4b-it:free",
-              "elapsed_ms": 820,
+              "response_model": "nvidia/nemotron-nano-9b-v2:free",
+              "elapsed_ms": 2282,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1521,8 +1531,8 @@
               },
               "normalization_audit": {},
               "usage": {
-                "prompt_tokens": 87,
-                "completion_tokens": 6,
+                "prompt_tokens": 29,
+                "completion_tokens": 64,
                 "total_tokens": 93
               }
             }
@@ -1651,12 +1661,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:02+00:00",
+              "at": "2026-07-22T12:53:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 594,
+              "elapsed_ms": 447,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1800,12 +1810,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:04+00:00",
+              "at": "2026-07-22T12:53:25+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 963,
+              "elapsed_ms": 897,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1881,12 +1891,12 @@
               "provider": "bigmodel",
               "model": "glm-4.5",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:06+00:00",
+              "at": "2026-07-22T12:53:27+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "glm-4.5",
-              "elapsed_ms": 1729,
+              "elapsed_ms": 2587,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1955,12 +1965,12 @@
               "provider": "deepseek",
               "model": "deepseek-v4-flash",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:08+00:00",
+              "at": "2026-07-22T12:53:30+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "deepseek-v4-flash",
-              "elapsed_ms": 751,
+              "elapsed_ms": 1104,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2119,24 +2129,29 @@
     },
     "top_failure_categories": [],
     "provider_attempts": {
+      "bigmodel:failed": 1,
       "bigmodel:skipped": 1,
-      "bigmodel:success": 2,
-      "gemini:failed": 1,
-      "gemini:skipped": 3,
-      "mistral:success": 1,
-      "siliconflow:skipped": 1
+      "bigmodel:success": 1,
+      "gemini:failed": 3,
+      "gemini:skipped": 2,
+      "mistral:success": 2,
+      "siliconflow:skipped": 2
     },
     "model_attempts": {
+      "bigmodel/glm-4.7-flash:failed": 1,
       "bigmodel/glm-4.7-flash:skipped": 1,
-      "bigmodel/glm-4.7-flash:success": 2,
-      "gemini/gemini-2.5-flash-lite:failed": 1,
+      "bigmodel/glm-4.7-flash:success": 1,
+      "gemini/gemini-2.5-flash-lite:failed": 2,
+      "gemini/gemini-2.5-flash:failed": 1,
       "gemini/gemini-2.5-flash:skipped": 1,
-      "gemini/not_selected:skipped": 2,
-      "mistral/mistral-small-latest:success": 1,
-      "siliconflow/not_selected:skipped": 1
+      "gemini/not_selected:skipped": 1,
+      "mistral/mistral-small-latest:success": 2,
+      "siliconflow/not_selected:skipped": 2
     },
     "attempt_failure_categories": {
-      "rate_limited": 1
+      "network_error": 1,
+      "rate_limited": 2,
+      "timeout": 1
     },
     "validation_issue_categories": {},
     "normalization_repairs": {},
@@ -2144,7 +2159,7 @@
     "field_repair_records": [],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-07-22T11:54:09+00:00",
+      "generated_at": "2026-07-22T12:53:31+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -2345,28 +2360,28 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-07-22T11:53:55+00:00",
+              "at": "2026-07-22T12:53:19+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
-              "failure_category": "context_or_output_limit",
-              "error_type": "LLMError",
-              "error": "Model response did not contain valid complete JSON",
-              "elapsed_ms": 4636
+              "failure_category": "provider_unavailable",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 503: retryable status 503; response={ \"error\": { \"code\": 503, \"message\": \"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\", \"status\": \"UNAVAILABLE\" } }",
+              "elapsed_ms": 844
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.0-flash",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:00+00:00",
+              "at": "2026-07-22T12:53:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent: HTTP status 429: retryable status 429; response={ \"error\": { \"code\": 429, \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash\\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\\nPlease",
-              "elapsed_ms": 121
+              "elapsed_ms": 134
             }
           ]
         },
@@ -2435,12 +2450,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:00+00:00",
+              "at": "2026-07-22T12:53:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 514,
+              "elapsed_ms": 331,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2460,7 +2475,7 @@
         {
           "provider": "openrouter",
           "status": "passed",
-          "model": "google/gemma-4-26b-a4b-it:free",
+          "model": "nvidia/nemotron-nano-9b-v2:free",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -2547,12 +2562,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:01+00:00",
+              "at": "2026-07-22T12:53:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
-              "response_model": "google/gemma-4-26b-a4b-it:free",
-              "elapsed_ms": 820,
+              "response_model": "nvidia/nemotron-nano-9b-v2:free",
+              "elapsed_ms": 2282,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2562,8 +2577,8 @@
               },
               "normalization_audit": {},
               "usage": {
-                "prompt_tokens": 87,
-                "completion_tokens": 6,
+                "prompt_tokens": 29,
+                "completion_tokens": 64,
                 "total_tokens": 93
               }
             }
@@ -2692,12 +2707,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:02+00:00",
+              "at": "2026-07-22T12:53:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 594,
+              "elapsed_ms": 447,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2841,12 +2856,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:04+00:00",
+              "at": "2026-07-22T12:53:25+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 963,
+              "elapsed_ms": 897,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2922,12 +2937,12 @@
               "provider": "bigmodel",
               "model": "glm-4.5",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:06+00:00",
+              "at": "2026-07-22T12:53:27+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "glm-4.5",
-              "elapsed_ms": 1729,
+              "elapsed_ms": 2587,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2996,12 +3011,12 @@
               "provider": "deepseek",
               "model": "deepseek-v4-flash",
               "retry_index": 0,
-              "at": "2026-07-22T11:54:08+00:00",
+              "at": "2026-07-22T12:53:30+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "deepseek-v4-flash",
-              "elapsed_ms": 751,
+              "elapsed_ms": 1104,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
