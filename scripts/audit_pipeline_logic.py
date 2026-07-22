@@ -94,7 +94,8 @@ def main() -> int:
         "source status audit": ("pipeline_v15.py", "source_status"),
         "wechat package schema": ("pipeline_v15.py", "render_wechat_package"),
         "public backend-wording sanitizer": ("public_display.py", "sanitize_public_text"),
-        "public supplementary notice sanitizer": ("render.py", "sanitize_public_text"),
+        "public display structure sanitizer": ("render.py", "build_display_issue"),
+        "public supplementary notice fields removed": ("public_display.py", '"notice_zh"'),
     }
     contract_rows = []
     for name, (source_name, token) in required_runtime_contracts.items():
@@ -166,7 +167,7 @@ def main() -> int:
             errors.append(f"prompt not active: {prompt} -> {consumer_name}")
 
     report = {
-        "policy_version": "v17.4-r2-end-to-end-logic-audit-1",
+        "policy_version": "v17.4-r3-end-to-end-logic-audit-2",
         "passed": not errors,
         "errors": errors,
         "pipeline_file": str(pipeline_path),

@@ -48,7 +48,6 @@ OPENAI_COMPATIBLE_PROVIDERS: dict[str, dict[str, str]] = {
         "key_env": "BIGMODEL_API_KEY",
         "model_env": "BIGMODEL_MODEL",
         "models_env": "PIF_BIGMODEL_MODELS",
-        "discover_models": "false",
     },
     "deepseek": {
         "base_url": "https://api.deepseek.com",
@@ -56,7 +55,6 @@ OPENAI_COMPATIBLE_PROVIDERS: dict[str, dict[str, str]] = {
         "key_env": "DEEPSEEK_API_KEY",
         "model_env": "DEEPSEEK_MODEL",
         "models_env": "PIF_DEEPSEEK_MODELS",
-        "discover_models": "false",
     },
 }
 
@@ -236,12 +234,16 @@ def summarize_attempt_categories(attempts: list[dict[str, Any]]) -> str:
     failures = [clean_space(row.get("failure_category")) for row in attempts if row.get("status") == "failed"]
     failures = [value for value in failures if value]
     if not failures:
+        skipped = [clean_space(row.get("failure_category")) for row in attempts if row.get("status") == "skipped"]
+        skipped = [value for value in skipped if value and value != "provider_not_configured"]
+        if skipped:
+            return Counter(skipped).most_common(1)[0][0]
         return "no_provider_configured" if not attempts else "unknown"
     # Prefer the most actionable category over a generic/secondary parser error.
     priority = (
         "authentication_failed", "quota_exhausted", "rate_limited", "model_not_found",
         "unsupported_parameter", "invalid_request", "timeout", "network_error",
-        "provider_unavailable", "context_or_output_limit", "invalid_json", "empty_response",
+        "provider_unavailable", "model_discovery_failed", "context_or_output_limit", "invalid_json", "empty_response",
         "validation_failed", "unknown",
     )
     counts = Counter(failures)
@@ -306,6 +308,7 @@ class LLMRouter:
         self.bigmodel_key = self.keys["bigmodel"]
         self.deepseek_key = self.keys["deepseek"]
         self._model_cache: dict[str, list[str]] = {}
+        self._model_discovery_audit: dict[str, dict[str, Any]] = {}
         self.task_failures: list[dict[str, Any]] = []
         self.state_store = ProviderStateStore(os.getenv("PIF_PROVIDER_STATE_FILE", "").strip() or None)
         self.states = self.state_store.load(list(self.keys))
@@ -418,7 +421,8 @@ class LLMRouter:
         text = re.sub(r"(bearer\s+)[A-Za-z0-9._~-]+", r"\1[REDACTED]", text, flags=re.I)
         return text[:900]
 
-    def _configured_models(self, provider: str) -> list[str]:
+    def _explicit_models(self, provider: str) -> list[str]:
+        """Return operator preferences without treating them as guaranteed availability."""
         if provider == "gemini":
             configured = _split_csv(os.getenv("PIF_GEMINI_MODELS", ""))
             single = os.getenv("GEMINI_MODEL", "").strip()
@@ -427,85 +431,185 @@ class LLMRouter:
             configured = _split_csv(os.getenv(config["models_env"], ""))
             single = os.getenv(config["model_env"], "").strip()
         ordered: list[str] = []
-        for name in ([single] if single else []) + configured + DEFAULT_MODELS.get(provider, []):
+        for name in ([single] if single else []) + configured:
             if name and name not in ordered:
                 ordered.append(name)
         return ordered
 
+    def _configured_models(self, provider: str) -> list[str]:
+        """Backward-compatible preference plus last-resort fallback list."""
+        ordered: list[str] = []
+        for name in self._explicit_models(provider) + DEFAULT_MODELS.get(provider, []):
+            if name and name not in ordered:
+                ordered.append(name)
+        return ordered
+
+    @staticmethod
+    def _model_is_text_chat(provider: str, item: dict[str, Any], name: str) -> bool:
+        low = name.casefold()
+        blocked = (
+            "whisper", "speech", "tts", "guard", "moderation", "embedding", "embed-",
+            "rerank", "image", "vision", "audio", "video", "ocr", "transcribe", "compound",
+        )
+        if not name or any(token in low for token in blocked):
+            return False
+        if item.get("active") is False or item.get("archived") is True:
+            return False
+        capabilities = item.get("capabilities") if isinstance(item.get("capabilities"), dict) else {}
+        if capabilities and capabilities.get("completion_chat") is False:
+            return False
+        if provider == "siliconflow":
+            model_type = clean_space(item.get("type") or item.get("model_type")).casefold()
+            if model_type and model_type not in {"text", "chat", "llm"}:
+                return False
+        return True
+
+    def _model_score(self, provider: str, item: dict[str, Any], name: str, explicit: set[str]) -> tuple[int, str]:
+        low = name.casefold()
+        value = 0
+        if name in explicit:
+            value += 1000
+        if item.get("active") is not False and item.get("archived") is not True:
+            value += 120
+        if not any(token in low for token in ("preview", "experimental", "exp-", "beta", "deprecated")):
+            value += 100
+        if any(token in low for token in ("flash-lite", "small", "mini", "ministral", "instant", "8b", "7b")):
+            value += 100
+        elif "flash" in low:
+            value += 85
+        if any(token in low for token in ("qwen", "mistral", "llama", "gemma", "glm", "deepseek", "gemini")):
+            value += 45
+        if provider == "openrouter" and name.endswith(":free"):
+            value += 180
+        if any(token in low for token in ("reasoning", "thinking", "r1", "pro", "large", "120b", "70b")):
+            value -= 30
+        context = item.get("context_window") or item.get("max_context_length") or item.get("inputTokenLimit") or 0
+        try:
+            if int(context) >= 16000:
+                value += 10
+        except (TypeError, ValueError):
+            pass
+        return (-value, name.casefold())
+
     def _discover_gemini_models(self) -> list[str]:
-        return self._discover_models("gemini")
+        return self.discover_models("gemini")
 
     def _discover_groq_models(self) -> list[str]:
-        return self._discover_models("groq")
+        return self.discover_models("groq")
+
+    def discover_models(self, provider: str, *, refresh: bool = False) -> list[str]:
+        provider = provider.casefold()
+        if provider not in self.keys:
+            return []
+        if refresh:
+            self._model_cache.pop(provider, None)
+            self._model_discovery_audit.pop(provider, None)
+        return list(self._discover_models(provider))
+
+    def model_discovery_snapshot(self, provider: str | None = None) -> dict[str, Any]:
+        if provider is not None:
+            return dict(self._model_discovery_audit.get(provider.casefold()) or {})
+        return {name: dict(value) for name, value in self._model_discovery_audit.items()}
 
     def _discover_models(self, provider: str) -> list[str]:
         if provider in self._model_cache:
             return self._model_cache[provider]
-        preferred = self._configured_models(provider)
-        discovered: list[str] = []
+        explicit = self._explicit_models(provider)
+        fallback = self._configured_models(provider)
+        explicit_set = set(explicit)
+        discovered_records: list[dict[str, Any]] = []
         key = self.keys.get(provider, "")
-        if key and OPENAI_COMPATIBLE_PROVIDERS.get(provider, {}).get("discover_models", "true") != "false":
+        discovery_enabled = os.getenv("PIF_LLM_DISCOVER_MODELS", "true").strip().casefold() in {"1", "true", "yes", "on"}
+        provider_flag = os.getenv(f"PIF_{provider.upper()}_DISCOVER_MODELS", "true").strip().casefold() in {"1", "true", "yes", "on"}
+        endpoint = ""
+        discovery_error = ""
+        discovery_category = ""
+        if key and discovery_enabled and provider_flag:
             try:
                 if provider == "gemini":
-                    payload = self.http.get_json(
-                        "https://generativelanguage.googleapis.com/v1beta/models",
-                        headers={"x-goog-api-key": key},
-                        params={"pageSize": 100},
-                    )
-                    for model in payload.get("models", []):
-                        methods = model.get("supportedGenerationMethods") or []
-                        name = str(model.get("name", "")).removeprefix("models/")
-                        if "generateContent" in methods and name and not any(
-                            bad in name.lower() for bad in ("image", "embedding", "aqa")
-                        ):
-                            discovered.append(name)
+                    endpoint = "https://generativelanguage.googleapis.com/v1beta/models"
+                    page_token = ""
+                    for _ in range(3):
+                        params: dict[str, Any] = {"pageSize": 1000}
+                        if page_token:
+                            params["pageToken"] = page_token
+                        payload = self.http.get_json(
+                            endpoint, headers={"x-goog-api-key": key}, params=params,
+                            timeout=min(30, self._provider_timeout(provider)), retry_attempts=2,
+                        )
+                        for item in payload.get("models", []) if isinstance(payload, dict) else []:
+                            if not isinstance(item, dict):
+                                continue
+                            methods = item.get("supportedGenerationMethods") or item.get("supportedActions") or []
+                            name = clean_space(item.get("baseModelId") or str(item.get("name", "")).removeprefix("models/"))
+                            if "generateContent" in methods and self._model_is_text_chat(provider, item, name):
+                                discovered_records.append({**item, "id": name})
+                        page_token = clean_space(payload.get("nextPageToken") if isinstance(payload, dict) else "")
+                        if not page_token:
+                            break
                 else:
-                    config = OPENAI_COMPATIBLE_PROVIDERS[provider]
+                    endpoint = f"{self.provider_base_url(provider)}/models"
+                    params = {"type": "text", "sub_type": "chat"} if provider == "siliconflow" else None
                     payload = self.http.get_json(
-                        f"{self.provider_base_url(provider)}/models",
-                        headers={"Authorization": f"Bearer {key}"},
+                        endpoint, headers={"Authorization": f"Bearer {key}"}, params=params,
+                        timeout=min(30, self._provider_timeout(provider)), retry_attempts=2,
                     )
-                    items = payload.get("data", payload if isinstance(payload, list) else [])
+                    items = payload.get("data", payload if isinstance(payload, list) else []) if isinstance(payload, (dict, list)) else []
                     for item in items or []:
-                        name = clean_space(item.get("id") if isinstance(item, dict) else "")
-                        low = name.lower()
-                        if not name or any(
-                            bad in low for bad in (
-                                "whisper", "speech", "tts", "guard", "moderation", "embedding",
-                                "rerank", "image", "vision", "audio", "compound",
-                            )
-                        ):
+                        if not isinstance(item, dict):
                             continue
-                        if provider == "openrouter" and os.getenv("PIF_OPENROUTER_FREE_ONLY", "true").lower() in {"1", "true", "yes", "on"}:
-                            pricing = item.get("pricing") if isinstance(item, dict) else None
-                            free_pricing = isinstance(pricing, dict) and all(
-                                str(pricing.get(field, "0")) in {"0", "0.0", "0.000000"}
-                                for field in ("prompt", "completion")
-                            )
+                        name = clean_space(item.get("id") or item.get("name"))
+                        if not self._model_is_text_chat(provider, item, name):
+                            continue
+                        if provider == "openrouter" and os.getenv("PIF_OPENROUTER_FREE_ONLY", "true").casefold() in {"1", "true", "yes", "on"}:
+                            pricing = item.get("pricing") if isinstance(item.get("pricing"), dict) else {}
+                            zero = {"0", "0.0", "0.000000", "0e-10", "0.0000000000"}
+                            free_pricing = bool(pricing) and all(str(pricing.get(field, "0")).casefold() in zero for field in ("prompt", "completion"))
                             if not (name.endswith(":free") or free_pricing):
                                 continue
-                        discovered.append(name)
-            except Exception:
-                pass
+                        discovered_records.append(item)
+            except Exception as exc:
+                discovery_category = classify_llm_failure(exc)
+                discovery_error = self._safe_error_text(exc)
 
-        def score(name: str) -> tuple[int, str]:
-            low = name.lower()
-            value = 0
-            if provider == "openrouter" and name == "openrouter/free":
-                value += 200
-            if any(token in low for token in ("small", "flash-lite", "mini", "8b", "7b")):
-                value += 90
-            if any(token in low for token in ("qwen", "mistral", "llama", "gemma", "glm", "deepseek")):
-                value += 50
-            if any(token in low for token in ("reasoning", "thinking", "r1")):
-                value -= 30
-            return (-value, name)
-
+        unique_records: dict[str, dict[str, Any]] = {}
+        for item in discovered_records:
+            name = clean_space(item.get("id") or item.get("name"))
+            if name and name not in unique_records:
+                unique_records[name] = item
+        ranked_discovered = sorted(
+            unique_records,
+            key=lambda name: self._model_score(provider, unique_records[name], name, explicit_set),
+        )
+        discovered_set = set(ranked_discovered)
+        valid_explicit = [name for name in explicit if name in discovered_set]
+        unmatched_explicit = [name for name in explicit if name not in discovered_set]
         ordered: list[str] = []
-        for name in preferred + sorted(discovered, key=score):
+        # Discover-first means stale GitHub Variables become preferences only when
+        # the provider confirms that the model is currently available.
+        if ranked_discovered:
+            candidates = valid_explicit + ranked_discovered + unmatched_explicit + fallback
+            status = "discovered"
+        else:
+            candidates = explicit + fallback
+            status = "fallback"
+        for name in candidates:
             if name and name not in ordered:
                 ordered.append(name)
-        self._model_cache[provider] = ordered[:20]
+        limit = max(5, int(os.getenv("PIF_LLM_DISCOVERY_MAX_CANDIDATES", "30")))
+        self._model_cache[provider] = ordered[:limit]
+        self._model_discovery_audit[provider] = {
+            "status": status,
+            "endpoint": endpoint,
+            "discovery_enabled": bool(discovery_enabled and provider_flag),
+            "discovered_count": len(ranked_discovered),
+            "discovered_models": ranked_discovered[:limit],
+            "explicit_preferences": explicit,
+            "fallback_models": DEFAULT_MODELS.get(provider, []),
+            "selected_candidates": self._model_cache[provider],
+            "failure_category": discovery_category,
+            "error": discovery_error,
+        }
         return self._model_cache[provider]
 
     def _provider_timeout(self, provider: str) -> int:
@@ -846,6 +950,7 @@ class LLMRouter:
         max_models_per_provider: int = 3,
         task_name: str = "json_task",
         max_output_tokens: int | None = None,
+        ignore_runtime_cooldown: bool = False,
     ) -> LLMResult:
         attempts: list[dict[str, Any]] = []
         if provider_order is None:
@@ -885,7 +990,7 @@ class LLMRouter:
                 })
                 continue
             configured_provider_seen = True
-            if not state.available():
+            if not ignore_runtime_cooldown and not state.available():
                 attempts.append({
                     "task": task_name,
                     "provider": provider,
@@ -923,7 +1028,7 @@ class LLMRouter:
                         "failure_category": "paid_route_blocked", "error": billing_reason,
                     })
                     continue
-                if not state.model_available(model):
+                if not ignore_runtime_cooldown and not state.model_available(model):
                     attempts.append({
                         "task": task_name,
                         "provider": provider,
@@ -1024,7 +1129,7 @@ class LLMRouter:
         else:
             category = summarize_attempt_categories(attempts)
             message = f"All configured LLM attempts failed ({category})"
-            last_error = next((row.get("error") for row in reversed(attempts) if row.get("status") == "failed"), "")
+            last_error = next((row.get("error") for row in reversed(attempts) if row.get("status") in {"failed", "skipped"}), "")
             if last_error:
                 message += f": {last_error}"
         raise LLMError(message, attempts=attempts, category=category, candidates=invalid_candidates)
@@ -1063,7 +1168,15 @@ class LLMRouter:
             if not state.available():
                 attempts.append({"task": task_name, "provider": provider, "model": "", "status": "skipped", "failure_category": state.status, "error": state.disabled_reason or "provider is cooling down", "at": utc_now_iso()})
                 continue
-            for model in self._discover_models(provider)[:max_models_per_provider]:
+            models = self._discover_models(provider)[:max_models_per_provider]
+            if not models:
+                attempts.append({
+                    "task": task_name, "provider": provider, "model": "", "status": "failed",
+                    "failure_category": "model_discovery_failed",
+                    "error": "No usable text generation model discovered or configured", "at": utc_now_iso(),
+                })
+                continue
+            for model in models:
                 if not state.model_available(model):
                     attempts.append({"task": task_name, "provider": provider, "model": model, "status": "skipped", "failure_category": "model_cooldown", "error": "model is unavailable for this run", "at": utc_now_iso()})
                     continue
@@ -1120,6 +1233,7 @@ class LLMRouter:
                 "free_provider_allowlist": _split_csv(os.getenv("PIF_LLM_FREE_PROVIDER_ALLOWLIST", "gemini,bigmodel,siliconflow,mistral,deepseek,openrouter,groq")),
             },
             "task_failures": list(self.task_failures),
+            "model_discovery": self.model_discovery_snapshot(),
             "providers": {
                 name: {
                     "configured": bool(self.keys.get(name)),

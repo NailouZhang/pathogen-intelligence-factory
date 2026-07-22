@@ -106,9 +106,12 @@ def test_provider_order_and_workflow_contract():
     workflow = Path(".github/workflows/daily-intelligence.yml").read_text(encoding="utf-8")
     for token in (
         "BIGMODEL_API_KEY", "DEEPSEEK_API_KEY", "BIGMODEL_BASE_URL", "DEEPSEEK_BASE_URL",
-        "glm-4.7-flash", "deepseek-v4-flash", "PIF_DEEPSEEK_GRANTED_BALANCE_ONLY",
+        "PIF_BIGMODEL_MODELS", "PIF_DEEPSEEK_MODELS", "PIF_LLM_DISCOVER_MODELS",
+        "PIF_LLM_DISCOVERY_MAX_CANDIDATES", "PIF_DEEPSEEK_GRANTED_BALANCE_ONLY",
     ):
         assert token in workflow
+    assert "BIGMODEL_MODEL: ${{ vars.BIGMODEL_MODEL || '' }}" in workflow
+    assert "DEEPSEEK_MODEL: ${{ vars.DEEPSEEK_MODEL || '' }}" in workflow
 
 
 def test_chinese_quota_and_rate_errors_are_classified():

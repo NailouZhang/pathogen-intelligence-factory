@@ -224,7 +224,8 @@ def audit_html(path: Path) -> dict[str, Any]:
     public_forbidden = (
         "审查得出的结论是", "范围说明：", "范围说明:",
         "证据不足以建立目标病毒", "不生成目标病毒结论", "不生成结构化分析",
-        "保留在补充目录", "仅保留为补充新闻",
+        "保留在补充目录", "仅保留为补充新闻", "相关资料：",
+        "与目标病原相关的比较或背景资料", "Related material:",
     )
     visible_text = html_lib.unescape(re.sub(r"<[^>]+>", " ", raw))
     for phrase in public_forbidden:

@@ -12,6 +12,7 @@ PRIVATE_KEYS = {
     "relevance_review_cache_key", "relevance_review_stop_reason", "_wechat_budget",
     "_wechat_field_limits", "selection_policy_explanation", "qualification_notice",
     "evidence_boundary", "translation_fallback_notice", "wechat_budget_notice",
+    "notice_zh", "notice_en", "scope_notice_zh", "scope_notice_en",
 }
 
 OPERATIONAL_PATTERNS = tuple(re.compile(p, re.I) for p in (
@@ -30,6 +31,8 @@ OPERATIONAL_PATTERNS = tuple(re.compile(p, re.I) for p in (
     r"范围说明\s*[:：]", r"Scope note\s*:", r"证据不足以建立目标病毒",
     r"不生成目标病毒结论", r"不生成研究结论", r"不生成结构化",
     r"保留在补充目录", r"仅保留为补充新闻", r"未进入深度主报告",
+    r"相关资料\s*[:：]", r"与目标病原相关的比较或背景资料",
+    r"Related material\s*:", r"Comparative or background material related to the target pathogen",
 ))
 
 PUBLIC_PREFIX_PATTERNS = tuple(re.compile(pattern, re.I) for pattern in (

@@ -91,7 +91,8 @@ def test_public_copy_strips_review_metadiscourse_and_scope_jargon():
         "notice_en": "Comparative or background material related to the target pathogen.",
         "supplementary_reason": "biologically_related_non_target_entity",
     })
-    assert "相关资料" in html
+    assert "相关资料" not in html
+    assert "与目标病原相关的比较或背景资料" not in html
     for forbidden in ("范围说明", "审查得出的结论是", "证据不足以建立目标病毒", "不生成结构化"):
         assert forbidden not in html
 
@@ -151,7 +152,7 @@ def test_factory_repo_does_not_document_legacy_top_level_command_entry():
     """Factory pytest must remain runnable as a standalone repository.
 
     The bundle-level system_manager.sh contract is validated by
-    validate_v17_4_r2_acceptance.py/validate_bundle.sh, where the complete
+    validate_v17_4_r3_acceptance.py/validate_bundle.sh, where the complete
     three-repository release root is actually available.  A Factory checkout
     must not guess that ROOT.parent is the bundle root because the supported
     local installation keeps the control plane under
@@ -174,10 +175,10 @@ def test_workflow_enables_translation_plain_rescue_and_provider_specific_timeout
     assert "PIF_TRANSLATION_PLAIN_TEXT_RESCUE" in workflow
     assert "PIF_LLM_BIGMODEL_TIMEOUT" in workflow
     assert "PIF_LLM_DEEPSEEK_TIMEOUT" in workflow
-    assert "gemini-3.5-flash" in workflow
-    assert "openai/gpt-oss-120b" in workflow
-    assert "qwen/qwen3.6-27b" in workflow
-    assert "llama-3.1-8b-instant" in workflow
+    assert "PIF_LLM_DISCOVER_MODELS" in workflow
+    assert "PIF_LLM_DISCOVERY_MAX_CANDIDATES" in workflow
+    assert "GEMINI_MODEL: ${{ vars.GEMINI_MODEL || '' }}" in workflow
+    assert "GROQ_MODEL: ${{ vars.GROQ_MODEL || '' }}" in workflow
     assert "PIF_DEEPSEEK_GRANTED_BALANCE_ONLY || 'false'" in workflow
 
 @pytest.mark.parametrize(

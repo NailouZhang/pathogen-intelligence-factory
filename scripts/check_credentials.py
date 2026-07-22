@@ -41,6 +41,8 @@ def _probe_validator(data: Any) -> tuple[bool, str]:
 
 def _probe_provider(router: LLMRouter, provider: str) -> dict[str, Any]:
     account = router.provider_account_info(provider)
+    candidates = router.discover_models(provider, refresh=True)
+    discovery = router.model_discovery_snapshot(provider)
     try:
         result = router.json_task(
             system="Return a tiny JSON object and no prose.",
@@ -51,12 +53,15 @@ def _probe_provider(router: LLMRouter, provider: str) -> dict[str, Any]:
             temperature=0.0,
             max_output_tokens=96,
             task_name="credential_preflight",
+            ignore_runtime_cooldown=True,
         )
         return {
             "provider": provider,
             "status": "passed",
             "model": result.model,
             "account": account,
+            "model_candidates": candidates,
+            "model_discovery": discovery,
             "attempts": result.attempts,
         }
     except LLMError as exc:
@@ -89,14 +94,20 @@ def _probe_provider(router: LLMRouter, provider: str) -> dict[str, Any]:
             action_hint = "The provider returned a temporary service error; keep the key and let the router fail over to another provider."
         elif category == "invalid_json":
             action_hint = "The provider returned usable HTTP content but not the requested JSON shape; translation can still use the plain-text LLM rescue path."
+        elif category == "model_discovery_failed":
+            action_hint = "The provider model-list request returned no usable chat model. Inspect model_discovery.error; the router keeps configured fallback models when discovery itself is unavailable."
+        elif category in {"model_cooldown", "cooldown"}:
+            action_hint = "The live credential probe bypasses persisted cooldowns. If this remains, inspect the recorded attempt and provider response rather than replacing a working key."
         attempts = getattr(exc, "attempts", []) or []
-        last_failed = next((row for row in reversed(attempts) if row.get("status") == "failed"), {})
+        last_failed = next((row for row in reversed(attempts) if row.get("status") in {"failed", "skipped"}), {})
         detail = str(last_failed.get("error") or exc)[:900]
         return {
             "provider": provider,
             "status": "failed" if category != "no_provider_configured" else "not_configured",
             "failure_category": category,
-            "model": last_failed.get("model", ""),
+            "model": last_failed.get("model", "") or (candidates[0] if candidates else ""),
+            "model_candidates": candidates,
+            "model_discovery": discovery,
             "error": detail,
             "action_hint": action_hint,
             "account": account,
@@ -149,12 +160,14 @@ def main() -> int:
             probes.append(result)
             if result["status"] == "passed":
                 passed_providers.append(provider)
-                print(f"[passed] {provider}: {result.get('model')}")
+                discovered = result.get("model_discovery") or {}
+                print(f"[passed] {provider}: {result.get('model')} (discovered={discovered.get('discovered_count', 0)})")
             elif result["status"] == "not_configured":
                 print(f"[not configured] {provider}")
             else:
                 model = result.get("model") or "no-model"
-                print(f"[failed] {provider}: model={model} category={result.get('failure_category')} - {result.get('error')}")
+                discovered = result.get("model_discovery") or {}
+                print(f"[failed] {provider}: model={model} category={result.get('failure_category')} discovered={discovered.get('discovered_count', 0)} - {result.get('error')}")
                 if result.get("action_hint"):
                     print(f"         action: {result['action_hint']}")
 
@@ -164,7 +177,7 @@ def main() -> int:
         status = "ready" if configured_analysis else "unavailable"
 
     audit = {
-        "schema_version": 5,
+        "schema_version": 7,
         "generated_at": utc_now_iso(),
         "status": status,
         "analysis_provider_configured": configured_analysis,
