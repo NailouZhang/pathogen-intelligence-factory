@@ -77,6 +77,8 @@ def main() -> int:
         "pipeline_v15.py": pipeline,
         "vocabulary_lifecycle.py": (root / "src" / "pifactory" / "vocabulary_lifecycle.py").read_text(encoding="utf-8"),
         "translation.py": (root / "src" / "pifactory" / "translation.py").read_text(encoding="utf-8"),
+        "render.py": (root / "src" / "pifactory" / "render.py").read_text(encoding="utf-8"),
+        "public_display.py": (root / "src" / "pifactory" / "public_display.py").read_text(encoding="utf-8"),
     }
     required_runtime_contracts = {
         "canonical vocabulary application": ("vocabulary_lifecycle.py", "apply_bundled_profile"),
@@ -85,9 +87,14 @@ def main() -> int:
         "publication date gate": ("pipeline_v15.py", "assess_publication_date"),
         "paper cliff guard": ("pipeline_v15.py", "apply_relevance_cliff_guard"),
         "translation glossary consumption": ("translation.py", 'profile.get("translation_glossary")'),
+        "translation structured LLM fallback": ("translation.py", "translation_single_structured_rescue"),
+        "translation plain-text LLM rescue": ("translation.py", "_llm_plain_translation_rescue"),
+        "translation common response-shape parser": ("translation.py", "_translation_value"),
         "translation display fallback": ("pipeline_v15.py", "apply_translation_display_fallback"),
         "source status audit": ("pipeline_v15.py", "source_status"),
         "wechat package schema": ("pipeline_v15.py", "render_wechat_package"),
+        "public backend-wording sanitizer": ("public_display.py", "sanitize_public_text"),
+        "public supplementary notice sanitizer": ("render.py", "sanitize_public_text"),
     }
     contract_rows = []
     for name, (source_name, token) in required_runtime_contracts.items():
@@ -159,7 +166,7 @@ def main() -> int:
             errors.append(f"prompt not active: {prompt} -> {consumer_name}")
 
     report = {
-        "policy_version": "v17.4-r1-end-to-end-logic-audit-1",
+        "policy_version": "v17.4-r2-end-to-end-logic-audit-1",
         "passed": not errors,
         "errors": errors,
         "pipeline_file": str(pipeline_path),

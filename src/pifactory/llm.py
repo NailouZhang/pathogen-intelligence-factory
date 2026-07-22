@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import inspect
 import json
 import os
 import re
@@ -60,7 +61,8 @@ OPENAI_COMPATIBLE_PROVIDERS: dict[str, dict[str, str]] = {
 }
 
 DEFAULT_MODELS: dict[str, list[str]] = {
-    "gemini": ["gemini-2.5-flash", "gemini-2.5-flash-lite"],
+    "gemini": ["gemini-3.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-flash"],
+    "groq": ["openai/gpt-oss-120b", "qwen/qwen3.6-27b", "openai/gpt-oss-20b", "llama-3.3-70b-versatile", "llama-3.1-8b-instant"],
     "openrouter": ["openrouter/free"],
     "mistral": ["mistral-small-latest"],
     "siliconflow": ["Qwen/Qwen3-8B"],
@@ -184,16 +186,16 @@ def classify_llm_failure(error: Any) -> str:
         return "no_provider_configured"
     if "validation_failed" in text or "schema validation" in text or "validator" in text:
         return "validation_failed"
-    if "valid json" in text or "jsondecode" in text or "json" in text and "parse" in text:
+    if "valid json" in text or "jsondecode" in text or ("json" in text and "parse" in text):
         return "invalid_json"
+    if any(token in text for token in (
+        "model disabled", "model is disabled", "model access denied", "permission denied for model",
+        "model is not enabled", "model permission", "model is restricted",
+    )):
+        return "model_not_found"
     if any(token in text for token in ("401", "403", "unauthorized", "forbidden", "invalid api key", "api_key_invalid", "authentication")):
         return "authentication_failed"
-    # HTTP 429 is always a temporary rate-limit signal.  Check it before
-    # generic quota wording because providers often return messages such as
-    # "429 quota exceeded" for a retryable per-minute or concurrency limit.
-    if any(token in text for token in (
-        "429", "rate limit", "resource_exhausted", "too many requests", "请求过于频繁", "并发超额",
-    )):
+    if any(token in text for token in ("429", "rate limit", "resource_exhausted", "too many requests", "请求过于频繁", "并发超额")):
         return "rate_limited"
     if any(token in text for token in (
         "402", "insufficient credit", "insufficient balance", "negative credit", "payment required",
@@ -202,15 +204,30 @@ def classify_llm_failure(error: Any) -> str:
         return "quota_exhausted"
     if any(token in text for token in ("quota", "billing", "insufficient_quota", "daily limit", "monthly limit", "token budget exhausted")):
         return "quota_exhausted"
-    if any(token in text for token in ("timeout", "timed out", "read timed out", "connect timeout")):
+    if any(token in text for token in ("timeout", "timed out", "read timed out", "connect timeout", "deadline exceeded")):
         return "timeout"
     if any(token in text for token in ("context length", "maximum context", "token limit", "request too large", "payload too large")):
         return "context_or_output_limit"
-    if any(token in text for token in ("no candidates", "no choices", "empty response")):
+    if any(token in text for token in ("no candidates", "no choices", "empty response", "empty content")):
         return "empty_response"
-    if any(token in text for token in ("500", "502", "503", "504", "server error", "service unavailable")):
+    if any(token in text for token in (
+        "model not found", "unknown model", "model_not_found", "does not exist", "model is not available",
+        "invalid model", "404: model", "404 model",
+    )):
+        return "model_not_found"
+    if any(token in text for token in (
+        "unsupported parameter", "unsupported_parameter", "unrecognized request argument", "unknown field",
+        "response_format is not supported", "thinking is not supported", "enable_thinking is not supported",
+    )):
+        return "unsupported_parameter"
+    if any(token in text for token in ("400", "422", "bad request", "invalid request", "invalid_request_error")):
+        return "invalid_request"
+    if any(token in text for token in ("500", "502", "503", "504", "server error", "service unavailable", "upstream error")):
         return "provider_unavailable"
-    if any(token in text for token in ("connection", "dns", "network", "http request failed")):
+    if any(token in text for token in (
+        "connection", "dns", "network", "http request failed", "ssl", "certificate verify", "proxyerror",
+        "connection reset", "remote disconnected", "name resolution", "temporary failure in name resolution", "eof occurred",
+    )):
         return "network_error"
     return "unknown"
 
@@ -220,7 +237,18 @@ def summarize_attempt_categories(attempts: list[dict[str, Any]]) -> str:
     failures = [value for value in failures if value]
     if not failures:
         return "no_provider_configured" if not attempts else "unknown"
-    return Counter(failures).most_common(1)[0][0]
+    # Prefer the most actionable category over a generic/secondary parser error.
+    priority = (
+        "authentication_failed", "quota_exhausted", "rate_limited", "model_not_found",
+        "unsupported_parameter", "invalid_request", "timeout", "network_error",
+        "provider_unavailable", "context_or_output_limit", "invalid_json", "empty_response",
+        "validation_failed", "unknown",
+    )
+    counts = Counter(failures)
+    for category in priority:
+        if counts.get(category):
+            return category
+    return counts.most_common(1)[0][0]
 
 
 def _split_csv(value: str) -> list[str]:
@@ -230,6 +258,14 @@ def _split_csv(value: str) -> list[str]:
 @dataclass
 class LLMResult:
     data: dict[str, Any] | list[Any]
+    provider: str
+    model: str
+    attempts: list[dict[str, Any]]
+
+
+@dataclass
+class LLMTextResult:
+    text: str
     provider: str
     model: str
     attempts: list[dict[str, Any]]
@@ -413,7 +449,8 @@ class LLMRouter:
                 if provider == "gemini":
                     payload = self.http.get_json(
                         "https://generativelanguage.googleapis.com/v1beta/models",
-                        params={"key": key, "pageSize": 100},
+                        headers={"x-goog-api-key": key},
+                        params={"pageSize": 100},
                     )
                     for model in payload.get("models", []):
                         methods = model.get("supportedGenerationMethods") or []
@@ -471,23 +508,58 @@ class LLMRouter:
         self._model_cache[provider] = ordered[:20]
         return self._model_cache[provider]
 
-    def _gemini_call(self, model: str, system: str, prompt: str, temperature: float) -> tuple[Any, dict[str, Any], str]:
+    def _provider_timeout(self, provider: str) -> int:
+        defaults = {
+            "gemini": 75,
+            "groq": 60,
+            "openrouter": 90,
+            "mistral": 75,
+            "siliconflow": 90,
+            "bigmodel": 120,
+            "deepseek": 90,
+        }
+        specific = os.getenv(f"PIF_LLM_{provider.upper()}_TIMEOUT", "").strip()
+        generic = os.getenv("PIF_LLM_HTTP_TIMEOUT", "").strip()
+        raw = specific or generic or str(defaults.get(provider, 75))
+        try:
+            return max(15, int(raw))
+        except ValueError:
+            return defaults.get(provider, 75)
+
+    @staticmethod
+    def _max_output_tokens(override: int | None = None) -> int:
+        if override is not None:
+            return max(32, int(override))
+        return max(256, int(os.getenv("PIF_LLM_MAX_OUTPUT_TOKENS", "1400")))
+
+    def _gemini_call(
+        self,
+        model: str,
+        system: str,
+        prompt: str,
+        temperature: float,
+        *,
+        json_mode: bool = True,
+        max_output_tokens: int | None = None,
+    ) -> tuple[Any, dict[str, Any], str]:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        generation_config: dict[str, Any] = {
+            "temperature": temperature,
+            "maxOutputTokens": self._max_output_tokens(max_output_tokens),
+        }
+        if json_mode:
+            generation_config["responseMimeType"] = "application/json"
         payload = {
             "systemInstruction": {"parts": [{"text": system}]},
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-            "generationConfig": {
-                "temperature": temperature,
-                "responseMimeType": "application/json",
-                "maxOutputTokens": max(256, int(os.getenv("PIF_LLM_MAX_OUTPUT_TOKENS", "1400"))),
-            },
+            "generationConfig": generation_config,
         }
         response = self.http.request(
             "POST",
             url,
-            params={"key": self.keys["gemini"]},
+            headers={"x-goog-api-key": self.keys["gemini"]},
             json=payload,
-            timeout=int(os.getenv("PIF_LLM_HTTP_TIMEOUT", "55")),
+            timeout=self._provider_timeout("gemini"),
             retry_attempts=1,
         )
         body = response.json()
@@ -496,7 +568,9 @@ class LLMRouter:
             raise LLMError(f"Gemini returned no candidates: {body}", category="empty_response")
         candidate = candidates[0]
         parts = candidate.get("content", {}).get("parts", [])
-        text = "".join(str(part.get("text", "")) for part in parts)
+        text = "".join(str(part.get("text", "")) for part in parts).strip()
+        if not text:
+            raise LLMError(f"Gemini returned empty content: {body}", category="empty_response")
         finish_reason = clean_space(candidate.get("finishReason"))
         usage = body.get("usageMetadata") or {}
         normalized = {
@@ -504,7 +578,8 @@ class LLMRouter:
             "completion_tokens": usage.get("candidatesTokenCount") or 0,
             "total_tokens": usage.get("totalTokenCount") or 0,
         }
-        return _extract_json(text, truncated=finish_reason in {"MAX_TOKENS", "RECITATION"}), normalized, clean_space(body.get("modelVersion")) or model
+        content: Any = _extract_json(text, truncated=finish_reason in {"MAX_TOKENS", "RECITATION"}) if json_mode else text
+        return content, normalized, clean_space(body.get("modelVersion")) or model
 
     def _openai_compatible_call(
         self,
@@ -513,8 +588,10 @@ class LLMRouter:
         system: str,
         prompt: str,
         temperature: float,
+        *,
+        json_mode: bool = True,
+        max_output_tokens: int | None = None,
     ) -> tuple[Any, dict[str, Any], str]:
-        config = OPENAI_COMPATIBLE_PROVIDERS[provider]
         payload: dict[str, Any] = {
             "model": model,
             "messages": [
@@ -522,22 +599,20 @@ class LLMRouter:
                 {"role": "user", "content": prompt},
             ],
             "temperature": temperature,
-            "response_format": {"type": "json_object"},
-            "max_tokens": max(256, int(os.getenv("PIF_LLM_MAX_OUTPUT_TOKENS", "1400"))),
+            ("max_completion_tokens" if provider == "groq" else "max_tokens"): self._max_output_tokens(max_output_tokens),
         }
+        if json_mode:
+            payload["response_format"] = {"type": "json_object"}
         disable_thinking = os.getenv("PIF_LLM_DISABLE_THINKING", "true").lower() in {"1", "true", "yes", "on"}
         if provider == "siliconflow" and disable_thinking:
             payload["enable_thinking"] = False
         if provider in {"bigmodel", "deepseek"} and disable_thinking:
             payload["thinking"] = {"type": "disabled"}
-        if provider == "deepseek" and os.getenv("PIF_DEEPSEEK_GRANTED_BALANCE_ONLY", "true").lower() in {"1", "true", "yes", "on"}:
+        if provider == "deepseek" and os.getenv("PIF_DEEPSEEK_GRANTED_BALANCE_ONLY", "false").lower() in {"1", "true", "yes", "on"}:
             account = self.provider_account_info("deepseek", refresh=True)
             if account.get("status") != "ok":
                 category = clean_space(account.get("failure_category")) or "provider_unavailable"
-                raise LLMError(
-                    "DeepSeek balance check failed before a free-balance-only request",
-                    category=category,
-                )
+                raise LLMError("DeepSeek balance check failed before a granted-balance-only request", category=category)
             if not account.get("granted_balance_available"):
                 raise LLMError(
                     "DeepSeek free granted balance is unavailable; paid balance is protected by PIF_DEEPSEEK_GRANTED_BALANCE_ONLY=true",
@@ -545,7 +620,7 @@ class LLMRouter:
                 )
         if provider == "mistral":
             payload["prompt_cache_key"] = clean_space(os.getenv("PIF_MISTRAL_PROMPT_CACHE_KEY", "pif-structured-analysis-v1"))
-        headers = {"Authorization": f"Bearer {self.keys[provider]}"}
+        headers = {"Authorization": f"Bearer {self.keys[provider]}", "Accept": "application/json"}
         if provider == "openrouter":
             referer = os.getenv("PIF_OPENROUTER_HTTP_REFERER", "").strip()
             title = os.getenv("PIF_OPENROUTER_APP_TITLE", "Pathogen Intelligence Factory").strip()
@@ -553,28 +628,69 @@ class LLMRouter:
                 headers["HTTP-Referer"] = referer
             if title:
                 headers["X-Title"] = title
-        response = self.http.request(
-            "POST",
-            f"{self.provider_base_url(provider)}/chat/completions",
-            headers=headers,
-            json=payload,
-            timeout=int(os.getenv("PIF_LLM_HTTP_TIMEOUT", "55")),
-            retry_attempts=1,
-        )
+
+        endpoint = f"{self.provider_base_url(provider)}/chat/completions"
+        try:
+            response = self.http.request(
+                "POST", endpoint, headers=headers, json=payload,
+                timeout=self._provider_timeout(provider), retry_attempts=1,
+            )
+        except Exception as exc:
+            # Several nominally OpenAI-compatible free models reject optional
+            # JSON/thinking/cache parameters even though the endpoint itself works.
+            # Retry exactly once with the minimal portable payload while keeping
+            # the prompt's explicit JSON contract.
+            if json_mode and classify_llm_failure(exc) in {"unsupported_parameter", "invalid_request"}:
+                minimal = {
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": system + "\nReturn one valid JSON object only."},
+                        {"role": "user", "content": prompt},
+                    ],
+                    "temperature": temperature,
+                    ("max_completion_tokens" if provider == "groq" else "max_tokens"): self._max_output_tokens(max_output_tokens),
+                }
+                response = self.http.request(
+                    "POST", endpoint, headers=headers, json=minimal,
+                    timeout=self._provider_timeout(provider), retry_attempts=1,
+                )
+            else:
+                raise
         body = response.json()
         choices = body.get("choices") or []
         if not choices:
             raise LLMError(f"{provider} returned no choices: {body}", category="empty_response")
         choice = choices[0]
         message = choice.get("message") or {}
+        content_text = clean_space(message.get("content"))
+        if not content_text:
+            # Some reasoning-capable endpoints put the final answer in an
+            # alternate field. Never expose reasoning; only accept final text.
+            content_text = clean_space(message.get("final") or choice.get("text"))
+        if not content_text:
+            raise LLMError(f"{provider} returned empty content: {body}", category="empty_response")
         finish_reason = clean_space(choice.get("finish_reason"))
-        return _extract_json(
-            message.get("content", ""),
-            truncated=finish_reason in {"length", "max_tokens"},
-        ), body.get("usage") or {}, clean_space(body.get("model")) or model
+        content: Any = _extract_json(content_text, truncated=finish_reason in {"length", "max_tokens"}) if json_mode else content_text
+        return content, body.get("usage") or {}, clean_space(body.get("model")) or model
 
-    def _groq_call(self, model: str, system: str, prompt: str, temperature: float) -> tuple[Any, dict[str, Any], str]:
-        return self._openai_compatible_call("groq", model, system, prompt, temperature)
+    def _groq_call(
+        self, model: str, system: str, prompt: str, temperature: float, *,
+        json_mode: bool = True, max_output_tokens: int | None = None,
+    ) -> tuple[Any, dict[str, Any], str]:
+        caller = self._openai_compatible_call
+        try:
+            parameters = inspect.signature(caller).parameters
+            supports_options = "json_mode" in parameters or any(
+                parameter.kind == inspect.Parameter.VAR_KEYWORD for parameter in parameters.values()
+            )
+        except (TypeError, ValueError):
+            supports_options = False
+        if supports_options:
+            return caller(
+                "groq", model, system, prompt, temperature,
+                json_mode=json_mode, max_output_tokens=max_output_tokens,
+            )
+        return caller("groq", model, system, prompt, temperature)
 
     def provider_account_info(self, provider: str, *, refresh: bool = False) -> dict[str, Any]:
         """Return safe, provider-supported account/credit information when available."""
@@ -698,6 +814,26 @@ class LLMRouter:
         except (TypeError, ValueError):
             return max(1, default)
 
+    @staticmethod
+    def _accepts_keyword(callable_obj: Any, keyword: str) -> bool:
+        try:
+            signature = inspect.signature(callable_obj)
+        except (TypeError, ValueError):
+            return False
+        return keyword in signature.parameters or any(
+            parameter.kind == inspect.Parameter.VAR_KEYWORD
+            for parameter in signature.parameters.values()
+        )
+
+    def _invoke_json_caller(
+        self, caller: Any, model: str, system: str, prompt: str,
+        temperature: float, max_output_tokens: int | None,
+    ) -> Any:
+        kwargs: dict[str, Any] = {}
+        if max_output_tokens is not None and self._accepts_keyword(caller, "max_output_tokens"):
+            kwargs["max_output_tokens"] = max_output_tokens
+        return caller(model, system, prompt, temperature, **kwargs)
+
     def json_task(
         self,
         *,
@@ -709,6 +845,7 @@ class LLMRouter:
         normalizer: Any | None = None,
         max_models_per_provider: int = 3,
         task_name: str = "json_task",
+        max_output_tokens: int | None = None,
     ) -> LLMResult:
         attempts: list[dict[str, Any]] = []
         if provider_order is None:
@@ -809,7 +946,7 @@ class LLMRouter:
                     }
                     started = time.monotonic()
                     try:
-                        raw_result = caller(model, system, prompt, temperature)
+                        raw_result = self._invoke_json_caller(caller, model, system, prompt, temperature, max_output_tokens)
                         data, usage, response_model = self._normalize_call_result(raw_result, model)
                         parser_audit = dict(data.pop("_pif_parser_audit", {}) or {}) if isinstance(data, dict) else {}
                         normalization_audit: dict[str, Any] = {}
@@ -887,7 +1024,84 @@ class LLMRouter:
         else:
             category = summarize_attempt_categories(attempts)
             message = f"All configured LLM attempts failed ({category})"
+            last_error = next((row.get("error") for row in reversed(attempts) if row.get("status") == "failed"), "")
+            if last_error:
+                message += f": {last_error}"
         raise LLMError(message, attempts=attempts, category=category, candidates=invalid_candidates)
+
+    def text_task(
+        self,
+        *,
+        system: str,
+        prompt: str,
+        provider_order: tuple[str, ...] | None = None,
+        temperature: float = 0.05,
+        max_models_per_provider: int = 2,
+        task_name: str = "text_task",
+        max_output_tokens: int | None = None,
+    ) -> LLMTextResult:
+        """Run a plain-text task without forcing provider JSON mode.
+
+        Translation uses this only after structured JSON translation has failed
+        or returned an unusable shape. It never replaces structured analysis.
+        """
+        attempts: list[dict[str, Any]] = []
+        order = tuple(provider_order) if provider_order is not None else self.provider_order("translation")
+        if not order:
+            raise LLMError("No provider is configured for the requested text task", category="no_provider_configured")
+        runtime_cap = max(1, int(os.getenv("PIF_LLM_MAX_MODELS_PER_PROVIDER", "2")))
+        max_models_per_provider = min(max_models_per_provider, runtime_cap)
+        configured_seen = False
+        for provider in order:
+            provider = provider.lower()
+            key = self.keys.get(provider, "")
+            state = self.states.get(provider)
+            if not key or state is None:
+                attempts.append({"task": task_name, "provider": provider, "model": "", "status": "skipped", "failure_category": "provider_not_configured", "error": "API key not configured", "at": utc_now_iso()})
+                continue
+            configured_seen = True
+            if not state.available():
+                attempts.append({"task": task_name, "provider": provider, "model": "", "status": "skipped", "failure_category": state.status, "error": state.disabled_reason or "provider is cooling down", "at": utc_now_iso()})
+                continue
+            for model in self._discover_models(provider)[:max_models_per_provider]:
+                if not state.model_available(model):
+                    attempts.append({"task": task_name, "provider": provider, "model": model, "status": "skipped", "failure_category": "model_cooldown", "error": "model is unavailable for this run", "at": utc_now_iso()})
+                    continue
+                allowed, reason = self._billing_guard(provider, model)
+                if not allowed:
+                    attempts.append({"task": task_name, "provider": provider, "model": model, "status": "skipped", "failure_category": "paid_route_blocked", "error": reason, "at": utc_now_iso()})
+                    continue
+                started = time.monotonic()
+                attempt = {"task": task_name, "provider": provider, "model": model, "at": utc_now_iso(), "system_chars": len(system), "prompt_chars": len(prompt)}
+                try:
+                    if provider == "gemini":
+                        value = self._gemini_call(model, system, prompt, temperature, json_mode=False, max_output_tokens=max_output_tokens)
+                    elif provider == "groq":
+                        value = self._groq_call(model, system, prompt, temperature, json_mode=False, max_output_tokens=max_output_tokens)
+                    else:
+                        value = self._openai_compatible_call(provider, model, system, prompt, temperature, json_mode=False, max_output_tokens=max_output_tokens)
+                    text, usage, response_model = self._normalize_call_result(value, model)
+                    text = clean_space(text)
+                    if not text:
+                        raise LLMError("Provider returned empty content", category="empty_response")
+                    state.mark_success(model, usage)
+                    self._persist_states()
+                    attempt.update({"status": "success", "response_model": response_model, "elapsed_ms": round((time.monotonic() - started) * 1000)})
+                    attempts.append(attempt)
+                    return LLMTextResult(text=text, provider=provider, model=response_model, attempts=attempts)
+                except Exception as exc:
+                    category = classify_llm_failure(exc)
+                    state.mark_failure(model, category, cooldown_seconds=self._failure_cooldown_seconds(exc, 60))
+                    self._persist_states()
+                    attempt.update({"status": "failed", "failure_category": category, "error_type": type(exc).__name__, "error": self._safe_error_text(exc), "elapsed_ms": round((time.monotonic() - started) * 1000)})
+                    attempts.append(attempt)
+                    continue
+        category = summarize_attempt_categories(attempts) if configured_seen else "no_provider_configured"
+        last_error = next((row.get("error") for row in reversed(attempts) if row.get("status") == "failed"), "")
+        message = f"All configured LLM text attempts failed ({category})"
+        if last_error:
+            message += f": {last_error}"
+        raise LLMError(message, attempts=attempts, category=category)
 
     def usage_snapshot(self) -> dict[str, Any]:
         return {

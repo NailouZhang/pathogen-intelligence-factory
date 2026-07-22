@@ -140,7 +140,7 @@ def main() -> int:
         errors.append(f"declared prompt files missing: {undeployed_prompts}")
 
     report = {
-        "policy_version": "v17.4-r1-consumer-prompt-and-derived-view-audit-2",
+        "policy_version": "v17.4-r2-consumer-prompt-and-derived-view-audit-3",
         "passed": not errors,
         "errors": errors,
         "profile_count": len(profiles),

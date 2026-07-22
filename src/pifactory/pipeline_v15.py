@@ -1508,8 +1508,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         item["display_mode"] = "supplementary_related" if related_supplementary else "supplementary_news"
         if related_supplementary:
             item["supplementary_reason"] = "biologically_related_non_target_entity"
-            item["notice_zh"] = "本条涉及与目标病毒具有分类学、宿主、生态、比较研究或鉴别诊断关系的非目标病毒。目标病毒证据不足，故仅保留为补充新闻，不生成目标病毒结论。"
-            item["notice_en"] = "This item concerns a biologically, taxonomically, ecologically or methodologically related non-target virus. Target-virus evidence is insufficient, so it is retained only as supplementary news without target-virus conclusions."
+            item["notice_zh"] = "与目标病原相关的比较或背景资讯。"
+            item["notice_en"] = "Comparative or background news related to the target pathogen."
         item["analysis"] = {}
         item.pop("elements_en", None)
         item.pop("elements_zh", None)

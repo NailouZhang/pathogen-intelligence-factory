@@ -26,6 +26,16 @@ OPERATIONAL_PATTERNS = tuple(re.compile(p, re.I) for p in (
     r"selection policy", r"Top 50 means", r"complete qualification", r"full audit", r"character limit",
     r"fallback.*translation", r"evidence boundary", r"ranked by publication date.*relevance.*evidence",
     r"translation completeness.*does not affect", r"English evidence.*Chinese display",
+    r"审查得出的结论是", r"审查结论", r"复核得出的结论", r"复核结论",
+    r"范围说明\s*[:：]", r"Scope note\s*:", r"证据不足以建立目标病毒",
+    r"不生成目标病毒结论", r"不生成研究结论", r"不生成结构化",
+    r"保留在补充目录", r"仅保留为补充新闻", r"未进入深度主报告",
+))
+
+PUBLIC_PREFIX_PATTERNS = tuple(re.compile(pattern, re.I) for pattern in (
+    r"^(?:经(?:审查|复核|核验)[，,:：\s]*)?审查得出的结论是[，,:：\s]*",
+    r"^(?:审查|复核|核验)(?:认为|结论|结果)?[，,:：\s]+",
+    r"^(?:结论是|结论为)[，,:：\s]*",
 ))
 
 
@@ -38,6 +48,8 @@ def sanitize_public_text(value: Any) -> str:
     text = clean_space(value)
     if not text:
         return ""
+    for pattern in PUBLIC_PREFIX_PATTERNS:
+        text = pattern.sub("", text).strip()
     parts = re.split(r"(?<=[。！？!?])\s+|(?<=\.)\s+(?=[A-Z])", text)
     kept = [part.strip() for part in parts if part.strip() and not is_operational_text(part)]
     return clean_space(" ".join(kept))

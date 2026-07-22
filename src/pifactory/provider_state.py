@@ -106,6 +106,10 @@ class ProviderRuntimeState:
             self.disabled_reason = category
             row["status"] = category
             return
+        if category == "model_not_found":
+            row["status"] = "disabled"
+            row["cooldown_until"] = 0.0
+            return
         if category == "rate_limited":
             row["status"] = "cooldown"
             row["cooldown_until"] = time.time() + max(1, cooldown_seconds)

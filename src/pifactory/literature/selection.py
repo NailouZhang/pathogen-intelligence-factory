@@ -5,7 +5,7 @@ from typing import Any
 from ..utils import clean_space
 from .normalization import metadata_verification, verified_evidence_status
 
-SELECTION_POLICY_VERSION = "v17.4-primary-and-related-supplementary-1"
+SELECTION_POLICY_VERSION = "v17.4-r2-primary-and-related-supplementary-2"
 
 _SUPPLEMENTARY_FIELDS = (
     "paper_id", "title", "title_zh", "authors", "journal", "year", "volume", "issue", "pages",
@@ -24,11 +24,11 @@ def build_supplementary_view(record: dict[str, Any], *, reason: str) -> dict[str
     related = reason == "biologically_related_non_target_entity" or record.get("relevance_route") == "supplementary_related"
     view["display_mode"] = "supplementary_related" if related else "metadata_only"
     if related:
-        view["notice_zh"] = "本条涉及与目标病毒具有分类学、宿主、生态、比较研究或鉴别诊断关系的非目标病毒。因当前证据不足以建立目标病毒主文献身份，保留在补充目录，不生成目标病毒结论或结构化分析。"
-        view["notice_en"] = "This record concerns a biologically, taxonomically, ecologically or methodologically related non-target virus. Target-virus evidence is insufficient for the primary report, so it is retained only in the supplementary catalog without target-virus conclusions or structured analysis."
+        view["notice_zh"] = "与目标病原相关的比较或背景资料。"
+        view["notice_en"] = "Comparative or background material related to the target pathogen."
     else:
-        view["notice_zh"] = "摘要尚未公开或本条未进入深度主报告。本条仅提供经过核验的出版元数据，不生成研究结论和结构化要素。"
-        view["notice_en"] = "The abstract is not public or this record was not selected for the deep report. Only verified publication metadata are shown; no research conclusions or structured elements are generated."
+        view["notice_zh"] = "补充出版信息；摘要或正文暂不完整。"
+        view["notice_en"] = "Supplementary publication information; the abstract or full text is not yet complete."
     return view
 
 

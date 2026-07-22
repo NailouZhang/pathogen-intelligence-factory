@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .utils import clean_space, dump_json, html_escape, truncate
-from .public_display import build_display_issue
+from .public_display import build_display_issue, sanitize_public_text
 from .language_contract import detect_text_language, is_verified_english, language_label
 
 COLORS = {
@@ -186,11 +186,11 @@ def _supplementary_scope_notice(item: dict[str, Any], *, wechat: bool = False) -
     )
     if not related:
         return ""
-    zh = clean_space(item.get("notice_zh")) or "相关非目标病毒：本条具有分类学、宿主、生态、比较研究或鉴别诊断价值，但当前证据不足以作为目标病毒主报告。"
-    en = clean_space(item.get("notice_en")) or "Related non-target virus: relevant for taxonomy, host range, ecology, comparison or differential diagnosis, but target-virus evidence is insufficient for the primary report."
+    zh = sanitize_public_text(item.get("notice_zh")) or "与目标病原相关的比较或背景资料。"
+    en = sanitize_public_text(item.get("notice_en")) or "Comparative or background material related to the target pathogen."
     if wechat:
-        return f'<p data-metadata-role="scope" style="margin:4px 0 6px;padding:5px 8px;border-radius:5px;background:#edf2f7;color:#4a5568;font-size:12px;line-height:1.55;"><strong>范围说明：</strong>{html_escape(zh or en)}</p>'
-    return f'<div data-metadata-role="scope" class="supplementary-scope-note"><span class="lang-zh"><strong>范围说明：</strong>{html_escape(zh or en)}</span><span class="lang-en" hidden><strong>Scope note:</strong> {html_escape(en or zh)}</span></div>'
+        return f'<p data-metadata-role="related-material" style="margin:4px 0 6px;padding:5px 8px;border-radius:5px;background:#edf2f7;color:#4a5568;font-size:12px;line-height:1.55;"><strong>相关资料：</strong>{html_escape(zh or en)}</p>'
+    return f'<div data-metadata-role="related-material" class="supplementary-scope-note"><span class="lang-zh"><strong>相关资料：</strong>{html_escape(zh or en)}</span><span class="lang-en" hidden><strong>Related material:</strong> {html_escape(en or zh)}</span></div>'
 
 
 def supplementary_paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:

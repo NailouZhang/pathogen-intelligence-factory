@@ -165,11 +165,12 @@ jobs:
           PAGES_REPO: ${{ vars.PAGES_REPO || 'NailouZhang/pathogen-intelligence-pages' }}
           PAGES_REPO_BRANCH: ${{ vars.PAGES_REPO_BRANCH || 'main' }}
           PAGES_PUBLIC_BASE_URL: ${{ vars.PAGES_PUBLIC_BASE_URL || 'https://nailouzhang.github.io/pathogen-intelligence-pages' }}
-          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
-          GROQ_MODEL: ${{ vars.GROQ_MODEL }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash' }}
+          GROQ_MODEL: ${{ vars.GROQ_MODEL || 'openai/gpt-oss-120b' }}
+          PIF_GROQ_MODELS: ${{ vars.PIF_GROQ_MODELS || 'openai/gpt-oss-120b,qwen/qwen3.6-27b,openai/gpt-oss-20b,llama-3.3-70b-versatile,llama-3.1-8b-instant' }}
           OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL || 'openrouter/free' }}
           MISTRAL_MODEL: ${{ vars.MISTRAL_MODEL || 'mistral-small-latest' }}
-          SILICONFLOW_MODEL: ${{ vars.SILICONFLOW_MODEL }}
+          SILICONFLOW_MODEL: ${{ vars.SILICONFLOW_MODEL || 'Qwen/Qwen3-8B' }}
           BIGMODEL_MODEL: ${{ vars.BIGMODEL_MODEL || 'glm-4.7-flash' }}
           DEEPSEEK_MODEL: ${{ vars.DEEPSEEK_MODEL || 'deepseek-v4-flash' }}
           GEMINI_IMAGE_MODEL: ${{ vars.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-image' }}
@@ -274,7 +275,7 @@ jobs:
           PIF_RELEVANCE_REJECTION_AUDIT_MAX: ${{ vars.PIF_RELEVANCE_REJECTION_AUDIT_MAX || '500' }}
           PIF_LLM_DISABLE_THINKING: ${{ vars.PIF_LLM_DISABLE_THINKING || 'true' }}
           PIF_LLM_PROVIDER_COOLDOWN_SECONDS: ${{ vars.PIF_LLM_PROVIDER_COOLDOWN_SECONDS || '60' }}
-          PIF_DEEPSEEK_GRANTED_BALANCE_ONLY: ${{ vars.PIF_DEEPSEEK_GRANTED_BALANCE_ONLY || 'true' }}
+          PIF_DEEPSEEK_GRANTED_BALANCE_ONLY: ${{ vars.PIF_DEEPSEEK_GRANTED_BALANCE_ONLY || 'false' }}
           PIF_DEEPSEEK_MIN_GRANTED_BALANCE: ${{ vars.PIF_DEEPSEEK_MIN_GRANTED_BALANCE || '0.10' }}
           # Shared across all sequential profiles in this workflow and persisted
           # on intelligence-data so later pathogens do not retry exhausted quotas.
@@ -284,6 +285,7 @@ jobs:
           PIF_LLM_OVERVIEW_PROVIDER_ORDER: ${{ vars.PIF_LLM_OVERVIEW_PROVIDER_ORDER || 'gemini,deepseek,bigmodel,mistral,siliconflow,openrouter,groq' }}
           PIF_LLM_RELEVANCE_PROVIDER_ORDER: ${{ vars.PIF_LLM_RELEVANCE_PROVIDER_ORDER || 'gemini,bigmodel,siliconflow,mistral,deepseek,openrouter,groq' }}
           PIF_TRANSLATION_PROVIDER_ORDER: ${{ vars.PIF_TRANSLATION_PROVIDER_ORDER || 'gemini,bigmodel,mistral,siliconflow,deepseek,openrouter,groq' }}
+          PIF_TRANSLATION_PLAIN_TEXT_RESCUE: ${{ vars.PIF_TRANSLATION_PLAIN_TEXT_RESCUE || 'true' }}
           PIF_LLM_ALLOW_PAID: ${{ vars.PIF_LLM_ALLOW_PAID || 'false' }}
           PIF_OPENROUTER_FREE_ONLY: ${{ vars.PIF_OPENROUTER_FREE_ONLY || 'true' }}
           PIF_OPENROUTER_HTTP_REFERER: ${{ vars.PAGES_PUBLIC_BASE_URL || 'https://nailouzhang.github.io/pathogen-intelligence-pages' }}/
@@ -320,7 +322,14 @@ jobs:
           PIF_FULLTEXT_BATCH_SIZE: ${{ vars.PIF_FULLTEXT_BATCH_SIZE || '25' }}
           PIF_HTTP_TIMEOUT: "18"
           PIF_HTTP_RETRIES: "2"
-          PIF_LLM_HTTP_TIMEOUT: "55"
+          PIF_LLM_HTTP_TIMEOUT: "75"
+          PIF_LLM_GEMINI_TIMEOUT: ${{ vars.PIF_LLM_GEMINI_TIMEOUT || '75' }}
+          PIF_LLM_GROQ_TIMEOUT: ${{ vars.PIF_LLM_GROQ_TIMEOUT || '60' }}
+          PIF_LLM_OPENROUTER_TIMEOUT: ${{ vars.PIF_LLM_OPENROUTER_TIMEOUT || '90' }}
+          PIF_LLM_MISTRAL_TIMEOUT: ${{ vars.PIF_LLM_MISTRAL_TIMEOUT || '75' }}
+          PIF_LLM_SILICONFLOW_TIMEOUT: ${{ vars.PIF_LLM_SILICONFLOW_TIMEOUT || '90' }}
+          PIF_LLM_BIGMODEL_TIMEOUT: ${{ vars.PIF_LLM_BIGMODEL_TIMEOUT || '120' }}
+          PIF_LLM_DEEPSEEK_TIMEOUT: ${{ vars.PIF_LLM_DEEPSEEK_TIMEOUT || '90' }}
           PIF_PROFILE_RUNTIME_MINUTES: ${{ vars.PIF_PROFILE_RUNTIME_MINUTES || '150' }}
           PIF_FINALIZATION_RESERVE_MINUTES: ${{ vars.PIF_FINALIZATION_RESERVE_MINUTES || '30' }}
           PIF_RETRIEVAL_MAX_MINUTES: ${{ vars.PIF_RETRIEVAL_MAX_MINUTES || '15' }}

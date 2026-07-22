@@ -1,31 +1,31 @@
-# Pathogen Intelligence Factory 17.4.1
+# Pathogen Intelligence Factory 17.4.2.post1
 
-私有主仓，负责21个Profile的排班、Canonical词库、文献与新闻检索、日期门、候选复核、确定性和保守LLM去重、证据补全、终审、双语分析、静态站、微信发布包、审计及跨仓同步。
+私有主仓，负责21个Profile排班、Canonical词库、文献与新闻检索、日期门、候选复核、确定性与保守LLM去重、全文/元数据补全、终审、双语分析、静态站、微信发布包、审计和跨仓同步。
 
-## 本次修订
+## v17.4-r2运行修复
 
-- CI真实检出Pages与私有Publisher后执行三仓契约测试；
-- 文献LLM模糊去重要求候选组索引、`same_work=true`、置信度≥0.90和确定性佐证；
-- 新闻模糊去重不再把同一事件的不同报道直接合并；
-- LLM仅背景误判只能在强目标身份和独立证据下保守纠偏，N硬噪声不可覆盖；
-- 21套派生词库统一为`2026.07-v17.4`；
-- 11个实际提示词全部纳入消费者审计。
+- Factory CI会检出Pages和私有Publisher，并设置`PAGES_REPO_DIR`、`PUBLISHER_REPO_DIR`执行真实三仓契约测试。
+- 统一由三仓包根目录的`system_manager.sh`执行配置、测试、GitHub任务、Pages和微信草稿操作。
+- 页面输出会清除“审查得出的结论是”“范围说明”等后台处理措辞，但保留事实结论和补充资料身份。
+- 翻译链为传统翻译器、批量结构化LLM、单字段结构化LLM、单字段纯文本LLM、英文可见兜底；单字段失败不终止整期生成。
+- LLM路由支持Gemini、Groq、OpenRouter、Mistral、SiliconFlow、BigModel和DeepSeek的独立超时、模型后备、错误分类和最小兼容请求重试。
+- 文献与新闻去重、相关性复核和终审继续采用现行保守证据保护规则，不降低目标病毒身份门槛。
 
 ## 本地验证
 
 ```bash
-python -m pytest
-python scripts/validate_all_profiles.py
-python scripts/validate_canonical_vocabularies.py --project-root . --output /tmp/canonical.json
-python scripts/audit_vocabulary_consumers.py --project-root . --output /tmp/consumers.json
-python scripts/audit_pipeline_logic.py --project-root . --output /tmp/pipeline.json
-python scripts/audit_query_coverage.py --project-root . --output /tmp/queries.json
+PYTHONPATH=src python -m pytest
+PYTHONPATH=src python scripts/validate_all_profiles.py
+PYTHONPATH=src python scripts/validate_canonical_vocabularies.py --project-root . --output /tmp/canonical.json
+PYTHONPATH=src python scripts/audit_vocabulary_consumers.py --project-root . --output /tmp/consumers.json
+PYTHONPATH=src python scripts/audit_pipeline_logic.py --project-root . --output /tmp/pipeline.json
+PYTHONPATH=src python scripts/audit_query_coverage.py --project-root . --output /tmp/queries.json
 ```
 
-跨仓pytest必须设置真实仓库路径：
+跨仓pytest必须指向真实Pages与Publisher仓库：
 
 ```bash
 PAGES_REPO_DIR=/path/to/pathogen-intelligence-pages \
 PUBLISHER_REPO_DIR=/path/to/pathogen-wechat-publisher \
-python -m pytest
+PYTHONPATH=src python -m pytest
 ```

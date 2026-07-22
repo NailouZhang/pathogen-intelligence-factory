@@ -47,8 +47,9 @@ def _probe_provider(router: LLMRouter, provider: str) -> dict[str, Any]:
             prompt='Return exactly {"status":"ok"}.',
             provider_order=(provider,),
             validator=_probe_validator,
-            max_models_per_provider=1,
+            max_models_per_provider=2,
             temperature=0.0,
+            max_output_tokens=96,
             task_name="credential_preflight",
         )
         return {
@@ -75,15 +76,31 @@ def _probe_provider(router: LLMRouter, provider: str) -> dict[str, Any]:
         elif category == "quota_exhausted":
             action_hint = "Wait for quota reset or enable another configured provider."
         elif category == "rate_limited":
-            action_hint = "Provider is in temporary cooldown; the router will use another provider."
+            action_hint = "Provider is in temporary cooldown; honor Retry-After or let the router use another provider."
+        elif category == "model_not_found":
+            action_hint = "Verify the configured *_MODEL value against the provider account model list; the router will try the next configured model/provider."
+        elif category in {"unsupported_parameter", "invalid_request"}:
+            action_hint = "The router retries once with a minimal provider-compatible payload; inspect the recorded provider response if the retry also fails."
+        elif category == "timeout":
+            action_hint = "Increase the provider-specific PIF_LLM_*_TIMEOUT_SECONDS only when the provider is consistently slow; other providers remain available."
+        elif category == "network_error":
+            action_hint = "Check GitHub Actions egress, DNS, proxy and TLS access to the provider endpoint; this is not treated as an invalid API key."
+        elif category == "provider_unavailable":
+            action_hint = "The provider returned a temporary service error; keep the key and let the router fail over to another provider."
+        elif category == "invalid_json":
+            action_hint = "The provider returned usable HTTP content but not the requested JSON shape; translation can still use the plain-text LLM rescue path."
+        attempts = getattr(exc, "attempts", []) or []
+        last_failed = next((row for row in reversed(attempts) if row.get("status") == "failed"), {})
+        detail = str(last_failed.get("error") or exc)[:900]
         return {
             "provider": provider,
             "status": "failed" if category != "no_provider_configured" else "not_configured",
             "failure_category": category,
-            "error": str(exc)[:700],
+            "model": last_failed.get("model", ""),
+            "error": detail,
             "action_hint": action_hint,
             "account": account,
-            "attempts": getattr(exc, "attempts", []) or [],
+            "attempts": attempts,
         }
 
 
@@ -136,7 +153,8 @@ def main() -> int:
             elif result["status"] == "not_configured":
                 print(f"[not configured] {provider}")
             else:
-                print(f"[failed] {provider}: {result.get('failure_category')} - {result.get('error')}")
+                model = result.get("model") or "no-model"
+                print(f"[failed] {provider}: model={model} category={result.get('failure_category')} - {result.get('error')}")
                 if result.get("action_hint"):
                     print(f"         action: {result['action_hint']}")
 
@@ -146,7 +164,7 @@ def main() -> int:
         status = "ready" if configured_analysis else "unavailable"
 
     audit = {
-        "schema_version": 3,
+        "schema_version": 5,
         "generated_at": utc_now_iso(),
         "status": status,
         "analysis_provider_configured": configured_analysis,
@@ -157,6 +175,7 @@ def main() -> int:
             "rescue": list(LLMRouter(HttpClient("pif/order-only")).provider_order("rescue")),
             "overview": list(LLMRouter(HttpClient("pif/order-only")).provider_order("overview")),
             "relevance": list(LLMRouter(HttpClient("pif/order-only")).provider_order("relevance")),
+            "translation": list(LLMRouter(HttpClient("pif/order-only")).provider_order("translation")),
         },
         "provider_endpoints": {
             "siliconflow": LLMRouter(HttpClient("pif/endpoint-only")).provider_base_url("siliconflow"),

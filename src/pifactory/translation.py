@@ -19,7 +19,7 @@ from .llm import LLMError, LLMRouter
 from .utils import clean_space, extract_numbers, sha256_text, split_sentences, truncate
 
 
-TRANSLATION_CACHE_VERSION = "v15.2-independent-news-state-provider-health-1"
+TRANSLATION_CACHE_VERSION = "v17.4-r2-structured-plus-plain-llm-rescue-1"
 
 DEFAULT_REPAIRS = {
     "汉塔病毒": "汉坦病毒",
@@ -377,6 +377,121 @@ def _cache_key(source: str, glossary: list[dict[str, str]], field_kind: str) -> 
 
 
 
+
+
+def _translation_value(data: Any, key: str = "") -> str:
+    """Accept common structured translation shapes without weakening quality checks."""
+    if isinstance(data, str):
+        return clean_space(data)
+    if isinstance(data, list):
+        for value in data:
+            candidate = _translation_value(value, key)
+            if candidate:
+                return candidate
+        return ""
+    if not isinstance(data, dict):
+        return ""
+    if key:
+        for container_name in ("translations", "fields", "result", "data", "output"):
+            container = data.get(container_name)
+            if isinstance(container, dict) and key in container:
+                candidate = _translation_value(container.get(key))
+                if candidate:
+                    return candidate
+        if key in data:
+            candidate = _translation_value(data.get(key))
+            if candidate:
+                return candidate
+    for name in (
+        "translation_zh", "translation", "translated_text", "translatedText",
+        "text", "result", "output", "content", "answer",
+    ):
+        if name in data:
+            candidate = _translation_value(data.get(name), key)
+            if candidate:
+                return candidate
+    # A one-field response is safe to accept; multi-field dictionaries require
+    # an explicit key so fields cannot be silently crossed.
+    visible = [value for name, value in data.items() if not str(name).startswith("_pif_")]
+    if len(visible) == 1:
+        return _translation_value(visible[0], key)
+    return ""
+
+
+def _strip_translation_wrapper(text: str) -> str:
+    value = clean_space(text)
+    value = re.sub(r"^```(?:text|markdown|json)?\s*", "", value, flags=re.I)
+    value = re.sub(r"\s*```$", "", value)
+    value = re.sub(
+        r"^(?:简体中文翻译|中文翻译|翻译结果|translation|translated text)\s*[:：]\s*",
+        "", value, flags=re.I,
+    )
+    # Plain-text rescue is instructed to return only the translation. A quoted
+    # single line is unwrapped, but explanatory paragraphs are not guessed.
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'", "“", "”"}:
+        value = value[1:-1]
+    return clean_space(value)
+
+
+def _llm_plain_translation_rescue(
+    source: str,
+    *,
+    protected: str,
+    mapping: dict[str, str],
+    glossary: list[dict[str, str]],
+    field_kind: str,
+    llm: LLMRouter,
+    provider_order: tuple[str, ...],
+    attempts: list[dict[str, Any]],
+) -> tuple[str, dict[str, Any]]:
+    text_task = getattr(llm, "text_task", None)
+    enabled = os.getenv("PIF_TRANSLATION_PLAIN_TEXT_RESCUE", "true").lower() in {"1", "true", "yes", "on"}
+    if not callable(text_task) or not enabled:
+        return "", {"status": "plain_text_rescue_unavailable", "provider": "none", "attempts": attempts}
+    system = (
+        "You are a biomedical English-to-Simplified-Chinese translator. "
+        "Return only the complete Chinese translation, without labels, notes, JSON, Markdown, or analysis. "
+        "Preserve every number and every ZXQTERM placeholder exactly."
+    )
+    prompt = json.dumps({
+        "field_kind": field_kind,
+        "text": protected,
+        "protected_tokens": list(mapping),
+        "glossary": glossary,
+    }, ensure_ascii=False)
+    try:
+        result = text_task(
+            system=system,
+            prompt=prompt,
+            provider_order=provider_order,
+            max_models_per_provider=2,
+            temperature=0.02,
+            max_output_tokens=max(128, min(1800, len(protected) * 2)),
+            task_name="translation_plain_text_rescue",
+        )
+        merged_attempts = attempts + list(getattr(result, "attempts", []) or [])
+        raw = _strip_translation_wrapper(getattr(result, "text", ""))
+        candidate = _repair_zh(_restore(raw, mapping), glossary)
+        valid, reason = _looks_chinese(candidate, source, field_kind)
+        if valid:
+            return candidate, {
+                "status": "passed_llm_plain_text_rescue",
+                "provider": getattr(result, "provider", ""),
+                "model": getattr(result, "model", ""),
+                "attempts": merged_attempts,
+            }
+        merged_attempts.append({
+            "provider": getattr(result, "provider", ""),
+            "model": getattr(result, "model", ""),
+            "status": "quality_rejected",
+            "reason": reason,
+        })
+        return "", {"status": "translation_unavailable", "provider": "none", "reason": reason, "attempts": merged_attempts}
+    except Exception as exc:
+        attempts.append({"provider": "llm_plain_text_rescue", "status": "failed", "error": clean_space(exc)[:900]})
+        return "", {"status": "translation_unavailable", "provider": "none", "attempts": attempts}
+
+
 def translate_text(
     text: str,
     *,
@@ -421,8 +536,10 @@ def translate_text(
     except Exception as exc:
         attempts.append({"provider": "python_translation", "status": "failed", "error": clean_space(exc)[:800]})
 
-    # LLM translation is the final free fallback. It is called only after all
-    # Python routes have failed or failed quality validation.
+    # LLM translation is the final fallback after every conventional translator.
+    # Structured JSON is preferred, then a provider plain-text request is used
+    # when a free model ignores/rejects JSON mode or returns a different shape.
+    provider_order = tuple(getattr(llm, "provider_order", lambda purpose: ())("translation"))
     if llm.available:
         prompt = json.dumps(
             {
@@ -432,21 +549,28 @@ def translate_text(
                 "text": protected,
                 "protected_tokens": list(mapping),
                 "glossary": glossary,
-                "instruction": "Translate completely. Preserve all numbers and return a non-empty translation_zh field.",
+                "instruction": "Translate completely. Preserve all numbers. Return JSON with translation_zh.",
             },
             ensure_ascii=False,
         )
         try:
-            result = llm.json_task(system=prompt_text, prompt=prompt, provider_order=getattr(llm, "provider_order", lambda purpose: ())("translation"), max_models_per_provider=2, temperature=0.05, task_name="translation_single_rescue")
+            result = llm.json_task(
+                system=prompt_text,
+                prompt=prompt,
+                provider_order=provider_order,
+                max_models_per_provider=2,
+                temperature=0.05,
+                max_output_tokens=max(128, min(1800, len(protected) * 2)),
+                task_name="translation_single_structured_rescue",
+            )
             attempts.extend(result.attempts)
-            raw = ""
-            if isinstance(result.data, dict):
-                raw = clean_space(result.data.get("translation_zh") or result.data.get("translation"))
+            raw = _translation_value(result.data)
             candidate = _repair_zh(_restore(raw, mapping), glossary)
             valid, reason = _looks_chinese(candidate, source, field_kind)
             if valid:
                 audit = {
                     "status": "passed_llm_final_fallback",
+                    "rescue_mode": "structured_json",
                     "provider": result.provider,
                     "model": result.model,
                     "attempts": attempts,
@@ -454,8 +578,25 @@ def translate_text(
                 cache[key] = {"text": candidate, "audit": audit}
                 return candidate, audit
             attempts.append({"provider": result.provider, "model": result.model, "status": "quality_rejected", "reason": reason})
-        except LLMError as exc:
-            attempts.append({"provider": "llm_router", "status": "failed", "error": clean_space(exc)[:700]})
+        except Exception as exc:
+            extra_attempts = list(getattr(exc, "attempts", []) or [])
+            attempts.extend(extra_attempts)
+            attempts.append({"provider": "llm_structured_rescue", "status": "failed", "error": clean_space(exc)[:900]})
+
+        candidate, plain_audit = _llm_plain_translation_rescue(
+            source,
+            protected=protected,
+            mapping=mapping,
+            glossary=glossary,
+            field_kind=field_kind,
+            llm=llm,
+            provider_order=provider_order,
+            attempts=attempts,
+        )
+        if candidate:
+            cache[key] = {"text": candidate, "audit": plain_audit}
+            return candidate, plain_audit
+        attempts = list(plain_audit.get("attempts") or attempts)
 
     audit = {"status": "translation_unavailable", "provider": "none", "attempts": attempts}
     cache[key] = {"text": "", "audit": audit}
@@ -575,18 +716,24 @@ def _translate_field_map(
             ensure_ascii=False,
         )
         try:
-            result = llm.json_task(system=prompt_text, prompt=prompt, provider_order=getattr(llm, "provider_order", lambda purpose: ())("translation"), max_models_per_provider=2, temperature=0.05, task_name="translation_batch_rescue")
-            response_fields = result.data.get("translations") if isinstance(result.data, dict) else {}
-            if not isinstance(response_fields, dict):
-                response_fields = {}
+            result = llm.json_task(
+                system=prompt_text,
+                prompt=prompt,
+                provider_order=getattr(llm, "provider_order", lambda purpose: ())("translation"),
+                max_models_per_provider=2,
+                temperature=0.05,
+                max_output_tokens=max(256, min(4000, sum(len(value) for value in protected_fields.values()) * 2)),
+                task_name="translation_batch_structured_rescue",
+            )
             for key, source in list(unresolved.items()):
-                raw = clean_space(response_fields.get(key))
+                raw = _translation_value(result.data, key)
                 candidate = _repair_zh(_restore(raw, mappings.get(key, {})), glossary)
                 valid, reason = _looks_chinese(candidate, source, field_kinds.get(key, "body"))
                 attempts = list((audits.get(key) or {}).get("attempts") or []) + list(result.attempts)
                 if valid:
                     audit = {
                         "status": "passed_llm_final_fallback",
+                        "rescue_mode": "batch_structured_json",
                         "provider": result.provider,
                         "model": result.model,
                         "attempts": attempts,
@@ -603,10 +750,11 @@ def _translate_field_map(
                         "reason": reason,
                         "attempts": attempts,
                     }
-        except LLMError as exc:
+        except Exception as exc:
             for key in unresolved:
                 attempts = list((audits.get(key) or {}).get("attempts") or [])
-                attempts.append({"provider": "llm_router", "status": "failed", "error": clean_space(exc)[:700]})
+                attempts.extend(list(getattr(exc, "attempts", []) or []))
+                attempts.append({"provider": "llm_batch_structured_rescue", "status": "failed", "error": clean_space(exc)[:900]})
                 audits[key] = {"status": "translation_unavailable", "provider": "none", "attempts": attempts}
 
     # Structured batch output can occasionally omit one key even when the model
@@ -803,7 +951,7 @@ def translate_record(
     record["translation_ready"] = translation_complete
     record["translation_audit"] = {
         "policy_version": TRANSLATION_CACHE_VERSION,
-        "order": ["deep_translator_google", "google_direct_python", "mymemory", "llm_batch_fallback", "individual_field_rescue"],
+        "order": ["deep_translator_google", "google_direct_python", "mymemory", "llm_batch_structured_rescue", "llm_single_structured_rescue", "llm_plain_text_rescue", "english_source_display_fallback"],
         "title": audits.get("title", {}),
         "abstract_or_body": audits.get("abstract_or_body", {}),
         "body_source_kind": body_kind if body_source else "none",

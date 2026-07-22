@@ -221,6 +221,20 @@ def audit_html(path: Path) -> dict[str, Any]:
     parser.close()
     findings: list[dict[str, Any]] = []
 
+    public_forbidden = (
+        "审查得出的结论是", "范围说明：", "范围说明:",
+        "证据不足以建立目标病毒", "不生成目标病毒结论", "不生成结构化分析",
+        "保留在补充目录", "仅保留为补充新闻",
+    )
+    visible_text = html_lib.unescape(re.sub(r"<[^>]+>", " ", raw))
+    for phrase in public_forbidden:
+        if phrase in visible_text:
+            findings.append({
+                "severity": "critical",
+                "code": "backend_process_phrase_in_public_output",
+                "phrase": phrase,
+            })
+
     for index, row in enumerate(parser.dd_rows):
         text = html_lib.unescape(row["text"])
         if row["lang_en"] and row["lang_zh"]:
@@ -275,7 +289,7 @@ def audit_html(path: Path) -> dict[str, Any]:
     critical = sum(row["severity"] == "critical" for row in findings)
     warnings = sum(row["severity"] == "warning" for row in findings)
     return {
-        "schema_version": 5,
+        "schema_version": 6,
         "file": str(path),
         "paper_card_markers": parser.paper_cards,
         "supplementary_card_markers": parser.supplementary_cards,
