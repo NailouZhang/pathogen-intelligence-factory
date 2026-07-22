@@ -167,7 +167,7 @@ def main() -> int:
             errors.append(f"prompt not active: {prompt} -> {consumer_name}")
 
     report = {
-        "policy_version": "v17.4-r3-end-to-end-logic-audit-2",
+        "policy_version": "v17.4-r4-end-to-end-logic-audit-2",
         "passed": not errors,
         "errors": errors,
         "pipeline_file": str(pipeline_path),

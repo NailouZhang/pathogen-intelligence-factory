@@ -28,6 +28,10 @@ def test_workflow_runs_at_beijing_0200_and_has_no_google_cse():
     assert "publish_pages_repository.sh" in text
     assert "PAGES_REPO_TOKEN" in text
     assert "deploy-pages@v4" in pages
+    assert "repository_dispatch:" in pages
+    assert "pages-data-updated" in pages
+    assert "ref: ${{ steps.source.outputs.branch }}" in pages
+    assert "PAGES_REPO_BRANCH: ${{ vars.PAGES_REPO_BRANCH || 'pages-data' }}" in text
     assert "intelligence-data" in text
     assert "GOOGLE_CSE" not in text
     assert "for PROFILE_ID" in text

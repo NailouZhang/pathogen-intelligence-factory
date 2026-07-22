@@ -60,6 +60,9 @@ def test_private_factory_syncs_only_static_site_to_public_pages_repo() -> None:
     assert "Forbidden public path" in sync
     assert "config/vocabularies" in sync
     assert "data/audit" in sync
+    assert 'PAGES_REPO_BRANCH="${PAGES_REPO_BRANCH:-pages-data}"' in sync
+    assert '[[ "$PAGES_REPO_BRANCH" != main ]]' in sync
+    assert "pages-data-updated" in sync
 
 
 def test_public_pages_repo_contains_only_static_site_and_own_deployer() -> None:
@@ -67,6 +70,9 @@ def test_public_pages_repo_contains_only_static_site_and_own_deployer() -> None:
     assert "actions/configure-pages@v5" in workflow
     assert "actions/upload-pages-artifact@v4" in workflow
     assert "actions/deploy-pages@v4" in workflow
+    assert "repository_dispatch:" in workflow
+    assert "pages-data-updated" in workflow
+    assert "ref: ${{ steps.source.outputs.branch }}" in workflow
     assert not (PAGES / "src").exists()
     assert not (PAGES / "config/vocabularies").exists()
 
