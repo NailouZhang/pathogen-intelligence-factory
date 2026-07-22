@@ -9,14 +9,14 @@
     "accepted": 3,
     "rejected": 56,
     "review_methods": {
-      "compact_llm": 55,
+      "compact_llm": 56,
       "field_aware_deterministic_output_continuity": 1,
-      "python_full_corpus_fallback": 3
+      "python_full_corpus_fallback": 2
     },
     "review_decisions": {
       "reject": 1,
-      "reject_after_compact_llm_review": 48,
-      "reject_after_deterministic_full_review": 3,
+      "reject_after_compact_llm_review": 49,
+      "reject_after_deterministic_full_review": 2,
       "review": 7
     },
     "cache": {
@@ -28,7 +28,7 @@
       "deterministic_score_below_threshold": 51,
       "identifier_conflict": 1,
       "llm_background_only": 7,
-      "llm_wrong_entity_or_not_relevant": 42,
+      "llm_wrong_entity_or_not_relevant": 43,
       "review": 2,
       "virus_identity_not_established": 56
     },
@@ -36,7 +36,7 @@
       {
         "id": "paper-ca74ee97a9759f9f",
         "title": "Configurationally Locked Ridaifen-B Analogs as Potent Ebola Virus Entry Inhibitors.",
-        "source": "PubMed",
+        "source": "Europe PMC",
         "decision": "review",
         "method": "compact_llm",
         "cache": "hit",
@@ -55,7 +55,7 @@
       {
         "id": "paper-b014cdacd2234a55",
         "title": "From Zoonotic Spillover to Hemorrhagic Crisis: Molecular Insights and Epidemiology of Ethiopia’s 2025 Marburg Outbreak Amid Preparedness Gaps and Historical Lethality",
-        "source": "OpenAlex",
+        "source": "Crossref",
         "decision": "review",
         "method": "compact_llm",
         "cache": "hit",
@@ -581,16 +581,17 @@
         "id": "paper-85df0ee78dd9376f",
         "title": "A Triplex Crystal Digital RT-PCR for the Detection of Avian Leukosis Virus, Chicken Infectious Anemia Virus, and Fowl Adenovirus",
         "source": "Crossref",
-        "decision": "reject_after_deterministic_full_review",
-        "method": "python_full_corpus_fallback",
+        "decision": "reject_after_compact_llm_review",
+        "method": "compact_llm",
         "cache": "miss",
-        "llm_code": "",
-        "llm_reason": "",
+        "llm_code": "N",
+        "llm_reason": "Hard unrelated study focused on avian leukosis virus, chicken infectious anemia virus, and fowl adenovirus with no menti",
         "score": -3,
         "identity_hits": [],
         "ambiguous_abbreviation_hits": [],
         "excluded_hits": [],
         "reason_codes": [
+          "llm_wrong_entity_or_not_relevant",
           "virus_identity_not_established",
           "deterministic_score_below_threshold"
         ]
@@ -844,7 +845,7 @@
       {
         "id": "paper-771d49e1cc4319bf",
         "title": "International risk assessment of Nipah virus outbreak and medium-long-term prevention and control prospects in China",
-        "source": "OpenAlex",
+        "source": "Crossref",
         "decision": "reject_after_deterministic_full_review",
         "method": "python_full_corpus_fallback",
         "cache": "miss",
@@ -1153,23 +1154,65 @@
   },
   "news": {
     "policy_version": "v17.2-rejection-reason-audit-1",
-    "candidates_reviewed_by_python": 1,
+    "candidates_reviewed_by_python": 13,
     "accepted": 0,
-    "rejected": 1,
+    "rejected": 13,
     "review_methods": {
-      "python_full_corpus_fallback": 1
+      "compact_llm": 9,
+      "python_full_corpus_fallback": 4
     },
     "review_decisions": {
-      "reject_after_deterministic_full_review": 1
+      "reject_after_compact_llm_review": 9,
+      "reject_after_deterministic_full_review": 4
     },
     "cache": {
-      "miss": 1
+      "hit": 9,
+      "miss": 4
     },
     "rejection_reason_counts": {
-      "deterministic_score_below_threshold": 1,
-      "virus_identity_not_established": 1
+      "deterministic_score_below_threshold": 12,
+      "llm_wrong_entity_or_not_relevant": 9,
+      "virus_identity_not_established": 13
     },
     "rejected_records": [
+      {
+        "id": "news-a9e32805be896705",
+        "title": "Ethiopia declares end of Marburg outbreak - TRT Afrika",
+        "source": "Google News English",
+        "decision": "reject_after_compact_llm_review",
+        "method": "compact_llm",
+        "cache": "hit",
+        "llm_code": "N",
+        "llm_reason": "no substantive target-specific evidence",
+        "score": -3,
+        "identity_hits": [],
+        "ambiguous_abbreviation_hits": [],
+        "excluded_hits": [],
+        "reason_codes": [
+          "llm_wrong_entity_or_not_relevant",
+          "virus_identity_not_established",
+          "deterministic_score_below_threshold"
+        ]
+      },
+      {
+        "id": "news-48770b660c195294",
+        "title": "US issues travel advisory after cases of eye-bleeding disease are reported in region battling Ebola - MSN",
+        "source": "Google News English",
+        "decision": "reject_after_compact_llm_review",
+        "method": "compact_llm",
+        "cache": "hit",
+        "llm_code": "N",
+        "llm_reason": "hard unrelated entity (Ebola virus disease context)",
+        "score": -3,
+        "identity_hits": [],
+        "ambiguous_abbreviation_hits": [],
+        "excluded_hits": [],
+        "reason_codes": [
+          "llm_wrong_entity_or_not_relevant",
+          "virus_identity_not_established",
+          "deterministic_score_below_threshold"
+        ]
+      },
       {
         "id": "news-f88b82f9ee240c69",
         "title": "WHO: Uganda is silent on updates following disclosure of Marburg outbreak",
@@ -1184,6 +1227,192 @@
         "ambiguous_abbreviation_hits": [],
         "excluded_hits": [],
         "reason_codes": [
+          "virus_identity_not_established",
+          "deterministic_score_below_threshold"
+        ]
+      },
+      {
+        "id": "news-f86ea56ddd3d52f0",
+        "title": "WHO: Uganda is silent on updates following disclosure of Marburg outbreak - STAT",
+        "source": "Google News English",
+        "decision": "reject_after_deterministic_full_review",
+        "method": "python_full_corpus_fallback",
+        "cache": "miss",
+        "llm_code": "",
+        "llm_reason": "",
+        "score": -3,
+        "identity_hits": [],
+        "ambiguous_abbreviation_hits": [],
+        "excluded_hits": [],
+        "reason_codes": [
+          "virus_identity_not_established",
+          "deterministic_score_below_threshold"
+        ]
+      },
+      {
+        "id": "news-f871f6ced0a60dc0",
+        "title": "Ebola disease caused by Bundibugyo virus, Democratic Republic of the Congo & Uganda - World Health Organization (WHO)",
+        "source": "Google News English",
+        "decision": "reject_after_compact_llm_review",
+        "method": "compact_llm",
+        "cache": "hit",
+        "llm_code": "N",
+        "llm_reason": "hard unrelated entity (Bundibugyo virus) with no target-specific evidence",
+        "score": 3,
+        "identity_hits": [],
+        "ambiguous_abbreviation_hits": [],
+        "excluded_hits": [],
+        "reason_codes": [
+          "llm_wrong_entity_or_not_relevant",
+          "virus_identity_not_established"
+        ]
+      },
+      {
+        "id": "news-78c61f88fa7505b7",
+        "title": "A Village Health Team member's timely alert helps detect Uganda’s first Marburg case in 2026 - UNICEF",
+        "source": "Google News English",
+        "decision": "reject_after_compact_llm_review",
+        "method": "compact_llm",
+        "cache": "hit",
+        "llm_code": "N",
+        "llm_reason": "route_reject",
+        "score": -3,
+        "identity_hits": [],
+        "ambiguous_abbreviation_hits": [],
+        "excluded_hits": [],
+        "reason_codes": [
+          "llm_wrong_entity_or_not_relevant",
+          "virus_identity_not_established",
+          "deterministic_score_below_threshold"
+        ]
+      },
+      {
+        "id": "news-01bd13de12adc162",
+        "title": "新兴传染病的社会经济影响中的性别差异:来自几内亚混合方法研究的见解 - 生物通",
+        "source": "Google News Chinese",
+        "decision": "reject_after_compact_llm_review",
+        "method": "compact_llm",
+        "cache": "hit",
+        "llm_code": "N",
+        "llm_reason": "route_reject",
+        "score": 0,
+        "identity_hits": [],
+        "ambiguous_abbreviation_hits": [],
+        "excluded_hits": [],
+        "reason_codes": [
+          "llm_wrong_entity_or_not_relevant",
+          "virus_identity_not_established",
+          "deterministic_score_below_threshold"
+        ]
+      },
+      {
+        "id": "news-a70b8655f0420f2b",
+        "title": "Ebola - Course of infection - Encyclopedia Britannica",
+        "source": "Google News English",
+        "decision": "reject_after_compact_llm_review",
+        "method": "compact_llm",
+        "cache": "hit",
+        "llm_code": "N",
+        "llm_reason": "route_reject",
+        "score": -3,
+        "identity_hits": [],
+        "ambiguous_abbreviation_hits": [],
+        "excluded_hits": [],
+        "reason_codes": [
+          "llm_wrong_entity_or_not_relevant",
+          "virus_identity_not_established",
+          "deterministic_score_below_threshold"
+        ]
+      },
+      {
+        "id": "news-82d004946f016bba",
+        "title": "类埃博拉病毒加速蔓延 全球公共卫生系统准备好了吗? - cnBeta.COM",
+        "source": "Google News Chinese",
+        "decision": "reject_after_compact_llm_review",
+        "method": "compact_llm",
+        "cache": "hit",
+        "llm_code": "N",
+        "llm_reason": "hard unrelated entity (Ebola virus focus, no Marburg-specific evidence)",
+        "score": 0,
+        "identity_hits": [],
+        "ambiguous_abbreviation_hits": [],
+        "excluded_hits": [],
+        "reason_codes": [
+          "llm_wrong_entity_or_not_relevant",
+          "virus_identity_not_established",
+          "deterministic_score_below_threshold"
+        ]
+      },
+      {
+        "id": "news-2dae027f339b6606",
+        "title": "Africa’s Health Defenses Have Improved But Its Funding Has Not - ipsnews.net",
+        "source": "Google News English",
+        "decision": "reject_after_deterministic_full_review",
+        "method": "python_full_corpus_fallback",
+        "cache": "miss",
+        "llm_code": "",
+        "llm_reason": "",
+        "score": 0,
+        "identity_hits": [],
+        "ambiguous_abbreviation_hits": [],
+        "excluded_hits": [],
+        "reason_codes": [
+          "virus_identity_not_established",
+          "deterministic_score_below_threshold"
+        ]
+      },
+      {
+        "id": "news-3060f97344e683bb",
+        "title": "The next pandemic? Virus catalogue reveals the pathogens most likely to spark a global outbreak - MSN",
+        "source": "Google News English",
+        "decision": "reject_after_compact_llm_review",
+        "method": "compact_llm",
+        "cache": "hit",
+        "llm_code": "N",
+        "llm_reason": "hard unrelated entity (news aggregator with no substantive pathogen evidence)",
+        "score": -3,
+        "identity_hits": [],
+        "ambiguous_abbreviation_hits": [],
+        "excluded_hits": [],
+        "reason_codes": [
+          "llm_wrong_entity_or_not_relevant",
+          "virus_identity_not_established",
+          "deterministic_score_below_threshold"
+        ]
+      },
+      {
+        "id": "news-43a6eadd36d7f024",
+        "title": "The number of Ebola-related deaths in the Democratic Republic of the Congo has risen to 930 - UA.NEWS",
+        "source": "Google News English",
+        "decision": "reject_after_deterministic_full_review",
+        "method": "python_full_corpus_fallback",
+        "cache": "miss",
+        "llm_code": "",
+        "llm_reason": "",
+        "score": 0,
+        "identity_hits": [],
+        "ambiguous_abbreviation_hits": [],
+        "excluded_hits": [],
+        "reason_codes": [
+          "virus_identity_not_established",
+          "deterministic_score_below_threshold"
+        ]
+      },
+      {
+        "id": "news-cd620e16723c287d",
+        "title": "EAC to Launch UVRI as Regional Centre of Excellence in Virology - UG Diplomat",
+        "source": "Google News English",
+        "decision": "reject_after_compact_llm_review",
+        "method": "compact_llm",
+        "cache": "hit",
+        "llm_code": "N",
+        "llm_reason": "hard unrelated entity (institutional news unrelated to Marburg virus disease)",
+        "score": 0,
+        "identity_hits": [],
+        "ambiguous_abbreviation_hits": [],
+        "excluded_hits": [],
+        "reason_codes": [
+          "llm_wrong_entity_or_not_relevant",
           "virus_identity_not_established",
           "deterministic_score_below_threshold"
         ]
@@ -5952,11 +6181,12 @@
         {
           "id": "paper-85df0ee78dd9376f",
           "title": "A Triplex Crystal Digital RT-PCR for the Detection of Avian Leukosis Virus, Chicken Infectious Anemia Virus, and Fowl Adenovirus",
-          "decision": "reject_after_deterministic_full_review",
-          "method": "python_full_corpus_fallback",
-          "llm_code": "",
-          "llm_reason": "",
+          "decision": "reject_after_compact_llm_review",
+          "method": "compact_llm",
+          "llm_code": "N",
+          "llm_reason": "Hard unrelated study focused on avian leukosis virus, chicken infectious anemia virus, and fowl adenovirus with no menti",
           "reason_codes": [
+            "llm_code_N",
             "identity_not_established",
             "score_below_final_threshold"
           ],
@@ -9642,7 +9872,7 @@
             "decision": "reject",
             "route": "reject",
             "reasons": [
-              "context:['infection', 'virus', 'human']",
+              "context:['surveillance', 'transmission', 'prevalence']",
               "context_only"
             ],
             "identity_present": false,
@@ -9655,10 +9885,21 @@
             "qualified_context_hits": {},
             "ambiguous_abbreviation_hits": [],
             "context_hits": [
+              "surveillance",
+              "transmission",
+              "prevalence",
+              "diagnostic",
+              "PCR",
+              "vaccination",
+              "treatment",
+              "mortality",
               "infection",
               "virus",
+              "cases",
+              "patients",
               "human",
-              "risk"
+              "risk",
+              "response"
             ],
             "related_hits": [],
             "related_hit_details": [],
@@ -9827,7 +10068,7 @@
               "decision": "reject",
               "route": "reject",
               "reasons": [
-                "context:['infection', 'virus', 'human']",
+                "context:['surveillance', 'transmission', 'prevalence']",
                 "context_only"
               ],
               "identity_present": false,
@@ -9840,10 +10081,21 @@
               "qualified_context_hits": {},
               "ambiguous_abbreviation_hits": [],
               "context_hits": [
+                "surveillance",
+                "transmission",
+                "prevalence",
+                "diagnostic",
+                "PCR",
+                "vaccination",
+                "treatment",
+                "mortality",
                 "infection",
                 "virus",
+                "cases",
+                "patients",
                 "human",
-                "risk"
+                "risk",
+                "response"
               ],
               "related_hits": [],
               "related_hit_details": [],
@@ -12403,133 +12655,9 @@
               "id": "paper-85df0ee78dd9376f",
               "title": "A Triplex Crystal Digital RT-PCR for the Detection of Avian Leukosis Virus, Chicken Infectious Anemia Virus, and Fowl Adenovirus",
               "audit": {
-                "hard_conflict": false,
+                "hard_conflict": true,
                 "level": 1,
-                "accepted_fields": [],
-                "fields": {
-                  "title": {
-                    "score": -3,
-                    "decision": "reject",
-                    "route": "reject",
-                    "reasons": [
-                      "context:['PCR', 'virus']",
-                      "context_only"
-                    ],
-                    "identity_present": false,
-                    "target_identity_present": false,
-                    "related_identity_present": false,
-                    "identity_hits": [],
-                    "title_identity_hits": [],
-                    "body_identity_hits": [],
-                    "qualified_identity_hits": [],
-                    "qualified_context_hits": {},
-                    "ambiguous_abbreviation_hits": [],
-                    "context_hits": [
-                      "PCR",
-                      "virus"
-                    ],
-                    "related_hits": [],
-                    "related_hit_details": [],
-                    "hard_excluded_hits": [],
-                    "excluded_hits": [],
-                    "identity_frequency": 0,
-                    "entity_resolution": {
-                      "title": {
-                        "hits": [],
-                        "target_hits": [],
-                        "member_hits": [],
-                        "disease_hits": [],
-                        "related_hits": [],
-                        "related_hit_details": [],
-                        "hard_excluded_hits": [],
-                        "excluded_hits": [],
-                        "target_identity_present": false,
-                        "related_identity_present": false
-                      },
-                      "body": {
-                        "hits": [],
-                        "target_hits": [],
-                        "member_hits": [],
-                        "disease_hits": [],
-                        "related_hits": [],
-                        "related_hit_details": [],
-                        "hard_excluded_hits": [],
-                        "excluded_hits": [],
-                        "target_identity_present": false,
-                        "related_identity_present": false
-                      }
-                    },
-                    "hard_entity_conflict": false,
-                    "mixed_entity_comparison": false,
-                    "primary_eligible": false,
-                    "supplementary_eligible": false,
-                    "supplementary_reason": "",
-                    "needs_llm_review": true,
-                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
-                  },
-                  "abstract": {
-                    "score": -3,
-                    "decision": "reject",
-                    "route": "reject",
-                    "reasons": [
-                      "context:['incidence', 'PCR', 'clinical']",
-                      "context_only"
-                    ],
-                    "identity_present": false,
-                    "target_identity_present": false,
-                    "related_identity_present": false,
-                    "identity_hits": [],
-                    "title_identity_hits": [],
-                    "body_identity_hits": [],
-                    "qualified_identity_hits": [],
-                    "qualified_context_hits": {},
-                    "ambiguous_abbreviation_hits": [],
-                    "context_hits": [
-                      "incidence",
-                      "PCR",
-                      "clinical",
-                      "virus"
-                    ],
-                    "related_hits": [],
-                    "related_hit_details": [],
-                    "hard_excluded_hits": [],
-                    "excluded_hits": [],
-                    "identity_frequency": 0,
-                    "entity_resolution": {
-                      "title": {
-                        "hits": [],
-                        "target_hits": [],
-                        "member_hits": [],
-                        "disease_hits": [],
-                        "related_hits": [],
-                        "related_hit_details": [],
-                        "hard_excluded_hits": [],
-                        "excluded_hits": [],
-                        "target_identity_present": false,
-                        "related_identity_present": false
-                      },
-                      "body": {
-                        "hits": [],
-                        "target_hits": [],
-                        "member_hits": [],
-                        "disease_hits": [],
-                        "related_hits": [],
-                        "related_hit_details": [],
-                        "hard_excluded_hits": [],
-                        "excluded_hits": [],
-                        "target_identity_present": false,
-                        "related_identity_present": false
-                      }
-                    },
-                    "hard_entity_conflict": false,
-                    "mixed_entity_comparison": false,
-                    "primary_eligible": false,
-                    "supplementary_eligible": false,
-                    "supplementary_reason": "",
-                    "needs_llm_review": true,
-                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
-                  }
-                }
+                "fields": {}
               }
             },
             {
@@ -12760,133 +12888,9 @@
               "id": "paper-85df0ee78dd9376f",
               "title": "A Triplex Crystal Digital RT-PCR for the Detection of Avian Leukosis Virus, Chicken Infectious Anemia Virus, and Fowl Adenovirus",
               "audit": {
-                "hard_conflict": false,
+                "hard_conflict": true,
                 "level": 2,
-                "accepted_fields": [],
-                "fields": {
-                  "title": {
-                    "score": -3,
-                    "decision": "reject",
-                    "route": "reject",
-                    "reasons": [
-                      "context:['PCR', 'virus']",
-                      "context_only"
-                    ],
-                    "identity_present": false,
-                    "target_identity_present": false,
-                    "related_identity_present": false,
-                    "identity_hits": [],
-                    "title_identity_hits": [],
-                    "body_identity_hits": [],
-                    "qualified_identity_hits": [],
-                    "qualified_context_hits": {},
-                    "ambiguous_abbreviation_hits": [],
-                    "context_hits": [
-                      "PCR",
-                      "virus"
-                    ],
-                    "related_hits": [],
-                    "related_hit_details": [],
-                    "hard_excluded_hits": [],
-                    "excluded_hits": [],
-                    "identity_frequency": 0,
-                    "entity_resolution": {
-                      "title": {
-                        "hits": [],
-                        "target_hits": [],
-                        "member_hits": [],
-                        "disease_hits": [],
-                        "related_hits": [],
-                        "related_hit_details": [],
-                        "hard_excluded_hits": [],
-                        "excluded_hits": [],
-                        "target_identity_present": false,
-                        "related_identity_present": false
-                      },
-                      "body": {
-                        "hits": [],
-                        "target_hits": [],
-                        "member_hits": [],
-                        "disease_hits": [],
-                        "related_hits": [],
-                        "related_hit_details": [],
-                        "hard_excluded_hits": [],
-                        "excluded_hits": [],
-                        "target_identity_present": false,
-                        "related_identity_present": false
-                      }
-                    },
-                    "hard_entity_conflict": false,
-                    "mixed_entity_comparison": false,
-                    "primary_eligible": false,
-                    "supplementary_eligible": false,
-                    "supplementary_reason": "",
-                    "needs_llm_review": true,
-                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
-                  },
-                  "abstract": {
-                    "score": -3,
-                    "decision": "reject",
-                    "route": "reject",
-                    "reasons": [
-                      "context:['incidence', 'PCR', 'clinical']",
-                      "context_only"
-                    ],
-                    "identity_present": false,
-                    "target_identity_present": false,
-                    "related_identity_present": false,
-                    "identity_hits": [],
-                    "title_identity_hits": [],
-                    "body_identity_hits": [],
-                    "qualified_identity_hits": [],
-                    "qualified_context_hits": {},
-                    "ambiguous_abbreviation_hits": [],
-                    "context_hits": [
-                      "incidence",
-                      "PCR",
-                      "clinical",
-                      "virus"
-                    ],
-                    "related_hits": [],
-                    "related_hit_details": [],
-                    "hard_excluded_hits": [],
-                    "excluded_hits": [],
-                    "identity_frequency": 0,
-                    "entity_resolution": {
-                      "title": {
-                        "hits": [],
-                        "target_hits": [],
-                        "member_hits": [],
-                        "disease_hits": [],
-                        "related_hits": [],
-                        "related_hit_details": [],
-                        "hard_excluded_hits": [],
-                        "excluded_hits": [],
-                        "target_identity_present": false,
-                        "related_identity_present": false
-                      },
-                      "body": {
-                        "hits": [],
-                        "target_hits": [],
-                        "member_hits": [],
-                        "disease_hits": [],
-                        "related_hits": [],
-                        "related_hit_details": [],
-                        "hard_excluded_hits": [],
-                        "excluded_hits": [],
-                        "target_identity_present": false,
-                        "related_identity_present": false
-                      }
-                    },
-                    "hard_entity_conflict": false,
-                    "mixed_entity_comparison": false,
-                    "primary_eligible": false,
-                    "supplementary_eligible": false,
-                    "supplementary_reason": "",
-                    "needs_llm_review": true,
-                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
-                  }
-                }
+                "fields": {}
               }
             },
             {
@@ -13117,133 +13121,9 @@
               "id": "paper-85df0ee78dd9376f",
               "title": "A Triplex Crystal Digital RT-PCR for the Detection of Avian Leukosis Virus, Chicken Infectious Anemia Virus, and Fowl Adenovirus",
               "audit": {
-                "hard_conflict": false,
+                "hard_conflict": true,
                 "level": 3,
-                "accepted_fields": [],
-                "fields": {
-                  "title": {
-                    "score": -3,
-                    "decision": "reject",
-                    "route": "reject",
-                    "reasons": [
-                      "context:['PCR', 'virus']",
-                      "context_only"
-                    ],
-                    "identity_present": false,
-                    "target_identity_present": false,
-                    "related_identity_present": false,
-                    "identity_hits": [],
-                    "title_identity_hits": [],
-                    "body_identity_hits": [],
-                    "qualified_identity_hits": [],
-                    "qualified_context_hits": {},
-                    "ambiguous_abbreviation_hits": [],
-                    "context_hits": [
-                      "PCR",
-                      "virus"
-                    ],
-                    "related_hits": [],
-                    "related_hit_details": [],
-                    "hard_excluded_hits": [],
-                    "excluded_hits": [],
-                    "identity_frequency": 0,
-                    "entity_resolution": {
-                      "title": {
-                        "hits": [],
-                        "target_hits": [],
-                        "member_hits": [],
-                        "disease_hits": [],
-                        "related_hits": [],
-                        "related_hit_details": [],
-                        "hard_excluded_hits": [],
-                        "excluded_hits": [],
-                        "target_identity_present": false,
-                        "related_identity_present": false
-                      },
-                      "body": {
-                        "hits": [],
-                        "target_hits": [],
-                        "member_hits": [],
-                        "disease_hits": [],
-                        "related_hits": [],
-                        "related_hit_details": [],
-                        "hard_excluded_hits": [],
-                        "excluded_hits": [],
-                        "target_identity_present": false,
-                        "related_identity_present": false
-                      }
-                    },
-                    "hard_entity_conflict": false,
-                    "mixed_entity_comparison": false,
-                    "primary_eligible": false,
-                    "supplementary_eligible": false,
-                    "supplementary_reason": "",
-                    "needs_llm_review": true,
-                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
-                  },
-                  "abstract": {
-                    "score": -3,
-                    "decision": "reject",
-                    "route": "reject",
-                    "reasons": [
-                      "context:['incidence', 'PCR', 'clinical']",
-                      "context_only"
-                    ],
-                    "identity_present": false,
-                    "target_identity_present": false,
-                    "related_identity_present": false,
-                    "identity_hits": [],
-                    "title_identity_hits": [],
-                    "body_identity_hits": [],
-                    "qualified_identity_hits": [],
-                    "qualified_context_hits": {},
-                    "ambiguous_abbreviation_hits": [],
-                    "context_hits": [
-                      "incidence",
-                      "PCR",
-                      "clinical",
-                      "virus"
-                    ],
-                    "related_hits": [],
-                    "related_hit_details": [],
-                    "hard_excluded_hits": [],
-                    "excluded_hits": [],
-                    "identity_frequency": 0,
-                    "entity_resolution": {
-                      "title": {
-                        "hits": [],
-                        "target_hits": [],
-                        "member_hits": [],
-                        "disease_hits": [],
-                        "related_hits": [],
-                        "related_hit_details": [],
-                        "hard_excluded_hits": [],
-                        "excluded_hits": [],
-                        "target_identity_present": false,
-                        "related_identity_present": false
-                      },
-                      "body": {
-                        "hits": [],
-                        "target_hits": [],
-                        "member_hits": [],
-                        "disease_hits": [],
-                        "related_hits": [],
-                        "related_hit_details": [],
-                        "hard_excluded_hits": [],
-                        "excluded_hits": [],
-                        "target_identity_present": false,
-                        "related_identity_present": false
-                      }
-                    },
-                    "hard_entity_conflict": false,
-                    "mixed_entity_comparison": false,
-                    "primary_eligible": false,
-                    "supplementary_eligible": false,
-                    "supplementary_reason": "",
-                    "needs_llm_review": true,
-                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
-                  }
-                }
+                "fields": {}
               }
             },
             {
@@ -13298,7 +13178,7 @@
         "identity_not_established": 51,
         "llm_code_B": 7,
         "llm_code_C": 1,
-        "llm_code_N": 41,
+        "llm_code_N": 42,
         "score_below_final_threshold": 51
       },
       "final_accepted": 7,
@@ -13317,17 +13197,19 @@
       "policy_version": "v17.4-primary-continuity-related-independent-1",
       "kind": "news",
       "enabled": true,
-      "candidate_count": 1,
-      "primary_candidate_count": 1,
-      "related_supplementary_candidate_count": 0,
+      "candidate_count": 13,
+      "primary_candidate_count": 12,
+      "related_supplementary_candidate_count": 1,
       "initial_accepted": 0,
       "initial_primary_accepted": 0,
       "initial_related_supplementary_accepted": 0,
       "previous_accepted": 0,
-      "triggered": false,
-      "trigger_reasons": [],
-      "target_primary_accepted": 0,
-      "target_accepted": 0,
+      "triggered": true,
+      "trigger_reasons": [
+        "candidate_acceptance_ratio"
+      ],
+      "target_primary_accepted": 2,
+      "target_accepted": 2,
       "guard_settings": {
         "min_candidates": 100,
         "ratio_min_candidates": 10,
@@ -13337,6 +13219,274 @@
         "minimum_acceptance_ratio": 0.15
       },
       "initial_rejection_diagnostics": [
+        {
+          "id": "news-a9e32805be896705",
+          "title": "Ethiopia declares end of Marburg outbreak - TRT Afrika",
+          "decision": "reject_after_compact_llm_review",
+          "method": "compact_llm",
+          "llm_code": "N",
+          "llm_reason": "no substantive target-specific evidence",
+          "reason_codes": [
+            "llm_code_N",
+            "identity_not_established",
+            "score_below_final_threshold"
+          ],
+          "final_assessment": {
+            "score": -3,
+            "decision": "reject",
+            "route": "reject",
+            "reasons": [
+              "context:['outbreak']",
+              "context_only"
+            ],
+            "identity_present": false,
+            "target_identity_present": false,
+            "related_identity_present": false,
+            "identity_hits": [],
+            "title_identity_hits": [],
+            "body_identity_hits": [],
+            "qualified_identity_hits": [],
+            "qualified_context_hits": {},
+            "ambiguous_abbreviation_hits": [],
+            "context_hits": [
+              "outbreak"
+            ],
+            "related_hits": [],
+            "related_hit_details": [],
+            "hard_excluded_hits": [],
+            "excluded_hits": [],
+            "identity_frequency": 0,
+            "entity_resolution": {
+              "title": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              },
+              "body": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              }
+            },
+            "hard_entity_conflict": false,
+            "mixed_entity_comparison": false,
+            "primary_eligible": false,
+            "supplementary_eligible": false,
+            "supplementary_reason": "",
+            "needs_llm_review": true,
+            "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+          },
+          "field_assessments": {
+            "title": {
+              "score": -3,
+              "decision": "reject",
+              "route": "reject",
+              "reasons": [
+                "context:['outbreak']",
+                "context_only"
+              ],
+              "identity_present": false,
+              "target_identity_present": false,
+              "related_identity_present": false,
+              "identity_hits": [],
+              "title_identity_hits": [],
+              "body_identity_hits": [],
+              "qualified_identity_hits": [],
+              "qualified_context_hits": {},
+              "ambiguous_abbreviation_hits": [],
+              "context_hits": [
+                "outbreak"
+              ],
+              "related_hits": [],
+              "related_hit_details": [],
+              "hard_excluded_hits": [],
+              "excluded_hits": [],
+              "identity_frequency": 0,
+              "entity_resolution": {
+                "title": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                },
+                "body": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                }
+              },
+              "hard_entity_conflict": false,
+              "mixed_entity_comparison": false,
+              "primary_eligible": false,
+              "supplementary_eligible": false,
+              "supplementary_reason": "",
+              "needs_llm_review": true,
+              "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+            }
+          }
+        },
+        {
+          "id": "news-48770b660c195294",
+          "title": "US issues travel advisory after cases of eye-bleeding disease are reported in region battling Ebola - MSN",
+          "decision": "reject_after_compact_llm_review",
+          "method": "compact_llm",
+          "llm_code": "N",
+          "llm_reason": "hard unrelated entity (Ebola virus disease context)",
+          "reason_codes": [
+            "llm_code_N",
+            "identity_not_established",
+            "score_below_final_threshold"
+          ],
+          "final_assessment": {
+            "score": -3,
+            "decision": "reject",
+            "route": "reject",
+            "reasons": [
+              "context:['cases', 'disease']",
+              "context_only"
+            ],
+            "identity_present": false,
+            "target_identity_present": false,
+            "related_identity_present": false,
+            "identity_hits": [],
+            "title_identity_hits": [],
+            "body_identity_hits": [],
+            "qualified_identity_hits": [],
+            "qualified_context_hits": {},
+            "ambiguous_abbreviation_hits": [],
+            "context_hits": [
+              "cases",
+              "disease"
+            ],
+            "related_hits": [],
+            "related_hit_details": [],
+            "hard_excluded_hits": [],
+            "excluded_hits": [],
+            "identity_frequency": 0,
+            "entity_resolution": {
+              "title": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              },
+              "body": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              }
+            },
+            "hard_entity_conflict": false,
+            "mixed_entity_comparison": false,
+            "primary_eligible": false,
+            "supplementary_eligible": false,
+            "supplementary_reason": "",
+            "needs_llm_review": true,
+            "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+          },
+          "field_assessments": {
+            "title": {
+              "score": -3,
+              "decision": "reject",
+              "route": "reject",
+              "reasons": [
+                "context:['cases', 'disease']",
+                "context_only"
+              ],
+              "identity_present": false,
+              "target_identity_present": false,
+              "related_identity_present": false,
+              "identity_hits": [],
+              "title_identity_hits": [],
+              "body_identity_hits": [],
+              "qualified_identity_hits": [],
+              "qualified_context_hits": {},
+              "ambiguous_abbreviation_hits": [],
+              "context_hits": [
+                "cases",
+                "disease"
+              ],
+              "related_hits": [],
+              "related_hit_details": [],
+              "hard_excluded_hits": [],
+              "excluded_hits": [],
+              "identity_frequency": 0,
+              "entity_resolution": {
+                "title": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                },
+                "body": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                }
+              },
+              "hard_entity_conflict": false,
+              "mixed_entity_comparison": false,
+              "primary_eligible": false,
+              "supplementary_eligible": false,
+              "supplementary_reason": "",
+              "needs_llm_review": true,
+              "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+            }
+          }
+        },
         {
           "id": "news-f88b82f9ee240c69",
           "title": "WHO: Uganda is silent on updates following disclosure of Marburg outbreak",
@@ -13528,9 +13678,2383 @@
               "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
             }
           }
+        },
+        {
+          "id": "news-f86ea56ddd3d52f0",
+          "title": "WHO: Uganda is silent on updates following disclosure of Marburg outbreak - STAT",
+          "decision": "reject_after_deterministic_full_review",
+          "method": "python_full_corpus_fallback",
+          "llm_code": "",
+          "llm_reason": "",
+          "reason_codes": [
+            "identity_not_established",
+            "score_below_final_threshold"
+          ],
+          "final_assessment": {
+            "score": -3,
+            "decision": "reject",
+            "route": "reject",
+            "reasons": [
+              "context:['outbreak']",
+              "context_only"
+            ],
+            "identity_present": false,
+            "target_identity_present": false,
+            "related_identity_present": false,
+            "identity_hits": [],
+            "title_identity_hits": [],
+            "body_identity_hits": [],
+            "qualified_identity_hits": [],
+            "qualified_context_hits": {},
+            "ambiguous_abbreviation_hits": [],
+            "context_hits": [
+              "outbreak"
+            ],
+            "related_hits": [],
+            "related_hit_details": [],
+            "hard_excluded_hits": [],
+            "excluded_hits": [],
+            "identity_frequency": 0,
+            "entity_resolution": {
+              "title": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              },
+              "body": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              }
+            },
+            "hard_entity_conflict": false,
+            "mixed_entity_comparison": false,
+            "primary_eligible": false,
+            "supplementary_eligible": false,
+            "supplementary_reason": "",
+            "needs_llm_review": true,
+            "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+          },
+          "field_assessments": {
+            "title": {
+              "score": -3,
+              "decision": "reject",
+              "route": "reject",
+              "reasons": [
+                "context:['outbreak']",
+                "context_only"
+              ],
+              "identity_present": false,
+              "target_identity_present": false,
+              "related_identity_present": false,
+              "identity_hits": [],
+              "title_identity_hits": [],
+              "body_identity_hits": [],
+              "qualified_identity_hits": [],
+              "qualified_context_hits": {},
+              "ambiguous_abbreviation_hits": [],
+              "context_hits": [
+                "outbreak"
+              ],
+              "related_hits": [],
+              "related_hit_details": [],
+              "hard_excluded_hits": [],
+              "excluded_hits": [],
+              "identity_frequency": 0,
+              "entity_resolution": {
+                "title": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                },
+                "body": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                }
+              },
+              "hard_entity_conflict": false,
+              "mixed_entity_comparison": false,
+              "primary_eligible": false,
+              "supplementary_eligible": false,
+              "supplementary_reason": "",
+              "needs_llm_review": true,
+              "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+            }
+          }
+        },
+        {
+          "id": "news-78c61f88fa7505b7",
+          "title": "A Village Health Team member's timely alert helps detect Uganda’s first Marburg case in 2026 - UNICEF",
+          "decision": "reject_after_compact_llm_review",
+          "method": "compact_llm",
+          "llm_code": "N",
+          "llm_reason": "route_reject",
+          "reason_codes": [
+            "llm_code_N",
+            "identity_not_established",
+            "score_below_final_threshold"
+          ],
+          "final_assessment": {
+            "score": -3,
+            "decision": "reject",
+            "route": "reject",
+            "reasons": [
+              "context:['case']",
+              "context_only"
+            ],
+            "identity_present": false,
+            "target_identity_present": false,
+            "related_identity_present": false,
+            "identity_hits": [],
+            "title_identity_hits": [],
+            "body_identity_hits": [],
+            "qualified_identity_hits": [],
+            "qualified_context_hits": {},
+            "ambiguous_abbreviation_hits": [],
+            "context_hits": [
+              "case"
+            ],
+            "related_hits": [],
+            "related_hit_details": [],
+            "hard_excluded_hits": [],
+            "excluded_hits": [],
+            "identity_frequency": 0,
+            "entity_resolution": {
+              "title": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              },
+              "body": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              }
+            },
+            "hard_entity_conflict": false,
+            "mixed_entity_comparison": false,
+            "primary_eligible": false,
+            "supplementary_eligible": false,
+            "supplementary_reason": "",
+            "needs_llm_review": true,
+            "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+          },
+          "field_assessments": {
+            "title": {
+              "score": -3,
+              "decision": "reject",
+              "route": "reject",
+              "reasons": [
+                "context:['case']",
+                "context_only"
+              ],
+              "identity_present": false,
+              "target_identity_present": false,
+              "related_identity_present": false,
+              "identity_hits": [],
+              "title_identity_hits": [],
+              "body_identity_hits": [],
+              "qualified_identity_hits": [],
+              "qualified_context_hits": {},
+              "ambiguous_abbreviation_hits": [],
+              "context_hits": [
+                "case"
+              ],
+              "related_hits": [],
+              "related_hit_details": [],
+              "hard_excluded_hits": [],
+              "excluded_hits": [],
+              "identity_frequency": 0,
+              "entity_resolution": {
+                "title": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                },
+                "body": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                }
+              },
+              "hard_entity_conflict": false,
+              "mixed_entity_comparison": false,
+              "primary_eligible": false,
+              "supplementary_eligible": false,
+              "supplementary_reason": "",
+              "needs_llm_review": true,
+              "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+            }
+          }
+        },
+        {
+          "id": "news-01bd13de12adc162",
+          "title": "新兴传染病的社会经济影响中的性别差异:来自几内亚混合方法研究的见解 - 生物通",
+          "decision": "reject_after_compact_llm_review",
+          "method": "compact_llm",
+          "llm_code": "N",
+          "llm_reason": "route_reject",
+          "reason_codes": [
+            "llm_code_N",
+            "identity_not_established",
+            "score_below_final_threshold"
+          ],
+          "final_assessment": {
+            "score": 0,
+            "decision": "reject",
+            "route": "reject",
+            "reasons": [],
+            "identity_present": false,
+            "target_identity_present": false,
+            "related_identity_present": false,
+            "identity_hits": [],
+            "title_identity_hits": [],
+            "body_identity_hits": [],
+            "qualified_identity_hits": [],
+            "qualified_context_hits": {},
+            "ambiguous_abbreviation_hits": [],
+            "context_hits": [],
+            "related_hits": [],
+            "related_hit_details": [],
+            "hard_excluded_hits": [],
+            "excluded_hits": [],
+            "identity_frequency": 0,
+            "entity_resolution": {
+              "title": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              },
+              "body": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              }
+            },
+            "hard_entity_conflict": false,
+            "mixed_entity_comparison": false,
+            "primary_eligible": false,
+            "supplementary_eligible": false,
+            "supplementary_reason": "",
+            "needs_llm_review": true,
+            "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+          },
+          "field_assessments": {
+            "title": {
+              "score": 0,
+              "decision": "reject",
+              "route": "reject",
+              "reasons": [],
+              "identity_present": false,
+              "target_identity_present": false,
+              "related_identity_present": false,
+              "identity_hits": [],
+              "title_identity_hits": [],
+              "body_identity_hits": [],
+              "qualified_identity_hits": [],
+              "qualified_context_hits": {},
+              "ambiguous_abbreviation_hits": [],
+              "context_hits": [],
+              "related_hits": [],
+              "related_hit_details": [],
+              "hard_excluded_hits": [],
+              "excluded_hits": [],
+              "identity_frequency": 0,
+              "entity_resolution": {
+                "title": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                },
+                "body": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                }
+              },
+              "hard_entity_conflict": false,
+              "mixed_entity_comparison": false,
+              "primary_eligible": false,
+              "supplementary_eligible": false,
+              "supplementary_reason": "",
+              "needs_llm_review": true,
+              "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+            }
+          }
+        },
+        {
+          "id": "news-a70b8655f0420f2b",
+          "title": "Ebola - Course of infection - Encyclopedia Britannica",
+          "decision": "reject_after_compact_llm_review",
+          "method": "compact_llm",
+          "llm_code": "N",
+          "llm_reason": "route_reject",
+          "reason_codes": [
+            "llm_code_N",
+            "identity_not_established",
+            "score_below_final_threshold"
+          ],
+          "final_assessment": {
+            "score": -3,
+            "decision": "reject",
+            "route": "reject",
+            "reasons": [
+              "context:['infection']",
+              "context_only"
+            ],
+            "identity_present": false,
+            "target_identity_present": false,
+            "related_identity_present": false,
+            "identity_hits": [],
+            "title_identity_hits": [],
+            "body_identity_hits": [],
+            "qualified_identity_hits": [],
+            "qualified_context_hits": {},
+            "ambiguous_abbreviation_hits": [],
+            "context_hits": [
+              "infection"
+            ],
+            "related_hits": [],
+            "related_hit_details": [],
+            "hard_excluded_hits": [],
+            "excluded_hits": [],
+            "identity_frequency": 0,
+            "entity_resolution": {
+              "title": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              },
+              "body": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              }
+            },
+            "hard_entity_conflict": false,
+            "mixed_entity_comparison": false,
+            "primary_eligible": false,
+            "supplementary_eligible": false,
+            "supplementary_reason": "",
+            "needs_llm_review": true,
+            "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+          },
+          "field_assessments": {
+            "title": {
+              "score": -3,
+              "decision": "reject",
+              "route": "reject",
+              "reasons": [
+                "context:['infection']",
+                "context_only"
+              ],
+              "identity_present": false,
+              "target_identity_present": false,
+              "related_identity_present": false,
+              "identity_hits": [],
+              "title_identity_hits": [],
+              "body_identity_hits": [],
+              "qualified_identity_hits": [],
+              "qualified_context_hits": {},
+              "ambiguous_abbreviation_hits": [],
+              "context_hits": [
+                "infection"
+              ],
+              "related_hits": [],
+              "related_hit_details": [],
+              "hard_excluded_hits": [],
+              "excluded_hits": [],
+              "identity_frequency": 0,
+              "entity_resolution": {
+                "title": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                },
+                "body": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                }
+              },
+              "hard_entity_conflict": false,
+              "mixed_entity_comparison": false,
+              "primary_eligible": false,
+              "supplementary_eligible": false,
+              "supplementary_reason": "",
+              "needs_llm_review": true,
+              "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+            }
+          }
+        },
+        {
+          "id": "news-82d004946f016bba",
+          "title": "类埃博拉病毒加速蔓延 全球公共卫生系统准备好了吗? - cnBeta.COM",
+          "decision": "reject_after_compact_llm_review",
+          "method": "compact_llm",
+          "llm_code": "N",
+          "llm_reason": "hard unrelated entity (Ebola virus focus, no Marburg-specific evidence)",
+          "reason_codes": [
+            "llm_code_N",
+            "identity_not_established",
+            "score_below_final_threshold"
+          ],
+          "final_assessment": {
+            "score": 0,
+            "decision": "reject",
+            "route": "reject",
+            "reasons": [],
+            "identity_present": false,
+            "target_identity_present": false,
+            "related_identity_present": false,
+            "identity_hits": [],
+            "title_identity_hits": [],
+            "body_identity_hits": [],
+            "qualified_identity_hits": [],
+            "qualified_context_hits": {},
+            "ambiguous_abbreviation_hits": [],
+            "context_hits": [],
+            "related_hits": [],
+            "related_hit_details": [],
+            "hard_excluded_hits": [],
+            "excluded_hits": [],
+            "identity_frequency": 0,
+            "entity_resolution": {
+              "title": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              },
+              "body": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              }
+            },
+            "hard_entity_conflict": false,
+            "mixed_entity_comparison": false,
+            "primary_eligible": false,
+            "supplementary_eligible": false,
+            "supplementary_reason": "",
+            "needs_llm_review": true,
+            "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+          },
+          "field_assessments": {
+            "title": {
+              "score": 0,
+              "decision": "reject",
+              "route": "reject",
+              "reasons": [],
+              "identity_present": false,
+              "target_identity_present": false,
+              "related_identity_present": false,
+              "identity_hits": [],
+              "title_identity_hits": [],
+              "body_identity_hits": [],
+              "qualified_identity_hits": [],
+              "qualified_context_hits": {},
+              "ambiguous_abbreviation_hits": [],
+              "context_hits": [],
+              "related_hits": [],
+              "related_hit_details": [],
+              "hard_excluded_hits": [],
+              "excluded_hits": [],
+              "identity_frequency": 0,
+              "entity_resolution": {
+                "title": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                },
+                "body": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                }
+              },
+              "hard_entity_conflict": false,
+              "mixed_entity_comparison": false,
+              "primary_eligible": false,
+              "supplementary_eligible": false,
+              "supplementary_reason": "",
+              "needs_llm_review": true,
+              "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+            }
+          }
+        },
+        {
+          "id": "news-2dae027f339b6606",
+          "title": "Africa’s Health Defenses Have Improved But Its Funding Has Not - ipsnews.net",
+          "decision": "reject_after_deterministic_full_review",
+          "method": "python_full_corpus_fallback",
+          "llm_code": "",
+          "llm_reason": "",
+          "reason_codes": [
+            "identity_not_established",
+            "score_below_final_threshold"
+          ],
+          "final_assessment": {
+            "score": 0,
+            "decision": "reject",
+            "route": "reject",
+            "reasons": [],
+            "identity_present": false,
+            "target_identity_present": false,
+            "related_identity_present": false,
+            "identity_hits": [],
+            "title_identity_hits": [],
+            "body_identity_hits": [],
+            "qualified_identity_hits": [],
+            "qualified_context_hits": {},
+            "ambiguous_abbreviation_hits": [],
+            "context_hits": [],
+            "related_hits": [],
+            "related_hit_details": [],
+            "hard_excluded_hits": [],
+            "excluded_hits": [],
+            "identity_frequency": 0,
+            "entity_resolution": {
+              "title": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              },
+              "body": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              }
+            },
+            "hard_entity_conflict": false,
+            "mixed_entity_comparison": false,
+            "primary_eligible": false,
+            "supplementary_eligible": false,
+            "supplementary_reason": "",
+            "needs_llm_review": true,
+            "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+          },
+          "field_assessments": {
+            "title": {
+              "score": 0,
+              "decision": "reject",
+              "route": "reject",
+              "reasons": [],
+              "identity_present": false,
+              "target_identity_present": false,
+              "related_identity_present": false,
+              "identity_hits": [],
+              "title_identity_hits": [],
+              "body_identity_hits": [],
+              "qualified_identity_hits": [],
+              "qualified_context_hits": {},
+              "ambiguous_abbreviation_hits": [],
+              "context_hits": [],
+              "related_hits": [],
+              "related_hit_details": [],
+              "hard_excluded_hits": [],
+              "excluded_hits": [],
+              "identity_frequency": 0,
+              "entity_resolution": {
+                "title": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                },
+                "body": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                }
+              },
+              "hard_entity_conflict": false,
+              "mixed_entity_comparison": false,
+              "primary_eligible": false,
+              "supplementary_eligible": false,
+              "supplementary_reason": "",
+              "needs_llm_review": true,
+              "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+            }
+          }
+        },
+        {
+          "id": "news-3060f97344e683bb",
+          "title": "The next pandemic? Virus catalogue reveals the pathogens most likely to spark a global outbreak - MSN",
+          "decision": "reject_after_compact_llm_review",
+          "method": "compact_llm",
+          "llm_code": "N",
+          "llm_reason": "hard unrelated entity (news aggregator with no substantive pathogen evidence)",
+          "reason_codes": [
+            "llm_code_N",
+            "identity_not_established",
+            "score_below_final_threshold"
+          ],
+          "final_assessment": {
+            "score": -3,
+            "decision": "reject",
+            "route": "reject",
+            "reasons": [
+              "context:['outbreak', 'virus']",
+              "context_only"
+            ],
+            "identity_present": false,
+            "target_identity_present": false,
+            "related_identity_present": false,
+            "identity_hits": [],
+            "title_identity_hits": [],
+            "body_identity_hits": [],
+            "qualified_identity_hits": [],
+            "qualified_context_hits": {},
+            "ambiguous_abbreviation_hits": [],
+            "context_hits": [
+              "outbreak",
+              "virus"
+            ],
+            "related_hits": [],
+            "related_hit_details": [],
+            "hard_excluded_hits": [],
+            "excluded_hits": [],
+            "identity_frequency": 0,
+            "entity_resolution": {
+              "title": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              },
+              "body": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              }
+            },
+            "hard_entity_conflict": false,
+            "mixed_entity_comparison": false,
+            "primary_eligible": false,
+            "supplementary_eligible": false,
+            "supplementary_reason": "",
+            "needs_llm_review": true,
+            "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+          },
+          "field_assessments": {
+            "title": {
+              "score": -3,
+              "decision": "reject",
+              "route": "reject",
+              "reasons": [
+                "context:['outbreak', 'virus']",
+                "context_only"
+              ],
+              "identity_present": false,
+              "target_identity_present": false,
+              "related_identity_present": false,
+              "identity_hits": [],
+              "title_identity_hits": [],
+              "body_identity_hits": [],
+              "qualified_identity_hits": [],
+              "qualified_context_hits": {},
+              "ambiguous_abbreviation_hits": [],
+              "context_hits": [
+                "outbreak",
+                "virus"
+              ],
+              "related_hits": [],
+              "related_hit_details": [],
+              "hard_excluded_hits": [],
+              "excluded_hits": [],
+              "identity_frequency": 0,
+              "entity_resolution": {
+                "title": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                },
+                "body": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                }
+              },
+              "hard_entity_conflict": false,
+              "mixed_entity_comparison": false,
+              "primary_eligible": false,
+              "supplementary_eligible": false,
+              "supplementary_reason": "",
+              "needs_llm_review": true,
+              "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+            }
+          }
+        },
+        {
+          "id": "news-43a6eadd36d7f024",
+          "title": "The number of Ebola-related deaths in the Democratic Republic of the Congo has risen to 930 - UA.NEWS",
+          "decision": "reject_after_deterministic_full_review",
+          "method": "python_full_corpus_fallback",
+          "llm_code": "",
+          "llm_reason": "",
+          "reason_codes": [
+            "identity_not_established",
+            "score_below_final_threshold"
+          ],
+          "final_assessment": {
+            "score": 0,
+            "decision": "reject",
+            "route": "reject",
+            "reasons": [],
+            "identity_present": false,
+            "target_identity_present": false,
+            "related_identity_present": false,
+            "identity_hits": [],
+            "title_identity_hits": [],
+            "body_identity_hits": [],
+            "qualified_identity_hits": [],
+            "qualified_context_hits": {},
+            "ambiguous_abbreviation_hits": [],
+            "context_hits": [],
+            "related_hits": [],
+            "related_hit_details": [],
+            "hard_excluded_hits": [],
+            "excluded_hits": [],
+            "identity_frequency": 0,
+            "entity_resolution": {
+              "title": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              },
+              "body": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              }
+            },
+            "hard_entity_conflict": false,
+            "mixed_entity_comparison": false,
+            "primary_eligible": false,
+            "supplementary_eligible": false,
+            "supplementary_reason": "",
+            "needs_llm_review": true,
+            "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+          },
+          "field_assessments": {
+            "title": {
+              "score": 0,
+              "decision": "reject",
+              "route": "reject",
+              "reasons": [],
+              "identity_present": false,
+              "target_identity_present": false,
+              "related_identity_present": false,
+              "identity_hits": [],
+              "title_identity_hits": [],
+              "body_identity_hits": [],
+              "qualified_identity_hits": [],
+              "qualified_context_hits": {},
+              "ambiguous_abbreviation_hits": [],
+              "context_hits": [],
+              "related_hits": [],
+              "related_hit_details": [],
+              "hard_excluded_hits": [],
+              "excluded_hits": [],
+              "identity_frequency": 0,
+              "entity_resolution": {
+                "title": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                },
+                "body": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                }
+              },
+              "hard_entity_conflict": false,
+              "mixed_entity_comparison": false,
+              "primary_eligible": false,
+              "supplementary_eligible": false,
+              "supplementary_reason": "",
+              "needs_llm_review": true,
+              "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+            }
+          }
+        },
+        {
+          "id": "news-cd620e16723c287d",
+          "title": "EAC to Launch UVRI as Regional Centre of Excellence in Virology - UG Diplomat",
+          "decision": "reject_after_compact_llm_review",
+          "method": "compact_llm",
+          "llm_code": "N",
+          "llm_reason": "hard unrelated entity (institutional news unrelated to Marburg virus disease)",
+          "reason_codes": [
+            "llm_code_N",
+            "identity_not_established",
+            "score_below_final_threshold"
+          ],
+          "final_assessment": {
+            "score": 0,
+            "decision": "reject",
+            "route": "reject",
+            "reasons": [],
+            "identity_present": false,
+            "target_identity_present": false,
+            "related_identity_present": false,
+            "identity_hits": [],
+            "title_identity_hits": [],
+            "body_identity_hits": [],
+            "qualified_identity_hits": [],
+            "qualified_context_hits": {},
+            "ambiguous_abbreviation_hits": [],
+            "context_hits": [],
+            "related_hits": [],
+            "related_hit_details": [],
+            "hard_excluded_hits": [],
+            "excluded_hits": [],
+            "identity_frequency": 0,
+            "entity_resolution": {
+              "title": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              },
+              "body": {
+                "hits": [],
+                "target_hits": [],
+                "member_hits": [],
+                "disease_hits": [],
+                "related_hits": [],
+                "related_hit_details": [],
+                "hard_excluded_hits": [],
+                "excluded_hits": [],
+                "target_identity_present": false,
+                "related_identity_present": false
+              }
+            },
+            "hard_entity_conflict": false,
+            "mixed_entity_comparison": false,
+            "primary_eligible": false,
+            "supplementary_eligible": false,
+            "supplementary_reason": "",
+            "needs_llm_review": true,
+            "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+          },
+          "field_assessments": {
+            "title": {
+              "score": 0,
+              "decision": "reject",
+              "route": "reject",
+              "reasons": [],
+              "identity_present": false,
+              "target_identity_present": false,
+              "related_identity_present": false,
+              "identity_hits": [],
+              "title_identity_hits": [],
+              "body_identity_hits": [],
+              "qualified_identity_hits": [],
+              "qualified_context_hits": {},
+              "ambiguous_abbreviation_hits": [],
+              "context_hits": [],
+              "related_hits": [],
+              "related_hit_details": [],
+              "hard_excluded_hits": [],
+              "excluded_hits": [],
+              "identity_frequency": 0,
+              "entity_resolution": {
+                "title": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                },
+                "body": {
+                  "hits": [],
+                  "target_hits": [],
+                  "member_hits": [],
+                  "disease_hits": [],
+                  "related_hits": [],
+                  "related_hit_details": [],
+                  "hard_excluded_hits": [],
+                  "excluded_hits": [],
+                  "target_identity_present": false,
+                  "related_identity_present": false
+                }
+              },
+              "hard_entity_conflict": false,
+              "mixed_entity_comparison": false,
+              "primary_eligible": false,
+              "supplementary_eligible": false,
+              "supplementary_reason": "",
+              "needs_llm_review": true,
+              "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+            }
+          }
         }
       ],
-      "levels": [],
+      "levels": [
+        {
+          "level": 1,
+          "strategy": "lower_soft_field_thresholds",
+          "recovered_primary": 0,
+          "primary_accepted_after_level": 0,
+          "sample_rejections": [
+            {
+              "id": "news-a9e32805be896705",
+              "title": "Ethiopia declares end of Marburg outbreak - TRT Afrika",
+              "audit": {
+                "hard_conflict": true,
+                "level": 1,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-48770b660c195294",
+              "title": "US issues travel advisory after cases of eye-bleeding disease are reported in region battling Ebola - MSN",
+              "audit": {
+                "hard_conflict": true,
+                "level": 1,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-f88b82f9ee240c69",
+              "title": "WHO: Uganda is silent on updates following disclosure of Marburg outbreak",
+              "audit": {
+                "hard_conflict": false,
+                "level": 1,
+                "accepted_fields": [],
+                "fields": {
+                  "title": {
+                    "score": -3,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [
+                      "context:['outbreak']",
+                      "context_only"
+                    ],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [
+                      "outbreak"
+                    ],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  },
+                  "brief": {
+                    "score": -3,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [
+                      "context:['vaccine']",
+                      "context_only"
+                    ],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [
+                      "vaccine"
+                    ],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  }
+                }
+              }
+            },
+            {
+              "id": "news-f86ea56ddd3d52f0",
+              "title": "WHO: Uganda is silent on updates following disclosure of Marburg outbreak - STAT",
+              "audit": {
+                "hard_conflict": false,
+                "level": 1,
+                "accepted_fields": [],
+                "fields": {
+                  "title": {
+                    "score": -3,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [
+                      "context:['outbreak']",
+                      "context_only"
+                    ],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [
+                      "outbreak"
+                    ],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  }
+                }
+              }
+            },
+            {
+              "id": "news-78c61f88fa7505b7",
+              "title": "A Village Health Team member's timely alert helps detect Uganda’s first Marburg case in 2026 - UNICEF",
+              "audit": {
+                "hard_conflict": true,
+                "level": 1,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-01bd13de12adc162",
+              "title": "新兴传染病的社会经济影响中的性别差异:来自几内亚混合方法研究的见解 - 生物通",
+              "audit": {
+                "hard_conflict": true,
+                "level": 1,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-a70b8655f0420f2b",
+              "title": "Ebola - Course of infection - Encyclopedia Britannica",
+              "audit": {
+                "hard_conflict": true,
+                "level": 1,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-82d004946f016bba",
+              "title": "类埃博拉病毒加速蔓延 全球公共卫生系统准备好了吗? - cnBeta.COM",
+              "audit": {
+                "hard_conflict": true,
+                "level": 1,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-2dae027f339b6606",
+              "title": "Africa’s Health Defenses Have Improved But Its Funding Has Not - ipsnews.net",
+              "audit": {
+                "hard_conflict": false,
+                "level": 1,
+                "accepted_fields": [],
+                "fields": {
+                  "title": {
+                    "score": 0,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  }
+                }
+              }
+            },
+            {
+              "id": "news-3060f97344e683bb",
+              "title": "The next pandemic? Virus catalogue reveals the pathogens most likely to spark a global outbreak - MSN",
+              "audit": {
+                "hard_conflict": true,
+                "level": 1,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-43a6eadd36d7f024",
+              "title": "The number of Ebola-related deaths in the Democratic Republic of the Congo has risen to 930 - UA.NEWS",
+              "audit": {
+                "hard_conflict": false,
+                "level": 1,
+                "accepted_fields": [],
+                "fields": {
+                  "title": {
+                    "score": 0,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  }
+                }
+              }
+            },
+            {
+              "id": "news-cd620e16723c287d",
+              "title": "EAC to Launch UVRI as Regional Centre of Excellence in Virology - UG Diplomat",
+              "audit": {
+                "hard_conflict": true,
+                "level": 1,
+                "fields": {}
+              }
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "strategy": "relax_soft_target_evidence_with_multi_surface_identity",
+          "recovered_primary": 0,
+          "primary_accepted_after_level": 0,
+          "sample_rejections": [
+            {
+              "id": "news-a9e32805be896705",
+              "title": "Ethiopia declares end of Marburg outbreak - TRT Afrika",
+              "audit": {
+                "hard_conflict": true,
+                "level": 2,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-48770b660c195294",
+              "title": "US issues travel advisory after cases of eye-bleeding disease are reported in region battling Ebola - MSN",
+              "audit": {
+                "hard_conflict": true,
+                "level": 2,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-f88b82f9ee240c69",
+              "title": "WHO: Uganda is silent on updates following disclosure of Marburg outbreak",
+              "audit": {
+                "hard_conflict": false,
+                "level": 2,
+                "accepted_fields": [],
+                "fields": {
+                  "title": {
+                    "score": -3,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [
+                      "context:['outbreak']",
+                      "context_only"
+                    ],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [
+                      "outbreak"
+                    ],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  },
+                  "brief": {
+                    "score": -3,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [
+                      "context:['vaccine']",
+                      "context_only"
+                    ],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [
+                      "vaccine"
+                    ],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  }
+                }
+              }
+            },
+            {
+              "id": "news-f86ea56ddd3d52f0",
+              "title": "WHO: Uganda is silent on updates following disclosure of Marburg outbreak - STAT",
+              "audit": {
+                "hard_conflict": false,
+                "level": 2,
+                "accepted_fields": [],
+                "fields": {
+                  "title": {
+                    "score": -3,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [
+                      "context:['outbreak']",
+                      "context_only"
+                    ],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [
+                      "outbreak"
+                    ],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  }
+                }
+              }
+            },
+            {
+              "id": "news-78c61f88fa7505b7",
+              "title": "A Village Health Team member's timely alert helps detect Uganda’s first Marburg case in 2026 - UNICEF",
+              "audit": {
+                "hard_conflict": true,
+                "level": 2,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-01bd13de12adc162",
+              "title": "新兴传染病的社会经济影响中的性别差异:来自几内亚混合方法研究的见解 - 生物通",
+              "audit": {
+                "hard_conflict": true,
+                "level": 2,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-a70b8655f0420f2b",
+              "title": "Ebola - Course of infection - Encyclopedia Britannica",
+              "audit": {
+                "hard_conflict": true,
+                "level": 2,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-82d004946f016bba",
+              "title": "类埃博拉病毒加速蔓延 全球公共卫生系统准备好了吗? - cnBeta.COM",
+              "audit": {
+                "hard_conflict": true,
+                "level": 2,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-2dae027f339b6606",
+              "title": "Africa’s Health Defenses Have Improved But Its Funding Has Not - ipsnews.net",
+              "audit": {
+                "hard_conflict": false,
+                "level": 2,
+                "accepted_fields": [],
+                "fields": {
+                  "title": {
+                    "score": 0,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  }
+                }
+              }
+            },
+            {
+              "id": "news-3060f97344e683bb",
+              "title": "The next pandemic? Virus catalogue reveals the pathogens most likely to spark a global outbreak - MSN",
+              "audit": {
+                "hard_conflict": true,
+                "level": 2,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-43a6eadd36d7f024",
+              "title": "The number of Ebola-related deaths in the Democratic Republic of the Congo has risen to 930 - UA.NEWS",
+              "audit": {
+                "hard_conflict": false,
+                "level": 2,
+                "accepted_fields": [],
+                "fields": {
+                  "title": {
+                    "score": 0,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  }
+                }
+              }
+            },
+            {
+              "id": "news-cd620e16723c287d",
+              "title": "EAC to Launch UVRI as Regional Centre of Excellence in Virology - UG Diplomat",
+              "audit": {
+                "hard_conflict": true,
+                "level": 2,
+                "fields": {}
+              }
+            }
+          ]
+        },
+        {
+          "level": 3,
+          "strategy": "safe_explicit_target_identity_output_continuity",
+          "recovered_primary": 0,
+          "primary_accepted_after_level": 0,
+          "sample_rejections": [
+            {
+              "id": "news-a9e32805be896705",
+              "title": "Ethiopia declares end of Marburg outbreak - TRT Afrika",
+              "audit": {
+                "hard_conflict": true,
+                "level": 3,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-48770b660c195294",
+              "title": "US issues travel advisory after cases of eye-bleeding disease are reported in region battling Ebola - MSN",
+              "audit": {
+                "hard_conflict": true,
+                "level": 3,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-f88b82f9ee240c69",
+              "title": "WHO: Uganda is silent on updates following disclosure of Marburg outbreak",
+              "audit": {
+                "hard_conflict": false,
+                "level": 3,
+                "accepted_fields": [],
+                "fields": {
+                  "title": {
+                    "score": -3,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [
+                      "context:['outbreak']",
+                      "context_only"
+                    ],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [
+                      "outbreak"
+                    ],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  },
+                  "brief": {
+                    "score": -3,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [
+                      "context:['vaccine']",
+                      "context_only"
+                    ],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [
+                      "vaccine"
+                    ],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  }
+                }
+              }
+            },
+            {
+              "id": "news-f86ea56ddd3d52f0",
+              "title": "WHO: Uganda is silent on updates following disclosure of Marburg outbreak - STAT",
+              "audit": {
+                "hard_conflict": false,
+                "level": 3,
+                "accepted_fields": [],
+                "fields": {
+                  "title": {
+                    "score": -3,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [
+                      "context:['outbreak']",
+                      "context_only"
+                    ],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [
+                      "outbreak"
+                    ],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  }
+                }
+              }
+            },
+            {
+              "id": "news-78c61f88fa7505b7",
+              "title": "A Village Health Team member's timely alert helps detect Uganda’s first Marburg case in 2026 - UNICEF",
+              "audit": {
+                "hard_conflict": true,
+                "level": 3,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-01bd13de12adc162",
+              "title": "新兴传染病的社会经济影响中的性别差异:来自几内亚混合方法研究的见解 - 生物通",
+              "audit": {
+                "hard_conflict": true,
+                "level": 3,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-a70b8655f0420f2b",
+              "title": "Ebola - Course of infection - Encyclopedia Britannica",
+              "audit": {
+                "hard_conflict": true,
+                "level": 3,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-82d004946f016bba",
+              "title": "类埃博拉病毒加速蔓延 全球公共卫生系统准备好了吗? - cnBeta.COM",
+              "audit": {
+                "hard_conflict": true,
+                "level": 3,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-2dae027f339b6606",
+              "title": "Africa’s Health Defenses Have Improved But Its Funding Has Not - ipsnews.net",
+              "audit": {
+                "hard_conflict": false,
+                "level": 3,
+                "accepted_fields": [],
+                "fields": {
+                  "title": {
+                    "score": 0,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  }
+                }
+              }
+            },
+            {
+              "id": "news-3060f97344e683bb",
+              "title": "The next pandemic? Virus catalogue reveals the pathogens most likely to spark a global outbreak - MSN",
+              "audit": {
+                "hard_conflict": true,
+                "level": 3,
+                "fields": {}
+              }
+            },
+            {
+              "id": "news-43a6eadd36d7f024",
+              "title": "The number of Ebola-related deaths in the Democratic Republic of the Congo has risen to 930 - UA.NEWS",
+              "audit": {
+                "hard_conflict": false,
+                "level": 3,
+                "accepted_fields": [],
+                "fields": {
+                  "title": {
+                    "score": 0,
+                    "decision": "reject",
+                    "route": "reject",
+                    "reasons": [],
+                    "identity_present": false,
+                    "target_identity_present": false,
+                    "related_identity_present": false,
+                    "identity_hits": [],
+                    "title_identity_hits": [],
+                    "body_identity_hits": [],
+                    "qualified_identity_hits": [],
+                    "qualified_context_hits": {},
+                    "ambiguous_abbreviation_hits": [],
+                    "context_hits": [],
+                    "related_hits": [],
+                    "related_hit_details": [],
+                    "hard_excluded_hits": [],
+                    "excluded_hits": [],
+                    "identity_frequency": 0,
+                    "entity_resolution": {
+                      "title": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      },
+                      "body": {
+                        "hits": [],
+                        "target_hits": [],
+                        "member_hits": [],
+                        "disease_hits": [],
+                        "related_hits": [],
+                        "related_hit_details": [],
+                        "hard_excluded_hits": [],
+                        "excluded_hits": [],
+                        "target_identity_present": false,
+                        "related_identity_present": false
+                      }
+                    },
+                    "hard_entity_conflict": false,
+                    "mixed_entity_comparison": false,
+                    "primary_eligible": false,
+                    "supplementary_eligible": false,
+                    "supplementary_reason": "",
+                    "needs_llm_review": true,
+                    "policy_version": "v17.4-r1-related-entity-evidence-retention-2"
+                  }
+                }
+              }
+            },
+            {
+              "id": "news-cd620e16723c287d",
+              "title": "EAC to Launch UVRI as Regional Centre of Excellence in Virology - UG Diplomat",
+              "audit": {
+                "hard_conflict": true,
+                "level": 3,
+                "fields": {}
+              }
+            }
+          ]
+        }
+      ],
       "field_thresholds": {
         "title": [
           5,
@@ -13557,15 +16081,16 @@
       "core_search_terms_fallback": false,
       "target_cap_enforced": true,
       "initial_rejection_reason_counts": {
-        "identity_not_established": 1,
-        "score_below_final_threshold": 1
+        "identity_not_established": 12,
+        "llm_code_N": 8,
+        "score_below_final_threshold": 12
       },
       "final_accepted": 0,
       "final_primary_accepted": 0,
       "final_related_supplementary_accepted": 0,
       "recovered": 0,
       "recovered_primary": 0,
-      "resolved": true,
+      "resolved": false,
       "continuity_status": "empty_valid_issue",
       "publication_must_continue": true,
       "fabricated_acceptance_forbidden": true,
