@@ -72,7 +72,7 @@ def build_profile(settings: Settings, http: HttpClient, llm: LLMRouter) -> dict[
 
     profile = base
     if llm.available and len(usable) >= minimum:
-        system = (settings.project_root / "prompts" / "profile_bootstrap.md").read_text(encoding="utf-8")
+        system = (settings.project_root / "prompts" / "profile_bootstrap_v3.md").read_text(encoding="utf-8")
         prompt_payload = {
             "profile_id": settings.profile_id,
             "manual_topic_contract": seed,

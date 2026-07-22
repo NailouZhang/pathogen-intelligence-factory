@@ -14,15 +14,16 @@ from .llm import LLMError, LLMRouter
 from .profile_contract import SCHEMA_VERSION
 from .utils import clean_space, dump_json, load_json, sha256_text, unique_strings, utc_now_iso
 
-PROMPT_VERSION = "review-vocabulary-v17.1.0-1"
+PROMPT_VERSION = "review-vocabulary-v17.4.0-1"
 VOCABULARY_KEYS = (
     "identity_anchor_terms",
     "qualified_identity_terms",
     "member_identity_terms",
     "disease_identity_terms",
+    "related_entity_terms",
+    "hard_exclusion_terms",
     "context_terms",
     "display_only_terms",
-    "exclusion_terms",
     "paper_priority_terms",
     "document_type_terms",
 )
@@ -120,7 +121,7 @@ def _normalize_entry(row: Any, *, category: str, source_urls: list[str]) -> dict
     if category == "qualified_identity_terms":
         output.setdefault("forbidden_without_context", True)
         output["required_context_terms"] = unique_strings(output.get("required_context_terms") or [])
-    if category in {"context_terms", "display_only_terms"}:
+    if category in {"related_entity_terms", "context_terms", "display_only_terms"}:
         output.setdefault("may_use_only_after_identity", True)
     return output
 
@@ -230,14 +231,14 @@ def ensure_review_vocabulary(
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Load a validated, complete vocabulary without silent retrieval-term fallback.
 
-    Production defaults to the 21 ChatGPT-curated bundles shipped with the
+    Production defaults to the 21 three-round-reviewed canonical contracts shipped with the
     repository.  A manual runtime rebuild is available only when both
     ``PIF_VOCAB_SOURCE=runtime`` and ``PIF_VOCAB_ALLOW_RUNTIME_REFRESH=true``
     are explicitly set.  Any runtime failure returns to the complete bundled
     vocabulary, never to the five retrieval concepts.
     """
     del http, llm, demo
-    source = os.getenv("PIF_VOCAB_SOURCE", "bundled").strip().lower() or "bundled"
+    source = os.getenv("PIF_VOCAB_SOURCE", "canonical").strip().lower() or "canonical"
     runtime_allowed = os.getenv("PIF_VOCAB_ALLOW_RUNTIME_REFRESH", "false").strip().lower() in {"1", "true", "yes", "on"}
     allow_core_fallback = os.getenv("PIF_REVIEW_ALLOW_CORE_TERMS_FALLBACK", "false").strip().lower() in {"1", "true", "yes", "on"}
     if allow_core_fallback:
@@ -245,8 +246,8 @@ def ensure_review_vocabulary(
             "PIF_REVIEW_ALLOW_CORE_TERMS_FALLBACK=true is forbidden by the v17 production contract; "
             "load the complete bundled review vocabulary instead"
         )
-    if source != "bundled" and not runtime_allowed:
-        source = "bundled"
+    if source not in {"canonical", "bundled"} and not runtime_allowed:
+        source = "canonical"
 
     bundle = load_bundled_vocabulary(settings.project_root, settings.profile_id)
     bundle_profile = bundle["profile"]
@@ -279,14 +280,14 @@ def ensure_review_vocabulary(
     # bundled copy remains the source of truth, so a stale state branch cannot
     # silently override the reviewed package.
     record = {
-        "schema_version": 3,
+        "schema_version": 5,
         "bundle_version": manifest.get("bundle_version"),
         "profile_id": settings.profile_id,
         "profile_semantic_fingerprint": manifest.get("profile_semantic_fingerprint"),
         "source_fingerprint": manifest.get("source_fingerprint"),
         "generated_at": utc_now_iso(),
         "generated_by": manifest.get("generated_by"),
-        "vocabulary_source": "bundled",
+        "vocabulary_source": "canonical",
         "review_vocabulary": deepcopy(bundle["review_vocabulary"]),
         "translation_glossary": deepcopy(bundle["translation_glossary"]),
         "validation": {
@@ -303,14 +304,17 @@ def ensure_review_vocabulary(
                 or (bundle.get("validation_cases") or {}).get("negative_cases")
                 or []
             ),
+            "related_cases": len((bundle.get("validation_cases") or {}).get("related") or []),
+            "comparison_cases": len((bundle.get("validation_cases") or {}).get("comparison") or []),
+            "semantic_validation_executed_in_ci": True,
         },
     }
     if install_required or previous != record:
         _atomic_dump_json(path, record)
 
     audit = {
-        "policy_version": "v17-bundled-vocabulary-contract-1",
-        "schema_version": 3,
+        "policy_version": "v17.4-canonical-vocabulary-contract-1",
+        "schema_version": 5,
         "bundle_version": manifest.get("bundle_version"),
         "profile_id": settings.profile_id,
         "requested": requested,
@@ -319,7 +323,7 @@ def ensure_review_vocabulary(
         "trigger": trigger,
         "generated_at": record["generated_at"],
         "generated_by": record["generated_by"],
-        "vocabulary_source": "bundled",
+        "vocabulary_source": "canonical",
         "profile_semantic_fingerprint": record["profile_semantic_fingerprint"],
         "source_fingerprint": record["source_fingerprint"],
         "cache_invalidation_required": install_required,
@@ -329,8 +333,11 @@ def ensure_review_vocabulary(
         "fallback_to_core_search_terms": False,
         "validation": record["validation"],
         "term_counts": manifest.get("term_counts") or {},
+        "consumer_contract": deepcopy(bundle.get("consumer_contract") or {}),
+        "authoritative_source_count": len(bundle.get("authoritative_sources") or []),
+        "runtime_file_audit": deepcopy(bundle.get("runtime_file_audit") or {}),
     }
     profile["vocabulary_validation_cases"] = deepcopy(bundle.get("validation_cases") or {})
-    profile["vocabulary_source"] = "bundled"
+    profile["vocabulary_source"] = "canonical"
     profile["vocabulary_bundle_version"] = manifest.get("bundle_version")
     return profile, audit

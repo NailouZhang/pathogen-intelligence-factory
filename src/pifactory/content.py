@@ -9,7 +9,25 @@ from typing import Any
 from urllib.parse import parse_qs, unquote, urlencode, urljoin, urlparse, urlunparse
 
 import fitz
-import trafilatura
+try:
+    import trafilatura  # type: ignore
+except ModuleNotFoundError:  # deterministic offline/test fallback
+    class _TrafilaturaFallback:
+        @staticmethod
+        def extract(raw: str, **_: Any) -> str:
+            try:
+                return BeautifulSoup(raw or "", "lxml").get_text(" ")
+            except Exception:
+                return clean_space(raw)
+
+        @staticmethod
+        def html2txt(raw: str) -> str:
+            try:
+                return BeautifulSoup(raw or "", "lxml").get_text(" ")
+            except Exception:
+                return clean_space(raw)
+
+    trafilatura = _TrafilaturaFallback()
 from bs4 import BeautifulSoup
 from rapidfuzz.fuzz import partial_ratio, ratio, token_set_ratio
 

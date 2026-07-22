@@ -5,7 +5,7 @@ from typing import Any
 
 from .utils import clean_space, unique_strings
 
-QUERY_POLICY_VERSION = "v15.1-five-core-plus-controlled-supplemental-2"
+QUERY_POLICY_VERSION = "v17.4-canonical-five-core-related-mapped-1"
 PUBMED_LIMIT = 1800
 NEWS_LIMIT = 350
 
@@ -46,6 +46,7 @@ def _core_concepts(profile: dict[str, Any]) -> list[dict[str, Any]]:
             "news_zh": clean_space(item.get("news_zh")),
             "role": clean_space(item.get("role")) or "identity",
             "priority": int(item.get("priority") or index),
+            "review_mapping": dict(item.get("review_mapping") or {}),
         })
         if len(out) >= max_concepts:
             break
@@ -269,8 +270,29 @@ def build_relevance_rules(profile: dict[str, Any]) -> dict[str, Any]:
     ]
     contexts = unique_strings(clean_space(x.get("term")) for x in _entries(profile, "context_terms") if clean_space(x.get("term")))
     exclusions = unique_strings(clean_space(x.get("term")) for x in _entries(profile, "exclusion_terms") if clean_space(x.get("term")))
+    hard_exclusions = unique_strings(clean_space(x.get("term")) for x in _entries(profile, "hard_exclusion_terms") if clean_space(x.get("term"))) or exclusions
+    related_entries = [x for x in _entries(profile, "related_entity_terms") if clean_space(x.get("term"))]
+    related_terms = unique_strings(clean_space(x.get("term")) for x in related_entries)
     concepts = _core_concepts(profile)
+    topic = profile.get("topic_contract") or {}
+    core_mappings = [
+        {"concept_id": x.get("id"), "scholarly": x.get("scholarly"), **dict(x.get("review_mapping") or {})}
+        for x in concepts
+    ]
     return {
+        "entity_contract": {
+            "target_entities": unique_strings(topic.get("target_entities") or anchors),
+            "allowed_members": unique_strings(topic.get("allowed_members") or members),
+            "disease_entities": unique_strings(topic.get("disease_entities") or diseases),
+            "qualified_entities": list(topic.get("qualified_entities") or qualified),
+            "related_entities": list(topic.get("related_entities") or related_entries),
+            "hard_excluded_entities": unique_strings(topic.get("hard_excluded_entities") or topic.get("excluded_entities") or hard_exclusions),
+            # Compatibility alias contains only terminal hard exclusions.
+            "excluded_entities": unique_strings(topic.get("hard_excluded_entities") or topic.get("excluded_entities") or hard_exclusions),
+            "background_only_terms": unique_strings(topic.get("background_only_terms") or []),
+            "related_entity_policy": dict(topic.get("related_entity_policy") or {}),
+        },
+        "core_review_mappings": core_mappings,
         "title_required_patterns": anchors + members + diseases,
         "identity_anchor_patterns": anchors,
         "title_or_abstract_identity_patterns": anchors + members + diseases,
@@ -278,7 +300,9 @@ def build_relevance_rules(profile: dict[str, Any]) -> dict[str, Any]:
         "disease_patterns": diseases,
         "qualified_abbreviation_rules": qualified,
         "context_patterns": contexts,
-        "excluded_entity_patterns": exclusions,
+        "related_entity_patterns": related_entries,
+        "hard_excluded_entity_patterns": hard_exclusions,
+        "excluded_entity_patterns": hard_exclusions,
         "core_concept_patterns": unique_strings(x["scholarly"] for x in concepts),
         "reject_if_only_context_terms": True,
         "minimum_relevance_score": int((profile.get("query_policy") or {}).get("minimum_relevance_score", 5)),
@@ -293,7 +317,8 @@ def build_relevance_rules(profile: dict[str, Any]) -> dict[str, Any]:
             "+3 qualified abbreviation with required context",
             "+1 repeated identity evidence",
             "+1 independent retrieval concept",
-            "-6 excluded entity dominates title",
+            "+2 title related entity, supplementary-only without target",
+            "-10 hard exclusion dominates title",
             "-4 context-only or unqualified abbreviation",
         ],
     }

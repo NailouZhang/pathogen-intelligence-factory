@@ -290,20 +290,33 @@ def attach_news_to_papers(news: list[dict[str, Any]], papers: list[dict[str, Any
 
 
 def llm_review_ambiguous_duplicates(
-    items: list[dict[str, Any]], llm: LLMRouter, prompt_text: str
+    items: list[dict[str, Any]], llm: LLMRouter, prompt_text: str, audit: dict[str, Any] | None = None
 ) -> list[dict[str, Any]]:
+    audit = audit if audit is not None else {}
+    audit.update({"policy_version": "v17.4-identifier-first-ambiguous-llm-1", "input": len(items), "candidate_groups": 0, "removed": 0, "groups": []})
     if not llm.available or len(items) < 2:
+        audit["status"] = "skipped_no_llm_or_too_few"
         return items
     candidates: list[list[int]] = []
     for i, item in enumerate(items):
+        # DOI/PMID/PMCID records already have deterministic identity. LLM review
+        # is reserved for identifierless records with genuinely ambiguous titles.
+        ids_i = item.get("source_ids") or {}
+        if item.get("doi") or ids_i.get("pmid") or ids_i.get("pmcid"):
+            continue
         group = [i]
         for j in range(i + 1, len(items)):
+            ids_j = items[j].get("source_ids") or {}
+            if items[j].get("doi") or ids_j.get("pmid") or ids_j.get("pmcid"):
+                continue
             score = ratio(normalize_title(item.get("title")), normalize_title(items[j].get("title")))
             if 72 <= score < 94:
                 group.append(j)
         if len(group) > 1:
             candidates.append(group[:6])
+    audit["candidate_groups"] = len(candidates)
     if not candidates:
+        audit["status"] = "no_ambiguous_identifierless_groups"
         return items
     remove: set[int] = set()
     for group in candidates[:8]:
@@ -325,7 +338,12 @@ def llm_review_ambiguous_duplicates(
             if len(indexes) < 2:
                 continue
             keep = int(cluster.get("keep_index", indexes[0]))
+            removed_here = []
             for idx in indexes:
                 if idx != keep:
                     remove.add(idx)
+                    removed_here.append(idx)
+            audit["groups"].append({"indexes": indexes, "keep_index": keep, "removed_indexes": removed_here, "reason": clean_space(cluster.get("reason"))})
+    audit["removed"] = len(remove)
+    audit["status"] = "completed"
     return [item for idx, item in enumerate(items) if idx not in remove]

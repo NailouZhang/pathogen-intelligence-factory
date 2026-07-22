@@ -104,15 +104,28 @@ def deterministic_profile(seed: dict[str, Any], documents: list[dict[str, Any]])
         }
         for x in unique_strings(candidates.get("display_only_terms") or [])
     ]
-    exclusions = [
+    # Legacy seed `exclusion_terms` are conservatively treated as related
+    # non-target entities.  Only explicitly authored `hard_exclusion_terms`
+    # may terminate a record in v17.4.
+    related_entities = [
         {
             "term": x,
-            "reason": "seed-defined recurrent non-target entity or scope",
-            "applies_to_modes": ["strict_core"],
-            "risk_of_over_exclusion": "medium",
+            "reason": "seed-defined biologically or taxonomically related non-target entity",
+            "relation_type": "legacy_seed_related_entity",
+            "display_route": "supplementary",
             "source_or_test_evidence": "manual topic-boundary table",
         }
-        for x in unique_strings(candidates.get("exclusion_terms") or [])
+        for x in unique_strings(candidates.get("related_entity_terms") or candidates.get("exclusion_terms") or [])
+    ]
+    hard_exclusions = [
+        {
+            "term": x,
+            "reason": "seed-defined hard lexical or unrelated entity",
+            "applies_to_modes": ["all"],
+            "risk_of_over_exclusion": "low",
+            "source_or_test_evidence": "manual hard-exclusion table",
+        }
+        for x in unique_strings(candidates.get("hard_exclusion_terms") or [])
     ]
 
     search_strategy = deepcopy(seed.get("search_strategy") or {})
@@ -140,7 +153,9 @@ def deterministic_profile(seed: dict[str, Any], documents: list[dict[str, Any]])
             "disease_identity_terms": diseases,
             "context_terms": contexts,
             "display_only_terms": display_only,
-            "exclusion_terms": exclusions,
+            "related_entity_terms": related_entities,
+            "hard_exclusion_terms": hard_exclusions,
+            "exclusion_terms": hard_exclusions,
             "paper_priority_terms": deepcopy(candidates.get("paper_priority_terms") or []),
             "document_type_terms": deepcopy(candidates.get("document_type_terms") or {}),
         },

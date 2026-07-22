@@ -1,4 +1,7 @@
 {
+  "schema_version": 5,
+  "profile_id": "human_enterovirus",
+  "derived_from_semantic_fingerprint": "26a9e63a003b7d245f21e2a740a9bbaf80547aed4c6f6396cd9880fddc362abf",
   "frozen_core_concepts": [
     {
       "id": "npev",
@@ -6,7 +9,12 @@
       "news_en": "non-polio enterovirus",
       "news_zh": "非脊髓灰质炎肠道病毒",
       "role": "group",
-      "priority": 1
+      "priority": 1,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "non-polio enterovirus",
+        "required_context_terms": []
+      }
     },
     {
       "id": "eva71",
@@ -14,7 +22,12 @@
       "news_en": "enterovirus A71",
       "news_zh": "肠道病毒A71型",
       "role": "type",
-      "priority": 2
+      "priority": 2,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "enterovirus A71",
+        "required_context_terms": []
+      }
     },
     {
       "id": "evd68",
@@ -22,7 +35,12 @@
       "news_en": "enterovirus D68",
       "news_zh": "肠道病毒D68型",
       "role": "type",
-      "priority": 3
+      "priority": 3,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "enterovirus D68",
+        "required_context_terms": []
+      }
     },
     {
       "id": "cva6",
@@ -30,7 +48,12 @@
       "news_en": "coxsackievirus A6",
       "news_zh": "柯萨奇病毒A6型",
       "role": "type",
-      "priority": 4
+      "priority": 4,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "coxsackievirus A6",
+        "required_context_terms": []
+      }
     },
     {
       "id": "hfmd",
@@ -38,7 +61,18 @@
       "news_en": "hand foot and mouth disease",
       "news_zh": "手足口病",
       "role": "disease",
-      "priority": 5
+      "priority": 5,
+      "review_mapping": {
+        "mode": "qualified_identity",
+        "term": "hand foot and mouth disease",
+        "required_context_terms": [
+          "enterovirus",
+          "EV-A71",
+          "CV-A6",
+          "CV-A16",
+          "coxsackievirus"
+        ]
+      }
     }
   ],
   "controlled_supplemental_terms": [
@@ -48,12 +82,5 @@
     "coxsackievirus A16",
     "CV-A16"
   ],
-  "news_identity_terms_zh": [
-    "人肠道病毒",
-    "非脊髓灰质炎肠道病毒",
-    "手足口病",
-    "EV-A71",
-    "EV-D68"
-  ],
-  "policy": "retrieval terms are recall-only and never substitute for final review vocabulary"
+  "policy": "derived from canonical_vocabulary.json; every core concept has review_mapping"
 }

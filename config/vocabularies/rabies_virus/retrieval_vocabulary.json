@@ -1,4 +1,7 @@
 {
+  "schema_version": 5,
+  "profile_id": "rabies_virus",
+  "derived_from_semantic_fingerprint": "20289a48185ec3f42275c37fd402bcdbc4a3bbf2d9396eb0784ca9faee9e1770",
   "frozen_core_concepts": [
     {
       "id": "rabies_virus",
@@ -6,7 +9,12 @@
       "news_en": "rabies virus",
       "news_zh": "狂犬病病毒",
       "role": "virus",
-      "priority": 1
+      "priority": 1,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "rabies virus",
+        "required_context_terms": []
+      }
     },
     {
       "id": "rabies",
@@ -14,7 +22,22 @@
       "news_en": "rabies",
       "news_zh": "狂犬病",
       "role": "disease",
-      "priority": 2
+      "priority": 2,
+      "review_mapping": {
+        "mode": "qualified_identity",
+        "term": "rabies",
+        "required_context_terms": [
+          "virus",
+          "viral",
+          "infection",
+          "disease",
+          "vaccine",
+          "post-exposure",
+          "animal",
+          "human",
+          "lyssavirus"
+        ]
+      }
     },
     {
       "id": "rabies_lyssavirus",
@@ -22,7 +45,12 @@
       "news_en": "Rabies lyssavirus",
       "news_zh": "狂犬病丽沙病毒",
       "role": "taxonomy",
-      "priority": 3
+      "priority": 3,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "Rabies lyssavirus",
+        "required_context_terms": []
+      }
     },
     {
       "id": "lyssavirus_rabies",
@@ -30,7 +58,12 @@
       "news_en": "Lyssavirus rabies",
       "news_zh": "狂犬病丽沙病毒正式分类名",
       "role": "taxonomy",
-      "priority": 4
+      "priority": 4,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "Lyssavirus rabies",
+        "required_context_terms": []
+      }
     },
     {
       "id": "human_rabies",
@@ -38,15 +71,16 @@
       "news_en": "human rabies",
       "news_zh": "人狂犬病",
       "role": "disease",
-      "priority": 5
+      "priority": 5,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "human rabies",
+        "required_context_terms": []
+      }
     }
   ],
   "controlled_supplemental_terms": [
     "Lyssavirus rabies"
   ],
-  "news_identity_terms_zh": [
-    "狂犬病病毒",
-    "狂犬病"
-  ],
-  "policy": "retrieval terms are recall-only and never substitute for final review vocabulary"
+  "policy": "derived from canonical_vocabulary.json; every core concept has review_mapping"
 }

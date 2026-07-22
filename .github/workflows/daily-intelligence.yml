@@ -1,4 +1,4 @@
-name: Weekly 21-Virus Intelligence Cycle v17.2
+name: Weekly 21-Virus Intelligence Cycle v17.4
 
 on:
   schedule:
@@ -82,6 +82,12 @@ jobs:
         run: |
           set -Eeuo pipefail
           PIF_PYTHON_BIN=python bash scripts/install_python_project.sh editable
+
+      - name: Validate canonical vocabulary and prompt wiring
+        run: |
+          set -Eeuo pipefail
+          python scripts/validate_canonical_vocabularies.py --project-root . --output /tmp/canonical-vocabulary-validation.json
+          python scripts/audit_vocabulary_consumers.py --project-root . --output /tmp/vocabulary-consumer-audit.json
 
       - name: Install CJK fonts and bounded browser fallback
         run: |
@@ -171,9 +177,9 @@ jobs:
           PIF_REFRESH_REVIEW_VOCABULARY: ${{ github.event_name == 'schedule' && 'false' || inputs.refresh_review_vocabulary || 'false' }}
           PIF_COVER_IMAGE_MODE: ${{ github.event_name == 'schedule' && vars.PIF_COVER_IMAGE_MODE || inputs.cover_image_mode || vars.PIF_COVER_IMAGE_MODE || 'auto' }}
           PIF_CONTENT_SOURCE_URL: ${{ vars.PAGES_PUBLIC_BASE_URL || 'https://nailouzhang.github.io/pathogen-intelligence-pages' }}/
-          PIF_VOCAB_SOURCE: bundled
-          PIF_VOCAB_SCHEMA_VERSION: "3"
-          PIF_VOCAB_BUNDLE_VERSION: "2026.07-v17.1"
+          PIF_VOCAB_SOURCE: canonical
+          PIF_VOCAB_SCHEMA_VERSION: "5"
+          PIF_VOCAB_BUNDLE_VERSION: "2026.07-v17.4"
           PIF_VOCAB_STRICT_VALIDATION: "true"
           PIF_VOCAB_ALLOW_RUNTIME_REFRESH: "false"
           PIF_REVIEW_ALLOW_CORE_TERMS_FALLBACK: "false"
@@ -245,6 +251,7 @@ jobs:
           # only ambiguous records to the LLM; manual all_compact mode can
           # cross-check every candidate without a document-count cutoff.
           PIF_LLM_REVIEW_MODE: ${{ github.event_name == 'schedule' && vars.PIF_LLM_REVIEW_MODE || inputs.review_mode || vars.PIF_LLM_REVIEW_MODE || 'balanced' }}
+          PIF_LLM_AMBIGUOUS_DEDUP: ${{ vars.PIF_LLM_AMBIGUOUS_DEDUP || 'true' }}
           PIF_LLM_COMPACT_BATCH_TOKENS: "12000"
           PIF_LLM_ESCALATION_BATCH_TOKENS: "10000"
           PIF_RELEVANCE_REVIEW_CACHE: "true"

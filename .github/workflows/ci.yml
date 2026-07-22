@@ -1,4 +1,4 @@
-name: CI v17.1
+name: CI v17.4
 on:
   workflow_dispatch:
   push:
@@ -20,6 +20,8 @@ jobs:
       - run: PIF_PYTHON_BIN=python bash scripts/install_python_project.sh editable
       - run: python -m pytest
       - run: python scripts/validate_all_profiles.py
+      - run: python scripts/validate_canonical_vocabularies.py --project-root . --output /tmp/canonical-vocabulary-validation.json
+      - run: python scripts/audit_vocabulary_consumers.py --project-root . --output /tmp/vocabulary-consumer-audit.json
       - run: python scripts/audit_query_coverage.py --project-root . --output /tmp/query-coverage.json
       - run: |
           rm -rf /tmp/pdi_demo

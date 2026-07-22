@@ -1,0 +1,64 @@
+name: Refresh One Canonical Vocabulary v17.4
+on:
+  workflow_dispatch:
+    inputs:
+      profile_id:
+        description: Exact profile ID to rebuild and activate
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: canonical-vocabulary-${{ inputs.profile_id }}
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            requirements-build.txt
+            requirements.txt
+      - run: PIF_PYTHON_BIN=python bash scripts/install_python_project.sh editable
+      - name: Rebuild from configured authoritative sources
+        env:
+          CROSSREF_MAILTO: ${{ secrets.CROSSREF_MAILTO }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
+          BIGMODEL_API_KEY: ${{ secrets.BIGMODEL_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          set -Eeuo pipefail
+          python scripts/refresh_canonical_vocabulary.py \
+            --project-root . \
+            --profile '${{ inputs.profile_id }}' \
+            --activate \
+            --proposal-out "/tmp/${{ inputs.profile_id }}-canonical-proposal.json"
+      - name: Validate all 21 profiles and tests
+        run: |
+          set -Eeuo pipefail
+          python scripts/validate_canonical_vocabularies.py --project-root . --output /tmp/canonical-validation.json
+          python scripts/audit_vocabulary_consumers.py --project-root . --output /tmp/consumer-audit.json
+          python -m pytest -q
+      - name: Commit activated canonical bundle
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add config/vocabularies/${{ inputs.profile_id }}
+          if git diff --cached --quiet; then
+            echo 'No validated vocabulary change to commit'
+          else
+            git commit -m 'vocab: refresh ${{ inputs.profile_id }} canonical contract v17.4'
+            git push origin HEAD:main
+          fi

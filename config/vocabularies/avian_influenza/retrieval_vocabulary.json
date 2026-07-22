@@ -1,4 +1,7 @@
 {
+  "schema_version": 5,
+  "profile_id": "avian_influenza",
+  "derived_from_semantic_fingerprint": "dadd6eee6de7cd540c193a8e20e4ede19a24a5bb4c7c79c053e4e389f88c00e4",
   "frozen_core_concepts": [
     {
       "id": "avian_influenza",
@@ -6,7 +9,12 @@
       "news_en": "avian influenza",
       "news_zh": "禽流感",
       "role": "disease",
-      "priority": 1
+      "priority": 1,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "avian influenza",
+        "required_context_terms": []
+      }
     },
     {
       "id": "h5n1",
@@ -14,7 +22,18 @@
       "news_en": "H5N1",
       "news_zh": "H5N1禽流感病毒",
       "role": "subtype",
-      "priority": 2
+      "priority": 2,
+      "review_mapping": {
+        "mode": "qualified_identity",
+        "term": "H5N1",
+        "required_context_terms": [
+          "avian",
+          "bird",
+          "poultry",
+          "zoonotic",
+          "human infection"
+        ]
+      }
     },
     {
       "id": "h5n6",
@@ -22,7 +41,17 @@
       "news_en": "H5N6",
       "news_zh": "H5N6禽流感病毒",
       "role": "subtype",
-      "priority": 3
+      "priority": 3,
+      "review_mapping": {
+        "mode": "qualified_identity",
+        "term": "H5N6",
+        "required_context_terms": [
+          "avian",
+          "bird",
+          "poultry",
+          "zoonotic"
+        ]
+      }
     },
     {
       "id": "h7n9",
@@ -30,7 +59,17 @@
       "news_en": "H7N9",
       "news_zh": "H7N9禽流感病毒",
       "role": "subtype",
-      "priority": 4
+      "priority": 4,
+      "review_mapping": {
+        "mode": "qualified_identity",
+        "term": "H7N9",
+        "required_context_terms": [
+          "avian",
+          "bird",
+          "poultry",
+          "zoonotic"
+        ]
+      }
     },
     {
       "id": "h9n2",
@@ -38,7 +77,17 @@
       "news_en": "H9N2",
       "news_zh": "H9N2禽流感病毒",
       "role": "subtype",
-      "priority": 5
+      "priority": 5,
+      "review_mapping": {
+        "mode": "qualified_identity",
+        "term": "H9N2",
+        "required_context_terms": [
+          "avian",
+          "bird",
+          "poultry",
+          "zoonotic"
+        ]
+      }
     }
   ],
   "controlled_supplemental_terms": [
@@ -48,12 +97,5 @@
     "highly pathogenic avian influenza",
     "low pathogenic avian influenza"
   ],
-  "news_identity_terms_zh": [
-    "禽流感病毒",
-    "禽流感",
-    "H5N1",
-    "H7N9",
-    "H9N2"
-  ],
-  "policy": "retrieval terms are recall-only and never substitute for final review vocabulary"
+  "policy": "derived from canonical_vocabulary.json; every core concept has review_mapping"
 }

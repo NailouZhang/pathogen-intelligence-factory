@@ -1,4 +1,7 @@
 {
+  "schema_version": 5,
+  "profile_id": "sars_cov_2",
+  "derived_from_semantic_fingerprint": "2fef5d65a58f7cc723b7ef45d7890ca069244b93763ca0f4e051d4b734812685",
   "frozen_core_concepts": [
     {
       "id": "sars_cov_2",
@@ -6,7 +9,12 @@
       "news_en": "SARS-CoV-2",
       "news_zh": "严重急性呼吸综合征冠状病毒2",
       "role": "virus",
-      "priority": 1
+      "priority": 1,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "SARS-CoV-2",
+        "required_context_terms": []
+      }
     },
     {
       "id": "covid_19",
@@ -14,7 +22,12 @@
       "news_en": "COVID-19",
       "news_zh": "新型冠状病毒病",
       "role": "disease",
-      "priority": 2
+      "priority": 2,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "COVID-19",
+        "required_context_terms": []
+      }
     },
     {
       "id": "full_name",
@@ -22,7 +35,12 @@
       "news_en": "severe acute respiratory syndrome coronavirus 2",
       "news_zh": "严重急性呼吸综合征冠状病毒2",
       "role": "virus",
-      "priority": 3
+      "priority": 3,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "severe acute respiratory syndrome coronavirus 2",
+        "required_context_terms": []
+      }
     },
     {
       "id": "taxonomy",
@@ -30,7 +48,17 @@
       "news_en": "Betacoronavirus pandemicum",
       "news_zh": "大流行贝塔冠状病毒",
       "role": "taxonomy",
-      "priority": 4
+      "priority": 4,
+      "review_mapping": {
+        "mode": "qualified_identity",
+        "term": "Betacoronavirus pandemicum",
+        "required_context_terms": [
+          "SARS-CoV-2",
+          "COVID-19",
+          "Omicron",
+          "pandemic coronavirus"
+        ]
+      }
     },
     {
       "id": "omicron",
@@ -38,17 +66,16 @@
       "news_en": "Omicron SARS-CoV-2",
       "news_zh": "新冠病毒奥密克戎变异株",
       "role": "lineage",
-      "priority": 5
+      "priority": 5,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "Omicron SARS-CoV-2",
+        "required_context_terms": []
+      }
     }
   ],
   "controlled_supplemental_terms": [
     "Betacoronavirus pandemicum"
   ],
-  "news_identity_terms_zh": [
-    "新冠病毒",
-    "新型冠状病毒",
-    "新冠肺炎",
-    "COVID-19"
-  ],
-  "policy": "retrieval terms are recall-only and never substitute for final review vocabulary"
+  "policy": "derived from canonical_vocabulary.json; every core concept has review_mapping"
 }

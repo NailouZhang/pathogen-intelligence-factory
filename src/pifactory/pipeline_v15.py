@@ -15,7 +15,7 @@ from .bootstrap import _fallback_profile, build_profile
 from .config import Settings, load_profile, load_seed
 from .content import apply_news_content_circuit_breaker, complete_scholarly_work, resolve_and_extract_news
 from .dates import assess_publication_date, date_window, publication_search_end
-from .dedup import attach_news_to_papers, dedup_news, dedup_papers
+from .dedup import attach_news_to_papers, dedup_news, dedup_papers, llm_review_ambiguous_duplicates
 from .http import HttpClient
 from .llm import LLMRouter
 from .news import filter_news_window, search_bing_news, search_gdelt, search_google_news, search_reliefweb, search_who
@@ -75,6 +75,26 @@ def _preprint_identity_terms(profile: dict[str, Any]) -> list[str]:
     # Qualified abbreviations are intentionally excluded unless their expanded
     # context appears elsewhere; short tokens such as SNV create false hits.
     return [term for term in unique_strings(terms) if len(clean_space(term)) >= 4]
+
+
+def apply_translation_display_fallback(item: dict[str, Any]) -> dict[str, Any]:
+    """Keep evidence-backed English analysis displayable when Chinese translation fails."""
+    if item.get("analysis_ready", True) and not item.get("translation_ready"):
+        elements_en = dict((item.get("analysis") or {}).get("analysis") or item.get("elements_en") or {})
+        elements_zh = dict(item.get("elements_zh") or {})
+        for field, value in elements_en.items():
+            if not clean_space(elements_zh.get(field)):
+                elements_zh[field] = clean_space(value)
+        item["elements_en"] = elements_en
+        item["elements_zh"] = elements_zh
+        item["title_zh"] = clean_space(item.get("title_zh")) or clean_space(item.get("title"))
+        item["translation_incomplete"] = True
+        item["translation_display_fallback"] = "english_source_preserved"
+        item["display_translation_ready"] = True
+    else:
+        item["translation_incomplete"] = not bool(item.get("translation_ready"))
+        item["display_translation_ready"] = bool(item.get("translation_ready"))
+    return item
 
 
 def _demo_records() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
@@ -360,6 +380,18 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         for cache_name in ("relevance_review_cache", "analysis_cache", "translation_cache"):
             state.pop(cache_name, None)
         state["profile_semantic_fingerprint"] = profile.get("profile_semantic_fingerprint")
+    def _stage_row(name: str, before: int, after: int, threshold: float) -> dict[str, Any]:
+        ratio = round(after / before, 4) if before else 1.0
+        return {
+            "stage": name,
+            "before": before,
+            "after": after,
+            "retention_ratio": ratio,
+            "drop": max(0, before - after),
+            "threshold": threshold,
+            "triggered": bool(before >= 10 and ratio < threshold),
+        }
+
     core_term_contract = validate_frozen_core_terms(profile, strict=True)
     post_retrieval_vocabulary = build_post_retrieval_vocabulary(profile)
     profile["core_term_contract"] = core_term_contract
@@ -597,7 +629,25 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     )
     progress("paper_candidate_gate", "complete", raw=papers_after_window, after_window=papers_after_window, candidates=papers_after_candidate_gate)
     papers = dedup_papers(paper_candidates)
+    deterministic_papers_after_dedup = len(papers)
+    paper_dedup_llm_audit: dict[str, Any] = {}
+    if os.getenv("PIF_LLM_AMBIGUOUS_DEDUP", "true").lower() in {"1", "true", "yes", "on"}:
+        dedup_prompt = (settings.project_root / "prompts" / "ambiguous_dedup.md").read_text(encoding="utf-8")
+        papers = llm_review_ambiguous_duplicates(papers, llm, dedup_prompt, audit=paper_dedup_llm_audit)
+    else:
+        paper_dedup_llm_audit = {"policy_version": "v17.4-identifier-first-ambiguous-llm-1", "status": "disabled", "input": len(papers), "removed": 0}
     papers_after_dedup = len(papers)
+    paper_dedup_audit = {
+        "raw_candidates": len(paper_candidates),
+        "after_identifier_and_title_author_dedup": deterministic_papers_after_dedup,
+        "after_ambiguous_llm_review": papers_after_dedup,
+        "deterministic_removed": max(0, len(paper_candidates) - deterministic_papers_after_dedup),
+        "llm": paper_dedup_llm_audit,
+        "clusters": [
+            {"paper_id": x.get("paper_id"), "title": x.get("title"), "sources": x.get("sources"), "source_record_count": len(x.get("source_records") or []), "version_relations": x.get("version_relations") or []}
+            for x in papers if len(x.get("source_records") or []) > 1 or x.get("version_relations")
+        ],
+    }
     papers = rank_papers(papers, profile)
     if settings.max_paper_candidates > 0:
         papers = papers[: settings.max_paper_candidates]
@@ -657,12 +707,19 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         kind="news",
         previous_accepted=baseline_value(state, settings.profile_id, "news"),
     )
+    related_news_from_relevance = [
+        item for item in news
+        if item.get("relevance_route") == "supplementary_related"
+        or item.get("display_eligibility") == "supplementary_only"
+    ]
+    news = [item for item in news if item not in related_news_from_relevance]
     update_baseline(state, settings.profile_id, "news", len(news))
+    news_cliff_guard_audit["related_supplementary_routed_before_enrichment"] = len(related_news_from_relevance)
     progress(
         "relevance_cliff_guard", "complete", kind="news",
         triggered=news_cliff_guard_audit.get("triggered"),
         recovered=news_cliff_guard_audit.get("recovered"),
-        accepted=len(news),
+        accepted=len(news), related_supplementary=len(related_news_from_relevance),
     )
     news_after_final_gate = len(news)
 
@@ -694,7 +751,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             evidence_material = json.dumps(build_paper_evidence(item), ensure_ascii=False, sort_keys=True)
         else:
             evidence_material = clean_space(item.get("content") or item.get("excerpt"))
-        return f"{kind}:{ANALYSIS_POLICY_VERSION}:{sha256_text(identity + '|' + evidence_material)}"
+        return f"{kind}:{ANALYSIS_POLICY_VERSION}:{profile.get('profile_semantic_fingerprint','')}:{sha256_text(identity + '|' + evidence_material)}"
 
     demo_titles = {
         "Serologic evidence of hantavirus exposure in forest workers": "林业工作者汉坦病毒暴露的血清学证据",
@@ -877,6 +934,13 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
 
     def _analyze_translate_paper(item: dict[str, Any]) -> bool:
         nonlocal paper_analysis_processed
+        if (
+            item.get("relevance_route") == "supplementary_related"
+            or item.get("display_eligibility") == "supplementary_only"
+            or item.get("primary_eligible") is False
+        ):
+            item["analysis_skipped_reason"] = "related_non_target_supplementary_only"
+            return False
         if len(primary_ready) >= settings.max_papers:
             return False
         attempt_limit = max(settings.max_papers, int(round(comparison_target * max(1.0, settings.paper_analysis_attempt_multiplier))))
@@ -905,7 +969,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             item["paper_type"] = cached.get("paper_type") or item.get("paper_type") or "research"
             item["analysis_cache"] = "hit_language_contract_checked"
         else:
-            analyze_paper(item, llm, prompts_dir)
+            analyze_paper(item, llm, prompts_dir, profile=profile)
             item["analysis_cache"] = "miss"
             if settings.analysis_cache_enabled and (
                 not settings.analysis_cache_success_only or (item.get("analysis") or {}).get("status") == "passed"
@@ -923,8 +987,12 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
                 kind=item.get("paper_type") or "research",
                 wechat_news_max_zh_chars=settings.wechat_news_max_zh_chars,
             )
+        # Translation quality is independent from scientific eligibility.
+        # A valid English analysis remains displayable when one or more Chinese
+        # fields fail; missing Chinese fields receive explicit English fallback.
+        apply_translation_display_fallback(item)
         analyzed_papers.append(item)
-        if item.get("translation_ready") and item.get("analysis_ready", True):
+        if item.get("analysis_ready", True):
             primary_ready.append(item)
             return True
         return False
@@ -1069,7 +1137,12 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         paper_cliff_guard_audit["identity_gate_recovered_input"] = len(recovered_rows)
         paper_cliff_guard_audit["identity_gate_recovered_accepted"] = len(gated_recovered)
         paper_cliff_guard_audit["final_accepted"] = len(paper_catalog)
-    update_baseline(state, settings.profile_id, "paper", len(paper_catalog))
+    primary_paper_count_for_baseline = sum(
+        item.get("relevance_route") != "supplementary_related"
+        and item.get("display_eligibility") != "supplementary_only"
+        for item in paper_catalog
+    )
+    update_baseline(state, settings.profile_id, "paper", primary_paper_count_for_baseline)
     progress(
         "relevance_cliff_guard", "complete", kind="paper",
         triggered=paper_cliff_guard_audit.get("triggered"),
@@ -1081,7 +1154,13 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     # target is 50 primary reports; the comparison pool and attempt/time budgets
     # are independent hard ceilings.
     comparison_pool = rank_papers(
-        [item for item in paper_catalog if (item.get("evidence_status") or {}).get("has_verified_evidence")],
+        [
+            item for item in paper_catalog
+            if (item.get("evidence_status") or {}).get("has_verified_evidence")
+            and item.get("relevance_route") != "supplementary_related"
+            and item.get("display_eligibility") != "supplementary_only"
+            and item.get("primary_eligible") is not False
+        ],
         profile,
     )
     analysis_ranked_catalog = comparison_pool
@@ -1105,7 +1184,13 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             break
         _analyze_translate_paper(item)
     runtime_budget.finish_stage("paper_processing", analysis_stop_reason)
-    papers_after_final_gate = len(paper_catalog)
+    papers_after_final_gate_total = len(paper_catalog)
+    papers_related_after_final_gate = sum(
+        item.get("relevance_route") == "supplementary_related"
+        or item.get("display_eligibility") == "supplementary_only"
+        for item in paper_catalog
+    )
+    papers_after_final_gate = papers_after_final_gate_total - papers_related_after_final_gate
     paper_post_enrichment_rejected = paper_gate_rejected
     paper_content_rejected = 0
     paper_enrichment_selected = completion_processed
@@ -1138,7 +1223,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         "mode": settings.llm_review_mode,
         "compact_batch_tokens": settings.llm_compact_batch_tokens,
         "escalation_batch_tokens": settings.llm_escalation_batch_tokens,
-        "papers": _review_summary(paper_review_population, papers_after_final_gate),
+        "papers": {**_review_summary(paper_review_population, papers_after_final_gate), "related_supplementary": papers_related_after_final_gate, "accepted_total": papers_after_final_gate_total},
         "news": _review_summary(news_review_population, news_after_final_gate),
         "cliff_guard": {"papers": paper_cliff_guard_audit, "news": news_cliff_guard_audit},
         "paper_stage_order": [
@@ -1155,6 +1240,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         "policy_version": "v15-evidence-or-verified-metadata-final-gate-2",
         "input": paper_gate_input,
         "accepted": len(paper_catalog),
+        "primary_accepted": papers_after_final_gate,
+        "related_supplementary_accepted": papers_related_after_final_gate,
         "rejected": paper_post_enrichment_rejected,
         "batches": evidence_gate_batches,
         "metadata_only_retained": sum(
@@ -1185,7 +1272,11 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     news_enrichment_selected = len(news_queue)
     news_content_rejected = 0
     news_resolver_rejected_records: list[dict[str, Any]] = []
-    supplementary_news_candidates: list[dict[str, Any]] = []
+    supplementary_news_candidates: list[dict[str, Any]] = [dict(item) for item in related_news_from_relevance]
+    for item in supplementary_news_candidates:
+        item["supplementary_reason"] = "biologically_related_non_target_entity"
+        item["display_eligibility"] = "supplementary_only"
+        item["analysis_skipped_reason"] = "related_non_target_supplementary_only"
     fetched_main_candidates: list[dict[str, Any]] = []
 
     runtime_budget.start_stage("news_enrichment")
@@ -1245,6 +1336,18 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             fallback["supplementary_reason"] = "main_news_content_circuit_rejected_metadata_retained"
             supplementary_news_candidates.append(fallback)
     news, news_post_enrichment_summary = filter_post_enrichment(news, news_profile, "news")
+    post_enrichment_related_news = [
+        item for item in news
+        if item.get("relevance_route") == "supplementary_related"
+        or item.get("display_eligibility") == "supplementary_only"
+    ]
+    for item in post_enrichment_related_news:
+        fallback = dict(item)
+        fallback["supplementary_reason"] = "biologically_related_non_target_entity"
+        fallback["analysis_skipped_reason"] = "related_non_target_supplementary_only"
+        supplementary_news_candidates.append(fallback)
+    news = [item for item in news if item not in post_enrichment_related_news]
+    news_post_enrichment_summary["related_supplementary_routed"] = len(post_enrichment_related_news)
     post_kept_ids = {item.get("news_id") for item in news}
     for rejected in fetched_main_candidates:
         if rejected.get("news_id") in circuit_kept_ids and rejected.get("news_id") not in post_kept_ids:
@@ -1308,7 +1411,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             )
             article["analysis_cache"] = "hit_language_contract_checked"
         else:
-            analyze_news(article, llm, prompts_dir)
+            analyze_news(article, llm, prompts_dir, profile=profile)
             article["analysis_cache"] = "miss"
             if settings.analysis_cache_enabled and (
                 not settings.analysis_cache_success_only or (article.get("analysis") or {}).get("status") == "passed"
@@ -1370,7 +1473,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     literature_selection_audit["global_rerank_after_completion"] = True
     ranked_paper_ready_pool = list(ranked_primary_ready)
     paper_top_n_excluded = max(0, len(ranked_primary_ready) - len(papers))
-    translation_rejected_papers = max(0, paper_analysis_processed - len(primary_ready))
+    analysis_rejected_papers = max(0, paper_analysis_processed - len(primary_ready))
 
     # News display eligibility depends on qualified source evidence plus an
     # English analysis. Chinese translation completeness is an independent
@@ -1398,7 +1501,15 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             continue
         supplementary_seen.add(key)
         item = dict(candidate)
-        item["display_mode"] = "supplementary_news"
+        related_supplementary = (
+            item.get("relevance_route") == "supplementary_related"
+            or item.get("display_eligibility") == "supplementary_only"
+        )
+        item["display_mode"] = "supplementary_related" if related_supplementary else "supplementary_news"
+        if related_supplementary:
+            item["supplementary_reason"] = "biologically_related_non_target_entity"
+            item["notice_zh"] = "本条涉及与目标病毒具有分类学、宿主、生态、比较研究或鉴别诊断关系的非目标病毒。目标病毒证据不足，故仅保留为补充新闻，不生成目标病毒结论。"
+            item["notice_en"] = "This item concerns a biologically, taxonomically, ecologically or methodologically related non-target virus. Target-virus evidence is insufficient, so it is retained only as supplementary news without target-virus conclusions."
         item["analysis"] = {}
         item.pop("elements_en", None)
         item.pop("elements_zh", None)
@@ -1430,7 +1541,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     news_top_n_excluded = max(0, len(ranked_news_ready_pool) - len(news))
     progress(
         "translation_gate", "complete",
-        primary_ready_pool=len(primary_ready), papers_retained=len(papers), papers_rejected=translation_rejected_papers,
+        primary_ready_pool=len(primary_ready), papers_retained=len(papers), papers_rejected=analysis_rejected_papers,
         paper_top_n_limit=settings.max_papers, paper_top_n_excluded=paper_top_n_excluded,
         supplementary_retained=len(supplementary_papers), supplementary_limit=settings.max_supplementary_papers,
         news_ready_pool=len(news_ready_pool), news_retained=len(news), supplementary_news_retained=len(supplementary_news), news_display_rejected=news_display_rejected,
@@ -1554,6 +1665,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "after_dedup": papers_after_dedup,
             "before_final_relevance": papers_before_final_gate,
             "after_final_relevance": papers_after_final_gate,
+            "after_final_relevance_total_including_related": papers_after_final_gate_total,
+            "related_supplementary_after_final_relevance": papers_related_after_final_gate,
             "relevant_catalog_after_completion_and_identity_gate": len(paper_catalog),
             "content_completion_processed": paper_enrichment_selected,
             "content_completion_budget": settings.max_fulltexts,
@@ -1570,6 +1683,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "supplementary_limit": settings.max_supplementary_papers,
             "supplementary_displayed": len(supplementary_papers),
             "supplementary_metadata_only": supplementary_metadata_only,
+            "supplementary_related": sum(item.get("supplementary_reason") == "biologically_related_non_target_entity" for item in supplementary_papers),
             "selection_policy": "verified_primary_top_n_plus_verified_supplementary_catalog",
         },
         "news": {
@@ -1591,9 +1705,50 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
             "selection_policy": "qualification_independent_from_wechat_length",
             "displayed": len(news),
             "supplementary_displayed": len(supplementary_news),
+            "supplementary_related": sum(item.get("supplementary_reason") == "biologically_related_non_target_entity" for item in supplementary_news),
             "supplementary_limit": settings.max_supplementary_news,
         },
     }
+
+    def _stage_row(name: str, before: int, after: int, threshold: float) -> dict[str, Any]:
+        ratio = round(after / before, 4) if before else 1.0
+        return {
+            "stage": name,
+            "before": before,
+            "after": after,
+            "retention_ratio": ratio,
+            "drop": max(0, before - after),
+            "threshold": threshold,
+            "triggered": bool(before >= 10 and ratio < threshold),
+        }
+
+    display_continuity = {
+        "policy_version": "v17.4-primary-related-separated-four-stage-continuity-1",
+        "papers": [
+            _stage_row("final_relevance", papers_before_final_gate, papers_after_final_gate, 0.30),
+            _stage_row("evidence_and_identity", papers_after_final_gate, evidence_ready_catalog, 0.35),
+            _stage_row("analysis", evidence_ready_catalog, len(ranked_primary_ready), 0.50),
+            _stage_row("display_top_n", len(ranked_primary_ready), len(papers), min(1.0, settings.max_papers / max(1, len(ranked_primary_ready)))),
+        ],
+        "news": [
+            _stage_row("final_relevance", news_before_final_gate, news_after_final_gate, 0.30),
+            _stage_row("body_and_identity", news_after_final_gate, len(analyzed_news), 0.20),
+            _stage_row("analysis_display_ready", len(analyzed_news), len(ranked_news_ready_pool), 0.50),
+            _stage_row("display_top_n", len(ranked_news_ready_pool), len(news), min(1.0, settings.max_news / max(1, len(ranked_news_ready_pool)))),
+        ],
+        "translation_is_not_a_primary_display_gate": True,
+        "related_supplementary_is_not_counted_as_primary_failure": True,
+        "related_supplementary_counts": {"papers": papers_related_after_final_gate, "news": len(related_news_from_relevance) + len(post_enrichment_related_news)},
+    }
+    all_stage_rows = display_continuity["papers"] + display_continuity["news"]
+    display_continuity["triggered_stages"] = [x for x in all_stage_rows if x["triggered"]]
+    display_continuity["largest_drop_stage"] = max(all_stage_rows, key=lambda x: x["drop"], default={})
+    if display_continuity["triggered_stages"]:
+        progress(
+            "display_continuity", "warning",
+            triggered=[x["stage"] for x in display_continuity["triggered_stages"]],
+            largest_drop=display_continuity["largest_drop_stage"],
+        )
 
     core_term_contract = validate_frozen_core_terms(profile, strict=True)
     post_retrieval_vocabulary = build_post_retrieval_vocabulary(profile)
@@ -1640,6 +1795,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         "anchor_coverage": anchor_coverage,
         "relevance_review": relevance_review_summary,
         "publication_continuity": publication_continuity,
+        "display_continuity": display_continuity,
         "analysis_quality": analysis_quality,
         "llm_usage": llm.usage_snapshot(),
         "retrieval_funnel": retrieval_funnel,
@@ -1736,6 +1892,8 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
     })
     dump_json(audit_dir / "llm_provider_usage.json", llm.usage_snapshot())
     dump_json(audit_dir / "retrieval_funnel.json", retrieval_funnel)
+    dump_json(audit_dir / "display_continuity.json", display_continuity)
+    dump_json(audit_dir / "paper_dedup.json", paper_dedup_audit)
     dump_json(audit_dir / "literature_content_completion.json", literature_completion_audit)
     dump_json(audit_dir / "literature_selection.json", literature_selection_audit)
     dump_json(audit_dir / "publication_date_gate.json", paper_final_date_gate_summary)

@@ -193,8 +193,10 @@ def _initial_rejection_diagnostic(record: dict[str, Any], profile: dict[str, Any
         codes.append(f"llm_code_{llm_code}")
     if final.get("ambiguous_abbreviation_hits"):
         codes.append("ambiguous_abbreviation_without_context")
-    if final.get("excluded_hits"):
-        codes.append("excluded_entity_hit")
+    if final.get("hard_excluded_hits") or final.get("excluded_hits"):
+        codes.append("hard_excluded_entity_hit")
+    if final.get("related_hits"):
+        codes.append("related_entity_supplementary_route")
     if not final.get("identity_present"):
         codes.append("identity_not_established")
     if final.get("decision") == "reject":
@@ -223,24 +225,50 @@ def apply_relevance_cliff_guard(
     kind: str,
     previous_accepted: int | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Protect target-primary continuity without deleting related supplements.
+
+    Related-only records are carried through independently and never count
+    toward either the target-primary acceptance ratio or its recovery target.
+    They are also never promoted by recovery.
+    """
     enabled = _env_bool("PIF_REVIEW_CLIFF_GUARD_ENABLED", True)
-    detected, reasons = _cliff_detected(len(candidates), len(accepted), previous_accepted)
-    target = _target_count(len(candidates), previous_accepted, reasons) if detected else len(accepted)
+
+    def is_related(row: dict[str, Any]) -> bool:
+        audit = row.get("relevance_final") or row.get("relevance_candidate") or {}
+        return bool(
+            row.get("relevance_route") == "supplementary_related"
+            or row.get("display_eligibility") == "supplementary_only"
+            or audit.get("route") == "supplementary_related"
+        )
+
+    related_candidates = [row for row in candidates if is_related(row)]
+    primary_candidates = [row for row in candidates if not is_related(row)]
+    related_accepted = [row for row in accepted if is_related(row)]
+    primary_accepted = [row for row in accepted if not is_related(row)]
+
+    detected, reasons = _cliff_detected(len(primary_candidates), len(primary_accepted), previous_accepted)
+    target = _target_count(len(primary_candidates), previous_accepted, reasons) if detected else len(primary_accepted)
     audit: dict[str, Any] = {
-        "policy_version": "v17.2-ratio-trigger-reasoned-recovery-1",
+        "policy_version": "v17.4-primary-continuity-related-independent-1",
         "kind": kind,
         "enabled": enabled,
         "candidate_count": len(candidates),
+        "primary_candidate_count": len(primary_candidates),
+        "related_supplementary_candidate_count": len(related_candidates),
         "initial_accepted": len(accepted),
+        "initial_primary_accepted": len(primary_accepted),
+        "initial_related_supplementary_accepted": len(related_accepted),
         "previous_accepted": previous_accepted,
         "triggered": bool(enabled and detected),
         "trigger_reasons": reasons,
+        "target_primary_accepted": target,
+        # Backward-compatible alias; the value now explicitly refers to target-primary records only.
         "target_accepted": target,
         "guard_settings": _guard_settings(),
         "initial_rejection_diagnostics": [
             _initial_rejection_diagnostic(record, profile, kind)
-            for record in candidates
-            if record not in accepted
+            for record in primary_candidates
+            if record not in primary_accepted
         ],
         "levels": [],
         "field_thresholds": {
@@ -248,6 +276,8 @@ def apply_relevance_cliff_guard(
             "news": {"title": [5, 4, 3, 2], "brief": [6, 5, 4, 3], "full_body": [4, 3, 2, 1]},
         }[kind],
         "hard_conflicts_never_relaxed": True,
+        "related_entities_never_promoted_by_recovery": True,
+        "related_entities_preserved_independently": True,
         "core_search_terms_fallback": False,
         "target_cap_enforced": True,
     }
@@ -256,56 +286,53 @@ def apply_relevance_cliff_guard(
         for code in row.get("reason_codes") or []:
             reason_counts[code] = reason_counts.get(code, 0) + 1
     audit["initial_rejection_reason_counts"] = dict(sorted(reason_counts.items()))
-    if not enabled or not detected:
-        audit["final_accepted"] = len(accepted)
-        audit["recovered"] = 0
-        audit["resolved"] = True
-        audit["continuity_status"] = "standard_output" if accepted else "empty_valid_issue"
-        audit["publication_must_continue"] = True
-        audit["fabricated_acceptance_forbidden"] = True
-        return accepted, audit
 
-    output = list(accepted)
-    output_identity_ids = {id(row) for row in output}
-    for level in (1, 2, 3):
-        recovered: list[dict[str, Any]] = []
-        rejected_audits: list[dict[str, Any]] = []
-        for record in candidates:
-            if len(output) + len(recovered) >= target:
+    recovered_primary = list(primary_accepted)
+    if enabled and detected:
+        output_identity_ids = {id(row) for row in recovered_primary}
+        for level in (1, 2, 3):
+            recovered: list[dict[str, Any]] = []
+            rejected_audits: list[dict[str, Any]] = []
+            for record in primary_candidates:
+                if len(recovered_primary) + len(recovered) >= target:
+                    break
+                if id(record) in output_identity_ids:
+                    continue
+                ok, record_audit = _relaxed_accept(record, profile, kind, level)
+                if ok:
+                    record["relevance_decision"] = f"accept_cliff_guard_level_{level}"
+                    record["relevance_review_method"] = "field_aware_deterministic_output_continuity"
+                    record["relevance_cliff_recovery"] = record_audit
+                    record["relevance_route"] = "primary_candidate"
+                    record["display_eligibility"] = "primary_candidate"
+                    record["primary_eligible"] = True
+                    recovered.append(record)
+                    output_identity_ids.add(id(record))
+                elif len(rejected_audits) < 25:
+                    rejected_audits.append({
+                        "id": record.get("paper_id") or record.get("news_id"),
+                        "title": record.get("title"),
+                        "audit": record_audit,
+                    })
+            recovered_primary.extend(recovered)
+            audit["levels"].append({
+                "level": level,
+                "strategy": {
+                    1: "lower_soft_field_thresholds",
+                    2: "relax_soft_target_evidence_with_multi_surface_identity",
+                    3: "safe_explicit_target_identity_output_continuity",
+                }[level],
+                "recovered_primary": len(recovered),
+                "primary_accepted_after_level": len(recovered_primary),
+                "sample_rejections": rejected_audits,
+            })
+            if len(recovered_primary) >= target:
                 break
-            if id(record) in output_identity_ids:
-                continue
-            ok, record_audit = _relaxed_accept(record, profile, kind, level)
-            if ok:
-                record["relevance_decision"] = f"accept_cliff_guard_level_{level}"
-                record["relevance_review_method"] = "field_aware_deterministic_output_continuity"
-                record["relevance_cliff_recovery"] = record_audit
-                recovered.append(record)
-                output_identity_ids.add(id(record))
-            elif len(rejected_audits) < 25:
-                rejected_audits.append({
-                    "id": record.get("paper_id") or record.get("news_id"),
-                    "title": record.get("title"),
-                    "audit": record_audit,
-                })
-        output.extend(recovered)
-        audit["levels"].append({
-            "level": level,
-            "strategy": {
-                1: "lower_soft_field_thresholds",
-                2: "relax_soft_exclusions_with_multi_surface_identity",
-                3: "safe_explicit_identity_output_continuity",
-            }[level],
-            "recovered": len(recovered),
-            "accepted_after_level": len(output),
-            "sample_rejections": rejected_audits,
-        })
-        if len(output) >= target:
-            break
 
+    selected_ids = {id(row) for row in recovered_primary + related_accepted}
+    # Related candidates retained by final_filter are already in related_accepted.
     seen: set[str] = set()
     ordered: list[dict[str, Any]] = []
-    selected_ids = {id(row) for row in output}
     for row in candidates:
         if id(row) not in selected_ids:
             continue
@@ -316,19 +343,26 @@ def apply_relevance_cliff_guard(
             seen.add(key)
         ordered.append(row)
 
+    final_primary = sum(not is_related(row) for row in ordered)
+    final_related = sum(is_related(row) for row in ordered)
     audit["final_accepted"] = len(ordered)
-    audit["recovered"] = max(0, len(ordered) - len(accepted))
-    audit["resolved"] = len(ordered) >= target
-    if audit["resolved"]:
+    audit["final_primary_accepted"] = final_primary
+    audit["final_related_supplementary_accepted"] = final_related
+    audit["recovered"] = max(0, final_primary - len(primary_accepted))
+    audit["recovered_primary"] = audit["recovered"]
+    audit["resolved"] = not (enabled and detected) or final_primary >= target
+    if audit["resolved"] and audit["recovered"]:
         audit["continuity_status"] = "recovered_output"
-    elif ordered:
-        audit["continuity_status"] = "qualified_low_volume_output"
+        audit["continuity_detail"] = "target_primary_recovered_related_supplementary_independent"
+    elif final_primary:
+        audit["continuity_status"] = "standard_or_qualified_primary_output"
+    elif final_related:
+        audit["continuity_status"] = "related_supplementary_only_output"
     else:
         audit["continuity_status"] = "empty_valid_issue"
     audit["publication_must_continue"] = True
     audit["fabricated_acceptance_forbidden"] = True
     return ordered, audit
-
 
 def baseline_value(state: dict[str, Any], profile_id: str, kind: str) -> int | None:
     value = (((state.get("review_cliff_baselines") or {}).get(profile_id) or {}).get(kind))

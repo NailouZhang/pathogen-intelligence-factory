@@ -6,7 +6,44 @@ from email.utils import parsedate_to_datetime
 from typing import Any
 from urllib.parse import quote_plus
 
-import feedparser
+try:
+    import feedparser  # type: ignore
+except ModuleNotFoundError:  # minimal RSS/Atom parser for offline tests
+    import xml.etree.ElementTree as _ET
+    from types import SimpleNamespace as _SimpleNamespace
+
+    class _FeedParserFallback:
+        @staticmethod
+        def parse(text: str) -> Any:
+            entries: list[dict[str, Any]] = []
+            try:
+                root = _ET.fromstring(text or "")
+                nodes = root.findall(".//item") or root.findall(".//{*}entry")
+                for node in nodes:
+                    def first(*names: str) -> str:
+                        for name in names:
+                            found = node.find(name) or node.find(f"{{*}}{name}")
+                            if found is not None and clean_space(found.text):
+                                return clean_space(found.text)
+                        return ""
+                    link = first("link")
+                    if not link:
+                        link_node = node.find("{*}link")
+                        if link_node is not None:
+                            link = clean_space(link_node.attrib.get("href"))
+                    entries.append({
+                        "title": first("title"), "link": link,
+                        "summary": first("description", "summary", "content"),
+                        "published": first("pubDate", "published", "updated"),
+                        "updated": first("updated"), "author": first("author"),
+                        "links": ([{"href": link}] if link else []),
+                        "source": {},
+                    })
+            except Exception:
+                entries = []
+            return _SimpleNamespace(entries=entries)
+
+    feedparser = _FeedParserFallback()
 from bs4 import BeautifulSoup
 
 from .http import HttpClient

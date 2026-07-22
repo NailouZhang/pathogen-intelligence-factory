@@ -21,7 +21,7 @@ from .structured_contract import (
 )
 
 
-ANALYSIS_POLICY_VERSION = "v17.2-normalize-field-repair-evidence-strict-1"
+ANALYSIS_POLICY_VERSION = "v17.4-related-tiered-topic-contract-field-repair-1"
 
 REVIEW_HINTS = re.compile(
     r"\b(review|systematic review|meta-analysis|narrative review|scoping review|umbrella review|viewpoint|perspective|commentary|consensus statement)\b",
@@ -936,11 +936,49 @@ def _attempt_field_repair(
     return None, audit
 
 
-def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> dict[str, Any]:
+
+def _analysis_topic_contract(profile: dict[str, Any] | None, record: dict[str, Any]) -> dict[str, Any]:
+    profile = profile or {}
+    topic = profile.get("topic_contract") or {}
+    relevance = (
+        record.get("relevance_post_enrichment")
+        or record.get("relevance_final")
+        or record.get("relevance_candidate")
+        or {}
+    )
+    related = topic.get("related_entities") or []
+    hard_excluded = topic.get("hard_excluded_entities") or topic.get("excluded_entities") or []
+    return {
+        "profile_id": profile.get("profile_id"),
+        "topic_en": topic.get("topic_en") or profile.get("display_name_en"),
+        "topic_zh": topic.get("topic_zh") or profile.get("display_name_zh"),
+        "scope_statement": topic.get("scope_statement"),
+        "target_entities": list(topic.get("target_entities") or [])[:80],
+        "allowed_members": list(topic.get("allowed_members") or [])[:60],
+        "disease_entities": list(topic.get("disease_entities") or [])[:50],
+        "related_entities": list(related)[:80],
+        "hard_excluded_entities": list(hard_excluded)[:60],
+        # Compatibility alias contains only hard exclusions in v17.4.
+        "excluded_entities": list(hard_excluded)[:60],
+        "record_identity_hits": list(relevance.get("identity_hits") or [])[:20],
+        "record_related_hits": list(relevance.get("related_hits") or [])[:20],
+        "record_hard_excluded_hits": list(relevance.get("hard_excluded_hits") or relevance.get("excluded_hits") or [])[:20],
+        "record_relevance_route": relevance.get("route") or record.get("relevance_route"),
+        "record_relevance_decision": relevance.get("decision") or record.get("relevance_decision"),
+        "instruction": (
+            "Analyse only target-specific evidence. A related-only non-target virus belongs in the supplementary catalog "
+            "and must not be analysed as the target. In mixed target/related comparisons, preserve only claims supported "
+            "by target-specific methods or results and never transfer findings between entities. Hard exclusions remain terminal."
+        ),
+    }
+
+
+def analyze_paper(work: dict[str, Any], llm: LLMRouter, prompts_dir: Path, profile: dict[str, Any] | None = None) -> dict[str, Any]:
     source_language = annotate_source_language(work, kind="paper")
     kind = classify_paper(work)
     work["paper_type"] = kind
     payload = build_paper_evidence(work)
+    payload["topic_contract"] = _analysis_topic_contract(profile, work)
     if not payload["evidence"]:
         work["analysis"] = {
             "status": "not_run_no_abstract_or_fulltext",
@@ -1145,9 +1183,10 @@ def _fallback_news(payload: dict[str, Any], error: str, *, attempts: list[dict[s
     }
 
 
-def analyze_news(article: dict[str, Any], llm: LLMRouter, prompts_dir: Path) -> dict[str, Any]:
+def analyze_news(article: dict[str, Any], llm: LLMRouter, prompts_dir: Path, profile: dict[str, Any] | None = None) -> dict[str, Any]:
     source_language = annotate_source_language(article, kind="news")
     payload = build_news_evidence(article)
+    payload["topic_contract"] = _analysis_topic_contract(profile, article)
     if not payload["evidence"]:
         article["analysis"] = {
             "status": "not_run_no_content",

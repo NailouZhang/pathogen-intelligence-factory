@@ -30,8 +30,9 @@ def test_field_specific_thresholds_and_second_level_relaxation() -> None:
     ok_level_1, _ = _relaxed_accept(weak_excluded, profile, "paper", 1)
     ok_level_2, audit_level_2 = _relaxed_accept(weak_excluded, profile, "paper", 2)
     assert ok_level_1 is False
-    assert ok_level_2 is True
+    assert ok_level_2 is False
     assert audit_level_2["level"] == 2
+    assert audit_level_2["accepted_fields"] == []
 
 
 def test_hard_identity_conflicts_are_never_relaxed() -> None:

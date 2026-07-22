@@ -1,4 +1,7 @@
 {
+  "schema_version": 5,
+  "profile_id": "respiratory_syncytial_virus",
+  "derived_from_semantic_fingerprint": "df54b53cb70deda93f8b66f491dd15ced7fa633577a5000ba77779b348990eaa",
   "frozen_core_concepts": [
     {
       "id": "rsv",
@@ -6,7 +9,12 @@
       "news_en": "respiratory syncytial virus",
       "news_zh": "呼吸道合胞病毒",
       "role": "virus",
-      "priority": 1
+      "priority": 1,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "respiratory syncytial virus",
+        "required_context_terms": []
+      }
     },
     {
       "id": "rsv_abbr",
@@ -14,7 +22,18 @@
       "news_en": "RSV",
       "news_zh": "呼吸道合胞病毒RSV",
       "role": "abbreviation",
-      "priority": 2
+      "priority": 2,
+      "review_mapping": {
+        "mode": "qualified_identity",
+        "term": "RSV",
+        "required_context_terms": [
+          "respiratory syncytial",
+          "virus",
+          "infection",
+          "orthopneumovirus",
+          "bronchiolitis"
+        ]
+      }
     },
     {
       "id": "orthopneumovirus",
@@ -22,7 +41,12 @@
       "news_en": "Orthopneumovirus hominis",
       "news_zh": "人正肺病毒",
       "role": "taxonomy",
-      "priority": 3
+      "priority": 3,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "Orthopneumovirus hominis",
+        "required_context_terms": []
+      }
     },
     {
       "id": "rsv_a",
@@ -30,7 +54,12 @@
       "news_en": "RSV-A",
       "news_zh": "呼吸道合胞病毒A型",
       "role": "type",
-      "priority": 4
+      "priority": 4,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "RSV-A",
+        "required_context_terms": []
+      }
     },
     {
       "id": "rsv_b",
@@ -38,7 +67,12 @@
       "news_en": "RSV-B",
       "news_zh": "呼吸道合胞病毒B型",
       "role": "type",
-      "priority": 5
+      "priority": 5,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "RSV-B",
+        "required_context_terms": []
+      }
     }
   ],
   "controlled_supplemental_terms": [
@@ -47,10 +81,5 @@
     "HRSV-A",
     "HRSV-B"
   ],
-  "news_identity_terms_zh": [
-    "呼吸道合胞病毒",
-    "RSV感染",
-    "合胞病毒"
-  ],
-  "policy": "retrieval terms are recall-only and never substitute for final review vocabulary"
+  "policy": "derived from canonical_vocabulary.json; every core concept has review_mapping"
 }

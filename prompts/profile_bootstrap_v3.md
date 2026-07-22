@@ -28,17 +28,18 @@
 
 ## 按用途分层的后置词库
 
-vocabulary 必须包含：
+vocabulary 必须包含，并将最长实体匹配用于路由而非自动删除：
 
 1. identity_anchor_terms：完整正式名、历史名和明确病毒名。
 2. member_identity_terms：仅允许人工 allowed_members 中的成员、型别或亚型。
 3. disease_identity_terms：与本病毒高度特异的疾病名或综合征。
 4. qualified_identity_terms：缩写与歧义词；必须含 required_context_terms、wrong_meanings 或 excluded_meanings、forbidden_without_context=true。
-5. exclusion_terms：明确的同名基因、公司、设备、软件或非目标实体；不得过度排除比较研究。
-6. context_terms：只用于召回后分类和相关性复核，不得独立检索。
-7. display_only_terms：只用于网页标签、分类或评分。
-8. paper_priority_terms：用于相关文献排序，不用于身份判定。覆盖新发疫情、跨物种传播、首次发现、新宿主、新地区、基因组变化、重组、进化、疫苗、治疗、诊断、临床结局、大规模队列、系统综述和公共卫生意义。每项含 term、category、weight。
-9. document_type_terms：按 research、systematic_review、narrative_review、case_report、surveillance_report、methods、commentary 分类保存词组。
+5. related_entity_terms：动物同源病毒、分类学近邻、比较模型和鉴别诊断对象；目标缺失时进入补充目录，不得作为硬排除。
+6. hard_exclusion_terms：仅限同名公司、软件、地名、导航广告、明确无关实体或硬标识符冲突。
+7. context_terms：只用于召回后分类和相关性复核，不得独立检索。
+8. display_only_terms：只用于网页标签、分类或评分。
+9. paper_priority_terms：用于相关文献排序，不用于身份判定。覆盖新发疫情、跨物种传播、首次发现、新宿主、新地区、基因组变化、重组、进化、疫苗、治疗、诊断、临床结局、大规模队列、系统综述和公共卫生意义。每项含 term、category、weight。
+10. document_type_terms：按 research、systematic_review、narrative_review、case_report、surveillance_report、methods、commentary 分类保存词组。
 
 ## 相关性原则
 
@@ -46,13 +47,13 @@ vocabulary 必须包含：
 - 摘要或正文命中身份词是中强信号。
 - 缩写只有与 required_context_terms 同时出现才有效。
 - 仅命中蛋白、基因、宿主、普通症状或研究方向不得判为相关。
-- exclusion_terms 主导题名且没有目标身份时应拒绝。
+- related_entity_terms 主导题名且没有目标身份时应进入补充目录；只有 hard_exclusion_terms 才应终止。
 - paper_priority_terms 只能在相关性已成立后影响排序。
 
 ## 输出结构
 
 {
-  "schema_version": "3.2",
+  "schema_version": "4.0",
   "profile_id": "",
   "status": "ready|needs_review|failed",
   "target_scope": {},
@@ -73,7 +74,8 @@ vocabulary 必须包含：
     "disease_identity_terms": [],
     "context_terms": [],
     "display_only_terms": [],
-    "exclusion_terms": [],
+    "related_entity_terms": [],
+    "hard_exclusion_terms": [],
     "paper_priority_terms": [],
     "document_type_terms": {}
   },
@@ -93,4 +95,4 @@ vocabulary 必须包含：
   "manual_review_required": false
 }
 
-只有五词恰好为5、无布尔语法、无普通研究方向词、没有语义重复、全部处于人工主题边界且有来源支持时，status 才能为 ready。
+只有五词恰好为5、相关实体与硬排除分层正确、无布尔语法、无普通研究方向词、没有语义重复、全部处于人工主题边界且有来源支持时，status 才能为 ready。

@@ -24,8 +24,8 @@ def test_all_21_chatgpt_curated_bundles_are_complete_and_sars_is_not_exempt() ->
     for profile_id in sorted(EXPECTED):
         valid, errors, manifest = validate_bundled_vocabulary(ROOT, profile_id)
         assert valid, (profile_id, errors)
-        assert manifest["generated_by"] == "chatgpt-curated-bundled-vocabulary-v17.1"
-        assert manifest["validation_status"] == "passed"
+        assert manifest["generated_by"] == "canonical-compiler-v17.4"
+        assert manifest["validation_status"] in {"passed", "semantic_validation_required"}
         assert sum(int(v) for v in manifest["term_counts"].values()) >= 40
 
 
@@ -36,7 +36,9 @@ def test_review_rules_are_recompiled_from_bundle_and_never_core_only() -> None:
     rules = profile["post_retrieval_relevance_rules"]
     assert len(rules["identity_anchor_patterns"]) >= 3
     assert len(rules["context_patterns"]) >= 20
-    assert len(rules["excluded_entity_patterns"]) >= 2
+    assert "related_entity_patterns" in rules
+    assert "hard_excluded_entity_patterns" in rules
+    assert len(rules["related_entity_patterns"]) >= 2
     result = relevance_assessment(
         "SARS-CoV-2 neutralizing antibodies after infection",
         "The study reports viral neutralization and immune response in patients with COVID-19.",

@@ -1,4 +1,7 @@
 {
+  "schema_version": 5,
+  "profile_id": "human_papillomavirus",
+  "derived_from_semantic_fingerprint": "5c8915226a50b9fd8db6ed4315611c1286d9e355b7934f39ce467a722503730f",
   "frozen_core_concepts": [
     {
       "id": "hpv",
@@ -6,7 +9,12 @@
       "news_en": "human papillomavirus",
       "news_zh": "人乳头瘤病毒",
       "role": "virus",
-      "priority": 1
+      "priority": 1,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "human papillomavirus",
+        "required_context_terms": []
+      }
     },
     {
       "id": "hpv_abbr",
@@ -14,7 +22,18 @@
       "news_en": "HPV",
       "news_zh": "人乳头瘤病毒HPV",
       "role": "abbreviation",
-      "priority": 2
+      "priority": 2,
+      "review_mapping": {
+        "mode": "qualified_identity",
+        "term": "HPV",
+        "required_context_terms": [
+          "human papillomavirus",
+          "papillomavirus",
+          "infection",
+          "genotype",
+          "HPV infection"
+        ]
+      }
     },
     {
       "id": "hpv16",
@@ -22,7 +41,12 @@
       "news_en": "HPV16",
       "news_zh": "人乳头瘤病毒16型",
       "role": "type",
-      "priority": 3
+      "priority": 3,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "HPV16",
+        "required_context_terms": []
+      }
     },
     {
       "id": "hpv18",
@@ -30,7 +54,12 @@
       "news_en": "HPV18",
       "news_zh": "人乳头瘤病毒18型",
       "role": "type",
-      "priority": 4
+      "priority": 4,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "HPV18",
+        "required_context_terms": []
+      }
     },
     {
       "id": "high_risk_hpv",
@@ -38,7 +67,12 @@
       "news_en": "high-risk human papillomavirus",
       "news_zh": "高危型人乳头瘤病毒",
       "role": "group",
-      "priority": 5
+      "priority": 5,
+      "review_mapping": {
+        "mode": "safe_identity",
+        "term": "high-risk human papillomavirus",
+        "required_context_terms": []
+      }
     }
   ],
   "controlled_supplemental_terms": [
@@ -48,9 +82,5 @@
     "HPV31",
     "HPV33"
   ],
-  "news_identity_terms_zh": [
-    "人乳头瘤病毒",
-    "HPV感染"
-  ],
-  "policy": "retrieval terms are recall-only and never substitute for final review vocabulary"
+  "policy": "derived from canonical_vocabulary.json; every core concept has review_mapping"
 }

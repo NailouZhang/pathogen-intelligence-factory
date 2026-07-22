@@ -18,7 +18,7 @@ class NeverHTTP:
 
 
 def test_policy_version_invalidates_pre_v12_analysis_cache():
-    assert ANALYSIS_POLICY_VERSION.startswith("v17.2-")
+    assert ANALYSIS_POLICY_VERSION.startswith("v17.4-")
 
 
 def test_default_provider_pools_include_all_five_providers(monkeypatch):

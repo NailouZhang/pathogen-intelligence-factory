@@ -178,6 +178,21 @@ def paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
     return f'''<article class="card paper"><div class="meta-strip">{_paper_meta(work)}</div><div class="card-body"><div style="font-size:12px;color:{COLORS['paper_green']};font-weight:700;margin-bottom:4px;"><span class="lang-zh">{_tier_badge(work)}学术文献 · {'综述' if kind == 'review' else '研究'}</span><span class="lang-en" hidden>{_tier_badge_en(work)}Academic literature · {'Review' if kind == 'review' else 'Research'}</span></div><div class="lang-zh"><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div><div class="authors"><strong>作者：</strong> {html_escape(authors)}</div><div class="translated-body"><strong>摘要中文翻译</strong>{html_escape(abstract_zh)}</div><details><summary>查看{analysis_label}</summary><dl class="five-grid">{_five_elements(elements_zh, _paper_fields(kind))}</dl></details></div><div class="lang-en" hidden><h3>{html_escape(title_en)}</h3>{original_title_block}<div class="authors"><strong>Authors:</strong> {html_escape(authors)}</div>{original_block}<details><summary>View {'review five-element analysis' if kind == 'review' else 'research seven-element analysis'}</summary><dl class="five-grid">{_five_elements(elements_en, _paper_fields_en(kind), 'Not reported in the supplied evidence.', language='en')}</dl></details></div><div class="links"><span class="lang-zh">{' · '.join(links)}</span><span class="lang-en" hidden>{' · '.join(links)}</span></div></div></article>'''
 
 
+def _supplementary_scope_notice(item: dict[str, Any], *, wechat: bool = False) -> str:
+    related = (
+        item.get("display_mode") == "supplementary_related"
+        or item.get("relevance_route") == "supplementary_related"
+        or item.get("supplementary_reason") == "biologically_related_non_target_entity"
+    )
+    if not related:
+        return ""
+    zh = clean_space(item.get("notice_zh")) or "相关非目标病毒：本条具有分类学、宿主、生态、比较研究或鉴别诊断价值，但当前证据不足以作为目标病毒主报告。"
+    en = clean_space(item.get("notice_en")) or "Related non-target virus: relevant for taxonomy, host range, ecology, comparison or differential diagnosis, but target-virus evidence is insufficient for the primary report."
+    if wechat:
+        return f'<p data-metadata-role="scope" style="margin:4px 0 6px;padding:5px 8px;border-radius:5px;background:#edf2f7;color:#4a5568;font-size:12px;line-height:1.55;"><strong>范围说明：</strong>{html_escape(zh or en)}</p>'
+    return f'<div data-metadata-role="scope" class="supplementary-scope-note"><span class="lang-zh"><strong>范围说明：</strong>{html_escape(zh or en)}</span><span class="lang-en" hidden><strong>Scope note:</strong> {html_escape(en or zh)}</span></div>'
+
+
 def supplementary_paper_card(work: dict[str, Any], *, wechat: bool = False) -> str:
     if wechat and work.get("wechat_omitted"):
         return ""
@@ -193,9 +208,10 @@ def supplementary_paper_card(work: dict[str, Any], *, wechat: bool = False) -> s
         if ids.get("pmid"): links.append(f'<a href="https://pubmed.ncbi.nlm.nih.gov/{html_escape(ids["pmid"])}/">PMID</a>')
         if ids.get("pmcid"): links.append(f'<a href="https://pmc.ncbi.nlm.nih.gov/articles/{html_escape(ids["pmcid"])}/">PMCID</a>')
         if work.get("url"): links.append(f'<a href="{html_escape(work["url"])}">来源</a>')
+    scope_notice = _supplementary_scope_notice(work, wechat=wechat)
     if wechat:
-        return f'''<section style="margin:0 0 7px;padding:9px 11px;border:1px dashed #a0aec0;background:#f8fafc;border-radius:8px;"><h3 style="margin:0;color:#2d3748;font-size:16px;line-height:1.45;">{html_escape(title_zh)}</h3><p style="margin:2px 0;color:#718096;font-size:12px;font-style:italic;">{html_escape(title_en)}</p><p style="margin:3px 0;font-size:12px;color:#586069;">{html_escape(work.get('journal'))} · {html_escape(work.get('canonical_publication_date') or work.get('availability_date'))}</p></section>'''
-    return f'''<article class="card supplementary-card supplementary"><div class="meta-strip">{_paper_meta(work)}</div><div class="card-body"><div class="lang-zh"><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div><div class="authors"><strong>作者：</strong> {html_escape(authors)}</div></div><div class="lang-en" hidden><h3>{html_escape(title_en)}</h3>{original_title_block}<div class="authors"><strong>Authors:</strong> {html_escape(authors)}</div></div><div class="links">{' · '.join(links)}</div></div></article>'''
+        return f'''<section style="margin:0 0 7px;padding:9px 11px;border:1px dashed #a0aec0;background:#f8fafc;border-radius:8px;">{scope_notice}<h3 style="margin:0;color:#2d3748;font-size:16px;line-height:1.45;">{html_escape(title_zh)}</h3><p style="margin:2px 0;color:#718096;font-size:12px;font-style:italic;">{html_escape(title_en)}</p><p style="margin:3px 0;font-size:12px;color:#586069;">{html_escape(work.get('journal'))} · {html_escape(work.get('canonical_publication_date') or work.get('availability_date'))}</p></section>'''
+    return f'''<article class="card supplementary-card supplementary"><div class="meta-strip">{_paper_meta(work)}</div><div class="card-body">{scope_notice}<div class="lang-zh"><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div><div class="authors"><strong>作者：</strong> {html_escape(authors)}</div></div><div class="lang-en" hidden><h3>{html_escape(title_en)}</h3>{original_title_block}<div class="authors"><strong>Authors:</strong> {html_escape(authors)}</div></div><div class="links">{' · '.join(links)}</div></div></article>'''
 
 
 def news_card(article: dict[str, Any], *, wechat: bool = False) -> str:
@@ -238,12 +254,13 @@ def supplementary_news_card(article: dict[str, Any], *, wechat: bool = False) ->
     publisher = clean_space(article.get("publisher") or article.get("source"))
     date = clean_space(article.get("published_date"))
     snippet_zh = clean_space(article.get("excerpt_zh")) or snippet
+    scope_notice = _supplementary_scope_notice(article, wechat=wechat)
     if wechat:
         snippet_html = f'<p style="margin:4px 0;font-size:13px;line-height:1.65;color:#586069;">{html_escape(snippet_zh)}</p>' if snippet else ""
-        return f'''<section style="margin:0 0 7px;padding:9px 11px;border:1px dashed #d6a3a3;background:#fffafa;border-radius:8px;"><h3 style="margin:0;color:#7f1d1d;font-size:16px;line-height:1.45;">{html_escape(title_zh)}</h3><p style="margin:2px 0;color:#718096;font-size:12px;font-style:italic;">{html_escape(title_en)}</p><p style="margin:3px 0;font-size:12px;color:#586069;">{html_escape(date)} · {html_escape(publisher)}</p>{snippet_html}</section>'''
+        return f'''<section style="margin:0 0 7px;padding:9px 11px;border:1px dashed #d6a3a3;background:#fffafa;border-radius:8px;">{scope_notice}<h3 style="margin:0;color:#7f1d1d;font-size:16px;line-height:1.45;">{html_escape(title_zh)}</h3><p style="margin:2px 0;color:#718096;font-size:12px;font-style:italic;">{html_escape(title_en)}</p><p style="margin:3px 0;font-size:12px;color:#586069;">{html_escape(date)} · {html_escape(publisher)}</p>{snippet_html}</section>'''
     zh_snippet = f'<p style="margin:5px 0;font-size:13px;line-height:1.65;color:#586069;">{html_escape(snippet_zh)}</p>' if snippet else ""
     en_snippet = f'<p style="margin:5px 0;font-size:13px;line-height:1.65;color:#586069;">{html_escape(snippet)}</p>' if snippet else ""
-    return f'''<article class="card supplementary-card supplementary news"><div class="meta-strip">{html_escape(date)} &nbsp;|&nbsp; {html_escape(publisher)}</div><div class="card-body"><div class="lang-zh"><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div>{zh_snippet}</div><div class="lang-en" hidden><h3>{html_escape(title_en)}</h3>{original_title_block}{en_snippet}</div><div class="links"><a href="{link}">原文 / Source</a></div></div></article>'''
+    return f'''<article class="card supplementary-card supplementary news"><div class="meta-strip">{html_escape(date)} &nbsp;|&nbsp; {html_escape(publisher)}</div><div class="card-body">{scope_notice}<div class="lang-zh"><h3>{html_escape(title_zh)}</h3><div class="title-en">{html_escape(title_en)}</div>{zh_snippet}</div><div class="lang-en" hidden><h3>{html_escape(title_en)}</h3>{original_title_block}{en_snippet}</div><div class="links"><a href="{link}">原文 / Source</a></div></div></article>'''
 
 
 def _overview_html(block: dict[str, Any], title: str, *, wechat: bool = False) -> str:

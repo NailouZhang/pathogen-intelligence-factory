@@ -9,7 +9,11 @@ from pathlib import Path
 from typing import Any, Callable
 
 import requests
-from deep_translator import GoogleTranslator, MyMemoryTranslator
+try:
+    from deep_translator import GoogleTranslator, MyMemoryTranslator  # type: ignore
+except ModuleNotFoundError:
+    GoogleTranslator = None  # type: ignore
+    MyMemoryTranslator = None  # type: ignore
 
 from .llm import LLMError, LLMRouter
 from .utils import clean_space, extract_numbers, sha256_text, split_sentences, truncate
@@ -272,6 +276,8 @@ def _google_deep_chunk(text: str) -> str:
     # Deep-translator is retained because it already worked in the user's Actions
     # run. Both target variants are attempted because provider language aliases can
     # differ between releases.
+    if GoogleTranslator is None:
+        raise RuntimeError("deep-translator is not installed")
     errors: list[str] = []
     for target in ("zh-CN", "zh"):
         try:
@@ -306,6 +312,8 @@ def _google_direct_chunk(text: str) -> str:
 
 
 def _mymemory_chunk(text: str) -> str:
+    if MyMemoryTranslator is None:
+        raise RuntimeError("deep-translator is not installed")
     errors: list[str] = []
     for target in ("zh-CN", "zh"):
         try:

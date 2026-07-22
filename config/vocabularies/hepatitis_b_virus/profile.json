@@ -1,18 +1,25 @@
 {
-  "schema_version": "3.3-bundled",
+  "schema_version": "5.0-canonical-derived",
   "profile_id": "hepatitis_b_virus",
   "display_name_en": "Hepatitis B virus",
   "display_name_zh": "乙型肝炎病毒",
   "target_scope": {
-    "target_entity_level": "具体病毒及疾病",
+    "topic_en": "Hepatitis B virus",
+    "topic_zh": "乙型肝炎病毒",
     "scope_included": [
-      "聚焦 HBV/hepatitis B 及其慢性感染、肝硬化、肝癌、疫苗与治疗；其他肝炎病毒不默认纳入。"
+      "Human hepatitis B virus infection, genotypes and disease. Biologically related animal, taxonomic, model, differential-diagnosis and comparative entities are supplementary-only unless material target-specific evidence is also present; only explicit lexical or unrelated hard exclusions are terminal."
     ],
-    "scope_excluded": [
+    "scope_related": [
       "hepatitis C virus",
       "hepatitis A virus",
-      "hepatitis E virus"
+      "hepatitis E virus",
+      "hepatitis D virus",
+      "duck hepatitis B virus",
+      "woodchuck hepatitis virus",
+      "ground squirrel hepatitis virus",
+      "avian hepadnavirus"
     ],
+    "scope_excluded": [],
     "allowed_members": [
       "HBV genotype A",
       "HBV genotype B",
@@ -25,17 +32,12 @@
       "HBV genotype I",
       "HBV genotype J"
     ],
-    "excluded_members": [
-      "hepatitis C virus",
-      "hepatitis A virus",
-      "hepatitis E virus"
-    ],
+    "excluded_members": [],
     "required_identity_concepts": [
       "hepatitis B virus",
-      "hepatitis B",
       "HBV infection",
-      "chronic hepatitis B",
-      "acute hepatitis B",
+      "human hepatitis B virus",
+      "Orthohepadnavirus hominoidei",
       "HBV genotype A",
       "HBV genotype B",
       "HBV genotype C",
@@ -49,16 +51,36 @@
       "chronic hepatitis B",
       "acute hepatitis B",
       "HBV-associated hepatocellular carcinoma",
-      "HBV-related cirrhosis"
+      "HBV-related cirrhosis",
+      "hepatitis B",
+      "HBV-related hepatocellular carcinoma",
+      "chronic hepatitis B",
+      "acute hepatitis B",
+      "HBV-associated hepatocellular carcinoma",
+      "HBV-related cirrhosis",
+      "hepatitis B",
+      "HBV-related hepatocellular carcinoma"
     ],
     "non_target_near_neighbors": [
       "hepatitis C virus",
       "hepatitis A virus",
-      "hepatitis E virus"
-    ]
+      "hepatitis E virus",
+      "hepatitis D virus",
+      "duck hepatitis B virus",
+      "woodchuck hepatitis virus",
+      "ground squirrel hepatitis virus",
+      "avian hepadnavirus"
+    ],
+    "related_entity_policy": {
+      "policy_version": "v17.4-related-entity-tiering-1",
+      "primary_rule": "A related entity alone never establishes the primary target identity.",
+      "comparison_rule": "When target and related entities both have material evidence, retain for primary comparative review.",
+      "supplementary_rule": "When only a recognized related entity is established, retain verified metadata or source-qualified news in the supplementary catalog.",
+      "hard_reject_rule": "Only lexical noise, unrelated homonyms, navigation material, or explicit identifier conflicts are terminal rejects."
+    }
   },
   "search_strategy": {
-    "schema_version": "2.1",
+    "schema_version": "5.0",
     "max_concepts": 5,
     "provider_expansion_first": true,
     "deduplicate_semantic_equivalents": true,
@@ -69,7 +91,12 @@
         "news_en": "hepatitis B virus",
         "news_zh": "乙型肝炎病毒",
         "role": "virus",
-        "priority": 1
+        "priority": 1,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "hepatitis B virus",
+          "required_context_terms": []
+        }
       },
       {
         "id": "hbv_abbr",
@@ -77,7 +104,16 @@
         "news_en": "HBV",
         "news_zh": "乙型肝炎病毒HBV",
         "role": "abbreviation",
-        "priority": 2
+        "priority": 2,
+        "review_mapping": {
+          "mode": "qualified_identity",
+          "term": "HBV",
+          "required_context_terms": [
+            "hepatitis B",
+            "virus",
+            "infection"
+          ]
+        }
       },
       {
         "id": "hepatitis_b",
@@ -85,7 +121,12 @@
         "news_en": "hepatitis B",
         "news_zh": "乙型肝炎",
         "role": "disease",
-        "priority": 3
+        "priority": 3,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "hepatitis B",
+          "required_context_terms": []
+        }
       },
       {
         "id": "chronic_hepatitis_b",
@@ -93,7 +134,12 @@
         "news_en": "chronic hepatitis B",
         "news_zh": "慢性乙型肝炎",
         "role": "disease",
-        "priority": 4
+        "priority": 4,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "chronic hepatitis B",
+          "required_context_terms": []
+        }
       },
       {
         "id": "orthohepadnavirus",
@@ -101,7 +147,12 @@
         "news_en": "Orthohepadnavirus hominoidei",
         "news_zh": "灵长类正肝DNA病毒",
         "role": "taxonomy",
-        "priority": 5
+        "priority": 5,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "Orthohepadnavirus hominoidei",
+          "required_context_terms": []
+        }
       }
     ],
     "frozen": true,
@@ -1770,5 +1821,148 @@
   ],
   "generated_by": "chatgpt-curated-bundled-vocabulary-v17.1",
   "bundle_version": "2026.07-v17.1",
-  "profile_semantic_fingerprint": "25679b517fbe0e76ba2bb7ffdcaa2ba6a3400c9ebc79d56087c368213c3c2d4f"
+  "profile_semantic_fingerprint": "25679b517fbe0e76ba2bb7ffdcaa2ba6a3400c9ebc79d56087c368213c3c2d4f",
+  "topic_contract": {
+    "topic_en": "Hepatitis B virus",
+    "topic_zh": "乙型肝炎病毒",
+    "scope_statement": "Human hepatitis B virus infection, genotypes and disease. Biologically related animal, taxonomic, model, differential-diagnosis and comparative entities are supplementary-only unless material target-specific evidence is also present; only explicit lexical or unrelated hard exclusions are terminal.",
+    "target_entities": [
+      "hepatitis B virus",
+      "HBV infection",
+      "human hepatitis B virus",
+      "Orthohepadnavirus hominoidei",
+      "HBV genotype A",
+      "HBV genotype B",
+      "HBV genotype C",
+      "HBV genotype D",
+      "HBV genotype E",
+      "HBV genotype F",
+      "HBV genotype G",
+      "HBV genotype H",
+      "HBV genotype I",
+      "HBV genotype J",
+      "chronic hepatitis B",
+      "acute hepatitis B",
+      "HBV-associated hepatocellular carcinoma",
+      "HBV-related cirrhosis",
+      "hepatitis B",
+      "HBV-related hepatocellular carcinoma"
+    ],
+    "allowed_members": [
+      "HBV genotype A",
+      "HBV genotype B",
+      "HBV genotype C",
+      "HBV genotype D",
+      "HBV genotype E",
+      "HBV genotype F",
+      "HBV genotype G",
+      "HBV genotype H",
+      "HBV genotype I",
+      "HBV genotype J"
+    ],
+    "disease_entities": [
+      "chronic hepatitis B",
+      "acute hepatitis B",
+      "HBV-associated hepatocellular carcinoma",
+      "HBV-related cirrhosis",
+      "hepatitis B",
+      "HBV-related hepatocellular carcinoma"
+    ],
+    "qualified_entities": [
+      {
+        "term": "HBV",
+        "required_context_terms": [
+          "hepatitis B",
+          "virus",
+          "infection"
+        ]
+      }
+    ],
+    "excluded_entities": [],
+    "background_only_terms": [],
+    "related_entities": [
+      {
+        "term": "hepatitis C virus",
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "hepatitis A virus",
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "hepatitis E virus",
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "hepatitis D virus",
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "duck hepatitis B virus",
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "woodchuck hepatitis virus",
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "ground squirrel hepatitis virus",
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "avian hepadnavirus",
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      }
+    ],
+    "hard_excluded_entities": [],
+    "related_entity_policy": {
+      "policy_version": "v17.4-related-entity-tiering-1",
+      "primary_rule": "A related entity alone never establishes the primary target identity.",
+      "comparison_rule": "When target and related entities both have material evidence, retain for primary comparative review.",
+      "supplementary_rule": "When only a recognized related entity is established, retain verified metadata or source-qualified news in the supplementary catalog.",
+      "hard_reject_rule": "Only lexical noise, unrelated homonyms, navigation material, or explicit identifier conflicts are terminal rejects."
+    }
+  },
+  "vocabulary_source": "canonical_v17.4",
+  "derived_from_semantic_fingerprint": "19f947ce3f12c256a292af06b78df2dea5e282d4b4ef5f6bad311759d3fcf61c"
 }

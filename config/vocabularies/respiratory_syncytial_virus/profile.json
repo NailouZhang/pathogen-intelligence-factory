@@ -1,51 +1,64 @@
 {
-  "schema_version": "3.3-bundled",
+  "schema_version": "5.0-canonical-derived",
   "profile_id": "respiratory_syncytial_virus",
   "display_name_en": "Respiratory syncytial virus",
   "display_name_zh": "呼吸道合胞病毒",
   "target_scope": {
-    "target_entity_level": "具体人病毒",
+    "topic_en": "Respiratory syncytial virus",
+    "topic_zh": "呼吸道合胞病毒",
     "scope_included": [
-      "聚焦人呼吸道合胞病毒及 RSV-A/RSV-B；不将牛、羊等动物 RSV 纳入。"
+      "Human respiratory syncytial virus (Orthopneumovirus hominis), RSV-A and RSV-B. Biologically related animal, taxonomic, model, differential-diagnosis and comparative entities are supplementary-only unless material target-specific evidence is also present; only explicit lexical or unrelated hard exclusions are terminal."
     ],
-    "scope_excluded": [
+    "scope_related": [
       "bovine respiratory syncytial virus",
       "ovine respiratory syncytial virus",
       "bovine RSV",
-      "BRSV"
+      "BRSV",
+      "human metapneumovirus",
+      "ovine RSV"
     ],
+    "scope_excluded": [],
     "allowed_members": [
       "RSV-A",
       "RSV-B",
       "HRSV-A",
       "HRSV-B"
     ],
-    "excluded_members": [
-      "bovine respiratory syncytial virus",
-      "ovine respiratory syncytial virus",
-      "bovine RSV",
-      "BRSV"
-    ],
+    "excluded_members": [],
     "required_identity_concepts": [
       "respiratory syncytial virus",
       "human respiratory syncytial virus",
-      "RSV infection",
+      "human orthopneumovirus",
+      "Orthopneumovirus hominis",
       "RSV-A",
       "RSV-B",
       "HRSV-A",
       "HRSV-B",
       "respiratory syncytial virus infection",
-      "RSV bronchiolitis"
+      "RSV bronchiolitis",
+      "RSV infection",
+      "respiratory syncytial virus infection",
+      "RSV bronchiolitis",
+      "RSV infection"
     ],
     "non_target_near_neighbors": [
       "bovine respiratory syncytial virus",
       "ovine respiratory syncytial virus",
       "bovine RSV",
-      "BRSV"
-    ]
+      "BRSV",
+      "human metapneumovirus",
+      "ovine RSV"
+    ],
+    "related_entity_policy": {
+      "policy_version": "v17.4-related-entity-tiering-1",
+      "primary_rule": "A related entity alone never establishes the primary target identity.",
+      "comparison_rule": "When target and related entities both have material evidence, retain for primary comparative review.",
+      "supplementary_rule": "When only a recognized related entity is established, retain verified metadata or source-qualified news in the supplementary catalog.",
+      "hard_reject_rule": "Only lexical noise, unrelated homonyms, navigation material, or explicit identifier conflicts are terminal rejects."
+    }
   },
   "search_strategy": {
-    "schema_version": "2.1",
+    "schema_version": "5.0",
     "max_concepts": 5,
     "provider_expansion_first": true,
     "deduplicate_semantic_equivalents": true,
@@ -56,7 +69,12 @@
         "news_en": "respiratory syncytial virus",
         "news_zh": "呼吸道合胞病毒",
         "role": "virus",
-        "priority": 1
+        "priority": 1,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "respiratory syncytial virus",
+          "required_context_terms": []
+        }
       },
       {
         "id": "rsv_abbr",
@@ -64,7 +82,18 @@
         "news_en": "RSV",
         "news_zh": "呼吸道合胞病毒RSV",
         "role": "abbreviation",
-        "priority": 2
+        "priority": 2,
+        "review_mapping": {
+          "mode": "qualified_identity",
+          "term": "RSV",
+          "required_context_terms": [
+            "respiratory syncytial",
+            "virus",
+            "infection",
+            "orthopneumovirus",
+            "bronchiolitis"
+          ]
+        }
       },
       {
         "id": "orthopneumovirus",
@@ -72,7 +101,12 @@
         "news_en": "Orthopneumovirus hominis",
         "news_zh": "人正肺病毒",
         "role": "taxonomy",
-        "priority": 3
+        "priority": 3,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "Orthopneumovirus hominis",
+          "required_context_terms": []
+        }
       },
       {
         "id": "rsv_a",
@@ -80,7 +114,12 @@
         "news_en": "RSV-A",
         "news_zh": "呼吸道合胞病毒A型",
         "role": "type",
-        "priority": 4
+        "priority": 4,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "RSV-A",
+          "required_context_terms": []
+        }
       },
       {
         "id": "rsv_b",
@@ -88,7 +127,12 @@
         "news_en": "RSV-B",
         "news_zh": "呼吸道合胞病毒B型",
         "role": "type",
-        "priority": 5
+        "priority": 5,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "RSV-B",
+          "required_context_terms": []
+        }
       }
     ],
     "frozen": true,
@@ -1484,5 +1528,122 @@
   ],
   "generated_by": "chatgpt-curated-bundled-vocabulary-v17.1",
   "bundle_version": "2026.07-v17.1",
-  "profile_semantic_fingerprint": "304a1c27b6015cdc5f965c529ff500f664eb9ab7383a8205f41797b54779a254"
+  "profile_semantic_fingerprint": "304a1c27b6015cdc5f965c529ff500f664eb9ab7383a8205f41797b54779a254",
+  "topic_contract": {
+    "topic_en": "Respiratory syncytial virus",
+    "topic_zh": "呼吸道合胞病毒",
+    "scope_statement": "Human respiratory syncytial virus (Orthopneumovirus hominis), RSV-A and RSV-B. Biologically related animal, taxonomic, model, differential-diagnosis and comparative entities are supplementary-only unless material target-specific evidence is also present; only explicit lexical or unrelated hard exclusions are terminal.",
+    "target_entities": [
+      "respiratory syncytial virus",
+      "human respiratory syncytial virus",
+      "human orthopneumovirus",
+      "Orthopneumovirus hominis",
+      "RSV-A",
+      "RSV-B",
+      "HRSV-A",
+      "HRSV-B",
+      "respiratory syncytial virus infection",
+      "RSV bronchiolitis",
+      "RSV infection"
+    ],
+    "allowed_members": [
+      "RSV-A",
+      "RSV-B",
+      "HRSV-A",
+      "HRSV-B"
+    ],
+    "disease_entities": [
+      "respiratory syncytial virus infection",
+      "RSV bronchiolitis",
+      "RSV infection"
+    ],
+    "qualified_entities": [
+      {
+        "term": "RSV",
+        "required_context_terms": [
+          "respiratory syncytial",
+          "virus",
+          "infection",
+          "orthopneumovirus",
+          "bronchiolitis"
+        ]
+      },
+      {
+        "term": "HRSV",
+        "required_context_terms": [
+          "human respiratory syncytial",
+          "virus",
+          "infection"
+        ]
+      }
+    ],
+    "excluded_entities": [],
+    "background_only_terms": [],
+    "related_entities": [
+      {
+        "term": "bovine respiratory syncytial virus",
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "ovine respiratory syncytial virus",
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "bovine RSV",
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "BRSV",
+        "relation_type": "biologically_related_context",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "human metapneumovirus",
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "ovine RSV",
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      }
+    ],
+    "hard_excluded_entities": [],
+    "related_entity_policy": {
+      "policy_version": "v17.4-related-entity-tiering-1",
+      "primary_rule": "A related entity alone never establishes the primary target identity.",
+      "comparison_rule": "When target and related entities both have material evidence, retain for primary comparative review.",
+      "supplementary_rule": "When only a recognized related entity is established, retain verified metadata or source-qualified news in the supplementary catalog.",
+      "hard_reject_rule": "Only lexical noise, unrelated homonyms, navigation material, or explicit identifier conflicts are terminal rejects."
+    }
+  },
+  "vocabulary_source": "canonical_v17.4",
+  "derived_from_semantic_fingerprint": "df54b53cb70deda93f8b66f491dd15ced7fa633577a5000ba77779b348990eaa"
 }
