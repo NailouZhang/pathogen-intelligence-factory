@@ -11,7 +11,7 @@ from .entity_resolution import resolve_entities
 from .utils import clean_space, sha256_text, unique_strings
 
 
-REVIEW_POLICY_VERSION = "v17.4-related-entity-supplementary-contract-1"
+REVIEW_POLICY_VERSION = "v17.4-r1-related-entity-evidence-retention-2"
 
 
 def _contains(text: str, term: str) -> bool:
@@ -717,6 +717,87 @@ def _review_cache_key(record: dict[str, Any], profile: dict[str, Any], kind: str
     return sha256_text("|".join([REVIEW_POLICY_VERSION, kind, profile_fingerprint, identity, evidence]))
 
 
+def _llm_background_disagreement_guard(
+    record: dict[str, Any], assessment: dict[str, Any], profile: dict[str, Any], kind: str
+) -> tuple[bool, dict[str, Any]]:
+    """Retain only strongly authenticated target records when LLM returns B.
+
+    The guard never overrides hard-noise code N, hard entity conflicts, related-only
+    routing, identifier conflicts, or weak/context-only evidence.  It exists only
+    to prevent a compact-model false negative from deleting a record whose title
+    and independent evidence body both establish the configured target identity.
+    """
+    audit: dict[str, Any] = {
+        "policy_version": "v17.4-r1-llm-background-disagreement-guard-1",
+        "kind": kind,
+        "accepted": False,
+        "reasons": [],
+    }
+    if assessment.get("route") != "primary_candidate" or assessment.get("decision") != "accept":
+        audit["reasons"].append("not_deterministic_primary_accept")
+        return False, audit
+    if assessment.get("hard_entity_conflict") or record.get("identifier_conflict"):
+        audit["reasons"].append("hard_or_identifier_conflict")
+        return False, audit
+    if (record.get("metadata_verification") or {}).get("conflict"):
+        audit["reasons"].append("metadata_conflict")
+        return False, audit
+
+    title = clean_space(record.get("title"))
+    evidence_body = _record_body(record, kind)
+    independent = relevance_assessment(title, evidence_body, profile)
+    title_identity = bool(independent.get("title_identity_hits") or independent.get("qualified_identity_hits"))
+    body_identity = bool(independent.get("body_identity_hits") or independent.get("qualified_identity_hits"))
+    contextual_support = bool(independent.get("context_hits") or independent.get("identity_frequency", 0) >= 2)
+    audit.update({
+        "title_identity": title_identity,
+        "body_identity": body_identity,
+        "contextual_support": contextual_support,
+        "independent_assessment": independent,
+    })
+    if not (title_identity and body_identity and contextual_support):
+        audit["reasons"].append("insufficient_independent_target_evidence")
+        return False, audit
+
+    if kind == "paper":
+        verified_identity = bool(
+            record.get("doi")
+            or (record.get("source_ids") or {}).get("pmid")
+            or (record.get("source_ids") or {}).get("pmcid")
+            or (record.get("metadata_verification") or {}).get("verified")
+            or len(record.get("sources") or []) >= 2
+        )
+        verified_evidence = bool(
+            (record.get("evidence_status") or {}).get("has_verified_evidence")
+            or clean_space(record.get("abstract"))
+            or clean_space(record.get("full_text"))
+        )
+        audit.update({"verified_identity": verified_identity, "verified_evidence": verified_evidence})
+        if not (verified_identity and verified_evidence):
+            audit["reasons"].append("paper_identity_or_evidence_unverified")
+            return False, audit
+    elif kind == "news":
+        content_identity = record.get("content_identity") or {}
+        authoritative = bool(
+            content_identity.get("accepted")
+            or record.get("official_source")
+            or record.get("source_authority_tier") in {"official", "tier_1"}
+            or record.get("authority_tier") in {"official", "tier_1"}
+        )
+        traceable = bool(record.get("resolved_url") or record.get("url"))
+        audit.update({"authoritative_or_content_verified": authoritative, "traceable_url": traceable})
+        if not (authoritative and traceable):
+            audit["reasons"].append("news_body_not_authoritatively_verified")
+            return False, audit
+    else:
+        audit["reasons"].append("unsupported_kind")
+        return False, audit
+
+    audit["accepted"] = True
+    audit["reasons"].append("strong_deterministic_identity_disagrees_with_background_code")
+    return True, audit
+
+
 def final_filter(
     records: list[dict[str, Any]],
     profile: dict[str, Any],
@@ -868,10 +949,35 @@ def final_filter(
             accepted.append(record)
             continue
 
-        if code in {"B", "N"}:
+        if code == "B":
+            guarded, guard_audit = _llm_background_disagreement_guard(record, assessment, profile, kind)
+            record["relevance_llm_disagreement_guard"] = guard_audit
+            if guarded:
+                record["relevance_decision"] = "accept_after_identity_evidence_disagreement_guard"
+                record["relevance_review_method"] = "python_llm_disagreement_guard"
+                record["relevance_route"] = "primary_candidate"
+                record["display_eligibility"] = "primary_candidate"
+                record["primary_eligible"] = True
+                record["relevance_llm_code"] = code
+                record["relevance_llm_confidence"] = result.get("confidence")
+                record["relevance_llm_reason"] = result.get("reason")
+                accepted.append(record)
+                continue
             record["relevance_decision"] = "reject_after_compact_llm_review"
             record["relevance_review_method"] = "compact_llm"
             record["relevance_llm_code"] = code
+            record["relevance_llm_confidence"] = result.get("confidence")
+            record["relevance_llm_reason"] = result.get("reason")
+            continue
+
+        if code == "N":
+            # N denotes hard noise or conflict and is never overridden by the
+            # false-negative retention guard.
+            record["relevance_decision"] = "reject_after_compact_llm_review"
+            record["relevance_review_method"] = "compact_llm"
+            record["relevance_llm_code"] = code
+            record["relevance_llm_confidence"] = result.get("confidence")
+            record["relevance_llm_reason"] = result.get("reason")
             continue
 
         # No model, model failure, or unresolved U: deterministic evidence rule.

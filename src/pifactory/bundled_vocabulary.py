@@ -246,6 +246,11 @@ def validate_bundled_vocabulary(
         errors.append("profile_id mismatch")
     if clean_space(canonical.get("bundle_version")) != DEFAULT_BUNDLE_VERSION:
         errors.append("canonical bundle_version mismatch")
+    compatibility = _load(root / "profile.json")
+    if clean_space(compatibility.get("bundle_version")) != DEFAULT_BUNDLE_VERSION:
+        errors.append("compatibility profile bundle_version mismatch")
+    if clean_space(compatibility.get("derived_from_semantic_fingerprint")) != clean_space(canonical.get("semantic_fingerprint")):
+        errors.append("compatibility profile semantic fingerprint mismatch")
     for name, expected in (manifest.get("files") or {}).items():
         path = root / name
         if not path.is_file():
@@ -284,7 +289,6 @@ def validate_bundled_vocabulary(
         from .query_plan import build_relevance_rules
         from .relevance import relevance_assessment
 
-        compatibility = _load(root / "profile.json")
         profile = _profile_from_canonical(canonical, compatibility)
         profile["post_retrieval_relevance_rules"] = build_relevance_rules(profile)
         for index, case in enumerate(cases.get("positive") or []):

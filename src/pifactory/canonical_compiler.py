@@ -12,7 +12,7 @@ from .utils import clean_space
 
 
 SCHEMA_VERSION = 5
-COMPILER_VERSION = "canonical-compiler-v17.4"
+COMPILER_VERSION = "canonical-compiler-v17.4-r1"
 
 
 def _norm(value: Any) -> str:
@@ -125,6 +125,7 @@ def compile_profile_views(bundle_dir: Path) -> dict[str, Any]:
     profile.update(
         {
             "schema_version": "5.0-canonical-derived",
+            "bundle_version": canonical.get("bundle_version"),
             "derived_from_semantic_fingerprint": fingerprint,
             "profile_id": canonical.get("profile_id"),
             "display_name_en": canonical.get("display_name_en"),
@@ -156,6 +157,7 @@ def compile_profile_views(bundle_dir: Path) -> dict[str, Any]:
         bundle_dir / "retrieval_vocabulary.json",
         {
             "schema_version": SCHEMA_VERSION,
+            "bundle_version": canonical.get("bundle_version"),
             "profile_id": canonical.get("profile_id"),
             "derived_from_semantic_fingerprint": fingerprint,
             "frozen_core_concepts": retrieval.get("core_concepts") or [],
@@ -179,6 +181,7 @@ def compile_profile_views(bundle_dir: Path) -> dict[str, Any]:
         bundle_dir / "exclusion_vocabulary.json",
         {
             "schema_version": SCHEMA_VERSION,
+            "bundle_version": canonical.get("bundle_version"),
             "profile_id": canonical.get("profile_id"),
             "derived_from_semantic_fingerprint": fingerprint,
             "related_entity_terms": related_entries,
@@ -191,6 +194,7 @@ def compile_profile_views(bundle_dir: Path) -> dict[str, Any]:
         bundle_dir / "translation_glossary.json",
         {
             "schema_version": SCHEMA_VERSION,
+            "bundle_version": canonical.get("bundle_version"),
             "profile_id": canonical.get("profile_id"),
             "derived_from_semantic_fingerprint": fingerprint,
             "translation_glossary": canonical.get("translation_glossary") or [],
@@ -200,12 +204,14 @@ def compile_profile_views(bundle_dir: Path) -> dict[str, Any]:
         bundle_dir / "authoritative_sources.json",
         {
             "schema_version": SCHEMA_VERSION,
+            "bundle_version": canonical.get("bundle_version"),
             "profile_id": canonical.get("profile_id"),
             "derived_from_semantic_fingerprint": fingerprint,
             "sources": evidence,
         },
     )
     validation_view = deepcopy(canonical.get("validation_cases") or {})
+    validation_view["bundle_version"] = canonical.get("bundle_version")
     validation_view["derived_from_semantic_fingerprint"] = fingerprint
     _write(bundle_dir / "validation_cases.json", validation_view)
     files = [

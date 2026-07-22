@@ -1,7 +1,23 @@
+from __future__ import annotations
+
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PAGES_ROOT = ROOT.parent / "pathogen-intelligence-pages"
+SYSTEM_ROOT = ROOT.parent
+
+
+def _resolve_repo_path(env_name: str, bundle_sibling: Path) -> Path:
+    configured = os.getenv(env_name, "").strip()
+    if configured:
+        return Path(configured).expanduser().resolve()
+    return bundle_sibling.resolve()
+
+
+PAGES_ROOT = _resolve_repo_path(
+    "PAGES_REPO_DIR",
+    SYSTEM_ROOT / "pathogen-intelligence-pages",
+)
 
 
 def test_workflow_runs_at_beijing_0200_and_has_no_google_cse():

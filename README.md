@@ -1,27 +1,31 @@
-# Pathogen Intelligence Factory v17.4
+# Pathogen Intelligence Factory 17.4.1
 
-私有主仓，负责21种病毒的文献/新闻检索、相关性判定、正文补全、双语分析、GitHub Pages静态站和微信公众号发布包生成。
+私有主仓，负责21个Profile的排班、Canonical词库、文献与新闻检索、日期门、候选复核、确定性和保守LLM去重、证据补全、终审、双语分析、静态站、微信发布包、审计及跨仓同步。
 
-## v17.4语义契约
+## 本次修订
 
-每个 `config/vocabularies/<profile_id>/canonical_vocabulary.json` 是唯一语义真源，包含主题边界、五个核心检索概念及终审映射、目标/成员/疾病/限定实体、近邻排除、权威证据、翻译词典、验证案例和消费者契约。其他JSON由 `scripts/compile_canonical_views.py` 生成。
+- CI真实检出Pages与私有Publisher后执行三仓契约测试；
+- 文献LLM模糊去重要求候选组索引、`same_work=true`、置信度≥0.90和确定性佐证；
+- 新闻模糊去重不再把同一事件的不同报道直接合并；
+- LLM仅背景误判只能在强目标身份和独立证据下保守纠偏，N硬噪声不可覆盖；
+- 21套派生词库统一为`2026.07-v17.4`；
+- 11个实际提示词全部纳入消费者审计。
+
+## 本地验证
 
 ```bash
-PYTHONPATH=src python scripts/validate_canonical_vocabularies.py --project-root . --output canonical-validation.json
-PYTHONPATH=src python scripts/audit_vocabulary_consumers.py --project-root . --output consumer-audit.json
-python -m pytest -q
+python -m pytest
+python scripts/validate_all_profiles.py
+python scripts/validate_canonical_vocabularies.py --project-root . --output /tmp/canonical.json
+python scripts/audit_vocabulary_consumers.py --project-root . --output /tmp/consumers.json
+python scripts/audit_pipeline_logic.py --project-root . --output /tmp/pipeline.json
+python scripts/audit_query_coverage.py --project-root . --output /tmp/queries.json
 ```
 
-## 离线演示
+跨仓pytest必须设置真实仓库路径：
 
 ```bash
-python scripts/run_daily.py \
-  --profile marburg_virus \
-  --output-dir /tmp/marburg-demo \
-  --state-dir /tmp/marburg-demo/data/state \
-  --demo
+PAGES_REPO_DIR=/path/to/pathogen-intelligence-pages \
+PUBLISHER_REPO_DIR=/path/to/pathogen-wechat-publisher \
+python -m pytest
 ```
-
-## 生产审计
-
-`data/audit/display_continuity.json` 直接指出终审、证据、分析和展示四个阶段的最大下降点。翻译失败不再删除英文分析成功的主文献。

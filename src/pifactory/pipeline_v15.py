@@ -635,7 +635,7 @@ def run_pipeline(settings: Settings, *, demo: bool = False) -> dict[str, Any]:
         dedup_prompt = (settings.project_root / "prompts" / "ambiguous_dedup.md").read_text(encoding="utf-8")
         papers = llm_review_ambiguous_duplicates(papers, llm, dedup_prompt, audit=paper_dedup_llm_audit)
     else:
-        paper_dedup_llm_audit = {"policy_version": "v17.4-identifier-first-ambiguous-llm-1", "status": "disabled", "input": len(papers), "removed": 0}
+        paper_dedup_llm_audit = {"policy_version": "v17.4-r1-identifier-first-ambiguous-llm-2", "status": "disabled", "input": len(papers), "removed": 0}
     papers_after_dedup = len(papers)
     paper_dedup_audit = {
         "raw_candidates": len(paper_candidates),

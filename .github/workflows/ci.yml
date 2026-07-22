@@ -1,15 +1,51 @@
-name: CI v17.4
+name: CI v17.4-r1
+
 on:
   workflow_dispatch:
   push:
     branches: [main]
+
 permissions:
   contents: read
+
+env:
+  PAGES_REPO_DIR: ${{ github.workspace }}/_repos/pathogen-intelligence-pages
+  PUBLISHER_REPO_DIR: ${{ github.workspace }}/_repos/pathogen-wechat-publisher
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout Factory
+        uses: actions/checkout@v6
+
+      - name: Require private Publisher read token
+        shell: bash
+        env:
+          TOKEN: ${{ secrets.PUBLISHER_REPO_TOKEN }}
+        run: |
+          set -Eeuo pipefail
+          test -n "$TOKEN" || {
+            echo "::error::PUBLISHER_REPO_TOKEN is required so Factory CI can validate the real three-repository contract."
+            exit 2
+          }
+
+      - name: Checkout public Pages contract repository
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ vars.PAGES_REPO || 'NailouZhang/pathogen-intelligence-pages' }}
+          token: ${{ secrets.PAGES_REPO_TOKEN || github.token }}
+          path: _repos/pathogen-intelligence-pages
+          fetch-depth: 1
+
+      - name: Checkout private Publisher contract repository
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ vars.PUBLISHER_REPO || 'NailouZhang/pathogen-wechat-publisher' }}
+          token: ${{ secrets.PUBLISHER_REPO_TOKEN }}
+          path: _repos/pathogen-wechat-publisher
+          fetch-depth: 1
+
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -17,11 +53,13 @@ jobs:
           cache-dependency-path: |
             requirements-build.txt
             requirements.txt
+
       - run: PIF_PYTHON_BIN=python bash scripts/install_python_project.sh editable
       - run: python -m pytest
       - run: python scripts/validate_all_profiles.py
       - run: python scripts/validate_canonical_vocabularies.py --project-root . --output /tmp/canonical-vocabulary-validation.json
       - run: python scripts/audit_vocabulary_consumers.py --project-root . --output /tmp/vocabulary-consumer-audit.json
+      - run: python scripts/audit_pipeline_logic.py --project-root . --output /tmp/pipeline-logic-audit.json
       - run: python scripts/audit_query_coverage.py --project-root . --output /tmp/query-coverage.json
       - run: |
           rm -rf /tmp/pdi_demo

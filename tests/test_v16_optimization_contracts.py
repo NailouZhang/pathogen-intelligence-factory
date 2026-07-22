@@ -152,7 +152,7 @@ def test_review_vocabulary_builds_once_then_rebuilds_on_semantic_change(tmp_path
     seed = yaml.safe_load(seed_path.read_text(encoding="utf-8"))
     first, audit1 = ensure_review_vocabulary(settings, deterministic_profile(seed, []), HttpClient("test"), UnavailableLLM(), demo=False)
     assert audit1["rebuild_required"] is True
-    assert audit1["generated_by"] == "canonical-compiler-v17.4"
+    assert audit1["generated_by"] == "canonical-compiler-v17.4-r1"
     assert audit1["fallback_to_core_search_terms"] is False
 
     second, audit2 = ensure_review_vocabulary(settings, deterministic_profile(seed, []), HttpClient("test"), UnavailableLLM(), demo=False)

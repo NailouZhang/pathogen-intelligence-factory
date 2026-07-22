@@ -135,6 +135,6 @@ def test_consumer_and_prompt_wiring_audit_is_executable() -> None:
         report = json.loads(output.read_text(encoding="utf-8"))
         assert report["passed"] is True
         assert report["profile_count"] == 21
-        assert len(report["prompts"]) == 9
+        assert len(report["prompts"]) == 11
     finally:
         output.unlink(missing_ok=True)

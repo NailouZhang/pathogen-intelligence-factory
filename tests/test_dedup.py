@@ -11,10 +11,10 @@ def test_paper_doi_dedup_prefers_longer_abstract():
     assert out[0]["abstract"] == "a much longer abstract"
 
 
-def test_news_dedup():
+def test_news_dedup_by_canonical_url():
     records = [
-        {"source": "A", "title": "WHO declares hantavirus outbreak over", "url": "a"},
-        {"source": "B", "title": "WHO says hantavirus outbreak is over", "url": "b"},
+        {"source": "A", "title": "WHO declares hantavirus outbreak over", "url": "https://example.org/report?utm_source=a"},
+        {"source": "B", "title": "WHO declares hantavirus outbreak over", "url": "https://example.org/report"},
     ]
     assert len(dedup_news(records)) == 1
 

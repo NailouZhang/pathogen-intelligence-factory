@@ -78,3 +78,12 @@ def test_private_publisher_requires_source_repo_token_for_private_factory() -> N
     assert "SOURCE_REPO_TOKEN" in settings
     assert "Authorization" in downloader
     assert "SOURCE_REPO_TOKEN" in example
+
+def test_factory_ci_checks_out_real_sibling_contract_repositories() -> None:
+    workflow = _read_required(ROOT / ".github/workflows/ci.yml")
+    assert "PAGES_REPO_DIR" in workflow
+    assert "PUBLISHER_REPO_DIR" in workflow
+    assert "path: _repos/pathogen-intelligence-pages" in workflow
+    assert "path: _repos/pathogen-wechat-publisher" in workflow
+    assert "PUBLISHER_REPO_TOKEN" in workflow
+    assert "python -m pytest" in workflow

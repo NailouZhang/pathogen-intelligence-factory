@@ -1,4 +1,4 @@
-name: Weekly 21-Virus Intelligence Cycle v17.4
+name: Weekly 21-Virus Intelligence Cycle v17.4-r1
 
 on:
   schedule:
@@ -88,6 +88,7 @@ jobs:
           set -Eeuo pipefail
           python scripts/validate_canonical_vocabularies.py --project-root . --output /tmp/canonical-vocabulary-validation.json
           python scripts/audit_vocabulary_consumers.py --project-root . --output /tmp/vocabulary-consumer-audit.json
+          python scripts/audit_pipeline_logic.py --project-root . --output /tmp/pipeline-logic-audit.json
 
       - name: Install CJK fonts and bounded browser fallback
         run: |

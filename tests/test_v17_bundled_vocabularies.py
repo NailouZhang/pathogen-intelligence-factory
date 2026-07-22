@@ -24,7 +24,7 @@ def test_all_21_chatgpt_curated_bundles_are_complete_and_sars_is_not_exempt() ->
     for profile_id in sorted(EXPECTED):
         valid, errors, manifest = validate_bundled_vocabulary(ROOT, profile_id)
         assert valid, (profile_id, errors)
-        assert manifest["generated_by"] == "canonical-compiler-v17.4"
+        assert manifest["generated_by"] == "canonical-compiler-v17.4-r1"
         assert manifest["validation_status"] in {"passed", "semantic_validation_required"}
         assert sum(int(v) for v in manifest["term_counts"].values()) >= 40
 
