@@ -5,16 +5,18 @@
   "display_name_en": "Dengue virus",
   "display_name_zh": "登革病毒",
   "target_scope": {
-    "target_entity_level": "具体病毒类群及疾病",
+    "topic_en": "Dengue virus",
+    "topic_zh": "登革病毒",
     "scope_included": [
-      "聚焦四种登革病毒血清型和登革热；排除其他黄病毒，除非比较研究。"
+      "Dengue viruses 1–4 and dengue disease; other flaviviruses are near-neighbour exclusions. Biologically related animal, taxonomic, model, differential-diagnosis and comparative entities are supplementary-only unless material target-specific evidence is also present; only explicit lexical or unrelated hard exclusions are terminal."
     ],
-    "scope_excluded": [
+    "scope_related": [
       "Zika virus",
       "yellow fever virus",
       "West Nile virus",
       "Japanese encephalitis virus"
     ],
+    "scope_excluded": [],
     "allowed_members": [
       "DENV-1",
       "DENV-2",
@@ -25,15 +27,9 @@
       "dengue virus 3",
       "dengue virus 4"
     ],
-    "excluded_members": [
-      "Zika virus",
-      "yellow fever virus",
-      "West Nile virus",
-      "Japanese encephalitis virus"
-    ],
+    "excluded_members": [],
     "required_identity_concepts": [
       "dengue virus",
-      "dengue",
       "dengue infection",
       "DENV-1",
       "DENV-2",
@@ -45,14 +41,28 @@
       "dengue virus 4",
       "severe dengue",
       "dengue hemorrhagic fever",
-      "dengue shock syndrome"
+      "dengue shock syndrome",
+      "dengue",
+      "dengue fever",
+      "severe dengue",
+      "dengue hemorrhagic fever",
+      "dengue shock syndrome",
+      "dengue",
+      "dengue fever"
     ],
     "non_target_near_neighbors": [
       "Zika virus",
       "yellow fever virus",
       "West Nile virus",
       "Japanese encephalitis virus"
-    ]
+    ],
+    "related_entity_policy": {
+      "policy_version": "v17.4-related-entity-tiering-1",
+      "primary_rule": "A related entity alone never establishes the primary target identity.",
+      "comparison_rule": "When target and related entities both have material evidence, retain for primary comparative review.",
+      "supplementary_rule": "When only a recognized related entity is established, retain verified metadata or source-qualified news in the supplementary catalog.",
+      "hard_reject_rule": "Only lexical noise, unrelated homonyms, navigation material, or explicit identifier conflicts are terminal rejects."
+    }
   },
   "sources": [
     {
@@ -104,51 +114,67 @@
     "identity_anchor_terms": [
       {
         "term": "dengue virus",
-        "normalized_term": "dengue virus",
-        "type": "virus_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "category": "identity_anchor_terms"
-      },
-      {
-        "term": "dengue",
-        "normalized_term": "dengue",
-        "type": "virus_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "category": "identity_anchor_terms"
+        "safe_to_use_alone": true
       },
       {
         "term": "dengue infection",
-        "normalized_term": "dengue infection",
-        "type": "virus_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "category": "identity_anchor_terms"
+        "safe_to_use_alone": true
+      }
+    ],
+    "member_identity_terms": [
+      {
+        "term": "DENV-1",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "DENV-2",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "DENV-3",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "DENV-4",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "dengue virus 1",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "dengue virus 2",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "dengue virus 3",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "dengue virus 4",
+        "safe_to_use_alone": true
+      }
+    ],
+    "disease_identity_terms": [
+      {
+        "term": "severe dengue",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "dengue hemorrhagic fever",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "dengue shock syndrome",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "dengue",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "dengue fever",
+        "safe_to_use_alone": true
       }
     ],
     "qualified_identity_terms": [
@@ -156,831 +182,427 @@
         "term": "DENV",
         "required_context_terms": [
           "dengue",
-          "virus"
-        ],
-        "forbidden_without_context": true,
-        "query_fragment": "\"DENV\" AND (\"dengue\" OR \"virus\")",
-        "ambiguity_reason": "seed-defined ambiguous or abbreviated identity term",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "normalized_term": "denv",
-        "category": "qualified_identity_terms"
+          "virus",
+          "flavivirus",
+          "DENV-1",
+          "DENV-2",
+          "DENV-3",
+          "DENV-4"
+        ]
       }
     ],
-    "member_identity_terms": [
+    "related_entity_terms": [
       {
-        "term": "DENV-1",
-        "normalized_term": "denv-1",
-        "type": "member_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "member_level": "member_or_subtype",
-        "high_precision": true,
-        "category": "member_identity_terms"
+        "term": "Zika virus",
+        "safe_to_use_alone": false,
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary"
       },
       {
-        "term": "DENV-2",
-        "normalized_term": "denv-2",
-        "type": "member_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "member_level": "member_or_subtype",
-        "high_precision": true,
-        "category": "member_identity_terms"
+        "term": "yellow fever virus",
+        "safe_to_use_alone": false,
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary"
       },
       {
-        "term": "DENV-3",
-        "normalized_term": "denv-3",
-        "type": "member_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "member_level": "member_or_subtype",
-        "high_precision": true,
-        "category": "member_identity_terms"
+        "term": "West Nile virus",
+        "safe_to_use_alone": false,
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary"
       },
       {
-        "term": "DENV-4",
-        "normalized_term": "denv-4",
-        "type": "member_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "member_level": "member_or_subtype",
-        "high_precision": true,
-        "category": "member_identity_terms"
-      },
-      {
-        "term": "dengue virus 1",
-        "normalized_term": "dengue virus 1",
-        "type": "member_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "member_level": "member_or_subtype",
-        "high_precision": true,
-        "category": "member_identity_terms"
-      },
-      {
-        "term": "dengue virus 2",
-        "normalized_term": "dengue virus 2",
-        "type": "member_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "member_level": "member_or_subtype",
-        "high_precision": true,
-        "category": "member_identity_terms"
-      },
-      {
-        "term": "dengue virus 3",
-        "normalized_term": "dengue virus 3",
-        "type": "member_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "member_level": "member_or_subtype",
-        "high_precision": true,
-        "category": "member_identity_terms"
-      },
-      {
-        "term": "dengue virus 4",
-        "normalized_term": "dengue virus 4",
-        "type": "member_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "member_level": "member_or_subtype",
-        "high_precision": true,
-        "category": "member_identity_terms"
-      }
-    ],
-    "disease_identity_terms": [
-      {
-        "term": "severe dengue",
-        "normalized_term": "severe dengue",
-        "type": "disease_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "specificity": "high",
-        "category": "disease_identity_terms"
-      },
-      {
-        "term": "dengue hemorrhagic fever",
-        "normalized_term": "dengue hemorrhagic fever",
-        "type": "disease_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "specificity": "high",
-        "category": "disease_identity_terms"
-      },
-      {
-        "term": "dengue shock syndrome",
-        "normalized_term": "dengue shock syndrome",
-        "type": "disease_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "specificity": "high",
-        "category": "disease_identity_terms"
+        "term": "Japanese encephalitis virus",
+        "safe_to_use_alone": false,
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary"
       }
     ],
     "context_terms": [
       {
         "term": "Aedes aegypti",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "normalized_term": "aedes aegypti"
+        "safe_to_use_alone": false
       },
       {
         "term": "Aedes albopictus",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "normalized_term": "aedes albopictus"
+        "safe_to_use_alone": false
       },
       {
         "term": "mosquito-borne",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "normalized_term": "mosquito-borne"
+        "safe_to_use_alone": false
       },
       {
         "term": "vector surveillance",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "normalized_term": "vector surveillance"
+        "safe_to_use_alone": false
       },
       {
         "term": "serotype replacement",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "normalized_term": "serotype replacement"
+        "safe_to_use_alone": false
       },
       {
         "term": "antibody-dependent enhancement",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "normalized_term": "antibody-dependent enhancement"
+        "safe_to_use_alone": false
       },
       {
         "term": "NS1",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "normalized_term": "ns1"
+        "safe_to_use_alone": false
       },
       {
         "term": "envelope protein",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "confidence": "high",
-        "normalized_term": "envelope protein"
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "NS1 antigen",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "Dengvaxia",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "Qdenga",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "outbreak",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "epidemiology",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "surveillance",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "transmission",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "incidence",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "prevalence",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "seroprevalence",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "genome",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "genomic surveillance",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "phylogeny",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "evolution",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "mutation",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "diagnosis",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "diagnostic",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "serology",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "PCR",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "antigen",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "vaccine",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "vaccination",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "antiviral",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "treatment",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "clinical",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "pathogenesis",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "immune response",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "host",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "reservoir",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "vector",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "spillover",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "zoonosis",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "case report",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "cohort",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "mortality",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "infection",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "virus",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "viral",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "case",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "cases",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "patient",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "patients",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "human",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "disease",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "genomic",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "antibody",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "prevention",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "public health",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "sequencing",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "variant",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "lineage",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "strain",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "co-infection",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "coinfection",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "comparison",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "comparative",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "risk",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "response",
+        "safe_to_use_alone": false
       }
     ],
     "display_only_terms": [
       {
         "term": "DENV",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "denv",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "ADE",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "ade",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "E protein",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "e protein",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "C protein",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "c protein",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "prM",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "prm",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "NS1",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "ns1",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "NS2A",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "ns2a",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "NS2B",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "ns2b",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "NS3",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "ns3",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "NS4A",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "ns4a",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "NS4B",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "ns4b",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "NS5",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "ns5",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "Flavivirus",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "flavivirus",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "Orthoflavivirus",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "orthoflavivirus",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       }
     ],
-    "exclusion_terms": [
-      {
-        "term": "Zika virus",
-        "reason": "seed-defined recurrent non-target entity or scope",
-        "applies_to_modes": [
-          "strict_core"
-        ],
-        "risk_of_over_exclusion": "medium",
-        "source_or_test_evidence": "manual topic-boundary table",
-        "normalized_term": "zika virus",
-        "category": "exclusion_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
-      },
-      {
-        "term": "yellow fever virus",
-        "reason": "seed-defined recurrent non-target entity or scope",
-        "applies_to_modes": [
-          "strict_core"
-        ],
-        "risk_of_over_exclusion": "medium",
-        "source_or_test_evidence": "manual topic-boundary table",
-        "normalized_term": "yellow fever virus",
-        "category": "exclusion_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
-      },
-      {
-        "term": "West Nile virus",
-        "reason": "seed-defined recurrent non-target entity or scope",
-        "applies_to_modes": [
-          "strict_core"
-        ],
-        "risk_of_over_exclusion": "medium",
-        "source_or_test_evidence": "manual topic-boundary table",
-        "normalized_term": "west nile virus",
-        "category": "exclusion_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
-      },
-      {
-        "term": "Japanese encephalitis virus",
-        "reason": "seed-defined recurrent non-target entity or scope",
-        "applies_to_modes": [
-          "strict_core"
-        ],
-        "risk_of_over_exclusion": "medium",
-        "source_or_test_evidence": "manual topic-boundary table",
-        "normalized_term": "japanese encephalitis virus",
-        "category": "exclusion_terms",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
-      }
-    ],
+    "hard_exclusion_terms": [],
+    "exclusion_terms": [],
     "paper_priority_terms": [
       {
         "term": "outbreak",
-        "category": "emerging_event",
-        "weight": 5,
-        "normalized_term": "outbreak",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "spillover",
-        "category": "cross_species",
-        "weight": 5,
-        "normalized_term": "spillover",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "first report",
-        "category": "novelty",
-        "weight": 5,
-        "normalized_term": "first report",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "novel host",
-        "category": "novelty",
-        "weight": 5,
-        "normalized_term": "novel host",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "new region",
-        "category": "novelty",
-        "weight": 4,
-        "normalized_term": "new region",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "genomic surveillance",
-        "category": "genomics",
-        "weight": 4,
-        "normalized_term": "genomic surveillance",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "recombination",
-        "category": "evolution",
-        "weight": 4,
-        "normalized_term": "recombination",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "evolution",
-        "category": "evolution",
-        "weight": 3,
-        "normalized_term": "evolution",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "vaccine",
-        "category": "countermeasure",
-        "weight": 3,
-        "normalized_term": "vaccine",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "therapeutic",
-        "category": "countermeasure",
-        "weight": 3,
-        "normalized_term": "therapeutic",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "diagnostic",
-        "category": "diagnostics",
-        "weight": 3,
-        "normalized_term": "diagnostic",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "clinical outcome",
-        "category": "clinical",
-        "weight": 3,
-        "normalized_term": "clinical outcome",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "cohort",
-        "category": "study_scale",
-        "weight": 2,
-        "normalized_term": "cohort",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "systematic review",
-        "category": "evidence_synthesis",
-        "weight": 3,
-        "normalized_term": "systematic review",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "public health",
-        "category": "public_health",
-        "weight": 2,
-        "normalized_term": "public health",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       }
     ],
     "document_type_terms": {
@@ -1026,7 +648,7 @@
     }
   },
   "search_strategy": {
-    "schema_version": "2.1",
+    "schema_version": "5.0",
     "max_concepts": 5,
     "provider_expansion_first": true,
     "deduplicate_semantic_equivalents": true,
@@ -1037,7 +659,12 @@
         "news_en": "dengue virus",
         "news_zh": "登革病毒",
         "role": "virus",
-        "priority": 1
+        "priority": 1,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "dengue virus",
+          "required_context_terms": []
+        }
       },
       {
         "id": "dengue_fever",
@@ -1045,7 +672,12 @@
         "news_en": "dengue fever",
         "news_zh": "登革热",
         "role": "disease",
-        "priority": 2
+        "priority": 2,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "dengue fever",
+          "required_context_terms": []
+        }
       },
       {
         "id": "severe_dengue",
@@ -1053,7 +685,12 @@
         "news_en": "severe dengue",
         "news_zh": "重症登革热",
         "role": "disease",
-        "priority": 3
+        "priority": 3,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "severe dengue",
+          "required_context_terms": []
+        }
       },
       {
         "id": "denv2",
@@ -1061,7 +698,12 @@
         "news_en": "DENV-2",
         "news_zh": "登革病毒2型",
         "role": "serotype",
-        "priority": 4
+        "priority": 4,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "DENV-2",
+          "required_context_terms": []
+        }
       },
       {
         "id": "denv3",
@@ -1069,7 +711,12 @@
         "news_en": "DENV-3",
         "news_zh": "登革病毒3型",
         "role": "serotype",
-        "priority": 5
+        "priority": 5,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "DENV-3",
+          "required_context_terms": []
+        }
       }
     ],
     "frozen": true,
@@ -1128,7 +775,328 @@
     "cache_on_success": true,
     "use_cache_on_fetch_failure": true
   },
-  "translation_glossary": [],
+  "translation_glossary": [
+    {
+      "source": "antibody-dependent enhancement",
+      "target": "抗体依赖性增强",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "antiviral",
+      "target": "抗病毒药物",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "case report",
+      "target": "病例报告",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "cohort",
+      "target": "队列研究",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "dengue fever",
+      "target": "登革热",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "dengue virus",
+      "target": "登革病毒",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "diagnosis",
+      "target": "诊断",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "epidemiology",
+      "target": "流行病学",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "evolution",
+      "target": "进化",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "genome",
+      "target": "基因组",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "genomic surveillance",
+      "target": "基因组监测",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "host",
+      "target": "宿主",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "immune response",
+      "target": "免疫应答",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "incidence",
+      "target": "发病率",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "mortality",
+      "target": "死亡率",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "mutation",
+      "target": "突变",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "outbreak",
+      "target": "暴发",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "pathogenesis",
+      "target": "发病机制",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "phylogeny",
+      "target": "系统发育",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "prevalence",
+      "target": "患病率",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "reservoir",
+      "target": "储存宿主",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "serology",
+      "target": "血清学",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "seroprevalence",
+      "target": "血清流行率",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "severe dengue",
+      "target": "重症登革热",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "spillover",
+      "target": "跨物种溢出",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "surveillance",
+      "target": "监测",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "transmission",
+      "target": "传播",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "treatment",
+      "target": "治疗",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "vaccination",
+      "target": "疫苗接种",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "vaccine",
+      "target": "疫苗",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "vector",
+      "target": "媒介",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    },
+    {
+      "source": "zoonosis",
+      "target": "人兽共患病",
+      "source_urls": [
+        "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+        "https://viralzone.expasy.org/24?outline=all_by_species",
+        "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+        "https://www.cdc.gov/dengue/about/index.html"
+      ]
+    }
+  ],
   "blocking_issues": [],
   "manual_review_required": false,
   "generated_by": "deterministic_seed_contract_after_llm_failure",
@@ -1138,7 +1106,7 @@
   "source_bundle_hash": "506485800cd764dd3501ca3b4a1d85ffa9134f920b695a58fae507a28dcb2d79",
   "profile_contract": "frozen-five-core-post-retrieval-vocabulary/v15.1",
   "query_sets": {
-    "query_policy_version": "v15.1-five-core-plus-controlled-supplemental-2",
+    "query_policy_version": "v17.4-canonical-five-core-related-mapped-1",
     "core_concepts": [
       {
         "id": "dengue_virus",
@@ -1147,7 +1115,12 @@
         "news_en": "dengue virus",
         "news_zh": "登革病毒",
         "role": "virus",
-        "priority": 1
+        "priority": 1,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "dengue virus",
+          "required_context_terms": []
+        }
       },
       {
         "id": "dengue_fever",
@@ -1156,7 +1129,12 @@
         "news_en": "dengue fever",
         "news_zh": "登革热",
         "role": "disease",
-        "priority": 2
+        "priority": 2,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "dengue fever",
+          "required_context_terms": []
+        }
       },
       {
         "id": "severe_dengue",
@@ -1165,7 +1143,12 @@
         "news_en": "severe dengue",
         "news_zh": "重症登革热",
         "role": "disease",
-        "priority": 3
+        "priority": 3,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "severe dengue",
+          "required_context_terms": []
+        }
       },
       {
         "id": "denv2",
@@ -1174,7 +1157,12 @@
         "news_en": "DENV-2",
         "news_zh": "登革病毒2型",
         "role": "serotype",
-        "priority": 4
+        "priority": 4,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "DENV-2",
+          "required_context_terms": []
+        }
       },
       {
         "id": "denv3",
@@ -1183,7 +1171,12 @@
         "news_en": "DENV-3",
         "news_zh": "登革病毒3型",
         "role": "serotype",
-        "priority": 5
+        "priority": 5,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "DENV-3",
+          "required_context_terms": []
+        }
       }
     ],
     "controlled_supplemental_concepts": [
@@ -1693,7 +1686,7 @@
       "\"Dengue virus\" brazil cases 2013",
       "\"Dengue virus\" DATASUS cases 2013",
       "\"Dengue virus\" DENV- cases 2013",
-      "\"Dengue virus\" Jeddah cases 2024"
+      "\"Dengue virus\" Bangladesh outbreak 2010"
     ],
     "general_news_zh": [
       "登革病毒",
@@ -1711,7 +1704,7 @@
       "\"Dengue virus\" brazil cases 2013",
       "\"Dengue virus\" DATASUS cases 2013",
       "\"Dengue virus\" DENV- cases 2013",
-      "\"Dengue virus\" Jeddah cases 2024"
+      "\"Dengue virus\" Bangladesh outbreak 2010"
     ],
     "reliefweb_core": [
       "dengue virus",
@@ -1722,7 +1715,7 @@
       "\"Dengue virus\" brazil cases 2013",
       "\"Dengue virus\" DATASUS cases 2013",
       "\"Dengue virus\" DENV- cases 2013",
-      "\"Dengue virus\" Jeddah cases 2024"
+      "\"Dengue virus\" Bangladesh outbreak 2010"
     ],
     "pubmed_single_anchor_exact": [
       "dengue virus",
@@ -1823,7 +1816,7 @@
       "\"Dengue virus\" brazil cases 2013",
       "\"Dengue virus\" DATASUS cases 2013",
       "\"Dengue virus\" DENV- cases 2013",
-      "\"Dengue virus\" Jeddah cases 2024"
+      "\"Dengue virus\" Bangladesh outbreak 2010"
     ]
   },
   "queries": {
@@ -1881,9 +1874,143 @@
     "genomic_query": ""
   },
   "post_retrieval_relevance_rules": {
+    "entity_contract": {
+      "target_entities": [
+        "dengue virus",
+        "dengue infection",
+        "DENV-1",
+        "DENV-2",
+        "DENV-3",
+        "DENV-4",
+        "dengue virus 1",
+        "dengue virus 2",
+        "dengue virus 3",
+        "dengue virus 4",
+        "severe dengue",
+        "dengue hemorrhagic fever",
+        "dengue shock syndrome",
+        "dengue",
+        "dengue fever"
+      ],
+      "allowed_members": [
+        "DENV-1",
+        "DENV-2",
+        "DENV-3",
+        "DENV-4",
+        "dengue virus 1",
+        "dengue virus 2",
+        "dengue virus 3",
+        "dengue virus 4"
+      ],
+      "disease_entities": [
+        "severe dengue",
+        "dengue hemorrhagic fever",
+        "dengue shock syndrome",
+        "dengue",
+        "dengue fever"
+      ],
+      "qualified_entities": [
+        {
+          "term": "DENV",
+          "required_context_terms": [
+            "dengue",
+            "virus",
+            "flavivirus",
+            "DENV-1",
+            "DENV-2",
+            "DENV-3",
+            "DENV-4"
+          ]
+        }
+      ],
+      "related_entities": [
+        {
+          "term": "Zika virus",
+          "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        },
+        {
+          "term": "yellow fever virus",
+          "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        },
+        {
+          "term": "West Nile virus",
+          "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        },
+        {
+          "term": "Japanese encephalitis virus",
+          "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        }
+      ],
+      "hard_excluded_entities": [],
+      "excluded_entities": [],
+      "background_only_terms": [],
+      "related_entity_policy": {
+        "policy_version": "v17.4-related-entity-tiering-1",
+        "primary_rule": "A related entity alone never establishes the primary target identity.",
+        "comparison_rule": "When target and related entities both have material evidence, retain for primary comparative review.",
+        "supplementary_rule": "When only a recognized related entity is established, retain verified metadata or source-qualified news in the supplementary catalog.",
+        "hard_reject_rule": "Only lexical noise, unrelated homonyms, navigation material, or explicit identifier conflicts are terminal rejects."
+      }
+    },
+    "core_review_mappings": [
+      {
+        "concept_id": "dengue_virus",
+        "scholarly": "dengue virus",
+        "mode": "safe_identity",
+        "term": "dengue virus",
+        "required_context_terms": []
+      },
+      {
+        "concept_id": "dengue_fever",
+        "scholarly": "dengue fever",
+        "mode": "safe_identity",
+        "term": "dengue fever",
+        "required_context_terms": []
+      },
+      {
+        "concept_id": "severe_dengue",
+        "scholarly": "severe dengue",
+        "mode": "safe_identity",
+        "term": "severe dengue",
+        "required_context_terms": []
+      },
+      {
+        "concept_id": "denv2",
+        "scholarly": "DENV-2",
+        "mode": "safe_identity",
+        "term": "DENV-2",
+        "required_context_terms": []
+      },
+      {
+        "concept_id": "denv3",
+        "scholarly": "DENV-3",
+        "mode": "safe_identity",
+        "term": "DENV-3",
+        "required_context_terms": []
+      }
+    ],
     "title_required_patterns": [
       "dengue virus",
-      "dengue",
       "dengue infection",
       "DENV-1",
       "DENV-2",
@@ -1895,16 +2022,16 @@
       "dengue virus 4",
       "severe dengue",
       "dengue hemorrhagic fever",
-      "dengue shock syndrome"
+      "dengue shock syndrome",
+      "dengue",
+      "dengue fever"
     ],
     "identity_anchor_patterns": [
       "dengue virus",
-      "dengue",
       "dengue infection"
     ],
     "title_or_abstract_identity_patterns": [
       "dengue virus",
-      "dengue",
       "dengue infection",
       "DENV-1",
       "DENV-2",
@@ -1916,7 +2043,9 @@
       "dengue virus 4",
       "severe dengue",
       "dengue hemorrhagic fever",
-      "dengue shock syndrome"
+      "dengue shock syndrome",
+      "dengue",
+      "dengue fever"
     ],
     "member_patterns": [
       "DENV-1",
@@ -1931,14 +2060,21 @@
     "disease_patterns": [
       "severe dengue",
       "dengue hemorrhagic fever",
-      "dengue shock syndrome"
+      "dengue shock syndrome",
+      "dengue",
+      "dengue fever"
     ],
     "qualified_abbreviation_rules": [
       {
         "term": "DENV",
         "required_context_terms": [
           "dengue",
-          "virus"
+          "virus",
+          "flavivirus",
+          "DENV-1",
+          "DENV-2",
+          "DENV-3",
+          "DENV-4"
         ]
       }
     ],
@@ -1950,14 +2086,94 @@
       "serotype replacement",
       "antibody-dependent enhancement",
       "NS1",
-      "envelope protein"
+      "envelope protein",
+      "NS1 antigen",
+      "Dengvaxia",
+      "Qdenga",
+      "outbreak",
+      "epidemiology",
+      "surveillance",
+      "transmission",
+      "incidence",
+      "prevalence",
+      "seroprevalence",
+      "genome",
+      "genomic surveillance",
+      "phylogeny",
+      "evolution",
+      "mutation",
+      "diagnosis",
+      "diagnostic",
+      "serology",
+      "PCR",
+      "antigen",
+      "vaccine",
+      "vaccination",
+      "antiviral",
+      "treatment",
+      "clinical",
+      "pathogenesis",
+      "immune response",
+      "host",
+      "reservoir",
+      "vector",
+      "spillover",
+      "zoonosis",
+      "case report",
+      "cohort",
+      "mortality",
+      "infection",
+      "virus",
+      "viral",
+      "case",
+      "cases",
+      "patient",
+      "patients",
+      "human",
+      "disease",
+      "genomic",
+      "antibody",
+      "prevention",
+      "public health",
+      "sequencing",
+      "variant",
+      "lineage",
+      "strain",
+      "co-infection",
+      "coinfection",
+      "comparison",
+      "comparative",
+      "risk",
+      "response"
     ],
-    "excluded_entity_patterns": [
-      "Zika virus",
-      "yellow fever virus",
-      "West Nile virus",
-      "Japanese encephalitis virus"
+    "related_entity_patterns": [
+      {
+        "term": "Zika virus",
+        "safe_to_use_alone": false,
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "yellow fever virus",
+        "safe_to_use_alone": false,
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "West Nile virus",
+        "safe_to_use_alone": false,
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "Japanese encephalitis virus",
+        "safe_to_use_alone": false,
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary"
+      }
     ],
+    "hard_excluded_entity_patterns": [],
+    "excluded_entity_patterns": [],
     "core_concept_patterns": [
       "dengue virus",
       "dengue fever",
@@ -1978,7 +2194,8 @@
       "+3 qualified abbreviation with required context",
       "+1 repeated identity evidence",
       "+1 independent retrieval concept",
-      "-6 excluded entity dominates title",
+      "+2 title related entity, supplementary-only without target",
+      "-10 hard exclusion dominates title",
       "-4 context-only or unqualified abbreviation"
     ]
   },
@@ -2028,11 +2245,437 @@
       "negative_scenarios": []
     }
   },
-  "core_terms_hash": "b08103131428e2014e05e184dd98d742c6068fe0649f93803b589840f94b34d2",
-  "topic_contract_hash": "b0efc6113da342998e567d88c1bbc0ab8f8f1fad918157d4735117cd1b6a3f53",
-  "review_vocabulary_input_hash": "bdbf01d57ea7322ccac60c01eaadbc37a7701394181663ae0a2cd3a8d8ebb594",
-  "profile_semantic_fingerprint": "3de442782ecc03d8d843ee5e7d8e0680dba92400d3a0278f7f96424e4184ac71",
-  "review_vocabulary_prompt_version": "review-vocabulary-v16.0.0-1",
+  "topic_contract": {
+    "topic_en": "Dengue virus",
+    "topic_zh": "登革病毒",
+    "scope_statement": "Dengue viruses 1–4 and dengue disease; other flaviviruses are near-neighbour exclusions. Biologically related animal, taxonomic, model, differential-diagnosis and comparative entities are supplementary-only unless material target-specific evidence is also present; only explicit lexical or unrelated hard exclusions are terminal.",
+    "target_entities": [
+      "dengue virus",
+      "dengue infection",
+      "DENV-1",
+      "DENV-2",
+      "DENV-3",
+      "DENV-4",
+      "dengue virus 1",
+      "dengue virus 2",
+      "dengue virus 3",
+      "dengue virus 4",
+      "severe dengue",
+      "dengue hemorrhagic fever",
+      "dengue shock syndrome",
+      "dengue",
+      "dengue fever"
+    ],
+    "allowed_members": [
+      "DENV-1",
+      "DENV-2",
+      "DENV-3",
+      "DENV-4",
+      "dengue virus 1",
+      "dengue virus 2",
+      "dengue virus 3",
+      "dengue virus 4"
+    ],
+    "disease_entities": [
+      "severe dengue",
+      "dengue hemorrhagic fever",
+      "dengue shock syndrome",
+      "dengue",
+      "dengue fever"
+    ],
+    "qualified_entities": [
+      {
+        "term": "DENV",
+        "required_context_terms": [
+          "dengue",
+          "virus",
+          "flavivirus",
+          "DENV-1",
+          "DENV-2",
+          "DENV-3",
+          "DENV-4"
+        ]
+      }
+    ],
+    "excluded_entities": [],
+    "background_only_terms": [],
+    "related_entities": [
+      {
+        "term": "Zika virus",
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "yellow fever virus",
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "West Nile virus",
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "Japanese encephalitis virus",
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      }
+    ],
+    "hard_excluded_entities": [],
+    "related_entity_policy": {
+      "policy_version": "v17.4-related-entity-tiering-1",
+      "primary_rule": "A related entity alone never establishes the primary target identity.",
+      "comparison_rule": "When target and related entities both have material evidence, retain for primary comparative review.",
+      "supplementary_rule": "When only a recognized related entity is established, retain verified metadata or source-qualified news in the supplementary catalog.",
+      "hard_reject_rule": "Only lexical noise, unrelated homonyms, navigation material, or explicit identifier conflicts are terminal rejects."
+    }
+  },
+  "authoritative_sources": [
+    {
+      "name": "ICTV Flaviviridae",
+      "organization": "ICTV",
+      "url": "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+      "role": "taxonomy",
+      "required": false
+    },
+    {
+      "name": "ViralZone Orthoflavivirus",
+      "organization": "ViralZone",
+      "url": "https://viralzone.expasy.org/24?outline=all_by_species",
+      "role": "molecular",
+      "required": false
+    },
+    {
+      "name": "WHO Dengue",
+      "organization": "WHO",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+      "role": "public_health",
+      "required": false
+    },
+    {
+      "name": "CDC About Dengue",
+      "organization": "CDC",
+      "url": "https://www.cdc.gov/dengue/about/index.html",
+      "role": "public_health",
+      "required": false
+    }
+  ],
+  "authoritative_evidence": [
+    {
+      "source_id": "dengue_virus-taxonomy-ictv",
+      "name": "ICTV Virus Taxonomy Profile",
+      "organization": "ICTV",
+      "url": "https://ictv.global/report/chapter/flaviviridae/flaviviridae/orthoflavivirus",
+      "role": "taxonomy",
+      "required": true,
+      "evidence_statement": "ICTV places dengue virus types in Orthoflavivirus and separates them from Zika, yellow fever and other orthoflaviviruses.",
+      "evidence_kind": "reviewed_paraphrase",
+      "reviewed_at": "2026-07-22T00:00:00+00:00",
+      "evidence_locator": "ICTV online report chapter/genus or family page",
+      "evidence_sha256": "6e19554778a8cda4a0df62a3373e20d1080f98bb96c1324d29f8852922b646f9"
+    },
+    {
+      "source_id": "dengue_virus-molecular-viralzone",
+      "name": "ViralZone Orthoflavivirus",
+      "organization": "ViralZone",
+      "url": "https://viralzone.expasy.org/24?outline=all_by_species",
+      "role": "molecular",
+      "required": false,
+      "evidence_statement": "ViralZone provides a curated molecular and taxonomic overview used to cross-check accepted names, genome context and related viruses.",
+      "evidence_kind": "reviewed_paraphrase",
+      "reviewed_at": "2026-07-22T00:00:00+00:00",
+      "evidence_sha256": "9298b29a64095d5a9ea64fcf979918dce17021f2618bdc1d2ed287ca5383026b",
+      "evidence_locator": "ViralZone species/family overview"
+    },
+    {
+      "source_id": "dengue_virus-public-health",
+      "name": "WHO Dengue",
+      "organization": "WHO",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
+      "role": "public_health",
+      "required": true,
+      "evidence_statement": "The public-health source defines the human disease and surveillance scope used to distinguish target disease reports from taxonomy-only or near-neighbour mentions.",
+      "evidence_kind": "reviewed_paraphrase",
+      "reviewed_at": "2026-07-22T00:00:00+00:00",
+      "evidence_sha256": "52f95aeb3c3b620e56f75c7102c0285cd8e41d07b31dcbff7ef2ad0574c6e343",
+      "evidence_locator": "WHO/CDC or national public-health overview"
+    },
+    {
+      "source_id": "dengue_virus-supplementary-4",
+      "name": "ICTV Flaviviridae",
+      "organization": "ICTV",
+      "url": "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
+      "role": "taxonomy",
+      "required": false,
+      "evidence_statement": "ICTV recognizes dengue viruses within Orthoflavivirus; public-health sources distinguish dengue from other flaviviral diseases.",
+      "evidence_kind": "curated_paraphrase",
+      "reviewed_at": "2026-07-22T00:00:00+00:00",
+      "evidence_sha256": "0ef9b2528c14f057e67c65670177e47e453a33dcb5633c9dd98ad5d01bf55a84"
+    },
+    {
+      "source_id": "dengue_virus-supplementary-5",
+      "name": "CDC About Dengue",
+      "organization": "CDC",
+      "url": "https://www.cdc.gov/dengue/about/index.html",
+      "role": "public_health",
+      "required": false,
+      "evidence_statement": "ICTV recognizes dengue viruses within Orthoflavivirus; public-health sources distinguish dengue from other flaviviral diseases.",
+      "evidence_kind": "curated_paraphrase",
+      "reviewed_at": "2026-07-22T00:00:00+00:00",
+      "evidence_sha256": "22cadf3478aab5167c5c6cd55956759b73fef5499ab07c408873b55f28a6f9f4"
+    }
+  ],
+  "profile_semantic_fingerprint": "3159464614b939c3161e285c3585292ebe4aa4a76c29e1c8236babf5fae66002",
+  "vocabulary_bundle_version": "2026.07-v17.4",
+  "vocabulary_source": "canonical",
+  "consumer_contract": {
+    "canonical_vocabulary.json": [
+      "bundled_vocabulary.load_bundled_vocabulary",
+      "query_plan.compile_query_sets",
+      "query_plan.build_relevance_rules",
+      "relevance.relevance_assessment",
+      "analysis topic payload",
+      "translation glossary",
+      "entity_resolution",
+      "python_relevance",
+      "llm_relevance_scope",
+      "post_enrichment_gate",
+      "supplementary_router",
+      "analysis_topic_contract",
+      "semantic_ci"
+    ],
+    "profile.json": [
+      "compatibility view only"
+    ],
+    "retrieval_vocabulary.json": [
+      "audit/compatibility view only"
+    ],
+    "review_vocabulary.json": [
+      "audit/compatibility view only"
+    ],
+    "exclusion_vocabulary.json": [
+      "audit/compatibility view only"
+    ],
+    "translation_glossary.json": [
+      "audit/compatibility view only"
+    ],
+    "authoritative_sources.json": [
+      "audit/compatibility view only"
+    ],
+    "validation_cases.json": [
+      "CI semantic tests"
+    ]
+  },
+  "vocabulary_validation_cases": {
+    "schema_version": 5,
+    "profile_id": "dengue_virus",
+    "positive": [
+      {
+        "surface": "title",
+        "title": "dengue virus surveillance and clinical study",
+        "text": "dengue virus surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "dengue infection surveillance and clinical study",
+        "text": "dengue infection surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "DENV-1 surveillance and clinical study",
+        "text": "DENV-1 surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "DENV-2 surveillance and clinical study",
+        "text": "DENV-2 surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "DENV-3 surveillance and clinical study",
+        "text": "DENV-3 surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "DENV-4 surveillance and clinical study",
+        "text": "DENV-4 surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "dengue virus 1 surveillance and clinical study",
+        "text": "dengue virus 1 surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "dengue virus 2 surveillance and clinical study",
+        "text": "dengue virus 2 surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "severe dengue surveillance and clinical study",
+        "text": "severe dengue surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "dengue hemorrhagic fever surveillance and clinical study",
+        "text": "dengue hemorrhagic fever surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "dengue shock syndrome surveillance and clinical study",
+        "text": "dengue shock syndrome surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "dengue surveillance and clinical study",
+        "text": "dengue surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "dengue virus  surveillance study",
+        "text": "dengue virus  surveillance study",
+        "expected": "accept",
+        "case_role": "core_to_review_mapping"
+      },
+      {
+        "surface": "title",
+        "title": "dengue fever  surveillance study",
+        "text": "dengue fever  surveillance study",
+        "expected": "accept",
+        "case_role": "core_to_review_mapping"
+      },
+      {
+        "surface": "title",
+        "title": "severe dengue  surveillance study",
+        "text": "severe dengue  surveillance study",
+        "expected": "accept",
+        "case_role": "core_to_review_mapping"
+      },
+      {
+        "surface": "title",
+        "title": "DENV-2  surveillance study",
+        "text": "DENV-2  surveillance study",
+        "expected": "accept",
+        "case_role": "core_to_review_mapping"
+      },
+      {
+        "surface": "title",
+        "title": "DENV-3  surveillance study",
+        "text": "DENV-3  surveillance study",
+        "expected": "accept",
+        "case_role": "core_to_review_mapping"
+      }
+    ],
+    "negative": [
+      {
+        "surface": "navigation_noise",
+        "title": "Website navigation and cookie notice",
+        "text": "Accept cookies menu login become a member categories webinars white papers view all weather privacy policy",
+        "expected": "reject",
+        "case_role": "legacy_noise_negative"
+      }
+    ],
+    "related": [
+      {
+        "surface": "title",
+        "title": "Zika virus surveillance, ecology or comparative study",
+        "text": "Zika virus surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      },
+      {
+        "surface": "title",
+        "title": "yellow fever virus surveillance, ecology or comparative study",
+        "text": "yellow fever virus surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      },
+      {
+        "surface": "title",
+        "title": "West Nile virus surveillance, ecology or comparative study",
+        "text": "West Nile virus surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      },
+      {
+        "surface": "title",
+        "title": "Japanese encephalitis virus surveillance, ecology or comparative study",
+        "text": "Japanese encephalitis virus surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      }
+    ],
+    "comparison": [
+      {
+        "surface": "abstract_or_brief",
+        "title": "Comparative study of dengue virus and Zika virus",
+        "text": "The study reports target-specific methods and results for dengue virus and compares them with Zika virus.",
+        "expected": "primary_or_review",
+        "case_role": "material_target_related_comparison"
+      },
+      {
+        "surface": "abstract_or_brief",
+        "title": "Comparative study of dengue virus and yellow fever virus",
+        "text": "The study reports target-specific methods and results for dengue virus and compares them with yellow fever virus.",
+        "expected": "primary_or_review",
+        "case_role": "material_target_related_comparison"
+      },
+      {
+        "surface": "abstract_or_brief",
+        "title": "Comparative study of dengue virus and West Nile virus",
+        "text": "The study reports target-specific methods and results for dengue virus and compares them with West Nile virus.",
+        "expected": "primary_or_review",
+        "case_role": "material_target_related_comparison"
+      },
+      {
+        "surface": "abstract_or_brief",
+        "title": "Comparative study of dengue virus and Japanese encephalitis virus",
+        "text": "The study reports target-specific methods and results for dengue virus and compares them with Japanese encephalitis virus.",
+        "expected": "primary_or_review",
+        "case_role": "material_target_related_comparison"
+      }
+    ]
+  },
   "core_term_contract": {
     "policy_version": "v15.1-frozen-five-core-terms-2",
     "passed": true,
@@ -2053,7 +2696,6 @@
     "policy_version": "v15.1-frozen-five-core-terms-2",
     "identity_terms": [
       "dengue virus",
-      "dengue",
       "dengue infection",
       "DENV-1",
       "DENV-2",
@@ -2065,205 +2707,87 @@
       "dengue virus 4",
       "severe dengue",
       "dengue hemorrhagic fever",
-      "dengue shock syndrome"
+      "dengue shock syndrome",
+      "dengue",
+      "dengue fever"
     ],
     "qualified_abbreviations": [
       {
         "term": "DENV",
         "required_context_terms": [
           "dengue",
-          "virus"
+          "virus",
+          "flavivirus",
+          "DENV-1",
+          "DENV-2",
+          "DENV-3",
+          "DENV-4"
         ],
         "wrong_meanings": [],
         "forbidden_without_context": true
       }
     ],
-    "exclusion_terms": [
-      "Zika virus",
-      "yellow fever virus",
-      "West Nile virus",
-      "Japanese encephalitis virus"
-    ],
+    "exclusion_terms": [],
     "paper_priority_terms": [
       {
         "term": "outbreak",
-        "category": "emerging_event",
-        "weight": 5,
-        "normalized_term": "outbreak",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "spillover",
-        "category": "cross_species",
-        "weight": 5,
-        "normalized_term": "spillover",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "first report",
-        "category": "novelty",
-        "weight": 5,
-        "normalized_term": "first report",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "novel host",
-        "category": "novelty",
-        "weight": 5,
-        "normalized_term": "novel host",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "new region",
-        "category": "novelty",
-        "weight": 4,
-        "normalized_term": "new region",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "genomic surveillance",
-        "category": "genomics",
-        "weight": 4,
-        "normalized_term": "genomic surveillance",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "recombination",
-        "category": "evolution",
-        "weight": 4,
-        "normalized_term": "recombination",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "evolution",
-        "category": "evolution",
-        "weight": 3,
-        "normalized_term": "evolution",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "vaccine",
-        "category": "countermeasure",
-        "weight": 3,
-        "normalized_term": "vaccine",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "therapeutic",
-        "category": "countermeasure",
-        "weight": 3,
-        "normalized_term": "therapeutic",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "diagnostic",
-        "category": "diagnostics",
-        "weight": 3,
-        "normalized_term": "diagnostic",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "clinical outcome",
-        "category": "clinical",
-        "weight": 3,
-        "normalized_term": "clinical outcome",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "cohort",
-        "category": "study_scale",
-        "weight": 2,
-        "normalized_term": "cohort",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "systematic review",
-        "category": "evidence_synthesis",
-        "weight": 3,
-        "normalized_term": "systematic review",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "public health",
-        "category": "public_health",
-        "weight": 2,
-        "normalized_term": "public health",
-        "source_urls": [
-          "https://ictv.global/report/chapter/flaviviridae/flaviviridae",
-          "https://viralzone.expasy.org/24?outline=all_by_species",
-          "https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue",
-          "https://www.cdc.gov/dengue/about/index.html"
-        ]
+        "safe_to_use_alone": false
       }
     ],
     "document_type_terms": {
