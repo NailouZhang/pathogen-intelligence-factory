@@ -215,7 +215,9 @@ def test_wechat_budget_compacts_bottom_papers_and_removes_identifiers(tmp_path: 
     assert audit["within_budget"] is True
     assert audit["compacted_primary_papers"] == 2 or audit["truncated_display_fields"]["paper_abstracts"] >= 2
     assert visible_text_count(html) <= 8000
-    assert "DOI" not in html and "PubMed" not in html and "PMCID" not in html
+    assert "DOI:" in html
+    assert "PubMed" not in html and "PMCID" not in html
+    assert "https://doi.org" not in html and "href=" not in html
     assert "摘要尚未公开或本条未进入深度主报告" not in html
 
     render_site(issue, tmp_path)

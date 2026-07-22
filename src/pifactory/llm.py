@@ -59,7 +59,15 @@ OPENAI_COMPATIBLE_PROVIDERS: dict[str, dict[str, str]] = {
 }
 
 DEFAULT_MODELS: dict[str, list[str]] = {
-    "gemini": ["gemini-3.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-flash"],
+    # Lite-first defaults are intentional for quota-constrained/high-volume
+    # intelligence tasks. Discovery still confirms account availability.
+    "gemini": [
+        "gemini-3.5-flash-lite",
+        "gemini-3.1-flash-lite",
+        "gemini-2.5-flash-lite",
+        "gemini-3.5-flash",
+        "gemini-2.5-flash",
+    ],
     "groq": ["openai/gpt-oss-120b", "qwen/qwen3.6-27b", "openai/gpt-oss-20b", "llama-3.3-70b-versatile", "llama-3.1-8b-instant"],
     "openrouter": ["openrouter/free"],
     "mistral": ["mistral-small-latest"],
@@ -193,6 +201,16 @@ def classify_llm_failure(error: Any) -> str:
         return "model_not_found"
     if any(token in text for token in ("401", "403", "unauthorized", "forbidden", "invalid api key", "api_key_invalid", "authentication")):
         return "authentication_failed"
+    # Gemini can return HTTP 429 with a zero quota for one specific retired or
+    # unavailable model while other models on the same project remain usable.
+    # Treat that as a model-local failure so the router immediately tries the
+    # next discovered Flash-Lite/Flash candidate instead of cooling down Gemini.
+    if (
+        "quota exceeded" in text
+        and "model:" in text
+        and any(token in text for token in ("limit: 0", "limit=0", "free_tier", "generate_content"))
+    ):
+        return "model_quota_exhausted"
     if any(token in text for token in ("429", "rate limit", "resource_exhausted", "too many requests", "请求过于频繁", "并发超额")):
         return "rate_limited"
     if any(token in text for token in (
@@ -241,7 +259,7 @@ def summarize_attempt_categories(attempts: list[dict[str, Any]]) -> str:
         return "no_provider_configured" if not attempts else "unknown"
     # Prefer the most actionable category over a generic/secondary parser error.
     priority = (
-        "authentication_failed", "quota_exhausted", "rate_limited", "model_not_found",
+        "authentication_failed", "quota_exhausted", "model_quota_exhausted", "rate_limited", "model_not_found",
         "unsupported_parameter", "invalid_request", "timeout", "network_error",
         "provider_unavailable", "model_discovery_failed", "context_or_output_limit", "invalid_json", "empty_response",
         "validation_failed", "unknown",
@@ -445,8 +463,19 @@ class LLMRouter:
         return ordered
 
     @staticmethod
+    def _model_is_retired(provider: str, name: str) -> bool:
+        low = clean_space(name).casefold()
+        if provider != "gemini":
+            return False
+        # Gemini 2.0 text models were shut down in 2026. Keep this guard even
+        # when an old GitHub Variable or a stale /models response lists them.
+        return low.startswith("gemini-2.0-") or low in {"gemini-2.0-flash", "gemini-2.0-flash-lite"}
+
+    @staticmethod
     def _model_is_text_chat(provider: str, item: dict[str, Any], name: str) -> bool:
         low = name.casefold()
+        if LLMRouter._model_is_retired(provider, name):
+            return False
         blocked = (
             "whisper", "speech", "tts", "guard", "moderation", "embedding", "embed-",
             "rerank", "image", "vision", "audio", "video", "ocr", "transcribe", "compound",
@@ -471,6 +500,17 @@ class LLMRouter:
             value += 1000
         if item.get("active") is not False and item.get("archived") is not True:
             value += 120
+        if provider == "gemini":
+            prefer_lite = os.getenv("PIF_GEMINI_PREFER_LITE", "true").strip().casefold() in {"1", "true", "yes", "on"}
+            if prefer_lite and "flash-lite" in low:
+                value += 260
+            elif "flash" in low and "pro" not in low:
+                value += 80
+            # Prefer newer stable families when cost class is otherwise equal.
+            for prefix, bonus in (("gemini-3.5-", 70), ("gemini-3.1-", 60), ("gemini-2.5-", 40)):
+                if low.startswith(prefix):
+                    value += bonus
+                    break
         if not any(token in low for token in ("preview", "experimental", "exp-", "beta", "deprecated")):
             value += 100
         if any(token in low for token in ("flash-lite", "small", "mini", "ministral", "instant", "8b", "7b")):
@@ -593,7 +633,12 @@ class LLMRouter:
         else:
             candidates = explicit + fallback
             status = "fallback"
+        ignored_models: list[str] = []
         for name in candidates:
+            if self._model_is_retired(provider, name):
+                if name not in ignored_models:
+                    ignored_models.append(name)
+                continue
             if name and name not in ordered:
                 ordered.append(name)
         limit = max(5, int(os.getenv("PIF_LLM_DISCOVERY_MAX_CANDIDATES", "30")))
@@ -607,10 +652,25 @@ class LLMRouter:
             "explicit_preferences": explicit,
             "fallback_models": DEFAULT_MODELS.get(provider, []),
             "selected_candidates": self._model_cache[provider],
+            "ignored_retired_models": ignored_models,
+            "gemini_lite_preferred": provider == "gemini" and os.getenv("PIF_GEMINI_PREFER_LITE", "true").strip().casefold() in {"1", "true", "yes", "on"},
             "failure_category": discovery_category,
             "error": discovery_error,
         }
         return self._model_cache[provider]
+
+    @staticmethod
+    def _provider_model_limit(provider: str, requested: int, runtime_cap: int) -> int:
+        base = max(1, min(int(requested), int(runtime_cap)))
+        if provider != "gemini":
+            return base
+        raw = os.getenv("PIF_GEMINI_MAX_MODELS_PER_PROVIDER", "4").strip()
+        try:
+            gemini_cap = max(2, int(raw))
+        except ValueError:
+            gemini_cap = 4
+        # Gemini gets a wider, still bounded model-local fallback window.
+        return max(base, min(gemini_cap, 8))
 
     def _provider_timeout(self, provider: str) -> int:
         defaults = {
@@ -648,9 +708,13 @@ class LLMRouter:
     ) -> tuple[Any, dict[str, Any], str]:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
         generation_config: dict[str, Any] = {
-            "temperature": temperature,
             "maxOutputTokens": self._max_output_tokens(max_output_tokens),
         }
+        # Current Gemini 3 Flash/Flash-Lite families reject legacy sampling
+        # parameters on some endpoints. Older stable 2.5 models still accept
+        # temperature, so keep it only for pre-3.x candidates.
+        if not model.casefold().startswith("gemini-3."):
+            generation_config["temperature"] = temperature
         if json_mode:
             generation_config["responseMimeType"] = "application/json"
         payload = {
@@ -658,14 +722,34 @@ class LLMRouter:
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
             "generationConfig": generation_config,
         }
-        response = self.http.request(
-            "POST",
-            url,
-            headers={"x-goog-api-key": self.keys["gemini"]},
-            json=payload,
-            timeout=self._provider_timeout("gemini"),
-            retry_attempts=1,
-        )
+        try:
+            response = self.http.request(
+                "POST",
+                url,
+                headers={"x-goog-api-key": self.keys["gemini"]},
+                json=payload,
+                timeout=self._provider_timeout("gemini"),
+                retry_attempts=1,
+            )
+        except Exception as exc:
+            if classify_llm_failure(exc) not in {"unsupported_parameter", "invalid_request"}:
+                raise
+            # One minimal compatibility retry: no sampling parameter and no
+            # response MIME hint. The explicit system instruction still asks
+            # for JSON, and the normal balanced-JSON parser validates it.
+            minimal_payload = {
+                "systemInstruction": {"parts": [{"text": system + ("\nReturn one valid JSON object only." if json_mode else "")}]},
+                "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                "generationConfig": {"maxOutputTokens": self._max_output_tokens(max_output_tokens)},
+            }
+            response = self.http.request(
+                "POST",
+                url,
+                headers={"x-goog-api-key": self.keys["gemini"]},
+                json=minimal_payload,
+                timeout=self._provider_timeout("gemini"),
+                retry_attempts=1,
+            )
         body = response.json()
         candidates = body.get("candidates") or []
         if not candidates:
@@ -1002,7 +1086,8 @@ class LLMRouter:
                 })
                 continue
 
-            models = self._discover_models(provider)[:max_models_per_provider]
+            provider_model_limit = self._provider_model_limit(provider, max_models_per_provider, runtime_cap)
+            models = self._discover_models(provider)[:provider_model_limit]
             if not models:
                 attempts.append({
                     "task": task_name,
@@ -1168,7 +1253,8 @@ class LLMRouter:
             if not state.available():
                 attempts.append({"task": task_name, "provider": provider, "model": "", "status": "skipped", "failure_category": state.status, "error": state.disabled_reason or "provider is cooling down", "at": utc_now_iso()})
                 continue
-            models = self._discover_models(provider)[:max_models_per_provider]
+            provider_model_limit = self._provider_model_limit(provider, max_models_per_provider, runtime_cap)
+            models = self._discover_models(provider)[:provider_model_limit]
             if not models:
                 attempts.append({
                     "task": task_name, "provider": provider, "model": "", "status": "failed",

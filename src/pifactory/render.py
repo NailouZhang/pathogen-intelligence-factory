@@ -38,16 +38,20 @@ def _date_label(label: str, value: Any) -> str | None:
 
 
 def _paper_meta(work: dict[str, Any], *, wechat: bool = False) -> str:
+    # Journal, canonical publication date and DOI are core citation metadata on
+    # both surfaces.  The WeChat version deliberately renders DOI as plain text
+    # because article-card hyperlinks are not reliable in the Official Account
+    # editor and would waste visible-character budget.
     items = [
         _date_label("Journal", work.get("journal") or "Unknown Journal"),
         _date_label("Canonical publication date", work.get("canonical_publication_date") or work.get("availability_date")),
+        _date_label("DOI", work.get("doi")),
     ]
     if not wechat:
         status_labels = {"in_window": "Current window", "in_window_month_precision": "Current window (month precision)", "future_scheduled": "Future scheduled publication"}
         items.extend([
             _date_label("Date basis", work.get("canonical_publication_date_basis") or work.get("availability_date_basis")),
             _date_label("Publication status", status_labels.get(work.get("publication_date_status"), work.get("publication_date_status"))),
-            _date_label("DOI", work.get("doi")),
         ])
         citation = ", ".join(str(x) for x in [work.get("year"), work.get("volume"), work.get("issue"), work.get("pages")] if x not in (None, ""))
         if citation:

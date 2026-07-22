@@ -49,7 +49,7 @@ def _probe_provider(router: LLMRouter, provider: str) -> dict[str, Any]:
             prompt='Return exactly {"status":"ok"}.',
             provider_order=(provider,),
             validator=_probe_validator,
-            max_models_per_provider=2,
+            max_models_per_provider=4 if provider == "gemini" else 2,
             temperature=0.0,
             max_output_tokens=96,
             task_name="credential_preflight",
@@ -79,7 +79,9 @@ def _probe_provider(router: LLMRouter, provider: str) -> dict[str, Any]:
             }.get(provider, "provider API key")
             action_hint = f"Regenerate the provider key and replace GitHub Secret {secret_name}."
         elif category == "quota_exhausted":
-            action_hint = "Wait for quota reset or enable another configured provider."
+            action_hint = "Project/account quota is exhausted; wait for reset or use another configured provider."
+        elif category == "model_quota_exhausted":
+            action_hint = "This Gemini model has zero or exhausted quota. The router disables only that model and tries the next discovered Flash-Lite/Flash model."
         elif category == "rate_limited":
             action_hint = "Provider is in temporary cooldown; honor Retry-After or let the router use another provider."
         elif category == "model_not_found":
@@ -203,7 +205,7 @@ def main() -> int:
         print(f"\nSafe audit written to {args.json_out}")
 
     print(f"\nSiliconFlow API endpoint: {audit['provider_endpoints']['siliconflow']}")
-    print("A 429 response is treated as a temporary cooldown, honors Retry-After when available, and is never persisted as permanent quota exhaustion.")
+    print("A generic 429 is treated as temporary rate limiting. A Gemini 429 that explicitly reports zero quota for one model is isolated to that model so lower-cost Flash-Lite candidates can still be tried.")
     print("Replacing a GitHub API-key Secret changes its safe fingerprint and automatically clears stale authentication/quota disablement in the daily provider-state file.")
     print("OpenRouter, SiliconFlow and DeepSeek account information is recorded when supported; secrets are never printed.")
 

@@ -106,8 +106,8 @@ class ProviderRuntimeState:
             self.disabled_reason = category
             row["status"] = category
             return
-        if category == "model_not_found":
-            row["status"] = "disabled"
+        if category in {"model_not_found", "model_quota_exhausted"}:
+            row["status"] = "quota_exhausted" if category == "model_quota_exhausted" else "disabled"
             row["cooldown_until"] = 0.0
             return
         if category == "rate_limited":

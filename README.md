@@ -1,6 +1,6 @@
-# Pathogen Intelligence Factory 17.4.4
+# Pathogen Intelligence Factory 17.4.5
 
-## v17.4-r4 运行重点
+## v17.4-r4.1 运行重点
 
 - LLM Provider 在每次新进程首次使用时先查询模型列表，再选择可用文本聊天模型；显式模型变量只在列表确认可用时优先。
 - 模型列表不可用时保留兼容回退，避免模型发现接口故障中断全链路。
@@ -11,7 +11,7 @@
 
 私有主仓，负责21个Profile排班、Canonical词库、文献与新闻检索、日期门、候选复核、确定性与保守LLM去重、全文/元数据补全、终审、双语分析、静态站、微信发布包、审计和跨仓同步。
 
-## v17.4-r4运行修复
+## v17.4-r4.1运行修复
 
 - Factory CI会检出Pages和私有Publisher，并设置`PAGES_REPO_DIR`、`PUBLISHER_REPO_DIR`执行真实三仓契约测试。
 - 统一由三仓包根目录的`system_manager.sh`执行配置、测试、GitHub任务、Pages和微信草稿操作。
@@ -40,7 +40,7 @@ PYTHONPATH=src python -m pytest
 ```
 
 
-### v17.4-r4动态模型发现与公开渲染
+### v17.4-r4.1动态模型发现与公开渲染
 
 - 各LLM Provider优先调用模型列表接口，再按文本对话能力、稳定性和轻量模型优先级选择。
 - GitHub Variables中的单模型名称只作为偏好；若列表中不存在，不会挡住已发现的可用模型。

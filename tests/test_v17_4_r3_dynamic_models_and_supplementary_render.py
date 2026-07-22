@@ -8,7 +8,7 @@ import pytest
 
 from pifactory.llm import LLMError, LLMRouter, summarize_attempt_categories
 from pifactory.public_display import build_display_issue
-from pifactory.render import supplementary_news_card, supplementary_paper_card
+from pifactory.render import paper_card, supplementary_news_card, supplementary_paper_card
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -176,14 +176,15 @@ def test_public_issue_drops_scope_notice_fields_and_phrases():
     assert "Related material" not in str(issue)
 
 
-def test_wechat_supplementary_card_matches_information_style_without_links():
+def test_wechat_supplementary_card_includes_plain_text_doi_without_links():
     html = supplementary_paper_card(_supplementary_work(), wechat=True)
     for expected in (
         "丝状病毒生态比较", "Comparative filovirus ecology", "作者：",
         "Alice Example, Bob Example", "Journal of Filovirus Studies", "2026-07-22",
+        "DOI:", "10.1000/example",
     ):
         assert expected in html
-    for forbidden in ("相关资料", "DOI", "PMID", "PMCID", "来源", "href="):
+    for forbidden in ("相关资料", "PMID", "PMCID", "来源", "href=", "https://doi.org"):
         assert forbidden not in html
 
 
@@ -223,3 +224,17 @@ def test_workflow_enables_discovery_without_hard_pinning():
     assert "PIF_LLM_DISCOVERY_MAX_CANDIDATES" in workflow
     assert "GEMINI_MODEL: ${{ vars.GEMINI_MODEL || '' }}" in workflow
     assert "DEEPSEEK_MODEL: ${{ vars.DEEPSEEK_MODEL || '' }}" in workflow
+
+
+def test_wechat_primary_paper_has_journal_canonical_date_and_plain_text_doi():
+    work = _supplementary_work()
+    work.update({
+        "paper_type": "research",
+        "abstract_zh": "中文摘要。",
+        "elements_zh": {},
+    })
+    html = paper_card(work, wechat=True)
+    for expected in ("Journal:", "Journal of Filovirus Studies", "Canonical publication date:", "2026-07-22", "DOI:", "10.1000/example"):
+        assert expected in html
+    assert "href=" not in html
+    assert "https://doi.org" not in html
