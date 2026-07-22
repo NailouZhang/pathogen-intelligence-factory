@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-07-22T09:46:25+00:00",
+  "generated_at": "2026-07-22T11:58:50+00:00",
   "shared_state_file": "/tmp/pif_data_repo/shared/state/provider_quota_daily.json",
   "provider_order": {
     "extract": [
@@ -62,15 +62,74 @@
     ]
   },
   "task_failures": [],
+  "model_discovery": {
+    "bigmodel": {
+      "status": "discovered",
+      "endpoint": "https://open.bigmodel.cn/api/paas/v4/models",
+      "discovery_enabled": true,
+      "discovered_count": 8,
+      "discovered_models": [
+        "glm-4.5",
+        "glm-4.5-air",
+        "glm-4.6",
+        "glm-4.7",
+        "glm-5",
+        "glm-5-turbo",
+        "glm-5.1",
+        "glm-5.2"
+      ],
+      "explicit_preferences": [
+        "glm-4.7-flash"
+      ],
+      "fallback_models": [
+        "glm-4.7-flash"
+      ],
+      "selected_candidates": [
+        "glm-4.5",
+        "glm-4.5-air",
+        "glm-4.6",
+        "glm-4.7",
+        "glm-5",
+        "glm-5-turbo",
+        "glm-5.1",
+        "glm-5.2",
+        "glm-4.7-flash"
+      ],
+      "failure_category": "",
+      "error": ""
+    },
+    "deepseek": {
+      "status": "discovered",
+      "endpoint": "https://api.deepseek.com/models",
+      "discovery_enabled": true,
+      "discovered_count": 2,
+      "discovered_models": [
+        "deepseek-v4-flash",
+        "deepseek-v4-pro"
+      ],
+      "explicit_preferences": [
+        "deepseek-v4-flash"
+      ],
+      "fallback_models": [
+        "deepseek-v4-flash"
+      ],
+      "selected_candidates": [
+        "deepseek-v4-flash",
+        "deepseek-v4-pro"
+      ],
+      "failure_category": "",
+      "error": ""
+    }
+  },
   "providers": {
     "gemini": {
       "configured": true,
       "provider": "gemini",
       "status": "authentication_failed",
       "disabled_reason": "authentication_failed",
-      "requests": 97,
+      "requests": 99,
       "successes": 0,
-      "failures": 97,
+      "failures": 99,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
@@ -88,26 +147,40 @@
           "last_failure_category": "rate_limited",
           "status": "cooldown",
           "cooldown_remaining_seconds": 0
+        },
+        "gemini-3.5-flash": {
+          "requests": 1,
+          "failures": 1,
+          "last_failure_category": "context_or_output_limit",
+          "status": "failed",
+          "cooldown_remaining_seconds": 0
+        },
+        "gemini-2.0-flash": {
+          "requests": 1,
+          "failures": 1,
+          "last_failure_category": "rate_limited",
+          "status": "cooldown",
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1784702274.9797475,
+      "last_failure_at": 1784721240.587914,
       "cooldown_remaining_seconds": 0
     },
     "groq": {
       "configured": true,
       "provider": "groq",
-      "status": "quota_exhausted",
-      "disabled_reason": "quota_exhausted",
-      "requests": 25,
-      "successes": 8,
+      "status": "healthy",
+      "disabled_reason": "",
+      "requests": 26,
+      "successes": 9,
       "failures": 17,
-      "prompt_tokens": 4504,
-      "completion_tokens": 671,
-      "total_tokens": 5175,
+      "prompt_tokens": 4623,
+      "completion_tokens": 752,
+      "total_tokens": 5375,
       "models": {
         "llama-3.1-8b-instant": {
           "status": "quota_exhausted",
@@ -126,12 +199,21 @@
           "last_failure_category": "quota_exhausted",
           "status": "quota_exhausted",
           "cooldown_remaining_seconds": 0
+        },
+        "openai/gpt-oss-120b": {
+          "status": "healthy",
+          "requests": 1,
+          "successes": 1,
+          "prompt_tokens": 119,
+          "completion_tokens": 81,
+          "total_tokens": 200,
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "quota_exhausted",
+      "last_failure_category": "",
       "last_failure_at": 1784663825.9593892,
       "cooldown_remaining_seconds": 0
     },
@@ -140,22 +222,22 @@
       "provider": "openrouter",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 46,
-      "successes": 8,
+      "requests": 47,
+      "successes": 9,
       "failures": 38,
-      "prompt_tokens": 10057,
-      "completion_tokens": 1905,
-      "total_tokens": 11962,
+      "prompt_tokens": 10144,
+      "completion_tokens": 1911,
+      "total_tokens": 12055,
       "models": {
         "openrouter/free": {
-          "requests": 32,
+          "requests": 33,
           "failures": 24,
           "last_failure_category": "context_or_output_limit",
-          "status": "failed",
-          "successes": 8,
-          "prompt_tokens": 10057,
-          "completion_tokens": 1905,
-          "total_tokens": 11962,
+          "status": "healthy",
+          "successes": 9,
+          "prompt_tokens": 10144,
+          "completion_tokens": 1911,
+          "total_tokens": 12055,
           "cooldown_remaining_seconds": 0
         },
         "cohere/north-mini-code:free": {
@@ -175,7 +257,7 @@
         "usage_weekly": 0,
         "usage_monthly": 0
       },
-      "last_failure_category": "empty_response",
+      "last_failure_category": "",
       "last_failure_at": 1784713585.189776,
       "cooldown_remaining_seconds": 0
     },
@@ -184,20 +266,20 @@
       "provider": "mistral",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 675,
-      "successes": 615,
+      "requests": 676,
+      "successes": 616,
       "failures": 60,
-      "prompt_tokens": 821283,
-      "completion_tokens": 102377,
-      "total_tokens": 923660,
+      "prompt_tokens": 821305,
+      "completion_tokens": 102383,
+      "total_tokens": 923688,
       "models": {
         "mistral-small-latest": {
-          "status": "failed",
-          "requests": 646,
-          "successes": 605,
-          "prompt_tokens": 778579,
-          "completion_tokens": 93313,
-          "total_tokens": 871892,
+          "status": "healthy",
+          "requests": 647,
+          "successes": 606,
+          "prompt_tokens": 778601,
+          "completion_tokens": 93319,
+          "total_tokens": 871920,
           "failures": 41,
           "last_failure_category": "validation_failed",
           "cooldown_remaining_seconds": 0
@@ -217,27 +299,31 @@
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "validation_failed",
+      "last_failure_category": "",
       "last_failure_at": 1784713529.1705258,
       "cooldown_remaining_seconds": 0
     },
     "siliconflow": {
       "configured": true,
       "provider": "siliconflow",
-      "status": "authentication_failed",
-      "disabled_reason": "authentication_failed",
-      "requests": 1,
-      "successes": 0,
+      "status": "healthy",
+      "disabled_reason": "",
+      "requests": 2,
+      "successes": 1,
       "failures": 1,
-      "prompt_tokens": 0,
-      "completion_tokens": 0,
-      "total_tokens": 0,
+      "prompt_tokens": 34,
+      "completion_tokens": 5,
+      "total_tokens": 39,
       "models": {
         "Qwen/Qwen3-8B": {
-          "requests": 1,
+          "requests": 2,
           "failures": 1,
           "last_failure_category": "authentication_failed",
-          "status": "authentication_failed",
+          "status": "healthy",
+          "successes": 1,
+          "prompt_tokens": 34,
+          "completion_tokens": 5,
+          "total_tokens": 39,
           "cooldown_remaining_seconds": 0
         }
       },
@@ -248,7 +334,7 @@
         "charge_balance": "0",
         "total_balance": "0"
       },
-      "last_failure_category": "authentication_failed",
+      "last_failure_category": "",
       "last_failure_at": 1784649623.3783748,
       "cooldown_remaining_seconds": 0
     },
@@ -257,12 +343,12 @@
       "provider": "bigmodel",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 321,
-      "successes": 273,
+      "requests": 333,
+      "successes": 285,
       "failures": 48,
-      "prompt_tokens": 285924,
-      "completion_tokens": 39690,
-      "total_tokens": 325614,
+      "prompt_tokens": 300168,
+      "completion_tokens": 40481,
+      "total_tokens": 340649,
       "models": {
         "glm-4.7-flash": {
           "status": "cooldown",
@@ -274,32 +360,54 @@
           "failures": 48,
           "last_failure_category": "rate_limited",
           "cooldown_remaining_seconds": 0
+        },
+        "glm-4.5": {
+          "status": "healthy",
+          "requests": 12,
+          "successes": 12,
+          "prompt_tokens": 14244,
+          "completion_tokens": 791,
+          "total_tokens": 15035,
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "rate_limited",
+      "last_failure_category": "",
       "last_failure_at": 1784713490.8699734,
       "cooldown_remaining_seconds": 0
     },
     "deepseek": {
       "configured": true,
       "provider": "deepseek",
-      "status": "quota_exhausted",
-      "disabled_reason": "quota_exhausted",
-      "requests": 1,
-      "successes": 0,
-      "failures": 1,
-      "prompt_tokens": 0,
-      "completion_tokens": 0,
-      "total_tokens": 0,
+      "status": "healthy",
+      "disabled_reason": "",
+      "requests": 4,
+      "successes": 2,
+      "failures": 2,
+      "prompt_tokens": 5366,
+      "completion_tokens": 788,
+      "total_tokens": 6154,
       "models": {
         "deepseek-v4-flash": {
+          "requests": 3,
+          "failures": 2,
+          "last_failure_category": "validation_failed",
+          "status": "failed",
+          "successes": 1,
+          "prompt_tokens": 41,
+          "completion_tokens": 5,
+          "total_tokens": 46,
+          "cooldown_remaining_seconds": 0
+        },
+        "deepseek-v4-pro": {
+          "status": "healthy",
           "requests": 1,
-          "failures": 1,
-          "last_failure_category": "quota_exhausted",
-          "status": "quota_exhausted",
+          "successes": 1,
+          "prompt_tokens": 5325,
+          "completion_tokens": 783,
+          "total_tokens": 6108,
           "cooldown_remaining_seconds": 0
         }
       },
@@ -319,8 +427,8 @@
           }
         ]
       },
-      "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1784649652.7265348,
+      "last_failure_category": "",
+      "last_failure_at": 1784721517.6791203,
       "cooldown_remaining_seconds": 0
     }
   }
