@@ -37,37 +37,32 @@
     },
     "top_failure_categories": [],
     "provider_attempts": {
-      "bigmodel:failed": 1,
       "bigmodel:skipped": 1,
-      "bigmodel:success": 1,
-      "gemini:failed": 3,
-      "gemini:skipped": 2,
-      "mistral:success": 2,
-      "siliconflow:skipped": 2
+      "bigmodel:success": 2,
+      "gemini:failed": 1,
+      "gemini:skipped": 3,
+      "mistral:success": 1,
+      "siliconflow:skipped": 1
     },
     "model_attempts": {
-      "bigmodel/glm-4.7-flash:failed": 1,
       "bigmodel/glm-4.7-flash:skipped": 1,
-      "bigmodel/glm-4.7-flash:success": 1,
-      "gemini/gemini-2.5-flash-lite:failed": 2,
-      "gemini/gemini-2.5-flash:failed": 1,
+      "bigmodel/glm-4.7-flash:success": 2,
+      "gemini/gemini-2.5-flash-lite:failed": 1,
       "gemini/gemini-2.5-flash:skipped": 1,
-      "gemini/not_selected:skipped": 1,
-      "mistral/mistral-small-latest:success": 2,
-      "siliconflow/not_selected:skipped": 2
+      "gemini/not_selected:skipped": 2,
+      "mistral/mistral-small-latest:success": 1,
+      "siliconflow/not_selected:skipped": 1
     },
     "attempt_failure_categories": {
-      "network_error": 1,
-      "rate_limited": 2,
-      "timeout": 1
+      "rate_limited": 1
     },
     "validation_issue_categories": {},
     "normalization_repairs": {},
     "field_repair_statuses": {},
     "field_repair_records": [],
     "preflight": {
-      "schema_version": 3,
-      "generated_at": "2026-07-22T06:28:01+00:00",
+      "schema_version": 5,
+      "generated_at": "2026-07-22T09:39:20+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -80,7 +75,8 @@
       ],
       "analysis_provider_passed": [
         "openrouter",
-        "mistral"
+        "mistral",
+        "bigmodel"
       ],
       "live_probe_performed": true,
       "provider_orders": {
@@ -119,6 +115,15 @@
           "deepseek",
           "openrouter",
           "groq"
+        ],
+        "translation": [
+          "gemini",
+          "bigmodel",
+          "mistral",
+          "siliconflow",
+          "deepseek",
+          "openrouter",
+          "groq"
         ]
       },
       "provider_endpoints": {
@@ -130,8 +135,9 @@
         {
           "provider": "gemini",
           "status": "failed",
-          "failure_category": "network_error",
-          "error": "All configured LLM attempts failed (network_error)",
+          "failure_category": "unknown",
+          "model": "",
+          "error": "All configured LLM attempts failed (unknown)",
           "action_hint": "",
           "account": {
             "status": "not_supported"
@@ -140,16 +146,11 @@
             {
               "task": "credential_preflight",
               "provider": "gemini",
-              "model": "gemini-2.5-flash",
-              "retry_index": 0,
-              "at": "2026-07-22T06:27:03+00:00",
-              "system_chars": 39,
-              "prompt_chars": 31,
-              "status": "failed",
-              "failure_category": "network_error",
-              "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: HTTP status 404: 404 Client Error: Not Found for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=[REDACTED] response={ \"error\": { \"code\": 404, \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use a newer model for the latest features and improvements.\", \"status\": \"NOT_FOUND\" } }",
-              "elapsed_ms": 101
+              "model": "",
+              "at": "2026-07-22T09:39:13+00:00",
+              "status": "skipped",
+              "failure_category": "authentication_failed",
+              "error": "authentication_failed"
             }
           ]
         },
@@ -157,6 +158,7 @@
           "provider": "groq",
           "status": "failed",
           "failure_category": "unknown",
+          "model": "",
           "error": "All configured LLM attempts failed (unknown)",
           "action_hint": "",
           "account": {
@@ -167,7 +169,7 @@
               "task": "credential_preflight",
               "provider": "groq",
               "model": "",
-              "at": "2026-07-22T06:27:03+00:00",
+              "at": "2026-07-22T09:39:13+00:00",
               "status": "skipped",
               "failure_category": "quota_exhausted",
               "error": "quota_exhausted"
@@ -193,12 +195,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-07-22T06:27:03+00:00",
+              "at": "2026-07-22T09:39:13+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "nvidia/nemotron-3-super-120b-a12b:free",
-              "elapsed_ms": 1035,
+              "elapsed_ms": 1371,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -209,8 +211,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 33,
-                "completion_tokens": 53,
-                "total_tokens": 86
+                "completion_tokens": 70,
+                "total_tokens": 103
               }
             }
           ]
@@ -228,12 +230,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-07-22T06:27:05+00:00",
+              "at": "2026-07-22T09:39:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 339,
+              "elapsed_ms": 419,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -254,6 +256,7 @@
           "provider": "siliconflow",
           "status": "failed",
           "failure_category": "unknown",
+          "model": "",
           "error": "All configured LLM attempts failed (unknown)",
           "action_hint": "",
           "account": {
@@ -268,7 +271,7 @@
               "task": "credential_preflight",
               "provider": "siliconflow",
               "model": "",
-              "at": "2026-07-22T06:27:05+00:00",
+              "at": "2026-07-22T09:39:15+00:00",
               "status": "skipped",
               "failure_category": "authentication_failed",
               "error": "authentication_failed"
@@ -277,10 +280,8 @@
         },
         {
           "provider": "bigmodel",
-          "status": "failed",
-          "failure_category": "timeout",
-          "error": "All configured LLM attempts failed (timeout)",
-          "action_hint": "",
+          "status": "passed",
+          "model": "glm-4.7-flash",
           "account": {
             "status": "not_supported"
           },
@@ -290,14 +291,25 @@
               "provider": "bigmodel",
               "model": "glm-4.7-flash",
               "retry_index": 0,
-              "at": "2026-07-22T06:27:05+00:00",
+              "at": "2026-07-22T09:39:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
-              "status": "failed",
-              "failure_category": "timeout",
-              "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTPSConnectionPool(host='open.bigmodel.cn', port=443): Read timed out. (read timeout=55)",
-              "elapsed_ms": 55948
+              "status": "success",
+              "response_model": "glm-4.7-flash",
+              "elapsed_ms": 4878,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 75,
+                "completion_tokens": 10,
+                "total_tokens": 85
+              }
             }
           ]
         },
@@ -305,6 +317,7 @@
           "provider": "deepseek",
           "status": "failed",
           "failure_category": "unknown",
+          "model": "",
           "error": "All configured LLM attempts failed (unknown)",
           "action_hint": "",
           "account": {
@@ -328,7 +341,7 @@
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "",
-              "at": "2026-07-22T06:28:01+00:00",
+              "at": "2026-07-22T09:39:20+00:00",
               "status": "skipped",
               "failure_category": "quota_exhausted",
               "error": "quota_exhausted"
@@ -477,37 +490,32 @@
     },
     "top_failure_categories": [],
     "provider_attempts": {
-      "bigmodel:failed": 1,
       "bigmodel:skipped": 1,
-      "bigmodel:success": 1,
-      "gemini:failed": 3,
-      "gemini:skipped": 2,
-      "mistral:success": 2,
-      "siliconflow:skipped": 2
+      "bigmodel:success": 2,
+      "gemini:failed": 1,
+      "gemini:skipped": 3,
+      "mistral:success": 1,
+      "siliconflow:skipped": 1
     },
     "model_attempts": {
-      "bigmodel/glm-4.7-flash:failed": 1,
       "bigmodel/glm-4.7-flash:skipped": 1,
-      "bigmodel/glm-4.7-flash:success": 1,
-      "gemini/gemini-2.5-flash-lite:failed": 2,
-      "gemini/gemini-2.5-flash:failed": 1,
+      "bigmodel/glm-4.7-flash:success": 2,
+      "gemini/gemini-2.5-flash-lite:failed": 1,
       "gemini/gemini-2.5-flash:skipped": 1,
-      "gemini/not_selected:skipped": 1,
-      "mistral/mistral-small-latest:success": 2,
-      "siliconflow/not_selected:skipped": 2
+      "gemini/not_selected:skipped": 2,
+      "mistral/mistral-small-latest:success": 1,
+      "siliconflow/not_selected:skipped": 1
     },
     "attempt_failure_categories": {
-      "network_error": 1,
-      "rate_limited": 2,
-      "timeout": 1
+      "rate_limited": 1
     },
     "validation_issue_categories": {},
     "normalization_repairs": {},
     "field_repair_statuses": {},
     "field_repair_records": [],
     "preflight": {
-      "schema_version": 3,
-      "generated_at": "2026-07-22T06:28:01+00:00",
+      "schema_version": 5,
+      "generated_at": "2026-07-22T09:39:20+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -520,7 +528,8 @@
       ],
       "analysis_provider_passed": [
         "openrouter",
-        "mistral"
+        "mistral",
+        "bigmodel"
       ],
       "live_probe_performed": true,
       "provider_orders": {
@@ -559,6 +568,15 @@
           "deepseek",
           "openrouter",
           "groq"
+        ],
+        "translation": [
+          "gemini",
+          "bigmodel",
+          "mistral",
+          "siliconflow",
+          "deepseek",
+          "openrouter",
+          "groq"
         ]
       },
       "provider_endpoints": {
@@ -570,8 +588,9 @@
         {
           "provider": "gemini",
           "status": "failed",
-          "failure_category": "network_error",
-          "error": "All configured LLM attempts failed (network_error)",
+          "failure_category": "unknown",
+          "model": "",
+          "error": "All configured LLM attempts failed (unknown)",
           "action_hint": "",
           "account": {
             "status": "not_supported"
@@ -580,16 +599,11 @@
             {
               "task": "credential_preflight",
               "provider": "gemini",
-              "model": "gemini-2.5-flash",
-              "retry_index": 0,
-              "at": "2026-07-22T06:27:03+00:00",
-              "system_chars": 39,
-              "prompt_chars": 31,
-              "status": "failed",
-              "failure_category": "network_error",
-              "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: HTTP status 404: 404 Client Error: Not Found for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=[REDACTED] response={ \"error\": { \"code\": 404, \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use a newer model for the latest features and improvements.\", \"status\": \"NOT_FOUND\" } }",
-              "elapsed_ms": 101
+              "model": "",
+              "at": "2026-07-22T09:39:13+00:00",
+              "status": "skipped",
+              "failure_category": "authentication_failed",
+              "error": "authentication_failed"
             }
           ]
         },
@@ -597,6 +611,7 @@
           "provider": "groq",
           "status": "failed",
           "failure_category": "unknown",
+          "model": "",
           "error": "All configured LLM attempts failed (unknown)",
           "action_hint": "",
           "account": {
@@ -607,7 +622,7 @@
               "task": "credential_preflight",
               "provider": "groq",
               "model": "",
-              "at": "2026-07-22T06:27:03+00:00",
+              "at": "2026-07-22T09:39:13+00:00",
               "status": "skipped",
               "failure_category": "quota_exhausted",
               "error": "quota_exhausted"
@@ -633,12 +648,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-07-22T06:27:03+00:00",
+              "at": "2026-07-22T09:39:13+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "nvidia/nemotron-3-super-120b-a12b:free",
-              "elapsed_ms": 1035,
+              "elapsed_ms": 1371,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -649,8 +664,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 33,
-                "completion_tokens": 53,
-                "total_tokens": 86
+                "completion_tokens": 70,
+                "total_tokens": 103
               }
             }
           ]
@@ -668,12 +683,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-07-22T06:27:05+00:00",
+              "at": "2026-07-22T09:39:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 339,
+              "elapsed_ms": 419,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -694,6 +709,7 @@
           "provider": "siliconflow",
           "status": "failed",
           "failure_category": "unknown",
+          "model": "",
           "error": "All configured LLM attempts failed (unknown)",
           "action_hint": "",
           "account": {
@@ -708,7 +724,7 @@
               "task": "credential_preflight",
               "provider": "siliconflow",
               "model": "",
-              "at": "2026-07-22T06:27:05+00:00",
+              "at": "2026-07-22T09:39:15+00:00",
               "status": "skipped",
               "failure_category": "authentication_failed",
               "error": "authentication_failed"
@@ -717,10 +733,8 @@
         },
         {
           "provider": "bigmodel",
-          "status": "failed",
-          "failure_category": "timeout",
-          "error": "All configured LLM attempts failed (timeout)",
-          "action_hint": "",
+          "status": "passed",
+          "model": "glm-4.7-flash",
           "account": {
             "status": "not_supported"
           },
@@ -730,14 +744,25 @@
               "provider": "bigmodel",
               "model": "glm-4.7-flash",
               "retry_index": 0,
-              "at": "2026-07-22T06:27:05+00:00",
+              "at": "2026-07-22T09:39:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
-              "status": "failed",
-              "failure_category": "timeout",
-              "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTPSConnectionPool(host='open.bigmodel.cn', port=443): Read timed out. (read timeout=55)",
-              "elapsed_ms": 55948
+              "status": "success",
+              "response_model": "glm-4.7-flash",
+              "elapsed_ms": 4878,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 75,
+                "completion_tokens": 10,
+                "total_tokens": 85
+              }
             }
           ]
         },
@@ -745,6 +770,7 @@
           "provider": "deepseek",
           "status": "failed",
           "failure_category": "unknown",
+          "model": "",
           "error": "All configured LLM attempts failed (unknown)",
           "action_hint": "",
           "account": {
@@ -768,7 +794,7 @@
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "",
-              "at": "2026-07-22T06:28:01+00:00",
+              "at": "2026-07-22T09:39:20+00:00",
               "status": "skipped",
               "failure_category": "quota_exhausted",
               "error": "quota_exhausted"
@@ -917,37 +943,32 @@
     },
     "top_failure_categories": [],
     "provider_attempts": {
-      "bigmodel:failed": 1,
       "bigmodel:skipped": 1,
-      "bigmodel:success": 1,
-      "gemini:failed": 3,
-      "gemini:skipped": 2,
-      "mistral:success": 2,
-      "siliconflow:skipped": 2
+      "bigmodel:success": 2,
+      "gemini:failed": 1,
+      "gemini:skipped": 3,
+      "mistral:success": 1,
+      "siliconflow:skipped": 1
     },
     "model_attempts": {
-      "bigmodel/glm-4.7-flash:failed": 1,
       "bigmodel/glm-4.7-flash:skipped": 1,
-      "bigmodel/glm-4.7-flash:success": 1,
-      "gemini/gemini-2.5-flash-lite:failed": 2,
-      "gemini/gemini-2.5-flash:failed": 1,
+      "bigmodel/glm-4.7-flash:success": 2,
+      "gemini/gemini-2.5-flash-lite:failed": 1,
       "gemini/gemini-2.5-flash:skipped": 1,
-      "gemini/not_selected:skipped": 1,
-      "mistral/mistral-small-latest:success": 2,
-      "siliconflow/not_selected:skipped": 2
+      "gemini/not_selected:skipped": 2,
+      "mistral/mistral-small-latest:success": 1,
+      "siliconflow/not_selected:skipped": 1
     },
     "attempt_failure_categories": {
-      "network_error": 1,
-      "rate_limited": 2,
-      "timeout": 1
+      "rate_limited": 1
     },
     "validation_issue_categories": {},
     "normalization_repairs": {},
     "field_repair_statuses": {},
     "field_repair_records": [],
     "preflight": {
-      "schema_version": 3,
-      "generated_at": "2026-07-22T06:28:01+00:00",
+      "schema_version": 5,
+      "generated_at": "2026-07-22T09:39:20+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -960,7 +981,8 @@
       ],
       "analysis_provider_passed": [
         "openrouter",
-        "mistral"
+        "mistral",
+        "bigmodel"
       ],
       "live_probe_performed": true,
       "provider_orders": {
@@ -999,6 +1021,15 @@
           "deepseek",
           "openrouter",
           "groq"
+        ],
+        "translation": [
+          "gemini",
+          "bigmodel",
+          "mistral",
+          "siliconflow",
+          "deepseek",
+          "openrouter",
+          "groq"
         ]
       },
       "provider_endpoints": {
@@ -1010,8 +1041,9 @@
         {
           "provider": "gemini",
           "status": "failed",
-          "failure_category": "network_error",
-          "error": "All configured LLM attempts failed (network_error)",
+          "failure_category": "unknown",
+          "model": "",
+          "error": "All configured LLM attempts failed (unknown)",
           "action_hint": "",
           "account": {
             "status": "not_supported"
@@ -1020,16 +1052,11 @@
             {
               "task": "credential_preflight",
               "provider": "gemini",
-              "model": "gemini-2.5-flash",
-              "retry_index": 0,
-              "at": "2026-07-22T06:27:03+00:00",
-              "system_chars": 39,
-              "prompt_chars": 31,
-              "status": "failed",
-              "failure_category": "network_error",
-              "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: HTTP status 404: 404 Client Error: Not Found for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=[REDACTED] response={ \"error\": { \"code\": 404, \"message\": \"This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use a newer model for the latest features and improvements.\", \"status\": \"NOT_FOUND\" } }",
-              "elapsed_ms": 101
+              "model": "",
+              "at": "2026-07-22T09:39:13+00:00",
+              "status": "skipped",
+              "failure_category": "authentication_failed",
+              "error": "authentication_failed"
             }
           ]
         },
@@ -1037,6 +1064,7 @@
           "provider": "groq",
           "status": "failed",
           "failure_category": "unknown",
+          "model": "",
           "error": "All configured LLM attempts failed (unknown)",
           "action_hint": "",
           "account": {
@@ -1047,7 +1075,7 @@
               "task": "credential_preflight",
               "provider": "groq",
               "model": "",
-              "at": "2026-07-22T06:27:03+00:00",
+              "at": "2026-07-22T09:39:13+00:00",
               "status": "skipped",
               "failure_category": "quota_exhausted",
               "error": "quota_exhausted"
@@ -1073,12 +1101,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-07-22T06:27:03+00:00",
+              "at": "2026-07-22T09:39:13+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "nvidia/nemotron-3-super-120b-a12b:free",
-              "elapsed_ms": 1035,
+              "elapsed_ms": 1371,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1089,8 +1117,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 33,
-                "completion_tokens": 53,
-                "total_tokens": 86
+                "completion_tokens": 70,
+                "total_tokens": 103
               }
             }
           ]
@@ -1108,12 +1136,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-07-22T06:27:05+00:00",
+              "at": "2026-07-22T09:39:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 339,
+              "elapsed_ms": 419,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1134,6 +1162,7 @@
           "provider": "siliconflow",
           "status": "failed",
           "failure_category": "unknown",
+          "model": "",
           "error": "All configured LLM attempts failed (unknown)",
           "action_hint": "",
           "account": {
@@ -1148,7 +1177,7 @@
               "task": "credential_preflight",
               "provider": "siliconflow",
               "model": "",
-              "at": "2026-07-22T06:27:05+00:00",
+              "at": "2026-07-22T09:39:15+00:00",
               "status": "skipped",
               "failure_category": "authentication_failed",
               "error": "authentication_failed"
@@ -1157,10 +1186,8 @@
         },
         {
           "provider": "bigmodel",
-          "status": "failed",
-          "failure_category": "timeout",
-          "error": "All configured LLM attempts failed (timeout)",
-          "action_hint": "",
+          "status": "passed",
+          "model": "glm-4.7-flash",
           "account": {
             "status": "not_supported"
           },
@@ -1170,14 +1197,25 @@
               "provider": "bigmodel",
               "model": "glm-4.7-flash",
               "retry_index": 0,
-              "at": "2026-07-22T06:27:05+00:00",
+              "at": "2026-07-22T09:39:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
-              "status": "failed",
-              "failure_category": "timeout",
-              "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTPSConnectionPool(host='open.bigmodel.cn', port=443): Read timed out. (read timeout=55)",
-              "elapsed_ms": 55948
+              "status": "success",
+              "response_model": "glm-4.7-flash",
+              "elapsed_ms": 4878,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 75,
+                "completion_tokens": 10,
+                "total_tokens": 85
+              }
             }
           ]
         },
@@ -1185,6 +1223,7 @@
           "provider": "deepseek",
           "status": "failed",
           "failure_category": "unknown",
+          "model": "",
           "error": "All configured LLM attempts failed (unknown)",
           "action_hint": "",
           "account": {
@@ -1208,7 +1247,7 @@
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "",
-              "at": "2026-07-22T06:28:01+00:00",
+              "at": "2026-07-22T09:39:20+00:00",
               "status": "skipped",
               "failure_category": "quota_exhausted",
               "error": "quota_exhausted"
