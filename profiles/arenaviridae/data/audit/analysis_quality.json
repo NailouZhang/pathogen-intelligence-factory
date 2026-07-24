@@ -1,0 +1,3092 @@
+{
+  "candidate_pool": {
+    "policy_version": "v17.2-normalization-field-repair-quality-1",
+    "scope": "processed_candidate_pool",
+    "severity": "normal",
+    "warning_ratio": 0.2,
+    "critical_ratio": 0.5,
+    "message_zh": "本期七/五要素分析未触发全局降级告警。",
+    "message_en": "No global structured-analysis degradation warning was triggered.",
+    "papers": {
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 8,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 8
+      }
+    },
+    "news": {
+      "total_items": 10,
+      "analyzable": 10,
+      "passed": 10,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 10
+      }
+    },
+    "combined": {
+      "total_items": 18,
+      "analyzable": 18,
+      "passed": 18,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 18
+      }
+    },
+    "top_failure_categories": [],
+    "provider_attempts": {
+      "bigmodel:failed": 7,
+      "bigmodel:skipped": 13,
+      "bigmodel:success": 16,
+      "gemini:skipped": 18,
+      "mistral:failed": 1,
+      "mistral:success": 1,
+      "siliconflow:failed": 2,
+      "siliconflow:success": 1
+    },
+    "model_attempts": {
+      "bigmodel/glm-4.5-air:failed": 2,
+      "bigmodel/glm-4.5-air:success": 16,
+      "bigmodel/glm-4.5:failed": 5,
+      "bigmodel/glm-4.5:skipped": 13,
+      "gemini/not_selected:skipped": 18,
+      "mistral/mistral-small-2506:success": 1,
+      "mistral/mistral-small-latest:failed": 1,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 1,
+      "siliconflow/Qwen/Qwen3-8B:failed": 1,
+      "siliconflow/Qwen/Qwen3-8B:success": 1
+    },
+    "attempt_failure_categories": {
+      "context_or_output_limit": 1,
+      "rate_limited": 5,
+      "validation_failed": 4
+    },
+    "validation_issue_categories": {
+      "evidence_ids_missing": 6
+    },
+    "normalization_repairs": {},
+    "field_repair_statuses": {},
+    "field_repair_records": [],
+    "preflight": {
+      "schema_version": 7,
+      "generated_at": "2026-07-24T19:16:55+00:00",
+      "status": "ready",
+      "analysis_provider_configured": [
+        "gemini",
+        "groq",
+        "openrouter",
+        "mistral",
+        "siliconflow",
+        "bigmodel",
+        "deepseek"
+      ],
+      "analysis_provider_passed": [
+        "groq",
+        "openrouter",
+        "mistral",
+        "siliconflow",
+        "bigmodel",
+        "deepseek"
+      ],
+      "live_probe_performed": true,
+      "provider_orders": {
+        "extract": [
+          "gemini",
+          "bigmodel",
+          "siliconflow",
+          "mistral",
+          "deepseek",
+          "openrouter",
+          "groq"
+        ],
+        "rescue": [
+          "gemini",
+          "deepseek",
+          "bigmodel",
+          "mistral",
+          "siliconflow",
+          "openrouter",
+          "groq"
+        ],
+        "overview": [
+          "gemini",
+          "deepseek",
+          "bigmodel",
+          "mistral",
+          "siliconflow",
+          "openrouter",
+          "groq"
+        ],
+        "relevance": [
+          "gemini",
+          "bigmodel",
+          "siliconflow",
+          "mistral",
+          "deepseek",
+          "openrouter",
+          "groq"
+        ],
+        "translation": [
+          "gemini",
+          "bigmodel",
+          "mistral",
+          "siliconflow",
+          "deepseek",
+          "openrouter",
+          "groq"
+        ]
+      },
+      "provider_endpoints": {
+        "siliconflow": "https://api.siliconflow.cn/v1",
+        "bigmodel": "https://open.bigmodel.cn/api/paas/v4",
+        "deepseek": "https://api.deepseek.com"
+      },
+      "providers": [
+        {
+          "provider": "gemini",
+          "status": "failed",
+          "failure_category": "authentication_failed",
+          "model": "gemini-3.5-flash",
+          "model_candidates": [
+            "gemini-3.5-flash-lite",
+            "gemini-3.1-flash-lite",
+            "gemini-2.5-flash-lite",
+            "gemini-3.5-flash",
+            "gemini-2.5-flash"
+          ],
+          "model_discovery": {
+            "status": "fallback",
+            "endpoint": "https://generativelanguage.googleapis.com/v1beta/models",
+            "discovery_enabled": true,
+            "discovered_count": 0,
+            "discovered_models": [],
+            "explicit_preferences": [],
+            "fallback_models": [
+              "gemini-3.5-flash-lite",
+              "gemini-3.1-flash-lite",
+              "gemini-2.5-flash-lite",
+              "gemini-3.5-flash",
+              "gemini-2.5-flash"
+            ],
+            "selected_candidates": [
+              "gemini-3.5-flash-lite",
+              "gemini-3.1-flash-lite",
+              "gemini-2.5-flash-lite",
+              "gemini-3.5-flash",
+              "gemini-2.5-flash"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": true,
+            "failure_category": "authentication_failed",
+            "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.ModelService.ListModels\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }"
+          },
+          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+          "action_hint": "Regenerate the provider key and replace GitHub Secret GEMINI_API_KEY.",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-3.5-flash-lite",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 48
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 110
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-2.5-flash-lite",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 54
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-3.5-flash",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 56
+            }
+          ]
+        },
+        {
+          "provider": "groq",
+          "status": "passed",
+          "model": "openai/gpt-oss-120b",
+          "account": {
+            "status": "not_supported"
+          },
+          "model_candidates": [
+            "openai/gpt-oss-120b",
+            "qwen/qwen3.6-27b",
+            "openai/gpt-oss-20b",
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+            "allam-2-7b",
+            "canopylabs/orpheus-arabic-saudi",
+            "canopylabs/orpheus-v1-english"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://api.groq.com/openai/v1/models",
+            "discovery_enabled": true,
+            "discovered_count": 8,
+            "discovered_models": [
+              "llama-3.1-8b-instant",
+              "qwen/qwen3.6-27b",
+              "llama-3.3-70b-versatile",
+              "openai/gpt-oss-20b",
+              "openai/gpt-oss-120b",
+              "allam-2-7b",
+              "canopylabs/orpheus-arabic-saudi",
+              "canopylabs/orpheus-v1-english"
+            ],
+            "explicit_preferences": [
+              "openai/gpt-oss-120b",
+              "qwen/qwen3.6-27b",
+              "openai/gpt-oss-20b",
+              "llama-3.3-70b-versatile",
+              "llama-3.1-8b-instant"
+            ],
+            "fallback_models": [
+              "openai/gpt-oss-120b",
+              "qwen/qwen3.6-27b",
+              "openai/gpt-oss-20b",
+              "llama-3.3-70b-versatile",
+              "llama-3.1-8b-instant"
+            ],
+            "selected_candidates": [
+              "openai/gpt-oss-120b",
+              "qwen/qwen3.6-27b",
+              "openai/gpt-oss-20b",
+              "llama-3.3-70b-versatile",
+              "llama-3.1-8b-instant",
+              "allam-2-7b",
+              "canopylabs/orpheus-arabic-saudi",
+              "canopylabs/orpheus-v1-english"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "groq",
+              "model": "openai/gpt-oss-120b",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "openai/gpt-oss-120b",
+              "elapsed_ms": 261,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 119,
+                "completion_tokens": 69,
+                "total_tokens": 188
+              }
+            }
+          ]
+        },
+        {
+          "provider": "openrouter",
+          "status": "passed",
+          "model": "nvidia/nemotron-nano-9b-v2:free",
+          "account": {
+            "status": "ok",
+            "is_free_tier": true,
+            "limit": null,
+            "limit_remaining": null,
+            "usage_daily": 0,
+            "usage_weekly": 0,
+            "usage_monthly": 0
+          },
+          "model_candidates": [
+            "openrouter/free",
+            "cohere/north-mini-code:free",
+            "inclusionai/ling-3.0-flash:free",
+            "google/gemma-4-26b-a4b-it:free",
+            "google/gemma-4-31b-it:free",
+            "nvidia/nemotron-3-nano-30b-a3b:free",
+            "nvidia/nemotron-3-ultra-550b-a55b:free",
+            "nvidia/nemotron-3.5-content-safety:free",
+            "nvidia/nemotron-nano-12b-v2-vl:free",
+            "nvidia/nemotron-nano-9b-v2:free",
+            "openai/gpt-oss-20b:free",
+            "poolside/laguna-m.1:free",
+            "poolside/laguna-s-2.1:free",
+            "poolside/laguna-xs-2.1:free",
+            "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+            "nvidia/nemotron-3-super-120b-a12b:free",
+            "google/lyria-3-clip-preview",
+            "google/lyria-3-pro-preview"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://openrouter.ai/api/v1/models",
+            "discovery_enabled": true,
+            "discovered_count": 18,
+            "discovered_models": [
+              "openrouter/free",
+              "cohere/north-mini-code:free",
+              "inclusionai/ling-3.0-flash:free",
+              "google/gemma-4-26b-a4b-it:free",
+              "google/gemma-4-31b-it:free",
+              "nvidia/nemotron-3-nano-30b-a3b:free",
+              "nvidia/nemotron-3-ultra-550b-a55b:free",
+              "nvidia/nemotron-3.5-content-safety:free",
+              "nvidia/nemotron-nano-12b-v2-vl:free",
+              "nvidia/nemotron-nano-9b-v2:free",
+              "openai/gpt-oss-20b:free",
+              "poolside/laguna-m.1:free",
+              "poolside/laguna-s-2.1:free",
+              "poolside/laguna-xs-2.1:free",
+              "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+              "nvidia/nemotron-3-super-120b-a12b:free",
+              "google/lyria-3-clip-preview",
+              "google/lyria-3-pro-preview"
+            ],
+            "explicit_preferences": [
+              "openrouter/free"
+            ],
+            "fallback_models": [
+              "openrouter/free"
+            ],
+            "selected_candidates": [
+              "openrouter/free",
+              "cohere/north-mini-code:free",
+              "inclusionai/ling-3.0-flash:free",
+              "google/gemma-4-26b-a4b-it:free",
+              "google/gemma-4-31b-it:free",
+              "nvidia/nemotron-3-nano-30b-a3b:free",
+              "nvidia/nemotron-3-ultra-550b-a55b:free",
+              "nvidia/nemotron-3.5-content-safety:free",
+              "nvidia/nemotron-nano-12b-v2-vl:free",
+              "nvidia/nemotron-nano-9b-v2:free",
+              "openai/gpt-oss-20b:free",
+              "poolside/laguna-m.1:free",
+              "poolside/laguna-s-2.1:free",
+              "poolside/laguna-xs-2.1:free",
+              "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+              "nvidia/nemotron-3-super-120b-a12b:free",
+              "google/lyria-3-clip-preview",
+              "google/lyria-3-pro-preview"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "openrouter",
+              "model": "openrouter/free",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:46+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "nvidia/nemotron-nano-9b-v2:free",
+              "elapsed_ms": 1689,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 29,
+                "completion_tokens": 64,
+                "total_tokens": 93
+              }
+            }
+          ]
+        },
+        {
+          "provider": "mistral",
+          "status": "passed",
+          "model": "mistral-small-latest",
+          "account": {
+            "status": "not_supported"
+          },
+          "model_candidates": [
+            "mistral-small-latest",
+            "mistral-small-2506",
+            "mistral-small-2603",
+            "magistral-small-2509",
+            "magistral-small-latest",
+            "ministral-14b-2512",
+            "ministral-14b-latest",
+            "ministral-3b-2512",
+            "ministral-3b-latest",
+            "ministral-8b-2512",
+            "ministral-8b-latest",
+            "voxtral-small-2507",
+            "voxtral-small-latest",
+            "mistral-code-agent-latest",
+            "mistral-code-fim-latest",
+            "mistral-code-latest",
+            "mistral-medium",
+            "mistral-medium-2505",
+            "mistral-medium-2508",
+            "mistral-medium-2604",
+            "mistral-medium-3",
+            "mistral-medium-3-5",
+            "mistral-medium-3.5",
+            "mistral-medium-latest",
+            "mistral-tiny-2407",
+            "mistral-tiny-latest",
+            "mistral-vibe-cli-fast",
+            "mistral-vibe-cli-latest",
+            "mistral-vibe-cli-with-tools",
+            "open-mistral-nemo"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://api.mistral.ai/v1/models",
+            "discovery_enabled": true,
+            "discovered_count": 42,
+            "discovered_models": [
+              "mistral-small-latest",
+              "mistral-small-2506",
+              "mistral-small-2603",
+              "magistral-small-2509",
+              "magistral-small-latest",
+              "ministral-14b-2512",
+              "ministral-14b-latest",
+              "ministral-3b-2512",
+              "ministral-3b-latest",
+              "ministral-8b-2512",
+              "ministral-8b-latest",
+              "voxtral-small-2507",
+              "voxtral-small-latest",
+              "mistral-code-agent-latest",
+              "mistral-code-fim-latest",
+              "mistral-code-latest",
+              "mistral-medium",
+              "mistral-medium-2505",
+              "mistral-medium-2508",
+              "mistral-medium-2604",
+              "mistral-medium-3",
+              "mistral-medium-3-5",
+              "mistral-medium-3.5",
+              "mistral-medium-latest",
+              "mistral-tiny-2407",
+              "mistral-tiny-latest",
+              "mistral-vibe-cli-fast",
+              "mistral-vibe-cli-latest",
+              "mistral-vibe-cli-with-tools",
+              "open-mistral-nemo"
+            ],
+            "explicit_preferences": [
+              "mistral-small-latest"
+            ],
+            "fallback_models": [
+              "mistral-small-latest"
+            ],
+            "selected_candidates": [
+              "mistral-small-latest",
+              "mistral-small-2506",
+              "mistral-small-2603",
+              "magistral-small-2509",
+              "magistral-small-latest",
+              "ministral-14b-2512",
+              "ministral-14b-latest",
+              "ministral-3b-2512",
+              "ministral-3b-latest",
+              "ministral-8b-2512",
+              "ministral-8b-latest",
+              "voxtral-small-2507",
+              "voxtral-small-latest",
+              "mistral-code-agent-latest",
+              "mistral-code-fim-latest",
+              "mistral-code-latest",
+              "mistral-medium",
+              "mistral-medium-2505",
+              "mistral-medium-2508",
+              "mistral-medium-2604",
+              "mistral-medium-3",
+              "mistral-medium-3-5",
+              "mistral-medium-3.5",
+              "mistral-medium-latest",
+              "mistral-tiny-2407",
+              "mistral-tiny-latest",
+              "mistral-vibe-cli-fast",
+              "mistral-vibe-cli-latest",
+              "mistral-vibe-cli-with-tools",
+              "open-mistral-nemo"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "mistral",
+              "model": "mistral-small-latest",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:48+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "mistral-small-latest",
+              "elapsed_ms": 332,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 22,
+                "completion_tokens": 6,
+                "total_tokens": 28
+              }
+            }
+          ]
+        },
+        {
+          "provider": "siliconflow",
+          "status": "passed",
+          "model": "Qwen/Qwen3-8B",
+          "account": {
+            "status": "ok",
+            "account_status": "normal",
+            "balance": "0",
+            "charge_balance": "0.1",
+            "total_balance": "0.1"
+          },
+          "model_candidates": [
+            "Qwen/Qwen3-8B",
+            "LoRA/Qwen/Qwen2.5-7B-Instruct",
+            "Qwen/Qwen2.5-7B-Instruct",
+            "Qwen/Qwen3-VL-8B-Instruct",
+            "Qwen/Qwen3.5-27B",
+            "Qwen/Qwen3.5-397B-A17B",
+            "Qwen/Qwen3.6-27B",
+            "deepseek-ai/DeepSeek-V4-Flash",
+            "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+            "Pro/Qwen/Qwen2.5-7B-Instruct",
+            "Qwen/Qwen3-VL-8B-Thinking",
+            "inclusionAI/Ling-mini-2.0",
+            "MiniMaxAI/MiniMax-M2.5",
+            "tencent/Hunyuan-MT-7B",
+            "inclusionAI/Ling-flash-2.0",
+            "stepfun-ai/Step-3.5-Flash",
+            "Pro/MiniMaxAI/MiniMax-M2.5",
+            "deepseek-ai/DeepSeek-V3",
+            "deepseek-ai/DeepSeek-V3.1-Terminus",
+            "deepseek-ai/DeepSeek-V3.2",
+            "LoRA/Qwen/Qwen2.5-14B-Instruct",
+            "LoRA/Qwen/Qwen2.5-32B-Instruct",
+            "LoRA/Qwen/Qwen2.5-72B-Instruct",
+            "Qwen/Qwen2.5-14B-Instruct",
+            "Qwen/Qwen2.5-32B-Instruct",
+            "Qwen/Qwen2.5-72B-Instruct",
+            "Qwen/Qwen2.5-72B-Instruct-128K",
+            "Qwen/Qwen3-14B",
+            "Qwen/Qwen3-30B-A3B-Instruct-2507",
+            "Qwen/Qwen3-32B"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://api.siliconflow.cn/v1/models",
+            "discovery_enabled": true,
+            "discovered_count": 62,
+            "discovered_models": [
+              "Qwen/Qwen3-8B",
+              "LoRA/Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen3-VL-8B-Instruct",
+              "Qwen/Qwen3.5-27B",
+              "Qwen/Qwen3.5-397B-A17B",
+              "Qwen/Qwen3.6-27B",
+              "deepseek-ai/DeepSeek-V4-Flash",
+              "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+              "Pro/Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen3-VL-8B-Thinking",
+              "inclusionAI/Ling-mini-2.0",
+              "MiniMaxAI/MiniMax-M2.5",
+              "tencent/Hunyuan-MT-7B",
+              "inclusionAI/Ling-flash-2.0",
+              "stepfun-ai/Step-3.5-Flash",
+              "Pro/MiniMaxAI/MiniMax-M2.5",
+              "deepseek-ai/DeepSeek-V3",
+              "deepseek-ai/DeepSeek-V3.1-Terminus",
+              "deepseek-ai/DeepSeek-V3.2",
+              "LoRA/Qwen/Qwen2.5-14B-Instruct",
+              "LoRA/Qwen/Qwen2.5-32B-Instruct",
+              "LoRA/Qwen/Qwen2.5-72B-Instruct",
+              "Qwen/Qwen2.5-14B-Instruct",
+              "Qwen/Qwen2.5-32B-Instruct",
+              "Qwen/Qwen2.5-72B-Instruct",
+              "Qwen/Qwen2.5-72B-Instruct-128K",
+              "Qwen/Qwen3-14B",
+              "Qwen/Qwen3-30B-A3B-Instruct-2507",
+              "Qwen/Qwen3-32B"
+            ],
+            "explicit_preferences": [
+              "Qwen/Qwen3-8B"
+            ],
+            "fallback_models": [
+              "Qwen/Qwen3-8B"
+            ],
+            "selected_candidates": [
+              "Qwen/Qwen3-8B",
+              "LoRA/Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen3-VL-8B-Instruct",
+              "Qwen/Qwen3.5-27B",
+              "Qwen/Qwen3.5-397B-A17B",
+              "Qwen/Qwen3.6-27B",
+              "deepseek-ai/DeepSeek-V4-Flash",
+              "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+              "Pro/Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen3-VL-8B-Thinking",
+              "inclusionAI/Ling-mini-2.0",
+              "MiniMaxAI/MiniMax-M2.5",
+              "tencent/Hunyuan-MT-7B",
+              "inclusionAI/Ling-flash-2.0",
+              "stepfun-ai/Step-3.5-Flash",
+              "Pro/MiniMaxAI/MiniMax-M2.5",
+              "deepseek-ai/DeepSeek-V3",
+              "deepseek-ai/DeepSeek-V3.1-Terminus",
+              "deepseek-ai/DeepSeek-V3.2",
+              "LoRA/Qwen/Qwen2.5-14B-Instruct",
+              "LoRA/Qwen/Qwen2.5-32B-Instruct",
+              "LoRA/Qwen/Qwen2.5-72B-Instruct",
+              "Qwen/Qwen2.5-14B-Instruct",
+              "Qwen/Qwen2.5-32B-Instruct",
+              "Qwen/Qwen2.5-72B-Instruct",
+              "Qwen/Qwen2.5-72B-Instruct-128K",
+              "Qwen/Qwen3-14B",
+              "Qwen/Qwen3-30B-A3B-Instruct-2507",
+              "Qwen/Qwen3-32B"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "siliconflow",
+              "model": "Qwen/Qwen3-8B",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:50+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "Qwen/Qwen3-8B",
+              "elapsed_ms": 1050,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 34,
+                "completion_tokens": 5,
+                "total_tokens": 39
+              }
+            }
+          ]
+        },
+        {
+          "provider": "bigmodel",
+          "status": "passed",
+          "model": "glm-4.5-air",
+          "account": {
+            "status": "not_supported"
+          },
+          "model_candidates": [
+            "glm-4.5",
+            "glm-4.5-air",
+            "glm-4.6",
+            "glm-4.7",
+            "glm-5",
+            "glm-5-turbo",
+            "glm-5.1",
+            "glm-5.2",
+            "glm-4.7-flash"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://open.bigmodel.cn/api/paas/v4/models",
+            "discovery_enabled": true,
+            "discovered_count": 8,
+            "discovered_models": [
+              "glm-4.5",
+              "glm-4.5-air",
+              "glm-4.6",
+              "glm-4.7",
+              "glm-5",
+              "glm-5-turbo",
+              "glm-5.1",
+              "glm-5.2"
+            ],
+            "explicit_preferences": [
+              "glm-4.7-flash"
+            ],
+            "fallback_models": [
+              "glm-4.7-flash"
+            ],
+            "selected_candidates": [
+              "glm-4.5",
+              "glm-4.5-air",
+              "glm-4.6",
+              "glm-4.7",
+              "glm-5",
+              "glm-5-turbo",
+              "glm-5.1",
+              "glm-5.2",
+              "glm-4.7-flash"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "bigmodel",
+              "model": "glm-4.5",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:53+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "rate_limited",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
+              "elapsed_ms": 382
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "bigmodel",
+              "model": "glm-4.5-air",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:53+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "glm-4.5-air",
+              "elapsed_ms": 747,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 80,
+                "completion_tokens": 10,
+                "total_tokens": 90
+              }
+            }
+          ]
+        },
+        {
+          "provider": "deepseek",
+          "status": "passed",
+          "model": "deepseek-v4-flash",
+          "account": {
+            "status": "ok",
+            "is_available": true,
+            "granted_balance_available": false,
+            "granted_balance_total": 0.0,
+            "topped_up_balance_total": 0.81,
+            "minimum_granted_balance": 0.1,
+            "balances": [
+              {
+                "currency": "CNY",
+                "total_balance": "0.81",
+                "granted_balance": "0.00",
+                "topped_up_balance": "0.81"
+              }
+            ]
+          },
+          "model_candidates": [
+            "deepseek-v4-flash",
+            "deepseek-v4-pro"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://api.deepseek.com/models",
+            "discovery_enabled": true,
+            "discovered_count": 2,
+            "discovered_models": [
+              "deepseek-v4-flash",
+              "deepseek-v4-pro"
+            ],
+            "explicit_preferences": [
+              "deepseek-v4-flash"
+            ],
+            "fallback_models": [
+              "deepseek-v4-flash"
+            ],
+            "selected_candidates": [
+              "deepseek-v4-flash",
+              "deepseek-v4-pro"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "deepseek",
+              "model": "deepseek-v4-flash",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:55+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "deepseek-v4-flash",
+              "elapsed_ms": 914,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 41,
+                "completion_tokens": 5,
+                "total_tokens": 46
+              }
+            }
+          ]
+        }
+      ],
+      "credentials": [
+        {
+          "name": "CROSSREF_MAILTO",
+          "level": "recommended",
+          "purpose": "Crossref polite pool and contact identity",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "UNPAYWALL_EMAIL",
+          "level": "recommended",
+          "purpose": "legal open-access location lookup; may equal CROSSREF_MAILTO",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "NCBI_API_KEY",
+          "level": "recommended",
+          "purpose": "higher PubMed E-utilities request allowance",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GEMINI_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Gemini structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GROQ_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Groq OpenAI-compatible structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENROUTER_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "OpenRouter free-model router and rescue provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "MISTRAL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Mistral structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SILICONFLOW_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "SiliconFlow structured-analysis provider with balance check",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "BIGMODEL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Zhipu BigModel structured-analysis provider; defaults to free GLM-4.7-Flash",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "DEEPSEEK_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "DeepSeek structured-analysis provider with optional granted-balance-only guard",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENALEX_API_KEY",
+          "level": "required_for_openalex",
+          "purpose": "OpenAlex currently requires an API key",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SEMANTIC_SCHOLAR_API_KEY",
+          "level": "optional_but_recommended",
+          "purpose": "anonymous retrieval remains enabled with conservative pacing",
+          "configured": false,
+          "note": "not configured"
+        },
+        {
+          "name": "RELIEFWEB_APPNAME",
+          "level": "pending_approval",
+          "purpose": "pre-approved ReliefWeb appname; a bundled default is available",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "PUBLISHER_REPO_TOKEN",
+          "level": "required_for_wechat_dispatch",
+          "purpose": "repository_dispatch to the private publisher repository",
+          "configured": true,
+          "note": "configured"
+        }
+      ]
+    },
+    "fallback_records": []
+  },
+  "displayed_primary_and_news": {
+    "policy_version": "v17.2-normalization-field-repair-quality-1",
+    "scope": "displayed_primary_and_news",
+    "severity": "normal",
+    "warning_ratio": 0.2,
+    "critical_ratio": 0.5,
+    "message_zh": "本期七/五要素分析未触发全局降级告警。",
+    "message_en": "No global structured-analysis degradation warning was triggered.",
+    "papers": {
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 8,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 8
+      }
+    },
+    "news": {
+      "total_items": 10,
+      "analyzable": 10,
+      "passed": 10,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 10
+      }
+    },
+    "combined": {
+      "total_items": 18,
+      "analyzable": 18,
+      "passed": 18,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 18
+      }
+    },
+    "top_failure_categories": [],
+    "provider_attempts": {
+      "bigmodel:failed": 7,
+      "bigmodel:skipped": 13,
+      "bigmodel:success": 16,
+      "gemini:skipped": 18,
+      "mistral:failed": 1,
+      "mistral:success": 1,
+      "siliconflow:failed": 2,
+      "siliconflow:success": 1
+    },
+    "model_attempts": {
+      "bigmodel/glm-4.5-air:failed": 2,
+      "bigmodel/glm-4.5-air:success": 16,
+      "bigmodel/glm-4.5:failed": 5,
+      "bigmodel/glm-4.5:skipped": 13,
+      "gemini/not_selected:skipped": 18,
+      "mistral/mistral-small-2506:success": 1,
+      "mistral/mistral-small-latest:failed": 1,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 1,
+      "siliconflow/Qwen/Qwen3-8B:failed": 1,
+      "siliconflow/Qwen/Qwen3-8B:success": 1
+    },
+    "attempt_failure_categories": {
+      "context_or_output_limit": 1,
+      "rate_limited": 5,
+      "validation_failed": 4
+    },
+    "validation_issue_categories": {
+      "evidence_ids_missing": 6
+    },
+    "normalization_repairs": {},
+    "field_repair_statuses": {},
+    "field_repair_records": [],
+    "preflight": {
+      "schema_version": 7,
+      "generated_at": "2026-07-24T19:16:55+00:00",
+      "status": "ready",
+      "analysis_provider_configured": [
+        "gemini",
+        "groq",
+        "openrouter",
+        "mistral",
+        "siliconflow",
+        "bigmodel",
+        "deepseek"
+      ],
+      "analysis_provider_passed": [
+        "groq",
+        "openrouter",
+        "mistral",
+        "siliconflow",
+        "bigmodel",
+        "deepseek"
+      ],
+      "live_probe_performed": true,
+      "provider_orders": {
+        "extract": [
+          "gemini",
+          "bigmodel",
+          "siliconflow",
+          "mistral",
+          "deepseek",
+          "openrouter",
+          "groq"
+        ],
+        "rescue": [
+          "gemini",
+          "deepseek",
+          "bigmodel",
+          "mistral",
+          "siliconflow",
+          "openrouter",
+          "groq"
+        ],
+        "overview": [
+          "gemini",
+          "deepseek",
+          "bigmodel",
+          "mistral",
+          "siliconflow",
+          "openrouter",
+          "groq"
+        ],
+        "relevance": [
+          "gemini",
+          "bigmodel",
+          "siliconflow",
+          "mistral",
+          "deepseek",
+          "openrouter",
+          "groq"
+        ],
+        "translation": [
+          "gemini",
+          "bigmodel",
+          "mistral",
+          "siliconflow",
+          "deepseek",
+          "openrouter",
+          "groq"
+        ]
+      },
+      "provider_endpoints": {
+        "siliconflow": "https://api.siliconflow.cn/v1",
+        "bigmodel": "https://open.bigmodel.cn/api/paas/v4",
+        "deepseek": "https://api.deepseek.com"
+      },
+      "providers": [
+        {
+          "provider": "gemini",
+          "status": "failed",
+          "failure_category": "authentication_failed",
+          "model": "gemini-3.5-flash",
+          "model_candidates": [
+            "gemini-3.5-flash-lite",
+            "gemini-3.1-flash-lite",
+            "gemini-2.5-flash-lite",
+            "gemini-3.5-flash",
+            "gemini-2.5-flash"
+          ],
+          "model_discovery": {
+            "status": "fallback",
+            "endpoint": "https://generativelanguage.googleapis.com/v1beta/models",
+            "discovery_enabled": true,
+            "discovered_count": 0,
+            "discovered_models": [],
+            "explicit_preferences": [],
+            "fallback_models": [
+              "gemini-3.5-flash-lite",
+              "gemini-3.1-flash-lite",
+              "gemini-2.5-flash-lite",
+              "gemini-3.5-flash",
+              "gemini-2.5-flash"
+            ],
+            "selected_candidates": [
+              "gemini-3.5-flash-lite",
+              "gemini-3.1-flash-lite",
+              "gemini-2.5-flash-lite",
+              "gemini-3.5-flash",
+              "gemini-2.5-flash"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": true,
+            "failure_category": "authentication_failed",
+            "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.ModelService.ListModels\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }"
+          },
+          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+          "action_hint": "Regenerate the provider key and replace GitHub Secret GEMINI_API_KEY.",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-3.5-flash-lite",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 48
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 110
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-2.5-flash-lite",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 54
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-3.5-flash",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 56
+            }
+          ]
+        },
+        {
+          "provider": "groq",
+          "status": "passed",
+          "model": "openai/gpt-oss-120b",
+          "account": {
+            "status": "not_supported"
+          },
+          "model_candidates": [
+            "openai/gpt-oss-120b",
+            "qwen/qwen3.6-27b",
+            "openai/gpt-oss-20b",
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+            "allam-2-7b",
+            "canopylabs/orpheus-arabic-saudi",
+            "canopylabs/orpheus-v1-english"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://api.groq.com/openai/v1/models",
+            "discovery_enabled": true,
+            "discovered_count": 8,
+            "discovered_models": [
+              "llama-3.1-8b-instant",
+              "qwen/qwen3.6-27b",
+              "llama-3.3-70b-versatile",
+              "openai/gpt-oss-20b",
+              "openai/gpt-oss-120b",
+              "allam-2-7b",
+              "canopylabs/orpheus-arabic-saudi",
+              "canopylabs/orpheus-v1-english"
+            ],
+            "explicit_preferences": [
+              "openai/gpt-oss-120b",
+              "qwen/qwen3.6-27b",
+              "openai/gpt-oss-20b",
+              "llama-3.3-70b-versatile",
+              "llama-3.1-8b-instant"
+            ],
+            "fallback_models": [
+              "openai/gpt-oss-120b",
+              "qwen/qwen3.6-27b",
+              "openai/gpt-oss-20b",
+              "llama-3.3-70b-versatile",
+              "llama-3.1-8b-instant"
+            ],
+            "selected_candidates": [
+              "openai/gpt-oss-120b",
+              "qwen/qwen3.6-27b",
+              "openai/gpt-oss-20b",
+              "llama-3.3-70b-versatile",
+              "llama-3.1-8b-instant",
+              "allam-2-7b",
+              "canopylabs/orpheus-arabic-saudi",
+              "canopylabs/orpheus-v1-english"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "groq",
+              "model": "openai/gpt-oss-120b",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "openai/gpt-oss-120b",
+              "elapsed_ms": 261,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 119,
+                "completion_tokens": 69,
+                "total_tokens": 188
+              }
+            }
+          ]
+        },
+        {
+          "provider": "openrouter",
+          "status": "passed",
+          "model": "nvidia/nemotron-nano-9b-v2:free",
+          "account": {
+            "status": "ok",
+            "is_free_tier": true,
+            "limit": null,
+            "limit_remaining": null,
+            "usage_daily": 0,
+            "usage_weekly": 0,
+            "usage_monthly": 0
+          },
+          "model_candidates": [
+            "openrouter/free",
+            "cohere/north-mini-code:free",
+            "inclusionai/ling-3.0-flash:free",
+            "google/gemma-4-26b-a4b-it:free",
+            "google/gemma-4-31b-it:free",
+            "nvidia/nemotron-3-nano-30b-a3b:free",
+            "nvidia/nemotron-3-ultra-550b-a55b:free",
+            "nvidia/nemotron-3.5-content-safety:free",
+            "nvidia/nemotron-nano-12b-v2-vl:free",
+            "nvidia/nemotron-nano-9b-v2:free",
+            "openai/gpt-oss-20b:free",
+            "poolside/laguna-m.1:free",
+            "poolside/laguna-s-2.1:free",
+            "poolside/laguna-xs-2.1:free",
+            "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+            "nvidia/nemotron-3-super-120b-a12b:free",
+            "google/lyria-3-clip-preview",
+            "google/lyria-3-pro-preview"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://openrouter.ai/api/v1/models",
+            "discovery_enabled": true,
+            "discovered_count": 18,
+            "discovered_models": [
+              "openrouter/free",
+              "cohere/north-mini-code:free",
+              "inclusionai/ling-3.0-flash:free",
+              "google/gemma-4-26b-a4b-it:free",
+              "google/gemma-4-31b-it:free",
+              "nvidia/nemotron-3-nano-30b-a3b:free",
+              "nvidia/nemotron-3-ultra-550b-a55b:free",
+              "nvidia/nemotron-3.5-content-safety:free",
+              "nvidia/nemotron-nano-12b-v2-vl:free",
+              "nvidia/nemotron-nano-9b-v2:free",
+              "openai/gpt-oss-20b:free",
+              "poolside/laguna-m.1:free",
+              "poolside/laguna-s-2.1:free",
+              "poolside/laguna-xs-2.1:free",
+              "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+              "nvidia/nemotron-3-super-120b-a12b:free",
+              "google/lyria-3-clip-preview",
+              "google/lyria-3-pro-preview"
+            ],
+            "explicit_preferences": [
+              "openrouter/free"
+            ],
+            "fallback_models": [
+              "openrouter/free"
+            ],
+            "selected_candidates": [
+              "openrouter/free",
+              "cohere/north-mini-code:free",
+              "inclusionai/ling-3.0-flash:free",
+              "google/gemma-4-26b-a4b-it:free",
+              "google/gemma-4-31b-it:free",
+              "nvidia/nemotron-3-nano-30b-a3b:free",
+              "nvidia/nemotron-3-ultra-550b-a55b:free",
+              "nvidia/nemotron-3.5-content-safety:free",
+              "nvidia/nemotron-nano-12b-v2-vl:free",
+              "nvidia/nemotron-nano-9b-v2:free",
+              "openai/gpt-oss-20b:free",
+              "poolside/laguna-m.1:free",
+              "poolside/laguna-s-2.1:free",
+              "poolside/laguna-xs-2.1:free",
+              "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+              "nvidia/nemotron-3-super-120b-a12b:free",
+              "google/lyria-3-clip-preview",
+              "google/lyria-3-pro-preview"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "openrouter",
+              "model": "openrouter/free",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:46+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "nvidia/nemotron-nano-9b-v2:free",
+              "elapsed_ms": 1689,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 29,
+                "completion_tokens": 64,
+                "total_tokens": 93
+              }
+            }
+          ]
+        },
+        {
+          "provider": "mistral",
+          "status": "passed",
+          "model": "mistral-small-latest",
+          "account": {
+            "status": "not_supported"
+          },
+          "model_candidates": [
+            "mistral-small-latest",
+            "mistral-small-2506",
+            "mistral-small-2603",
+            "magistral-small-2509",
+            "magistral-small-latest",
+            "ministral-14b-2512",
+            "ministral-14b-latest",
+            "ministral-3b-2512",
+            "ministral-3b-latest",
+            "ministral-8b-2512",
+            "ministral-8b-latest",
+            "voxtral-small-2507",
+            "voxtral-small-latest",
+            "mistral-code-agent-latest",
+            "mistral-code-fim-latest",
+            "mistral-code-latest",
+            "mistral-medium",
+            "mistral-medium-2505",
+            "mistral-medium-2508",
+            "mistral-medium-2604",
+            "mistral-medium-3",
+            "mistral-medium-3-5",
+            "mistral-medium-3.5",
+            "mistral-medium-latest",
+            "mistral-tiny-2407",
+            "mistral-tiny-latest",
+            "mistral-vibe-cli-fast",
+            "mistral-vibe-cli-latest",
+            "mistral-vibe-cli-with-tools",
+            "open-mistral-nemo"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://api.mistral.ai/v1/models",
+            "discovery_enabled": true,
+            "discovered_count": 42,
+            "discovered_models": [
+              "mistral-small-latest",
+              "mistral-small-2506",
+              "mistral-small-2603",
+              "magistral-small-2509",
+              "magistral-small-latest",
+              "ministral-14b-2512",
+              "ministral-14b-latest",
+              "ministral-3b-2512",
+              "ministral-3b-latest",
+              "ministral-8b-2512",
+              "ministral-8b-latest",
+              "voxtral-small-2507",
+              "voxtral-small-latest",
+              "mistral-code-agent-latest",
+              "mistral-code-fim-latest",
+              "mistral-code-latest",
+              "mistral-medium",
+              "mistral-medium-2505",
+              "mistral-medium-2508",
+              "mistral-medium-2604",
+              "mistral-medium-3",
+              "mistral-medium-3-5",
+              "mistral-medium-3.5",
+              "mistral-medium-latest",
+              "mistral-tiny-2407",
+              "mistral-tiny-latest",
+              "mistral-vibe-cli-fast",
+              "mistral-vibe-cli-latest",
+              "mistral-vibe-cli-with-tools",
+              "open-mistral-nemo"
+            ],
+            "explicit_preferences": [
+              "mistral-small-latest"
+            ],
+            "fallback_models": [
+              "mistral-small-latest"
+            ],
+            "selected_candidates": [
+              "mistral-small-latest",
+              "mistral-small-2506",
+              "mistral-small-2603",
+              "magistral-small-2509",
+              "magistral-small-latest",
+              "ministral-14b-2512",
+              "ministral-14b-latest",
+              "ministral-3b-2512",
+              "ministral-3b-latest",
+              "ministral-8b-2512",
+              "ministral-8b-latest",
+              "voxtral-small-2507",
+              "voxtral-small-latest",
+              "mistral-code-agent-latest",
+              "mistral-code-fim-latest",
+              "mistral-code-latest",
+              "mistral-medium",
+              "mistral-medium-2505",
+              "mistral-medium-2508",
+              "mistral-medium-2604",
+              "mistral-medium-3",
+              "mistral-medium-3-5",
+              "mistral-medium-3.5",
+              "mistral-medium-latest",
+              "mistral-tiny-2407",
+              "mistral-tiny-latest",
+              "mistral-vibe-cli-fast",
+              "mistral-vibe-cli-latest",
+              "mistral-vibe-cli-with-tools",
+              "open-mistral-nemo"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "mistral",
+              "model": "mistral-small-latest",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:48+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "mistral-small-latest",
+              "elapsed_ms": 332,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 22,
+                "completion_tokens": 6,
+                "total_tokens": 28
+              }
+            }
+          ]
+        },
+        {
+          "provider": "siliconflow",
+          "status": "passed",
+          "model": "Qwen/Qwen3-8B",
+          "account": {
+            "status": "ok",
+            "account_status": "normal",
+            "balance": "0",
+            "charge_balance": "0.1",
+            "total_balance": "0.1"
+          },
+          "model_candidates": [
+            "Qwen/Qwen3-8B",
+            "LoRA/Qwen/Qwen2.5-7B-Instruct",
+            "Qwen/Qwen2.5-7B-Instruct",
+            "Qwen/Qwen3-VL-8B-Instruct",
+            "Qwen/Qwen3.5-27B",
+            "Qwen/Qwen3.5-397B-A17B",
+            "Qwen/Qwen3.6-27B",
+            "deepseek-ai/DeepSeek-V4-Flash",
+            "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+            "Pro/Qwen/Qwen2.5-7B-Instruct",
+            "Qwen/Qwen3-VL-8B-Thinking",
+            "inclusionAI/Ling-mini-2.0",
+            "MiniMaxAI/MiniMax-M2.5",
+            "tencent/Hunyuan-MT-7B",
+            "inclusionAI/Ling-flash-2.0",
+            "stepfun-ai/Step-3.5-Flash",
+            "Pro/MiniMaxAI/MiniMax-M2.5",
+            "deepseek-ai/DeepSeek-V3",
+            "deepseek-ai/DeepSeek-V3.1-Terminus",
+            "deepseek-ai/DeepSeek-V3.2",
+            "LoRA/Qwen/Qwen2.5-14B-Instruct",
+            "LoRA/Qwen/Qwen2.5-32B-Instruct",
+            "LoRA/Qwen/Qwen2.5-72B-Instruct",
+            "Qwen/Qwen2.5-14B-Instruct",
+            "Qwen/Qwen2.5-32B-Instruct",
+            "Qwen/Qwen2.5-72B-Instruct",
+            "Qwen/Qwen2.5-72B-Instruct-128K",
+            "Qwen/Qwen3-14B",
+            "Qwen/Qwen3-30B-A3B-Instruct-2507",
+            "Qwen/Qwen3-32B"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://api.siliconflow.cn/v1/models",
+            "discovery_enabled": true,
+            "discovered_count": 62,
+            "discovered_models": [
+              "Qwen/Qwen3-8B",
+              "LoRA/Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen3-VL-8B-Instruct",
+              "Qwen/Qwen3.5-27B",
+              "Qwen/Qwen3.5-397B-A17B",
+              "Qwen/Qwen3.6-27B",
+              "deepseek-ai/DeepSeek-V4-Flash",
+              "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+              "Pro/Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen3-VL-8B-Thinking",
+              "inclusionAI/Ling-mini-2.0",
+              "MiniMaxAI/MiniMax-M2.5",
+              "tencent/Hunyuan-MT-7B",
+              "inclusionAI/Ling-flash-2.0",
+              "stepfun-ai/Step-3.5-Flash",
+              "Pro/MiniMaxAI/MiniMax-M2.5",
+              "deepseek-ai/DeepSeek-V3",
+              "deepseek-ai/DeepSeek-V3.1-Terminus",
+              "deepseek-ai/DeepSeek-V3.2",
+              "LoRA/Qwen/Qwen2.5-14B-Instruct",
+              "LoRA/Qwen/Qwen2.5-32B-Instruct",
+              "LoRA/Qwen/Qwen2.5-72B-Instruct",
+              "Qwen/Qwen2.5-14B-Instruct",
+              "Qwen/Qwen2.5-32B-Instruct",
+              "Qwen/Qwen2.5-72B-Instruct",
+              "Qwen/Qwen2.5-72B-Instruct-128K",
+              "Qwen/Qwen3-14B",
+              "Qwen/Qwen3-30B-A3B-Instruct-2507",
+              "Qwen/Qwen3-32B"
+            ],
+            "explicit_preferences": [
+              "Qwen/Qwen3-8B"
+            ],
+            "fallback_models": [
+              "Qwen/Qwen3-8B"
+            ],
+            "selected_candidates": [
+              "Qwen/Qwen3-8B",
+              "LoRA/Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen3-VL-8B-Instruct",
+              "Qwen/Qwen3.5-27B",
+              "Qwen/Qwen3.5-397B-A17B",
+              "Qwen/Qwen3.6-27B",
+              "deepseek-ai/DeepSeek-V4-Flash",
+              "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+              "Pro/Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen3-VL-8B-Thinking",
+              "inclusionAI/Ling-mini-2.0",
+              "MiniMaxAI/MiniMax-M2.5",
+              "tencent/Hunyuan-MT-7B",
+              "inclusionAI/Ling-flash-2.0",
+              "stepfun-ai/Step-3.5-Flash",
+              "Pro/MiniMaxAI/MiniMax-M2.5",
+              "deepseek-ai/DeepSeek-V3",
+              "deepseek-ai/DeepSeek-V3.1-Terminus",
+              "deepseek-ai/DeepSeek-V3.2",
+              "LoRA/Qwen/Qwen2.5-14B-Instruct",
+              "LoRA/Qwen/Qwen2.5-32B-Instruct",
+              "LoRA/Qwen/Qwen2.5-72B-Instruct",
+              "Qwen/Qwen2.5-14B-Instruct",
+              "Qwen/Qwen2.5-32B-Instruct",
+              "Qwen/Qwen2.5-72B-Instruct",
+              "Qwen/Qwen2.5-72B-Instruct-128K",
+              "Qwen/Qwen3-14B",
+              "Qwen/Qwen3-30B-A3B-Instruct-2507",
+              "Qwen/Qwen3-32B"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "siliconflow",
+              "model": "Qwen/Qwen3-8B",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:50+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "Qwen/Qwen3-8B",
+              "elapsed_ms": 1050,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 34,
+                "completion_tokens": 5,
+                "total_tokens": 39
+              }
+            }
+          ]
+        },
+        {
+          "provider": "bigmodel",
+          "status": "passed",
+          "model": "glm-4.5-air",
+          "account": {
+            "status": "not_supported"
+          },
+          "model_candidates": [
+            "glm-4.5",
+            "glm-4.5-air",
+            "glm-4.6",
+            "glm-4.7",
+            "glm-5",
+            "glm-5-turbo",
+            "glm-5.1",
+            "glm-5.2",
+            "glm-4.7-flash"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://open.bigmodel.cn/api/paas/v4/models",
+            "discovery_enabled": true,
+            "discovered_count": 8,
+            "discovered_models": [
+              "glm-4.5",
+              "glm-4.5-air",
+              "glm-4.6",
+              "glm-4.7",
+              "glm-5",
+              "glm-5-turbo",
+              "glm-5.1",
+              "glm-5.2"
+            ],
+            "explicit_preferences": [
+              "glm-4.7-flash"
+            ],
+            "fallback_models": [
+              "glm-4.7-flash"
+            ],
+            "selected_candidates": [
+              "glm-4.5",
+              "glm-4.5-air",
+              "glm-4.6",
+              "glm-4.7",
+              "glm-5",
+              "glm-5-turbo",
+              "glm-5.1",
+              "glm-5.2",
+              "glm-4.7-flash"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "bigmodel",
+              "model": "glm-4.5",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:53+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "rate_limited",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
+              "elapsed_ms": 382
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "bigmodel",
+              "model": "glm-4.5-air",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:53+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "glm-4.5-air",
+              "elapsed_ms": 747,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 80,
+                "completion_tokens": 10,
+                "total_tokens": 90
+              }
+            }
+          ]
+        },
+        {
+          "provider": "deepseek",
+          "status": "passed",
+          "model": "deepseek-v4-flash",
+          "account": {
+            "status": "ok",
+            "is_available": true,
+            "granted_balance_available": false,
+            "granted_balance_total": 0.0,
+            "topped_up_balance_total": 0.81,
+            "minimum_granted_balance": 0.1,
+            "balances": [
+              {
+                "currency": "CNY",
+                "total_balance": "0.81",
+                "granted_balance": "0.00",
+                "topped_up_balance": "0.81"
+              }
+            ]
+          },
+          "model_candidates": [
+            "deepseek-v4-flash",
+            "deepseek-v4-pro"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://api.deepseek.com/models",
+            "discovery_enabled": true,
+            "discovered_count": 2,
+            "discovered_models": [
+              "deepseek-v4-flash",
+              "deepseek-v4-pro"
+            ],
+            "explicit_preferences": [
+              "deepseek-v4-flash"
+            ],
+            "fallback_models": [
+              "deepseek-v4-flash"
+            ],
+            "selected_candidates": [
+              "deepseek-v4-flash",
+              "deepseek-v4-pro"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "deepseek",
+              "model": "deepseek-v4-flash",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:55+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "deepseek-v4-flash",
+              "elapsed_ms": 914,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 41,
+                "completion_tokens": 5,
+                "total_tokens": 46
+              }
+            }
+          ]
+        }
+      ],
+      "credentials": [
+        {
+          "name": "CROSSREF_MAILTO",
+          "level": "recommended",
+          "purpose": "Crossref polite pool and contact identity",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "UNPAYWALL_EMAIL",
+          "level": "recommended",
+          "purpose": "legal open-access location lookup; may equal CROSSREF_MAILTO",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "NCBI_API_KEY",
+          "level": "recommended",
+          "purpose": "higher PubMed E-utilities request allowance",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GEMINI_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Gemini structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GROQ_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Groq OpenAI-compatible structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENROUTER_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "OpenRouter free-model router and rescue provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "MISTRAL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Mistral structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SILICONFLOW_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "SiliconFlow structured-analysis provider with balance check",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "BIGMODEL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Zhipu BigModel structured-analysis provider; defaults to free GLM-4.7-Flash",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "DEEPSEEK_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "DeepSeek structured-analysis provider with optional granted-balance-only guard",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENALEX_API_KEY",
+          "level": "required_for_openalex",
+          "purpose": "OpenAlex currently requires an API key",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SEMANTIC_SCHOLAR_API_KEY",
+          "level": "optional_but_recommended",
+          "purpose": "anonymous retrieval remains enabled with conservative pacing",
+          "configured": false,
+          "note": "not configured"
+        },
+        {
+          "name": "RELIEFWEB_APPNAME",
+          "level": "pending_approval",
+          "purpose": "pre-approved ReliefWeb appname; a bundled default is available",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "PUBLISHER_REPO_TOKEN",
+          "level": "required_for_wechat_dispatch",
+          "purpose": "repository_dispatch to the private publisher repository",
+          "configured": true,
+          "note": "configured"
+        }
+      ]
+    },
+    "fallback_records": []
+  },
+  "run": {
+    "policy_version": "v17.2-normalization-field-repair-quality-1",
+    "scope": "processed_candidate_pool",
+    "severity": "normal",
+    "warning_ratio": 0.2,
+    "critical_ratio": 0.5,
+    "message_zh": "本期七/五要素分析未触发全局降级告警。",
+    "message_en": "No global structured-analysis degradation warning was triggered.",
+    "papers": {
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 8,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 8
+      }
+    },
+    "news": {
+      "total_items": 10,
+      "analyzable": 10,
+      "passed": 10,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 10
+      }
+    },
+    "combined": {
+      "total_items": 18,
+      "analyzable": 18,
+      "passed": 18,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 18
+      }
+    },
+    "top_failure_categories": [],
+    "provider_attempts": {
+      "bigmodel:failed": 7,
+      "bigmodel:skipped": 13,
+      "bigmodel:success": 16,
+      "gemini:skipped": 18,
+      "mistral:failed": 1,
+      "mistral:success": 1,
+      "siliconflow:failed": 2,
+      "siliconflow:success": 1
+    },
+    "model_attempts": {
+      "bigmodel/glm-4.5-air:failed": 2,
+      "bigmodel/glm-4.5-air:success": 16,
+      "bigmodel/glm-4.5:failed": 5,
+      "bigmodel/glm-4.5:skipped": 13,
+      "gemini/not_selected:skipped": 18,
+      "mistral/mistral-small-2506:success": 1,
+      "mistral/mistral-small-latest:failed": 1,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 1,
+      "siliconflow/Qwen/Qwen3-8B:failed": 1,
+      "siliconflow/Qwen/Qwen3-8B:success": 1
+    },
+    "attempt_failure_categories": {
+      "context_or_output_limit": 1,
+      "rate_limited": 5,
+      "validation_failed": 4
+    },
+    "validation_issue_categories": {
+      "evidence_ids_missing": 6
+    },
+    "normalization_repairs": {},
+    "field_repair_statuses": {},
+    "field_repair_records": [],
+    "preflight": {
+      "schema_version": 7,
+      "generated_at": "2026-07-24T19:16:55+00:00",
+      "status": "ready",
+      "analysis_provider_configured": [
+        "gemini",
+        "groq",
+        "openrouter",
+        "mistral",
+        "siliconflow",
+        "bigmodel",
+        "deepseek"
+      ],
+      "analysis_provider_passed": [
+        "groq",
+        "openrouter",
+        "mistral",
+        "siliconflow",
+        "bigmodel",
+        "deepseek"
+      ],
+      "live_probe_performed": true,
+      "provider_orders": {
+        "extract": [
+          "gemini",
+          "bigmodel",
+          "siliconflow",
+          "mistral",
+          "deepseek",
+          "openrouter",
+          "groq"
+        ],
+        "rescue": [
+          "gemini",
+          "deepseek",
+          "bigmodel",
+          "mistral",
+          "siliconflow",
+          "openrouter",
+          "groq"
+        ],
+        "overview": [
+          "gemini",
+          "deepseek",
+          "bigmodel",
+          "mistral",
+          "siliconflow",
+          "openrouter",
+          "groq"
+        ],
+        "relevance": [
+          "gemini",
+          "bigmodel",
+          "siliconflow",
+          "mistral",
+          "deepseek",
+          "openrouter",
+          "groq"
+        ],
+        "translation": [
+          "gemini",
+          "bigmodel",
+          "mistral",
+          "siliconflow",
+          "deepseek",
+          "openrouter",
+          "groq"
+        ]
+      },
+      "provider_endpoints": {
+        "siliconflow": "https://api.siliconflow.cn/v1",
+        "bigmodel": "https://open.bigmodel.cn/api/paas/v4",
+        "deepseek": "https://api.deepseek.com"
+      },
+      "providers": [
+        {
+          "provider": "gemini",
+          "status": "failed",
+          "failure_category": "authentication_failed",
+          "model": "gemini-3.5-flash",
+          "model_candidates": [
+            "gemini-3.5-flash-lite",
+            "gemini-3.1-flash-lite",
+            "gemini-2.5-flash-lite",
+            "gemini-3.5-flash",
+            "gemini-2.5-flash"
+          ],
+          "model_discovery": {
+            "status": "fallback",
+            "endpoint": "https://generativelanguage.googleapis.com/v1beta/models",
+            "discovery_enabled": true,
+            "discovered_count": 0,
+            "discovered_models": [],
+            "explicit_preferences": [],
+            "fallback_models": [
+              "gemini-3.5-flash-lite",
+              "gemini-3.1-flash-lite",
+              "gemini-2.5-flash-lite",
+              "gemini-3.5-flash",
+              "gemini-2.5-flash"
+            ],
+            "selected_candidates": [
+              "gemini-3.5-flash-lite",
+              "gemini-3.1-flash-lite",
+              "gemini-2.5-flash-lite",
+              "gemini-3.5-flash",
+              "gemini-2.5-flash"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": true,
+            "failure_category": "authentication_failed",
+            "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.ModelService.ListModels\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }"
+          },
+          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+          "action_hint": "Regenerate the provider key and replace GitHub Secret GEMINI_API_KEY.",
+          "account": {
+            "status": "not_supported"
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-3.5-flash-lite",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 48
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-3.1-flash-lite",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 110
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-2.5-flash-lite",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 54
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "gemini",
+              "model": "gemini-3.5-flash",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "authentication_failed",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 56
+            }
+          ]
+        },
+        {
+          "provider": "groq",
+          "status": "passed",
+          "model": "openai/gpt-oss-120b",
+          "account": {
+            "status": "not_supported"
+          },
+          "model_candidates": [
+            "openai/gpt-oss-120b",
+            "qwen/qwen3.6-27b",
+            "openai/gpt-oss-20b",
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+            "allam-2-7b",
+            "canopylabs/orpheus-arabic-saudi",
+            "canopylabs/orpheus-v1-english"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://api.groq.com/openai/v1/models",
+            "discovery_enabled": true,
+            "discovered_count": 8,
+            "discovered_models": [
+              "llama-3.1-8b-instant",
+              "qwen/qwen3.6-27b",
+              "llama-3.3-70b-versatile",
+              "openai/gpt-oss-20b",
+              "openai/gpt-oss-120b",
+              "allam-2-7b",
+              "canopylabs/orpheus-arabic-saudi",
+              "canopylabs/orpheus-v1-english"
+            ],
+            "explicit_preferences": [
+              "openai/gpt-oss-120b",
+              "qwen/qwen3.6-27b",
+              "openai/gpt-oss-20b",
+              "llama-3.3-70b-versatile",
+              "llama-3.1-8b-instant"
+            ],
+            "fallback_models": [
+              "openai/gpt-oss-120b",
+              "qwen/qwen3.6-27b",
+              "openai/gpt-oss-20b",
+              "llama-3.3-70b-versatile",
+              "llama-3.1-8b-instant"
+            ],
+            "selected_candidates": [
+              "openai/gpt-oss-120b",
+              "qwen/qwen3.6-27b",
+              "openai/gpt-oss-20b",
+              "llama-3.3-70b-versatile",
+              "llama-3.1-8b-instant",
+              "allam-2-7b",
+              "canopylabs/orpheus-arabic-saudi",
+              "canopylabs/orpheus-v1-english"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "groq",
+              "model": "openai/gpt-oss-120b",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:45+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "openai/gpt-oss-120b",
+              "elapsed_ms": 261,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 119,
+                "completion_tokens": 69,
+                "total_tokens": 188
+              }
+            }
+          ]
+        },
+        {
+          "provider": "openrouter",
+          "status": "passed",
+          "model": "nvidia/nemotron-nano-9b-v2:free",
+          "account": {
+            "status": "ok",
+            "is_free_tier": true,
+            "limit": null,
+            "limit_remaining": null,
+            "usage_daily": 0,
+            "usage_weekly": 0,
+            "usage_monthly": 0
+          },
+          "model_candidates": [
+            "openrouter/free",
+            "cohere/north-mini-code:free",
+            "inclusionai/ling-3.0-flash:free",
+            "google/gemma-4-26b-a4b-it:free",
+            "google/gemma-4-31b-it:free",
+            "nvidia/nemotron-3-nano-30b-a3b:free",
+            "nvidia/nemotron-3-ultra-550b-a55b:free",
+            "nvidia/nemotron-3.5-content-safety:free",
+            "nvidia/nemotron-nano-12b-v2-vl:free",
+            "nvidia/nemotron-nano-9b-v2:free",
+            "openai/gpt-oss-20b:free",
+            "poolside/laguna-m.1:free",
+            "poolside/laguna-s-2.1:free",
+            "poolside/laguna-xs-2.1:free",
+            "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+            "nvidia/nemotron-3-super-120b-a12b:free",
+            "google/lyria-3-clip-preview",
+            "google/lyria-3-pro-preview"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://openrouter.ai/api/v1/models",
+            "discovery_enabled": true,
+            "discovered_count": 18,
+            "discovered_models": [
+              "openrouter/free",
+              "cohere/north-mini-code:free",
+              "inclusionai/ling-3.0-flash:free",
+              "google/gemma-4-26b-a4b-it:free",
+              "google/gemma-4-31b-it:free",
+              "nvidia/nemotron-3-nano-30b-a3b:free",
+              "nvidia/nemotron-3-ultra-550b-a55b:free",
+              "nvidia/nemotron-3.5-content-safety:free",
+              "nvidia/nemotron-nano-12b-v2-vl:free",
+              "nvidia/nemotron-nano-9b-v2:free",
+              "openai/gpt-oss-20b:free",
+              "poolside/laguna-m.1:free",
+              "poolside/laguna-s-2.1:free",
+              "poolside/laguna-xs-2.1:free",
+              "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+              "nvidia/nemotron-3-super-120b-a12b:free",
+              "google/lyria-3-clip-preview",
+              "google/lyria-3-pro-preview"
+            ],
+            "explicit_preferences": [
+              "openrouter/free"
+            ],
+            "fallback_models": [
+              "openrouter/free"
+            ],
+            "selected_candidates": [
+              "openrouter/free",
+              "cohere/north-mini-code:free",
+              "inclusionai/ling-3.0-flash:free",
+              "google/gemma-4-26b-a4b-it:free",
+              "google/gemma-4-31b-it:free",
+              "nvidia/nemotron-3-nano-30b-a3b:free",
+              "nvidia/nemotron-3-ultra-550b-a55b:free",
+              "nvidia/nemotron-3.5-content-safety:free",
+              "nvidia/nemotron-nano-12b-v2-vl:free",
+              "nvidia/nemotron-nano-9b-v2:free",
+              "openai/gpt-oss-20b:free",
+              "poolside/laguna-m.1:free",
+              "poolside/laguna-s-2.1:free",
+              "poolside/laguna-xs-2.1:free",
+              "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+              "nvidia/nemotron-3-super-120b-a12b:free",
+              "google/lyria-3-clip-preview",
+              "google/lyria-3-pro-preview"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "openrouter",
+              "model": "openrouter/free",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:46+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "nvidia/nemotron-nano-9b-v2:free",
+              "elapsed_ms": 1689,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 29,
+                "completion_tokens": 64,
+                "total_tokens": 93
+              }
+            }
+          ]
+        },
+        {
+          "provider": "mistral",
+          "status": "passed",
+          "model": "mistral-small-latest",
+          "account": {
+            "status": "not_supported"
+          },
+          "model_candidates": [
+            "mistral-small-latest",
+            "mistral-small-2506",
+            "mistral-small-2603",
+            "magistral-small-2509",
+            "magistral-small-latest",
+            "ministral-14b-2512",
+            "ministral-14b-latest",
+            "ministral-3b-2512",
+            "ministral-3b-latest",
+            "ministral-8b-2512",
+            "ministral-8b-latest",
+            "voxtral-small-2507",
+            "voxtral-small-latest",
+            "mistral-code-agent-latest",
+            "mistral-code-fim-latest",
+            "mistral-code-latest",
+            "mistral-medium",
+            "mistral-medium-2505",
+            "mistral-medium-2508",
+            "mistral-medium-2604",
+            "mistral-medium-3",
+            "mistral-medium-3-5",
+            "mistral-medium-3.5",
+            "mistral-medium-latest",
+            "mistral-tiny-2407",
+            "mistral-tiny-latest",
+            "mistral-vibe-cli-fast",
+            "mistral-vibe-cli-latest",
+            "mistral-vibe-cli-with-tools",
+            "open-mistral-nemo"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://api.mistral.ai/v1/models",
+            "discovery_enabled": true,
+            "discovered_count": 42,
+            "discovered_models": [
+              "mistral-small-latest",
+              "mistral-small-2506",
+              "mistral-small-2603",
+              "magistral-small-2509",
+              "magistral-small-latest",
+              "ministral-14b-2512",
+              "ministral-14b-latest",
+              "ministral-3b-2512",
+              "ministral-3b-latest",
+              "ministral-8b-2512",
+              "ministral-8b-latest",
+              "voxtral-small-2507",
+              "voxtral-small-latest",
+              "mistral-code-agent-latest",
+              "mistral-code-fim-latest",
+              "mistral-code-latest",
+              "mistral-medium",
+              "mistral-medium-2505",
+              "mistral-medium-2508",
+              "mistral-medium-2604",
+              "mistral-medium-3",
+              "mistral-medium-3-5",
+              "mistral-medium-3.5",
+              "mistral-medium-latest",
+              "mistral-tiny-2407",
+              "mistral-tiny-latest",
+              "mistral-vibe-cli-fast",
+              "mistral-vibe-cli-latest",
+              "mistral-vibe-cli-with-tools",
+              "open-mistral-nemo"
+            ],
+            "explicit_preferences": [
+              "mistral-small-latest"
+            ],
+            "fallback_models": [
+              "mistral-small-latest"
+            ],
+            "selected_candidates": [
+              "mistral-small-latest",
+              "mistral-small-2506",
+              "mistral-small-2603",
+              "magistral-small-2509",
+              "magistral-small-latest",
+              "ministral-14b-2512",
+              "ministral-14b-latest",
+              "ministral-3b-2512",
+              "ministral-3b-latest",
+              "ministral-8b-2512",
+              "ministral-8b-latest",
+              "voxtral-small-2507",
+              "voxtral-small-latest",
+              "mistral-code-agent-latest",
+              "mistral-code-fim-latest",
+              "mistral-code-latest",
+              "mistral-medium",
+              "mistral-medium-2505",
+              "mistral-medium-2508",
+              "mistral-medium-2604",
+              "mistral-medium-3",
+              "mistral-medium-3-5",
+              "mistral-medium-3.5",
+              "mistral-medium-latest",
+              "mistral-tiny-2407",
+              "mistral-tiny-latest",
+              "mistral-vibe-cli-fast",
+              "mistral-vibe-cli-latest",
+              "mistral-vibe-cli-with-tools",
+              "open-mistral-nemo"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "mistral",
+              "model": "mistral-small-latest",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:48+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "mistral-small-latest",
+              "elapsed_ms": 332,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 22,
+                "completion_tokens": 6,
+                "total_tokens": 28
+              }
+            }
+          ]
+        },
+        {
+          "provider": "siliconflow",
+          "status": "passed",
+          "model": "Qwen/Qwen3-8B",
+          "account": {
+            "status": "ok",
+            "account_status": "normal",
+            "balance": "0",
+            "charge_balance": "0.1",
+            "total_balance": "0.1"
+          },
+          "model_candidates": [
+            "Qwen/Qwen3-8B",
+            "LoRA/Qwen/Qwen2.5-7B-Instruct",
+            "Qwen/Qwen2.5-7B-Instruct",
+            "Qwen/Qwen3-VL-8B-Instruct",
+            "Qwen/Qwen3.5-27B",
+            "Qwen/Qwen3.5-397B-A17B",
+            "Qwen/Qwen3.6-27B",
+            "deepseek-ai/DeepSeek-V4-Flash",
+            "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+            "Pro/Qwen/Qwen2.5-7B-Instruct",
+            "Qwen/Qwen3-VL-8B-Thinking",
+            "inclusionAI/Ling-mini-2.0",
+            "MiniMaxAI/MiniMax-M2.5",
+            "tencent/Hunyuan-MT-7B",
+            "inclusionAI/Ling-flash-2.0",
+            "stepfun-ai/Step-3.5-Flash",
+            "Pro/MiniMaxAI/MiniMax-M2.5",
+            "deepseek-ai/DeepSeek-V3",
+            "deepseek-ai/DeepSeek-V3.1-Terminus",
+            "deepseek-ai/DeepSeek-V3.2",
+            "LoRA/Qwen/Qwen2.5-14B-Instruct",
+            "LoRA/Qwen/Qwen2.5-32B-Instruct",
+            "LoRA/Qwen/Qwen2.5-72B-Instruct",
+            "Qwen/Qwen2.5-14B-Instruct",
+            "Qwen/Qwen2.5-32B-Instruct",
+            "Qwen/Qwen2.5-72B-Instruct",
+            "Qwen/Qwen2.5-72B-Instruct-128K",
+            "Qwen/Qwen3-14B",
+            "Qwen/Qwen3-30B-A3B-Instruct-2507",
+            "Qwen/Qwen3-32B"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://api.siliconflow.cn/v1/models",
+            "discovery_enabled": true,
+            "discovered_count": 62,
+            "discovered_models": [
+              "Qwen/Qwen3-8B",
+              "LoRA/Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen3-VL-8B-Instruct",
+              "Qwen/Qwen3.5-27B",
+              "Qwen/Qwen3.5-397B-A17B",
+              "Qwen/Qwen3.6-27B",
+              "deepseek-ai/DeepSeek-V4-Flash",
+              "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+              "Pro/Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen3-VL-8B-Thinking",
+              "inclusionAI/Ling-mini-2.0",
+              "MiniMaxAI/MiniMax-M2.5",
+              "tencent/Hunyuan-MT-7B",
+              "inclusionAI/Ling-flash-2.0",
+              "stepfun-ai/Step-3.5-Flash",
+              "Pro/MiniMaxAI/MiniMax-M2.5",
+              "deepseek-ai/DeepSeek-V3",
+              "deepseek-ai/DeepSeek-V3.1-Terminus",
+              "deepseek-ai/DeepSeek-V3.2",
+              "LoRA/Qwen/Qwen2.5-14B-Instruct",
+              "LoRA/Qwen/Qwen2.5-32B-Instruct",
+              "LoRA/Qwen/Qwen2.5-72B-Instruct",
+              "Qwen/Qwen2.5-14B-Instruct",
+              "Qwen/Qwen2.5-32B-Instruct",
+              "Qwen/Qwen2.5-72B-Instruct",
+              "Qwen/Qwen2.5-72B-Instruct-128K",
+              "Qwen/Qwen3-14B",
+              "Qwen/Qwen3-30B-A3B-Instruct-2507",
+              "Qwen/Qwen3-32B"
+            ],
+            "explicit_preferences": [
+              "Qwen/Qwen3-8B"
+            ],
+            "fallback_models": [
+              "Qwen/Qwen3-8B"
+            ],
+            "selected_candidates": [
+              "Qwen/Qwen3-8B",
+              "LoRA/Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen3-VL-8B-Instruct",
+              "Qwen/Qwen3.5-27B",
+              "Qwen/Qwen3.5-397B-A17B",
+              "Qwen/Qwen3.6-27B",
+              "deepseek-ai/DeepSeek-V4-Flash",
+              "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+              "Pro/Qwen/Qwen2.5-7B-Instruct",
+              "Qwen/Qwen3-VL-8B-Thinking",
+              "inclusionAI/Ling-mini-2.0",
+              "MiniMaxAI/MiniMax-M2.5",
+              "tencent/Hunyuan-MT-7B",
+              "inclusionAI/Ling-flash-2.0",
+              "stepfun-ai/Step-3.5-Flash",
+              "Pro/MiniMaxAI/MiniMax-M2.5",
+              "deepseek-ai/DeepSeek-V3",
+              "deepseek-ai/DeepSeek-V3.1-Terminus",
+              "deepseek-ai/DeepSeek-V3.2",
+              "LoRA/Qwen/Qwen2.5-14B-Instruct",
+              "LoRA/Qwen/Qwen2.5-32B-Instruct",
+              "LoRA/Qwen/Qwen2.5-72B-Instruct",
+              "Qwen/Qwen2.5-14B-Instruct",
+              "Qwen/Qwen2.5-32B-Instruct",
+              "Qwen/Qwen2.5-72B-Instruct",
+              "Qwen/Qwen2.5-72B-Instruct-128K",
+              "Qwen/Qwen3-14B",
+              "Qwen/Qwen3-30B-A3B-Instruct-2507",
+              "Qwen/Qwen3-32B"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "siliconflow",
+              "model": "Qwen/Qwen3-8B",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:50+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "Qwen/Qwen3-8B",
+              "elapsed_ms": 1050,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 34,
+                "completion_tokens": 5,
+                "total_tokens": 39
+              }
+            }
+          ]
+        },
+        {
+          "provider": "bigmodel",
+          "status": "passed",
+          "model": "glm-4.5-air",
+          "account": {
+            "status": "not_supported"
+          },
+          "model_candidates": [
+            "glm-4.5",
+            "glm-4.5-air",
+            "glm-4.6",
+            "glm-4.7",
+            "glm-5",
+            "glm-5-turbo",
+            "glm-5.1",
+            "glm-5.2",
+            "glm-4.7-flash"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://open.bigmodel.cn/api/paas/v4/models",
+            "discovery_enabled": true,
+            "discovered_count": 8,
+            "discovered_models": [
+              "glm-4.5",
+              "glm-4.5-air",
+              "glm-4.6",
+              "glm-4.7",
+              "glm-5",
+              "glm-5-turbo",
+              "glm-5.1",
+              "glm-5.2"
+            ],
+            "explicit_preferences": [
+              "glm-4.7-flash"
+            ],
+            "fallback_models": [
+              "glm-4.7-flash"
+            ],
+            "selected_candidates": [
+              "glm-4.5",
+              "glm-4.5-air",
+              "glm-4.6",
+              "glm-4.7",
+              "glm-5",
+              "glm-5-turbo",
+              "glm-5.1",
+              "glm-5.2",
+              "glm-4.7-flash"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "bigmodel",
+              "model": "glm-4.5",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:53+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "rate_limited",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
+              "elapsed_ms": 382
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "bigmodel",
+              "model": "glm-4.5-air",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:53+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "glm-4.5-air",
+              "elapsed_ms": 747,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 80,
+                "completion_tokens": 10,
+                "total_tokens": 90
+              }
+            }
+          ]
+        },
+        {
+          "provider": "deepseek",
+          "status": "passed",
+          "model": "deepseek-v4-flash",
+          "account": {
+            "status": "ok",
+            "is_available": true,
+            "granted_balance_available": false,
+            "granted_balance_total": 0.0,
+            "topped_up_balance_total": 0.81,
+            "minimum_granted_balance": 0.1,
+            "balances": [
+              {
+                "currency": "CNY",
+                "total_balance": "0.81",
+                "granted_balance": "0.00",
+                "topped_up_balance": "0.81"
+              }
+            ]
+          },
+          "model_candidates": [
+            "deepseek-v4-flash",
+            "deepseek-v4-pro"
+          ],
+          "model_discovery": {
+            "status": "discovered",
+            "endpoint": "https://api.deepseek.com/models",
+            "discovery_enabled": true,
+            "discovered_count": 2,
+            "discovered_models": [
+              "deepseek-v4-flash",
+              "deepseek-v4-pro"
+            ],
+            "explicit_preferences": [
+              "deepseek-v4-flash"
+            ],
+            "fallback_models": [
+              "deepseek-v4-flash"
+            ],
+            "selected_candidates": [
+              "deepseek-v4-flash",
+              "deepseek-v4-pro"
+            ],
+            "ignored_retired_models": [],
+            "gemini_lite_preferred": false,
+            "failure_category": "",
+            "error": ""
+          },
+          "attempts": [
+            {
+              "task": "credential_preflight",
+              "provider": "deepseek",
+              "model": "deepseek-v4-flash",
+              "retry_index": 0,
+              "at": "2026-07-24T19:16:55+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "success",
+              "response_model": "deepseek-v4-flash",
+              "elapsed_ms": 914,
+              "parser_audit": {
+                "policy_version": "v17.2-flexible-json-parser-1",
+                "method": "direct_json",
+                "response_chars": 15,
+                "repaired": false,
+                "truncated_signal": false
+              },
+              "normalization_audit": {},
+              "usage": {
+                "prompt_tokens": 41,
+                "completion_tokens": 5,
+                "total_tokens": 46
+              }
+            }
+          ]
+        }
+      ],
+      "credentials": [
+        {
+          "name": "CROSSREF_MAILTO",
+          "level": "recommended",
+          "purpose": "Crossref polite pool and contact identity",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "UNPAYWALL_EMAIL",
+          "level": "recommended",
+          "purpose": "legal open-access location lookup; may equal CROSSREF_MAILTO",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "NCBI_API_KEY",
+          "level": "recommended",
+          "purpose": "higher PubMed E-utilities request allowance",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GEMINI_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Gemini structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "GROQ_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Groq OpenAI-compatible structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENROUTER_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "OpenRouter free-model router and rescue provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "MISTRAL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Mistral structured-analysis provider",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SILICONFLOW_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "SiliconFlow structured-analysis provider with balance check",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "BIGMODEL_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "Zhipu BigModel structured-analysis provider; defaults to free GLM-4.7-Flash",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "DEEPSEEK_API_KEY",
+          "level": "analysis_provider",
+          "purpose": "DeepSeek structured-analysis provider with optional granted-balance-only guard",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "OPENALEX_API_KEY",
+          "level": "required_for_openalex",
+          "purpose": "OpenAlex currently requires an API key",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "SEMANTIC_SCHOLAR_API_KEY",
+          "level": "optional_but_recommended",
+          "purpose": "anonymous retrieval remains enabled with conservative pacing",
+          "configured": false,
+          "note": "not configured"
+        },
+        {
+          "name": "RELIEFWEB_APPNAME",
+          "level": "pending_approval",
+          "purpose": "pre-approved ReliefWeb appname; a bundled default is available",
+          "configured": true,
+          "note": "configured"
+        },
+        {
+          "name": "PUBLISHER_REPO_TOKEN",
+          "level": "required_for_wechat_dispatch",
+          "purpose": "repository_dispatch to the private publisher repository",
+          "configured": true,
+          "note": "configured"
+        }
+      ]
+    },
+    "fallback_records": []
+  }
+}
