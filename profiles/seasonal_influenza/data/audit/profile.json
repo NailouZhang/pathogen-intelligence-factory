@@ -5,11 +5,12 @@
   "display_name_en": "Seasonal influenza viruses",
   "display_name_zh": "季节性流感病毒",
   "target_scope": {
-    "target_entity_level": "病毒主题（人季节性甲/乙型流感）",
+    "topic_en": "Seasonal influenza viruses",
+    "topic_zh": "季节性流感病毒",
     "scope_included": [
-      "聚焦人群季节性 Influenza A/B 及其流行、抗原演化、疫苗和治疗；不以禽流感、猪流感或 Influenza C/D 为主体。"
+      "Seasonal human influenza A(H1N1)pdm09, A(H3N2), B/Victoria and historical B/Yamagata. Biologically related animal, taxonomic, model, differential-diagnosis and comparative entities are supplementary-only unless material target-specific evidence is also present; only explicit lexical or unrelated hard exclusions are terminal."
     ],
-    "scope_excluded": [
+    "scope_related": [
       "avian influenza",
       "H5N1",
       "H5N6",
@@ -17,35 +18,41 @@
       "H9N2",
       "swine influenza",
       "influenza C virus",
-      "influenza D virus"
+      "influenza D virus",
+      "equine influenza",
+      "canine influenza"
     ],
+    "scope_excluded": [],
     "allowed_members": [
       "A(H1N1)pdm09",
       "A(H3N2)",
       "B/Victoria lineage"
     ],
-    "excluded_members": [
-      "avian influenza",
-      "H5N1",
-      "H5N6",
-      "H7N9",
-      "H9N2",
-      "swine influenza",
-      "influenza C virus",
-      "influenza D virus"
-    ],
+    "excluded_members": [],
     "required_identity_concepts": [
-      "seasonal influenza",
       "influenza A virus",
       "influenza B virus",
       "human influenza A virus",
       "human influenza B virus",
+      "seasonal H3N2",
+      "seasonal H1N1pdm09",
+      "influenza B Victoria lineage",
+      "influenza B Yamagata lineage",
+      "B/Victoria",
+      "B/Yamagata",
+      "influenza A(H3N2)",
+      "influenza A(H1N1)pdm09",
       "A(H1N1)pdm09",
       "A(H3N2)",
       "B/Victoria lineage",
       "seasonal influenza",
       "human influenza",
-      "influenza infection"
+      "influenza infection",
+      "seasonal flu",
+      "seasonal influenza",
+      "human influenza",
+      "influenza infection",
+      "seasonal flu"
     ],
     "non_target_near_neighbors": [
       "avian influenza",
@@ -55,8 +62,17 @@
       "H9N2",
       "swine influenza",
       "influenza C virus",
-      "influenza D virus"
-    ]
+      "influenza D virus",
+      "equine influenza",
+      "canine influenza"
+    ],
+    "related_entity_policy": {
+      "policy_version": "v17.4-related-entity-tiering-1",
+      "primary_rule": "A related entity alone never establishes the primary target identity.",
+      "comparison_rule": "When target and related entities both have material evidence, retain for primary comparative review.",
+      "supplementary_rule": "When only a recognized related entity is established, retain verified metadata or source-qualified news in the supplementary catalog.",
+      "hard_reject_rule": "Only lexical noise, unrelated homonyms, navigation material, or explicit identifier conflicts are terminal rejects."
+    }
   },
   "sources": [
     {
@@ -96,79 +112,84 @@
   "vocabulary": {
     "identity_anchor_terms": [
       {
-        "term": "seasonal influenza",
-        "normalized_term": "seasonal influenza",
-        "type": "virus_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "category": "identity_anchor_terms"
-      },
-      {
         "term": "influenza A virus",
-        "normalized_term": "influenza a virus",
-        "type": "virus_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "category": "identity_anchor_terms"
+        "safe_to_use_alone": true
       },
       {
         "term": "influenza B virus",
-        "normalized_term": "influenza b virus",
-        "type": "virus_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "category": "identity_anchor_terms"
+        "safe_to_use_alone": true
       },
       {
         "term": "human influenza A virus",
-        "normalized_term": "human influenza a virus",
-        "type": "virus_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "category": "identity_anchor_terms"
+        "safe_to_use_alone": true
       },
       {
         "term": "human influenza B virus",
-        "normalized_term": "human influenza b virus",
-        "type": "virus_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "category": "identity_anchor_terms"
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "seasonal H3N2",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "seasonal H1N1pdm09",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "influenza B Victoria lineage",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "influenza B Yamagata lineage",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "B/Victoria",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "B/Yamagata",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "influenza A(H3N2)",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "influenza A(H1N1)pdm09",
+        "safe_to_use_alone": true
+      }
+    ],
+    "member_identity_terms": [
+      {
+        "term": "A(H1N1)pdm09",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "A(H3N2)",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "B/Victoria lineage",
+        "safe_to_use_alone": true
+      }
+    ],
+    "disease_identity_terms": [
+      {
+        "term": "seasonal influenza",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "human influenza",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "influenza infection",
+        "safe_to_use_alone": true
+      },
+      {
+        "term": "seasonal flu",
+        "safe_to_use_alone": true
       }
     ],
     "qualified_identity_terms": [
@@ -177,769 +198,452 @@
         "required_context_terms": [
           "influenza A",
           "influenza virus"
-        ],
-        "forbidden_without_context": true,
-        "query_fragment": "\"IAV\" AND (\"influenza A\" OR \"influenza virus\")",
-        "ambiguity_reason": "seed-defined ambiguous or abbreviated identity term",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "normalized_term": "iav",
-        "category": "qualified_identity_terms"
+        ]
       },
       {
         "term": "IBV",
         "required_context_terms": [
           "influenza B",
           "influenza virus"
-        ],
-        "forbidden_without_context": true,
-        "query_fragment": "\"IBV\" AND (\"influenza B\" OR \"influenza virus\")",
-        "ambiguity_reason": "seed-defined ambiguous or abbreviated identity term",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "normalized_term": "ibv",
-        "category": "qualified_identity_terms"
+        ]
       }
     ],
-    "member_identity_terms": [
+    "related_entity_terms": [
       {
-        "term": "A(H1N1)pdm09",
-        "normalized_term": "a(h1n1)pdm09",
-        "type": "member_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "member_level": "member_or_subtype",
-        "high_precision": true,
-        "category": "member_identity_terms"
+        "term": "avian influenza",
+        "safe_to_use_alone": false,
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary"
       },
       {
-        "term": "A(H3N2)",
-        "normalized_term": "a(h3n2)",
-        "type": "member_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "member_level": "member_or_subtype",
-        "high_precision": true,
-        "category": "member_identity_terms"
+        "term": "H5N1",
+        "safe_to_use_alone": false,
+        "relation_type": "biologically_related_context",
+        "display_route": "supplementary"
       },
       {
-        "term": "B/Victoria lineage",
-        "normalized_term": "b/victoria lineage",
-        "type": "member_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "member_level": "member_or_subtype",
-        "high_precision": true,
-        "category": "member_identity_terms"
-      }
-    ],
-    "disease_identity_terms": [
-      {
-        "term": "seasonal influenza",
-        "normalized_term": "seasonal influenza",
-        "type": "disease_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "specificity": "high",
-        "category": "disease_identity_terms"
+        "term": "H5N6",
+        "safe_to_use_alone": false,
+        "relation_type": "biologically_related_context",
+        "display_route": "supplementary"
       },
       {
-        "term": "human influenza",
-        "normalized_term": "human influenza",
-        "type": "disease_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "specificity": "high",
-        "category": "disease_identity_terms"
+        "term": "H7N9",
+        "safe_to_use_alone": false,
+        "relation_type": "biologically_related_context",
+        "display_route": "supplementary"
       },
       {
-        "term": "influenza infection",
-        "normalized_term": "influenza infection",
-        "type": "disease_name",
-        "language": "en",
-        "safe_to_use_alone": true,
-        "qualification_required": [],
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "specificity": "high",
-        "category": "disease_identity_terms"
+        "term": "H9N2",
+        "safe_to_use_alone": false,
+        "relation_type": "biologically_related_context",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "swine influenza",
+        "safe_to_use_alone": false,
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "influenza C virus",
+        "safe_to_use_alone": false,
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "influenza D virus",
+        "safe_to_use_alone": false,
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "equine influenza",
+        "safe_to_use_alone": false,
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "canine influenza",
+        "safe_to_use_alone": false,
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary"
       }
     ],
     "context_terms": [
       {
         "term": "antigenic drift",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "normalized_term": "antigenic drift"
+        "safe_to_use_alone": false
       },
       {
         "term": "vaccine effectiveness",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "normalized_term": "vaccine effectiveness"
+        "safe_to_use_alone": false
       },
       {
         "term": "antiviral resistance",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "normalized_term": "antiviral resistance"
+        "safe_to_use_alone": false
       },
       {
         "term": "oseltamivir",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "normalized_term": "oseltamivir"
+        "safe_to_use_alone": false
       },
       {
         "term": "hemagglutinin",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "normalized_term": "hemagglutinin"
+        "safe_to_use_alone": false
       },
       {
         "term": "neuraminidase",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "normalized_term": "neuraminidase"
+        "safe_to_use_alone": false
       },
       {
         "term": "reassortment",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "normalized_term": "reassortment"
+        "safe_to_use_alone": false
       },
       {
         "term": "ILI",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "normalized_term": "ili"
+        "safe_to_use_alone": false
       },
       {
         "term": "SARI",
-        "category": "topic_context",
-        "may_use_only_after_identity": true,
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "confidence": "high",
-        "normalized_term": "sari"
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "outbreak",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "epidemiology",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "surveillance",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "transmission",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "incidence",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "prevalence",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "seroprevalence",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "genome",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "genomic surveillance",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "phylogeny",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "evolution",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "mutation",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "diagnosis",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "diagnostic",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "serology",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "PCR",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "antigen",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "vaccine",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "vaccination",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "antiviral",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "treatment",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "clinical",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "pathogenesis",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "immune response",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "host",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "reservoir",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "vector",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "spillover",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "zoonosis",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "case report",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "cohort",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "mortality",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "infection",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "virus",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "viral",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "case",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "cases",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "patient",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "patients",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "human",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "disease",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "genomic",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "antibody",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "prevention",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "public health",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "sequencing",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "variant",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "lineage",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "strain",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "co-infection",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "coinfection",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "comparison",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "comparative",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "risk",
+        "safe_to_use_alone": false
+      },
+      {
+        "term": "response",
+        "safe_to_use_alone": false
       }
     ],
     "display_only_terms": [
       {
         "term": "influenza",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "influenza",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "IAV",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "iav",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "IBV",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "ibv",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "HA",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "ha",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "NA",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "na",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "M1",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "m1",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "M2",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "m2",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "NS1",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "ns1",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "PB1",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "pb1",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "PB2",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "pb2",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "PA",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "pa",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "ILI",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "ili",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       },
       {
         "term": "SARI",
-        "reason": "seed explicitly forbids standalone retrieval use",
-        "allowed_uses": [
-          "display",
-          "classification",
-          "relevance_scoring"
-        ],
-        "normalized_term": "sari",
-        "category": "display_only_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ],
-        "may_use_only_after_identity": true
+        "safe_to_use_alone": false
       }
     ],
-    "exclusion_terms": [
-      {
-        "term": "avian influenza",
-        "reason": "seed-defined recurrent non-target entity or scope",
-        "applies_to_modes": [
-          "strict_core"
-        ],
-        "risk_of_over_exclusion": "medium",
-        "source_or_test_evidence": "manual topic-boundary table",
-        "normalized_term": "avian influenza",
-        "category": "exclusion_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
-      },
-      {
-        "term": "H5N1",
-        "reason": "seed-defined recurrent non-target entity or scope",
-        "applies_to_modes": [
-          "strict_core"
-        ],
-        "risk_of_over_exclusion": "medium",
-        "source_or_test_evidence": "manual topic-boundary table",
-        "normalized_term": "h5n1",
-        "category": "exclusion_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
-      },
-      {
-        "term": "H5N6",
-        "reason": "seed-defined recurrent non-target entity or scope",
-        "applies_to_modes": [
-          "strict_core"
-        ],
-        "risk_of_over_exclusion": "medium",
-        "source_or_test_evidence": "manual topic-boundary table",
-        "normalized_term": "h5n6",
-        "category": "exclusion_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
-      },
-      {
-        "term": "H7N9",
-        "reason": "seed-defined recurrent non-target entity or scope",
-        "applies_to_modes": [
-          "strict_core"
-        ],
-        "risk_of_over_exclusion": "medium",
-        "source_or_test_evidence": "manual topic-boundary table",
-        "normalized_term": "h7n9",
-        "category": "exclusion_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
-      },
-      {
-        "term": "H9N2",
-        "reason": "seed-defined recurrent non-target entity or scope",
-        "applies_to_modes": [
-          "strict_core"
-        ],
-        "risk_of_over_exclusion": "medium",
-        "source_or_test_evidence": "manual topic-boundary table",
-        "normalized_term": "h9n2",
-        "category": "exclusion_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
-      },
-      {
-        "term": "swine influenza",
-        "reason": "seed-defined recurrent non-target entity or scope",
-        "applies_to_modes": [
-          "strict_core"
-        ],
-        "risk_of_over_exclusion": "medium",
-        "source_or_test_evidence": "manual topic-boundary table",
-        "normalized_term": "swine influenza",
-        "category": "exclusion_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
-      },
-      {
-        "term": "influenza C virus",
-        "reason": "seed-defined recurrent non-target entity or scope",
-        "applies_to_modes": [
-          "strict_core"
-        ],
-        "risk_of_over_exclusion": "medium",
-        "source_or_test_evidence": "manual topic-boundary table",
-        "normalized_term": "influenza c virus",
-        "category": "exclusion_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
-      },
-      {
-        "term": "influenza D virus",
-        "reason": "seed-defined recurrent non-target entity or scope",
-        "applies_to_modes": [
-          "strict_core"
-        ],
-        "risk_of_over_exclusion": "medium",
-        "source_or_test_evidence": "manual topic-boundary table",
-        "normalized_term": "influenza d virus",
-        "category": "exclusion_terms",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
-      }
-    ],
+    "hard_exclusion_terms": [],
+    "exclusion_terms": [],
     "paper_priority_terms": [
       {
         "term": "outbreak",
-        "category": "emerging_event",
-        "weight": 5,
-        "normalized_term": "outbreak",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "spillover",
-        "category": "cross_species",
-        "weight": 5,
-        "normalized_term": "spillover",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "first report",
-        "category": "novelty",
-        "weight": 5,
-        "normalized_term": "first report",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "novel host",
-        "category": "novelty",
-        "weight": 5,
-        "normalized_term": "novel host",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "new region",
-        "category": "novelty",
-        "weight": 4,
-        "normalized_term": "new region",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "genomic surveillance",
-        "category": "genomics",
-        "weight": 4,
-        "normalized_term": "genomic surveillance",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "recombination",
-        "category": "evolution",
-        "weight": 4,
-        "normalized_term": "recombination",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "evolution",
-        "category": "evolution",
-        "weight": 3,
-        "normalized_term": "evolution",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "vaccine",
-        "category": "countermeasure",
-        "weight": 3,
-        "normalized_term": "vaccine",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "therapeutic",
-        "category": "countermeasure",
-        "weight": 3,
-        "normalized_term": "therapeutic",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "diagnostic",
-        "category": "diagnostics",
-        "weight": 3,
-        "normalized_term": "diagnostic",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "clinical outcome",
-        "category": "clinical",
-        "weight": 3,
-        "normalized_term": "clinical outcome",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "cohort",
-        "category": "study_scale",
-        "weight": 2,
-        "normalized_term": "cohort",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "systematic review",
-        "category": "evidence_synthesis",
-        "weight": 3,
-        "normalized_term": "systematic review",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "public health",
-        "category": "public_health",
-        "weight": 2,
-        "normalized_term": "public health",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       }
     ],
     "document_type_terms": {
@@ -985,7 +689,7 @@
     }
   },
   "search_strategy": {
-    "schema_version": "2.1",
+    "schema_version": "5.0",
     "max_concepts": 5,
     "provider_expansion_first": true,
     "deduplicate_semantic_equivalents": true,
@@ -996,7 +700,12 @@
         "news_en": "seasonal influenza",
         "news_zh": "季节性流感",
         "role": "disease",
-        "priority": 1
+        "priority": 1,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "seasonal influenza",
+          "required_context_terms": []
+        }
       },
       {
         "id": "h3n2",
@@ -1004,7 +713,12 @@
         "news_en": "influenza A(H3N2)",
         "news_zh": "甲型H3N2流感病毒",
         "role": "subtype",
-        "priority": 2
+        "priority": 2,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "influenza A(H3N2)",
+          "required_context_terms": []
+        }
       },
       {
         "id": "h1n1pdm09",
@@ -1012,7 +726,12 @@
         "news_en": "influenza A(H1N1)pdm09",
         "news_zh": "甲型H1N1pdm09流感病毒",
         "role": "subtype",
-        "priority": 3
+        "priority": 3,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "influenza A(H1N1)pdm09",
+          "required_context_terms": []
+        }
       },
       {
         "id": "b_victoria",
@@ -1020,7 +739,12 @@
         "news_en": "influenza B Victoria lineage",
         "news_zh": "乙型流感Victoria系",
         "role": "lineage",
-        "priority": 4
+        "priority": 4,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "influenza B Victoria lineage",
+          "required_context_terms": []
+        }
       },
       {
         "id": "b_yamagata",
@@ -1028,7 +752,12 @@
         "news_en": "influenza B Yamagata lineage",
         "news_zh": "乙型流感Yamagata系",
         "role": "lineage",
-        "priority": 5
+        "priority": 5,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "influenza B Yamagata lineage",
+          "required_context_terms": []
+        }
       }
     ],
     "frozen": true,
@@ -1085,7 +814,296 @@
     "cache_on_success": true,
     "use_cache_on_fetch_failure": true
   },
-  "translation_glossary": [],
+  "translation_glossary": [
+    {
+      "source": "A(H1N1)pdm09",
+      "target": "甲型H1N1流感病毒pdm09",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "A(H3N2)",
+      "target": "甲型H3N2流感病毒",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "antigenic drift",
+      "target": "抗原漂移",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "antiviral",
+      "target": "抗病毒药物",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "case report",
+      "target": "病例报告",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "cohort",
+      "target": "队列研究",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "diagnosis",
+      "target": "诊断",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "epidemiology",
+      "target": "流行病学",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "evolution",
+      "target": "进化",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "genome",
+      "target": "基因组",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "genomic surveillance",
+      "target": "基因组监测",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "host",
+      "target": "宿主",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "immune response",
+      "target": "免疫应答",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "incidence",
+      "target": "发病率",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "mortality",
+      "target": "死亡率",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "mutation",
+      "target": "突变",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "outbreak",
+      "target": "暴发",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "pathogenesis",
+      "target": "发病机制",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "phylogeny",
+      "target": "系统发育",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "prevalence",
+      "target": "患病率",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "reservoir",
+      "target": "储存宿主",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "seasonal influenza",
+      "target": "季节性流感",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "serology",
+      "target": "血清学",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "seroprevalence",
+      "target": "血清流行率",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "spillover",
+      "target": "跨物种溢出",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "surveillance",
+      "target": "监测",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "transmission",
+      "target": "传播",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "treatment",
+      "target": "治疗",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "vaccination",
+      "target": "疫苗接种",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "vaccine",
+      "target": "疫苗",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "vector",
+      "target": "媒介",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    },
+    {
+      "source": "zoonosis",
+      "target": "人兽共患病",
+      "source_urls": [
+        "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+        "https://www.cdc.gov/flu/about/index.html",
+        "https://viralzone.expasy.org/223"
+      ]
+    }
+  ],
   "blocking_issues": [],
   "manual_review_required": false,
   "generated_by": "deterministic_seed_contract_after_llm_failure",
@@ -1095,7 +1113,7 @@
   "source_bundle_hash": "19d5f7af16cebef998114ce37a41030b16f0c1db38e18f19b705780019e2df7f",
   "profile_contract": "frozen-five-core-post-retrieval-vocabulary/v15.1",
   "query_sets": {
-    "query_policy_version": "v15.1-five-core-plus-controlled-supplemental-2",
+    "query_policy_version": "v17.4-canonical-five-core-related-mapped-1",
     "core_concepts": [
       {
         "id": "seasonal_influenza",
@@ -1104,7 +1122,12 @@
         "news_en": "seasonal influenza",
         "news_zh": "季节性流感",
         "role": "disease",
-        "priority": 1
+        "priority": 1,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "seasonal influenza",
+          "required_context_terms": []
+        }
       },
       {
         "id": "h3n2",
@@ -1113,7 +1136,12 @@
         "news_en": "influenza A(H3N2)",
         "news_zh": "甲型H3N2流感病毒",
         "role": "subtype",
-        "priority": 2
+        "priority": 2,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "influenza A(H3N2)",
+          "required_context_terms": []
+        }
       },
       {
         "id": "h1n1pdm09",
@@ -1122,7 +1150,12 @@
         "news_en": "influenza A(H1N1)pdm09",
         "news_zh": "甲型H1N1pdm09流感病毒",
         "role": "subtype",
-        "priority": 3
+        "priority": 3,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "influenza A(H1N1)pdm09",
+          "required_context_terms": []
+        }
       },
       {
         "id": "b_victoria",
@@ -1131,7 +1164,12 @@
         "news_en": "influenza B Victoria lineage",
         "news_zh": "乙型流感Victoria系",
         "role": "lineage",
-        "priority": 4
+        "priority": 4,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "influenza B Victoria lineage",
+          "required_context_terms": []
+        }
       },
       {
         "id": "b_yamagata",
@@ -1140,7 +1178,12 @@
         "news_en": "influenza B Yamagata lineage",
         "news_zh": "乙型流感Yamagata系",
         "role": "lineage",
-        "priority": 5
+        "priority": 5,
+        "review_mapping": {
+          "mode": "safe_identity",
+          "term": "influenza B Yamagata lineage",
+          "required_context_terms": []
+        }
       }
     ],
     "controlled_supplemental_concepts": [
@@ -1523,10 +1566,10 @@
       "influenza A(H1N1)pdm09",
       "influenza B Victoria lineage",
       "influenza B Yamagata lineage",
-      "\"Seasonal influenza viruses\" Sweden death",
-      "\"Seasonal influenza viruses\" Finland death",
-      "\"Seasonal influenza viruses\" Norway death",
-      "\"Seasonal influenza viruses\" Denmark death"
+      "\"Seasonal influenza viruses\" HA deaths",
+      "\"Seasonal influenza viruses\" Pakistan During cases 2025",
+      "\"Seasonal influenza viruses\" Islamabad cases 2025",
+      "\"Seasonal influenza viruses\" North America cases 2025"
     ],
     "general_news_zh": [
       "季节性流感",
@@ -1541,10 +1584,10 @@
       "\"influenza A(H1N1)pdm09\"",
       "\"influenza B Victoria lineage\"",
       "\"influenza B Yamagata lineage\"",
-      "\"Seasonal influenza viruses\" Sweden death",
-      "\"Seasonal influenza viruses\" Finland death",
-      "\"Seasonal influenza viruses\" Norway death",
-      "\"Seasonal influenza viruses\" Denmark death"
+      "\"Seasonal influenza viruses\" HA deaths",
+      "\"Seasonal influenza viruses\" Pakistan During cases 2025",
+      "\"Seasonal influenza viruses\" Islamabad cases 2025",
+      "\"Seasonal influenza viruses\" North America cases 2025"
     ],
     "reliefweb_core": [
       "seasonal influenza",
@@ -1552,10 +1595,10 @@
       "influenza A(H1N1)pdm09",
       "influenza B Victoria lineage",
       "influenza B Yamagata lineage",
-      "\"Seasonal influenza viruses\" Sweden death",
-      "\"Seasonal influenza viruses\" Finland death",
-      "\"Seasonal influenza viruses\" Norway death",
-      "\"Seasonal influenza viruses\" Denmark death"
+      "\"Seasonal influenza viruses\" HA deaths",
+      "\"Seasonal influenza viruses\" Pakistan During cases 2025",
+      "\"Seasonal influenza viruses\" Islamabad cases 2025",
+      "\"Seasonal influenza viruses\" North America cases 2025"
     ],
     "pubmed_single_anchor_exact": [
       "seasonal influenza",
@@ -1653,10 +1696,10 @@
     "authoritative_web_queries": [],
     "genomic_query": [],
     "event_driven_news": [
-      "\"Seasonal influenza viruses\" Sweden death",
-      "\"Seasonal influenza viruses\" Finland death",
-      "\"Seasonal influenza viruses\" Norway death",
-      "\"Seasonal influenza viruses\" Denmark death"
+      "\"Seasonal influenza viruses\" HA deaths",
+      "\"Seasonal influenza viruses\" Pakistan During cases 2025",
+      "\"Seasonal influenza viruses\" Islamabad cases 2025",
+      "\"Seasonal influenza viruses\" North America cases 2025"
     ]
   },
   "queries": {
@@ -1714,38 +1757,250 @@
     "genomic_query": ""
   },
   "post_retrieval_relevance_rules": {
+    "entity_contract": {
+      "target_entities": [
+        "influenza A virus",
+        "influenza B virus",
+        "human influenza A virus",
+        "human influenza B virus",
+        "seasonal H3N2",
+        "seasonal H1N1pdm09",
+        "influenza B Victoria lineage",
+        "influenza B Yamagata lineage",
+        "B/Victoria",
+        "B/Yamagata",
+        "influenza A(H3N2)",
+        "influenza A(H1N1)pdm09",
+        "A(H1N1)pdm09",
+        "A(H3N2)",
+        "B/Victoria lineage",
+        "seasonal influenza",
+        "human influenza",
+        "influenza infection",
+        "seasonal flu"
+      ],
+      "allowed_members": [
+        "A(H1N1)pdm09",
+        "A(H3N2)",
+        "B/Victoria lineage"
+      ],
+      "disease_entities": [
+        "seasonal influenza",
+        "human influenza",
+        "influenza infection",
+        "seasonal flu"
+      ],
+      "qualified_entities": [
+        {
+          "term": "IAV",
+          "required_context_terms": [
+            "influenza A",
+            "influenza virus"
+          ]
+        },
+        {
+          "term": "IBV",
+          "required_context_terms": [
+            "influenza B",
+            "influenza virus"
+          ]
+        }
+      ],
+      "related_entities": [
+        {
+          "term": "avian influenza",
+          "relation_type": "animal_homolog_or_host_associated_virus",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        },
+        {
+          "term": "H5N1",
+          "relation_type": "biologically_related_context",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        },
+        {
+          "term": "H5N6",
+          "relation_type": "biologically_related_context",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        },
+        {
+          "term": "H7N9",
+          "relation_type": "biologically_related_context",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        },
+        {
+          "term": "H9N2",
+          "relation_type": "biologically_related_context",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        },
+        {
+          "term": "swine influenza",
+          "relation_type": "animal_homolog_or_host_associated_virus",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        },
+        {
+          "term": "influenza C virus",
+          "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        },
+        {
+          "term": "influenza D virus",
+          "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        },
+        {
+          "term": "equine influenza",
+          "relation_type": "animal_homolog_or_host_associated_virus",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        },
+        {
+          "term": "canine influenza",
+          "relation_type": "animal_homolog_or_host_associated_virus",
+          "display_route": "supplementary",
+          "primary_eligible_when_target_present": true,
+          "supplementary_eligible_without_target": true,
+          "requires_verified_metadata": true,
+          "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+        }
+      ],
+      "hard_excluded_entities": [],
+      "excluded_entities": [],
+      "background_only_terms": [],
+      "related_entity_policy": {
+        "policy_version": "v17.4-related-entity-tiering-1",
+        "primary_rule": "A related entity alone never establishes the primary target identity.",
+        "comparison_rule": "When target and related entities both have material evidence, retain for primary comparative review.",
+        "supplementary_rule": "When only a recognized related entity is established, retain verified metadata or source-qualified news in the supplementary catalog.",
+        "hard_reject_rule": "Only lexical noise, unrelated homonyms, navigation material, or explicit identifier conflicts are terminal rejects."
+      }
+    },
+    "core_review_mappings": [
+      {
+        "concept_id": "seasonal_influenza",
+        "scholarly": "seasonal influenza",
+        "mode": "safe_identity",
+        "term": "seasonal influenza",
+        "required_context_terms": []
+      },
+      {
+        "concept_id": "h3n2",
+        "scholarly": "influenza A(H3N2)",
+        "mode": "safe_identity",
+        "term": "influenza A(H3N2)",
+        "required_context_terms": []
+      },
+      {
+        "concept_id": "h1n1pdm09",
+        "scholarly": "influenza A(H1N1)pdm09",
+        "mode": "safe_identity",
+        "term": "influenza A(H1N1)pdm09",
+        "required_context_terms": []
+      },
+      {
+        "concept_id": "b_victoria",
+        "scholarly": "influenza B Victoria lineage",
+        "mode": "safe_identity",
+        "term": "influenza B Victoria lineage",
+        "required_context_terms": []
+      },
+      {
+        "concept_id": "b_yamagata",
+        "scholarly": "influenza B Yamagata lineage",
+        "mode": "safe_identity",
+        "term": "influenza B Yamagata lineage",
+        "required_context_terms": []
+      }
+    ],
     "title_required_patterns": [
-      "seasonal influenza",
       "influenza A virus",
       "influenza B virus",
       "human influenza A virus",
       "human influenza B virus",
+      "seasonal H3N2",
+      "seasonal H1N1pdm09",
+      "influenza B Victoria lineage",
+      "influenza B Yamagata lineage",
+      "B/Victoria",
+      "B/Yamagata",
+      "influenza A(H3N2)",
+      "influenza A(H1N1)pdm09",
       "A(H1N1)pdm09",
       "A(H3N2)",
       "B/Victoria lineage",
       "seasonal influenza",
       "human influenza",
-      "influenza infection"
+      "influenza infection",
+      "seasonal flu"
     ],
     "identity_anchor_patterns": [
-      "seasonal influenza",
-      "influenza A virus",
-      "influenza B virus",
-      "human influenza A virus",
-      "human influenza B virus"
-    ],
-    "title_or_abstract_identity_patterns": [
-      "seasonal influenza",
       "influenza A virus",
       "influenza B virus",
       "human influenza A virus",
       "human influenza B virus",
+      "seasonal H3N2",
+      "seasonal H1N1pdm09",
+      "influenza B Victoria lineage",
+      "influenza B Yamagata lineage",
+      "B/Victoria",
+      "B/Yamagata",
+      "influenza A(H3N2)",
+      "influenza A(H1N1)pdm09"
+    ],
+    "title_or_abstract_identity_patterns": [
+      "influenza A virus",
+      "influenza B virus",
+      "human influenza A virus",
+      "human influenza B virus",
+      "seasonal H3N2",
+      "seasonal H1N1pdm09",
+      "influenza B Victoria lineage",
+      "influenza B Yamagata lineage",
+      "B/Victoria",
+      "B/Yamagata",
+      "influenza A(H3N2)",
+      "influenza A(H1N1)pdm09",
       "A(H1N1)pdm09",
       "A(H3N2)",
       "B/Victoria lineage",
       "seasonal influenza",
       "human influenza",
-      "influenza infection"
+      "influenza infection",
+      "seasonal flu"
     ],
     "member_patterns": [
       "A(H1N1)pdm09",
@@ -1755,7 +2010,8 @@
     "disease_patterns": [
       "seasonal influenza",
       "human influenza",
-      "influenza infection"
+      "influenza infection",
+      "seasonal flu"
     ],
     "qualified_abbreviation_rules": [
       {
@@ -1782,18 +2038,127 @@
       "neuraminidase",
       "reassortment",
       "ILI",
-      "SARI"
+      "SARI",
+      "outbreak",
+      "epidemiology",
+      "surveillance",
+      "transmission",
+      "incidence",
+      "prevalence",
+      "seroprevalence",
+      "genome",
+      "genomic surveillance",
+      "phylogeny",
+      "evolution",
+      "mutation",
+      "diagnosis",
+      "diagnostic",
+      "serology",
+      "PCR",
+      "antigen",
+      "vaccine",
+      "vaccination",
+      "antiviral",
+      "treatment",
+      "clinical",
+      "pathogenesis",
+      "immune response",
+      "host",
+      "reservoir",
+      "vector",
+      "spillover",
+      "zoonosis",
+      "case report",
+      "cohort",
+      "mortality",
+      "infection",
+      "virus",
+      "viral",
+      "case",
+      "cases",
+      "patient",
+      "patients",
+      "human",
+      "disease",
+      "genomic",
+      "antibody",
+      "prevention",
+      "public health",
+      "sequencing",
+      "variant",
+      "lineage",
+      "strain",
+      "co-infection",
+      "coinfection",
+      "comparison",
+      "comparative",
+      "risk",
+      "response"
     ],
-    "excluded_entity_patterns": [
-      "avian influenza",
-      "H5N1",
-      "H5N6",
-      "H7N9",
-      "H9N2",
-      "swine influenza",
-      "influenza C virus",
-      "influenza D virus"
+    "related_entity_patterns": [
+      {
+        "term": "avian influenza",
+        "safe_to_use_alone": false,
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "H5N1",
+        "safe_to_use_alone": false,
+        "relation_type": "biologically_related_context",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "H5N6",
+        "safe_to_use_alone": false,
+        "relation_type": "biologically_related_context",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "H7N9",
+        "safe_to_use_alone": false,
+        "relation_type": "biologically_related_context",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "H9N2",
+        "safe_to_use_alone": false,
+        "relation_type": "biologically_related_context",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "swine influenza",
+        "safe_to_use_alone": false,
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "influenza C virus",
+        "safe_to_use_alone": false,
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "influenza D virus",
+        "safe_to_use_alone": false,
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "equine influenza",
+        "safe_to_use_alone": false,
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary"
+      },
+      {
+        "term": "canine influenza",
+        "safe_to_use_alone": false,
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary"
+      }
     ],
+    "hard_excluded_entity_patterns": [],
+    "excluded_entity_patterns": [],
     "core_concept_patterns": [
       "seasonal influenza",
       "influenza A(H3N2)",
@@ -1814,7 +2179,8 @@
       "+3 qualified abbreviation with required context",
       "+1 repeated identity evidence",
       "+1 independent retrieval concept",
-      "-6 excluded entity dominates title",
+      "+2 title related entity, supplementary-only without target",
+      "-10 hard exclusion dominates title",
       "-4 context-only or unqualified abbreviation"
     ]
   },
@@ -1864,11 +2230,556 @@
       "negative_scenarios": []
     }
   },
-  "core_terms_hash": "75a77b8bacf03aab1ed6f0aa9273636731004c4ee96358dcde7ac6120fcb4226",
-  "topic_contract_hash": "0456e8c6f4f6664130274885476313ae4ba483b8dcf36234e194a92dd0f5dae9",
-  "review_vocabulary_input_hash": "6c439f4c927c99cd31e142746dd29a04a66c85a0d587c8409ed3c99fb38f93c6",
-  "profile_semantic_fingerprint": "8a2b2b6f19565f004516b7f7cf568928aaea563a36211a07ecab93ae66c24fc3",
-  "review_vocabulary_prompt_version": "review-vocabulary-v16.0.0-1",
+  "topic_contract": {
+    "topic_en": "Seasonal influenza viruses",
+    "topic_zh": "季节性流感病毒",
+    "scope_statement": "Seasonal human influenza A(H1N1)pdm09, A(H3N2), B/Victoria and historical B/Yamagata. Biologically related animal, taxonomic, model, differential-diagnosis and comparative entities are supplementary-only unless material target-specific evidence is also present; only explicit lexical or unrelated hard exclusions are terminal.",
+    "target_entities": [
+      "influenza A virus",
+      "influenza B virus",
+      "human influenza A virus",
+      "human influenza B virus",
+      "seasonal H3N2",
+      "seasonal H1N1pdm09",
+      "influenza B Victoria lineage",
+      "influenza B Yamagata lineage",
+      "B/Victoria",
+      "B/Yamagata",
+      "influenza A(H3N2)",
+      "influenza A(H1N1)pdm09",
+      "A(H1N1)pdm09",
+      "A(H3N2)",
+      "B/Victoria lineage",
+      "seasonal influenza",
+      "human influenza",
+      "influenza infection",
+      "seasonal flu"
+    ],
+    "allowed_members": [
+      "A(H1N1)pdm09",
+      "A(H3N2)",
+      "B/Victoria lineage"
+    ],
+    "disease_entities": [
+      "seasonal influenza",
+      "human influenza",
+      "influenza infection",
+      "seasonal flu"
+    ],
+    "qualified_entities": [
+      {
+        "term": "IAV",
+        "required_context_terms": [
+          "influenza A",
+          "influenza virus"
+        ]
+      },
+      {
+        "term": "IBV",
+        "required_context_terms": [
+          "influenza B",
+          "influenza virus"
+        ]
+      }
+    ],
+    "excluded_entities": [],
+    "background_only_terms": [],
+    "related_entities": [
+      {
+        "term": "avian influenza",
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "H5N1",
+        "relation_type": "biologically_related_context",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "H5N6",
+        "relation_type": "biologically_related_context",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "H7N9",
+        "relation_type": "biologically_related_context",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "H9N2",
+        "relation_type": "biologically_related_context",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "swine influenza",
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "influenza C virus",
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "influenza D virus",
+        "relation_type": "taxonomic_neighbour_or_differential_pathogen",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "equine influenza",
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      },
+      {
+        "term": "canine influenza",
+        "relation_type": "animal_homolog_or_host_associated_virus",
+        "display_route": "supplementary",
+        "primary_eligible_when_target_present": true,
+        "supplementary_eligible_without_target": true,
+        "requires_verified_metadata": true,
+        "rationale": "Biologically or operationally related to the profile but not sufficient by itself to establish the primary target identity."
+      }
+    ],
+    "hard_excluded_entities": [],
+    "related_entity_policy": {
+      "policy_version": "v17.4-related-entity-tiering-1",
+      "primary_rule": "A related entity alone never establishes the primary target identity.",
+      "comparison_rule": "When target and related entities both have material evidence, retain for primary comparative review.",
+      "supplementary_rule": "When only a recognized related entity is established, retain verified metadata or source-qualified news in the supplementary catalog.",
+      "hard_reject_rule": "Only lexical noise, unrelated homonyms, navigation material, or explicit identifier conflicts are terminal rejects."
+    }
+  },
+  "authoritative_sources": [
+    {
+      "name": "WHO Seasonal influenza",
+      "organization": "WHO",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+      "role": "public_health",
+      "required": false
+    },
+    {
+      "name": "CDC About Influenza",
+      "organization": "CDC",
+      "url": "https://www.cdc.gov/flu/about/index.html",
+      "role": "public_health",
+      "required": false
+    },
+    {
+      "name": "ViralZone Orthomyxoviridae",
+      "organization": "ViralZone",
+      "url": "https://viralzone.expasy.org/223",
+      "role": "molecular",
+      "required": false
+    }
+  ],
+  "authoritative_evidence": [
+    {
+      "source_id": "seasonal_influenza-taxonomy-ictv",
+      "name": "ICTV Virus Taxonomy Profile",
+      "organization": "ICTV",
+      "url": "https://ictv.global/report/chapter/orthomyxoviridae/orthomyxoviridae",
+      "role": "taxonomy",
+      "required": true,
+      "evidence_statement": "ICTV classifies influenza A and B viruses; seasonal human lineages must be separated from avian, swine and other animal influenza.",
+      "evidence_kind": "reviewed_paraphrase",
+      "reviewed_at": "2026-07-22T00:00:00+00:00",
+      "evidence_locator": "ICTV online report chapter/genus or family page",
+      "evidence_sha256": "07f6a5629e4c787e91a4c2579d931f7d14181c4ac8be510591aa1f351463ad05"
+    },
+    {
+      "source_id": "seasonal_influenza-molecular-viralzone",
+      "name": "ViralZone Orthomyxoviridae",
+      "organization": "ViralZone",
+      "url": "https://viralzone.expasy.org/223",
+      "role": "molecular",
+      "required": false,
+      "evidence_statement": "ViralZone provides a curated molecular and taxonomic overview used to cross-check accepted names, genome context and related viruses.",
+      "evidence_kind": "reviewed_paraphrase",
+      "reviewed_at": "2026-07-22T00:00:00+00:00",
+      "evidence_sha256": "6371cf74e822f9ee3178ae3fa0857cccc10bdff59332055d986bf03640d99045",
+      "evidence_locator": "ViralZone species/family overview"
+    },
+    {
+      "source_id": "seasonal_influenza-public-health",
+      "name": "WHO Seasonal influenza",
+      "organization": "WHO",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
+      "role": "public_health",
+      "required": true,
+      "evidence_statement": "The public-health source defines the human disease and surveillance scope used to distinguish target disease reports from taxonomy-only or near-neighbour mentions.",
+      "evidence_kind": "reviewed_paraphrase",
+      "reviewed_at": "2026-07-22T00:00:00+00:00",
+      "evidence_sha256": "ff6e42ad8d935211ad9089c3f1577d35f6951262ebbbc65dad9f5ea1354910aa",
+      "evidence_locator": "WHO/CDC or national public-health overview"
+    },
+    {
+      "source_id": "seasonal_influenza-supplementary-4",
+      "name": "CDC About Influenza",
+      "organization": "CDC",
+      "url": "https://www.cdc.gov/flu/about/index.html",
+      "role": "public_health",
+      "required": false,
+      "evidence_statement": "WHO seasonal influenza surveillance focuses on human A(H1N1)pdm09, A(H3N2) and influenza B lineages, distinct from avian and swine influenza.",
+      "evidence_kind": "curated_paraphrase",
+      "reviewed_at": "2026-07-22T00:00:00+00:00",
+      "evidence_sha256": "572deaee36ce410064d1ca88855cc00b5e0ce5aee3475fcaefe77fd3e0a06cc1"
+    }
+  ],
+  "profile_semantic_fingerprint": "dcf8cf88e7331862c86343f1ebdfd52206daea33e5584c635305add0f95912b9",
+  "vocabulary_bundle_version": "2026.07-v17.4",
+  "vocabulary_source": "canonical",
+  "consumer_contract": {
+    "canonical_vocabulary.json": [
+      "bundled_vocabulary.load_bundled_vocabulary",
+      "query_plan.compile_query_sets",
+      "query_plan.build_relevance_rules",
+      "relevance.relevance_assessment",
+      "analysis topic payload",
+      "translation glossary",
+      "entity_resolution",
+      "python_relevance",
+      "llm_relevance_scope",
+      "post_enrichment_gate",
+      "supplementary_router",
+      "analysis_topic_contract",
+      "semantic_ci"
+    ],
+    "profile.json": [
+      "compatibility view only"
+    ],
+    "retrieval_vocabulary.json": [
+      "audit/compatibility view only"
+    ],
+    "review_vocabulary.json": [
+      "audit/compatibility view only"
+    ],
+    "exclusion_vocabulary.json": [
+      "audit/compatibility view only"
+    ],
+    "translation_glossary.json": [
+      "audit/compatibility view only"
+    ],
+    "authoritative_sources.json": [
+      "audit/compatibility view only"
+    ],
+    "validation_cases.json": [
+      "CI semantic tests"
+    ]
+  },
+  "vocabulary_validation_cases": {
+    "schema_version": 5,
+    "profile_id": "seasonal_influenza",
+    "positive": [
+      {
+        "surface": "title",
+        "title": "influenza A virus surveillance and clinical study",
+        "text": "influenza A virus surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "influenza B virus surveillance and clinical study",
+        "text": "influenza B virus surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "human influenza A virus surveillance and clinical study",
+        "text": "human influenza A virus surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "human influenza B virus surveillance and clinical study",
+        "text": "human influenza B virus surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "seasonal H3N2 surveillance and clinical study",
+        "text": "seasonal H3N2 surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "seasonal H1N1pdm09 surveillance and clinical study",
+        "text": "seasonal H1N1pdm09 surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "influenza B Victoria lineage surveillance and clinical study",
+        "text": "influenza B Victoria lineage surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "influenza B Yamagata lineage surveillance and clinical study",
+        "text": "influenza B Yamagata lineage surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "A(H1N1)pdm09 surveillance and clinical study",
+        "text": "A(H1N1)pdm09 surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "A(H3N2) surveillance and clinical study",
+        "text": "A(H3N2) surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "B/Victoria lineage surveillance and clinical study",
+        "text": "B/Victoria lineage surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "seasonal influenza surveillance and clinical study",
+        "text": "seasonal influenza surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "human influenza surveillance and clinical study",
+        "text": "human influenza surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "influenza infection surveillance and clinical study",
+        "text": "influenza infection surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "seasonal flu surveillance and clinical study",
+        "text": "seasonal flu surveillance and clinical study",
+        "expected": "accept",
+        "case_role": "canonical_identity_positive"
+      },
+      {
+        "surface": "title",
+        "title": "Seasonal H3N2 vaccine effectiveness",
+        "text": "Seasonal H3N2 vaccine effectiveness",
+        "expected": "accept",
+        "case_role": "authoritative_edge_positive"
+      },
+      {
+        "surface": "title",
+        "title": "Influenza B Victoria lineage surveillance",
+        "text": "Influenza B Victoria lineage surveillance",
+        "expected": "accept",
+        "case_role": "authoritative_edge_positive"
+      },
+      {
+        "surface": "title",
+        "title": "seasonal influenza  surveillance study",
+        "text": "seasonal influenza  surveillance study",
+        "expected": "accept",
+        "case_role": "core_to_review_mapping"
+      },
+      {
+        "surface": "title",
+        "title": "influenza A(H3N2)  surveillance study",
+        "text": "influenza A(H3N2)  surveillance study",
+        "expected": "accept",
+        "case_role": "core_to_review_mapping"
+      },
+      {
+        "surface": "title",
+        "title": "influenza A(H1N1)pdm09  surveillance study",
+        "text": "influenza A(H1N1)pdm09  surveillance study",
+        "expected": "accept",
+        "case_role": "core_to_review_mapping"
+      },
+      {
+        "surface": "title",
+        "title": "influenza B Victoria lineage  surveillance study",
+        "text": "influenza B Victoria lineage  surveillance study",
+        "expected": "accept",
+        "case_role": "core_to_review_mapping"
+      },
+      {
+        "surface": "title",
+        "title": "influenza B Yamagata lineage  surveillance study",
+        "text": "influenza B Yamagata lineage  surveillance study",
+        "expected": "accept",
+        "case_role": "core_to_review_mapping"
+      }
+    ],
+    "negative": [
+      {
+        "surface": "navigation_noise",
+        "title": "Website navigation and cookie notice",
+        "text": "Accept cookies menu login become a member categories webinars white papers view all weather privacy policy",
+        "expected": "reject",
+        "case_role": "legacy_noise_negative"
+      }
+    ],
+    "related": [
+      {
+        "surface": "title",
+        "title": "avian influenza surveillance, ecology or comparative study",
+        "text": "avian influenza surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      },
+      {
+        "surface": "title",
+        "title": "H5N1 surveillance, ecology or comparative study",
+        "text": "H5N1 surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      },
+      {
+        "surface": "title",
+        "title": "H5N6 surveillance, ecology or comparative study",
+        "text": "H5N6 surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      },
+      {
+        "surface": "title",
+        "title": "H7N9 surveillance, ecology or comparative study",
+        "text": "H7N9 surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      },
+      {
+        "surface": "title",
+        "title": "H9N2 surveillance, ecology or comparative study",
+        "text": "H9N2 surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      },
+      {
+        "surface": "title",
+        "title": "swine influenza surveillance, ecology or comparative study",
+        "text": "swine influenza surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      },
+      {
+        "surface": "title",
+        "title": "influenza C virus surveillance, ecology or comparative study",
+        "text": "influenza C virus surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      },
+      {
+        "surface": "title",
+        "title": "influenza D virus surveillance, ecology or comparative study",
+        "text": "influenza D virus surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      },
+      {
+        "surface": "title",
+        "title": "equine influenza surveillance, ecology or comparative study",
+        "text": "equine influenza surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      },
+      {
+        "surface": "title",
+        "title": "canine influenza surveillance, ecology or comparative study",
+        "text": "canine influenza surveillance, ecology or comparative study",
+        "expected": "supplementary",
+        "case_role": "related_entity_supplementary"
+      }
+    ],
+    "comparison": [
+      {
+        "surface": "abstract_or_brief",
+        "title": "Comparative study of influenza A virus and avian influenza",
+        "text": "The study reports target-specific methods and results for influenza A virus and compares them with avian influenza.",
+        "expected": "primary_or_review",
+        "case_role": "material_target_related_comparison"
+      },
+      {
+        "surface": "abstract_or_brief",
+        "title": "Comparative study of influenza A virus and H5N1",
+        "text": "The study reports target-specific methods and results for influenza A virus and compares them with H5N1.",
+        "expected": "primary_or_review",
+        "case_role": "material_target_related_comparison"
+      },
+      {
+        "surface": "abstract_or_brief",
+        "title": "Comparative study of influenza A virus and H5N6",
+        "text": "The study reports target-specific methods and results for influenza A virus and compares them with H5N6.",
+        "expected": "primary_or_review",
+        "case_role": "material_target_related_comparison"
+      },
+      {
+        "surface": "abstract_or_brief",
+        "title": "Comparative study of influenza A virus and H7N9",
+        "text": "The study reports target-specific methods and results for influenza A virus and compares them with H7N9.",
+        "expected": "primary_or_review",
+        "case_role": "material_target_related_comparison"
+      },
+      {
+        "surface": "abstract_or_brief",
+        "title": "Comparative study of influenza A virus and H9N2",
+        "text": "The study reports target-specific methods and results for influenza A virus and compares them with H9N2.",
+        "expected": "primary_or_review",
+        "case_role": "material_target_related_comparison"
+      }
+    ]
+  },
   "core_term_contract": {
     "policy_version": "v15.1-frozen-five-core-terms-2",
     "passed": true,
@@ -1888,16 +2799,25 @@
   "post_retrieval_vocabulary": {
     "policy_version": "v15.1-frozen-five-core-terms-2",
     "identity_terms": [
-      "seasonal influenza",
       "influenza A virus",
       "influenza B virus",
       "human influenza A virus",
       "human influenza B virus",
+      "seasonal H3N2",
+      "seasonal H1N1pdm09",
+      "influenza B Victoria lineage",
+      "influenza B Yamagata lineage",
+      "B/Victoria",
+      "B/Yamagata",
+      "influenza A(H3N2)",
+      "influenza A(H1N1)pdm09",
       "A(H1N1)pdm09",
       "A(H3N2)",
       "B/Victoria lineage",
+      "seasonal influenza",
       "human influenza",
-      "influenza infection"
+      "influenza infection",
+      "seasonal flu"
     ],
     "qualified_abbreviations": [
       {
@@ -1919,181 +2839,67 @@
         "forbidden_without_context": true
       }
     ],
-    "exclusion_terms": [
-      "avian influenza",
-      "H5N1",
-      "H5N6",
-      "H7N9",
-      "H9N2",
-      "swine influenza",
-      "influenza C virus",
-      "influenza D virus"
-    ],
+    "exclusion_terms": [],
     "paper_priority_terms": [
       {
         "term": "outbreak",
-        "category": "emerging_event",
-        "weight": 5,
-        "normalized_term": "outbreak",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "spillover",
-        "category": "cross_species",
-        "weight": 5,
-        "normalized_term": "spillover",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "first report",
-        "category": "novelty",
-        "weight": 5,
-        "normalized_term": "first report",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "novel host",
-        "category": "novelty",
-        "weight": 5,
-        "normalized_term": "novel host",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "new region",
-        "category": "novelty",
-        "weight": 4,
-        "normalized_term": "new region",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "genomic surveillance",
-        "category": "genomics",
-        "weight": 4,
-        "normalized_term": "genomic surveillance",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "recombination",
-        "category": "evolution",
-        "weight": 4,
-        "normalized_term": "recombination",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "evolution",
-        "category": "evolution",
-        "weight": 3,
-        "normalized_term": "evolution",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "vaccine",
-        "category": "countermeasure",
-        "weight": 3,
-        "normalized_term": "vaccine",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "therapeutic",
-        "category": "countermeasure",
-        "weight": 3,
-        "normalized_term": "therapeutic",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "diagnostic",
-        "category": "diagnostics",
-        "weight": 3,
-        "normalized_term": "diagnostic",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "clinical outcome",
-        "category": "clinical",
-        "weight": 3,
-        "normalized_term": "clinical outcome",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "cohort",
-        "category": "study_scale",
-        "weight": 2,
-        "normalized_term": "cohort",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "systematic review",
-        "category": "evidence_synthesis",
-        "weight": 3,
-        "normalized_term": "systematic review",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       },
       {
         "term": "public health",
-        "category": "public_health",
-        "weight": 2,
-        "normalized_term": "public health",
-        "source_urls": [
-          "https://www.who.int/news-room/fact-sheets/detail/influenza-%28seasonal%29",
-          "https://www.cdc.gov/flu/about/index.html",
-          "https://viralzone.expasy.org/223"
-        ]
+        "safe_to_use_alone": false
       }
     ],
     "document_type_terms": {
