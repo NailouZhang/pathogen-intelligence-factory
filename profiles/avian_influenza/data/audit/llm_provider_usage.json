@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-08-07T03:17:55+00:00",
+  "generated_at": "2026-08-14T03:28:31+00:00",
   "shared_state_file": "/tmp/pif_data_repo/shared/state/provider_quota_daily.json",
   "provider_order": {
     "extract": [
@@ -61,7 +61,116 @@
       "groq"
     ]
   },
-  "task_failures": [],
+  "task_failures": [
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-08-14T01:54:35+00:00",
+      "failure_category": "rate_limited",
+      "error": "All configured LLM attempts failed (rate_limited): HTTP request failed: https://api.groq.com/openai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01kxfxy383e72t9rgc2e5r3bja` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Used 6678, Requested 7097. Please try again in 43.3125s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
+          "model": "",
+          "at": "2026-08-14T01:52:42+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-4.5",
+          "at": "2026-08-14T01:52:42+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-08-14T01:52:42+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "timeout"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "retry_index": 0,
+          "at": "2026-08-14T01:52:42+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 23855,
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "error_type": "RuntimeError",
+          "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+          "elapsed_ms": 268
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-08-14T01:52:42+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "retry_index": 0,
+          "at": "2026-08-14T01:52:42+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 23855,
+          "status": "failed",
+          "failure_category": "empty_response",
+          "error_type": "LLMError",
+          "error": "openrouter returned empty content: {'id': 'gen-1786672362-Jai6CXebOdOotJWX5RA6', 'object': 'chat.completion', 'created': 1786672362, 'model': 'openai/gpt-oss-20b:free', 'provider': 'Darkbloom', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need to evaluate each record for relevance to avian influenza A viruses. Use decision codes. hidden rules:ferred.ferred.\\n\\nWe have 18 records r0 to r17. Determine for each.\\n\\nWe must consider target_entities list includes avian influenza A virus, avian influenza virus, bird flu, zoonosis, H5N8, H5Nx, H7N4, highly pathogenic avian influenza, low pathogenic avian influenza, H5N2, human infection with avian influenza, zoonostic avian influenza, avian influenza. All",
+          "elapsed_ms": 109397
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b",
+          "retry_index": 0,
+          "at": "2026-08-14T01:54:31+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 23855,
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "error_type": "RuntimeError",
+          "error": "HTTP request failed: https://api.groq.com/openai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01kxfxy383e72t9rgc2e5r3bja` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Used 6678, Requested 7097. Please try again in 43.3125s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}",
+          "elapsed_ms": 3337
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r0",
+          "r1",
+          "r2",
+          "r3",
+          "r4",
+          "r5",
+          "r6",
+          "r7",
+          "r8",
+          "r9",
+          "r10",
+          "r11",
+          "r13",
+          "r14",
+          "r15",
+          "r16",
+          "r17"
+        ]
+      }
+    }
+  ],
   "model_discovery": {
     "bigmodel": {
       "status": "discovered",
@@ -184,7 +293,7 @@
       "status": "discovered",
       "endpoint": "https://api.mistral.ai/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 34,
+      "discovered_count": 36,
       "discovered_models": [
         "mistral-small-latest",
         "mistral-small-2603",
@@ -197,6 +306,7 @@
         "ministral-8b-latest",
         "voxtral-small-2507",
         "voxtral-small-latest",
+        "glm-5-2",
         "mistral-code-agent-latest",
         "mistral-code-fim-latest",
         "mistral-code-latest",
@@ -211,11 +321,10 @@
         "mistral-vibe-cli-fast",
         "mistral-vibe-cli-latest",
         "mistral-vibe-cli-with-tools",
+        "zai-glm-5-2",
         "mistral-large-2512",
         "mistral-large-latest",
-        "codestral-2508",
-        "codestral-latest",
-        "devstral-2512"
+        "codestral-2508"
       ],
       "explicit_preferences": [
         "mistral-small-latest"
@@ -235,6 +344,7 @@
         "ministral-8b-latest",
         "voxtral-small-2507",
         "voxtral-small-latest",
+        "glm-5-2",
         "mistral-code-agent-latest",
         "mistral-code-fim-latest",
         "mistral-code-latest",
@@ -249,11 +359,10 @@
         "mistral-vibe-cli-fast",
         "mistral-vibe-cli-latest",
         "mistral-vibe-cli-with-tools",
+        "zai-glm-5-2",
         "mistral-large-2512",
         "mistral-large-latest",
-        "codestral-2508",
-        "codestral-latest",
-        "devstral-2512"
+        "codestral-2508"
       ],
       "ignored_retired_models": [],
       "gemini_lite_preferred": false,
@@ -264,16 +373,17 @@
       "status": "discovered",
       "endpoint": "https://openrouter.ai/api/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 17,
+      "discovered_count": 18,
       "discovered_models": [
         "openrouter/free",
         "cohere/north-mini-code:free",
         "google/gemma-4-26b-a4b-it:free",
         "google/gemma-4-31b-it:free",
-        "inclusionai/ling-3.0-tiny:free",
+        "liquid/lfm-2.5-2.6b:free",
         "nvidia/nemotron-3-nano-30b-a3b:free",
         "nvidia/nemotron-3-ultra-550b-a55b:free",
         "nvidia/nemotron-3.5-content-safety:free",
+        "nvidia/nemotron-3.5-lightning:free",
         "nvidia/nemotron-nano-12b-v2-vl:free",
         "nvidia/nemotron-nano-9b-v2:free",
         "openai/gpt-oss-20b:free",
@@ -295,10 +405,11 @@
         "cohere/north-mini-code:free",
         "google/gemma-4-26b-a4b-it:free",
         "google/gemma-4-31b-it:free",
-        "inclusionai/ling-3.0-tiny:free",
+        "liquid/lfm-2.5-2.6b:free",
         "nvidia/nemotron-3-nano-30b-a3b:free",
         "nvidia/nemotron-3-ultra-550b-a55b:free",
         "nvidia/nemotron-3.5-content-safety:free",
+        "nvidia/nemotron-3.5-lightning:free",
         "nvidia/nemotron-nano-12b-v2-vl:free",
         "nvidia/nemotron-nano-9b-v2:free",
         "openai/gpt-oss-20b:free",
@@ -308,6 +419,50 @@
         "nvidia/nemotron-3-super-120b-a12b:free",
         "google/lyria-3-clip-preview",
         "google/lyria-3-pro-preview"
+      ],
+      "ignored_retired_models": [],
+      "gemini_lite_preferred": false,
+      "failure_category": "",
+      "error": ""
+    },
+    "groq": {
+      "status": "discovered",
+      "endpoint": "https://api.groq.com/openai/v1/models",
+      "discovery_enabled": true,
+      "discovered_count": 8,
+      "discovered_models": [
+        "llama-3.1-8b-instant",
+        "qwen/qwen3.6-27b",
+        "llama-3.3-70b-versatile",
+        "openai/gpt-oss-20b",
+        "openai/gpt-oss-120b",
+        "allam-2-7b",
+        "canopylabs/orpheus-arabic-saudi",
+        "canopylabs/orpheus-v1-english"
+      ],
+      "explicit_preferences": [
+        "openai/gpt-oss-120b",
+        "qwen/qwen3.6-27b",
+        "openai/gpt-oss-20b",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant"
+      ],
+      "fallback_models": [
+        "openai/gpt-oss-120b",
+        "qwen/qwen3.6-27b",
+        "openai/gpt-oss-20b",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant"
+      ],
+      "selected_candidates": [
+        "openai/gpt-oss-120b",
+        "qwen/qwen3.6-27b",
+        "openai/gpt-oss-20b",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant",
+        "allam-2-7b",
+        "canopylabs/orpheus-arabic-saudi",
+        "canopylabs/orpheus-v1-english"
       ],
       "ignored_retired_models": [],
       "gemini_lite_preferred": false,
@@ -361,7 +516,7 @@
         "status": "not_supported"
       },
       "last_failure_category": "authentication_failed",
-      "last_failure_at": 1786060470.3613656,
+      "last_failure_at": 1786664713.6509376,
       "cooldown_remaining_seconds": 0
     },
     "groq": {
@@ -369,29 +524,33 @@
       "provider": "groq",
       "status": "quota_exhausted",
       "disabled_reason": "quota_exhausted",
-      "requests": 8,
-      "successes": 4,
-      "failures": 4,
-      "prompt_tokens": 9878,
-      "completion_tokens": 3376,
-      "total_tokens": 13254,
+      "requests": 20,
+      "successes": 5,
+      "failures": 15,
+      "prompt_tokens": 12262,
+      "completion_tokens": 6009,
+      "total_tokens": 18271,
       "models": {
         "openai/gpt-oss-120b": {
-          "status": "quota_exhausted",
-          "requests": 7,
+          "status": "cooldown",
+          "requests": 15,
           "successes": 4,
-          "prompt_tokens": 9878,
-          "completion_tokens": 3376,
-          "total_tokens": 13254,
-          "failures": 3,
-          "last_failure_category": "quota_exhausted",
+          "prompt_tokens": 10180,
+          "completion_tokens": 4209,
+          "total_tokens": 14389,
+          "failures": 11,
+          "last_failure_category": "rate_limited",
           "cooldown_remaining_seconds": 0
         },
         "qwen/qwen3.6-27b": {
-          "requests": 1,
-          "failures": 1,
+          "requests": 5,
+          "failures": 4,
           "last_failure_category": "quota_exhausted",
           "status": "quota_exhausted",
+          "successes": 1,
+          "prompt_tokens": 2082,
+          "completion_tokens": 1800,
+          "total_tokens": 3882,
           "cooldown_remaining_seconds": 0
         }
       },
@@ -399,7 +558,7 @@
         "status": "not_supported"
       },
       "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1786066472.7266219,
+      "last_failure_at": 1786677958.6566832,
       "cooldown_remaining_seconds": 0
     },
     "openrouter": {
@@ -407,22 +566,22 @@
       "provider": "openrouter",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 26,
-      "successes": 4,
-      "failures": 22,
-      "prompt_tokens": 13044,
-      "completion_tokens": 2475,
-      "total_tokens": 15519,
+      "requests": 31,
+      "successes": 6,
+      "failures": 25,
+      "prompt_tokens": 17098,
+      "completion_tokens": 3745,
+      "total_tokens": 20843,
       "models": {
         "openrouter/free": {
           "status": "failed",
-          "requests": 17,
-          "successes": 4,
-          "prompt_tokens": 13044,
-          "completion_tokens": 2475,
-          "total_tokens": 15519,
-          "failures": 13,
-          "last_failure_category": "validation_failed",
+          "requests": 22,
+          "successes": 6,
+          "prompt_tokens": 17098,
+          "completion_tokens": 3745,
+          "total_tokens": 20843,
+          "failures": 16,
+          "last_failure_category": "context_or_output_limit",
           "cooldown_remaining_seconds": 0
         },
         "cohere/north-mini-code:free": {
@@ -443,7 +602,7 @@
         "usage_monthly": 0
       },
       "last_failure_category": "empty_response",
-      "last_failure_at": 1786072665.1150227,
+      "last_failure_at": 1786678105.1303027,
       "cooldown_remaining_seconds": 0
     },
     "mistral": {
@@ -451,33 +610,33 @@
       "provider": "mistral",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 186,
-      "successes": 162,
-      "failures": 24,
-      "prompt_tokens": 349803,
-      "completion_tokens": 55031,
-      "total_tokens": 404834,
+      "requests": 328,
+      "successes": 298,
+      "failures": 30,
+      "prompt_tokens": 643563,
+      "completion_tokens": 106041,
+      "total_tokens": 749604,
       "models": {
         "mistral-small-latest": {
           "status": "failed",
-          "requests": 173,
-          "successes": 160,
-          "prompt_tokens": 341610,
-          "completion_tokens": 53769,
-          "total_tokens": 395379,
-          "failures": 13,
+          "requests": 312,
+          "successes": 294,
+          "prompt_tokens": 630662,
+          "completion_tokens": 102043,
+          "total_tokens": 732705,
+          "failures": 18,
           "last_failure_category": "validation_failed",
           "cooldown_remaining_seconds": 0
         },
         "mistral-small-2603": {
-          "status": "failed",
-          "requests": 13,
-          "successes": 2,
-          "prompt_tokens": 8193,
-          "completion_tokens": 1262,
-          "total_tokens": 9455,
-          "failures": 11,
+          "requests": 16,
+          "failures": 12,
           "last_failure_category": "validation_failed",
+          "status": "failed",
+          "successes": 4,
+          "prompt_tokens": 12901,
+          "completion_tokens": 3998,
+          "total_tokens": 16899,
           "cooldown_remaining_seconds": 0
         }
       },
@@ -485,7 +644,7 @@
         "status": "not_supported"
       },
       "last_failure_category": "validation_failed",
-      "last_failure_at": 1786072535.0480912,
+      "last_failure_at": 1786677971.0493283,
       "cooldown_remaining_seconds": 0
     },
     "siliconflow": {
@@ -493,27 +652,27 @@
       "provider": "siliconflow",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 145,
-      "successes": 70,
-      "failures": 75,
-      "prompt_tokens": 286472,
-      "completion_tokens": 39143,
-      "total_tokens": 325615,
+      "requests": 164,
+      "successes": 58,
+      "failures": 106,
+      "prompt_tokens": 220431,
+      "completion_tokens": 31395,
+      "total_tokens": 251826,
       "models": {
         "Qwen/Qwen3-8B": {
           "status": "failed",
-          "requests": 109,
-          "successes": 70,
-          "prompt_tokens": 286472,
-          "completion_tokens": 39143,
-          "total_tokens": 325615,
-          "failures": 39,
+          "requests": 113,
+          "successes": 58,
+          "prompt_tokens": 220431,
+          "completion_tokens": 31395,
+          "total_tokens": 251826,
+          "failures": 55,
           "last_failure_category": "validation_failed",
           "cooldown_remaining_seconds": 0
         },
         "LoRA/Qwen/Qwen2.5-7B-Instruct": {
-          "requests": 36,
-          "failures": 36,
+          "requests": 51,
+          "failures": 51,
           "last_failure_category": "context_or_output_limit",
           "status": "failed",
           "cooldown_remaining_seconds": 0
@@ -521,13 +680,13 @@
       },
       "account": {
         "status": "ok",
-        "account_status": "normal",
+        "account_status": "",
         "balance": "0",
-        "charge_balance": "0.1",
-        "total_balance": "0.1"
+        "charge_balance": "0",
+        "total_balance": "0"
       },
       "last_failure_category": "context_or_output_limit",
-      "last_failure_at": 1786072597.9132307,
+      "last_failure_at": 1786678040.5218258,
       "cooldown_remaining_seconds": 0
     },
     "bigmodel": {
@@ -535,29 +694,25 @@
       "provider": "bigmodel",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 242,
-      "successes": 89,
-      "failures": 153,
-      "prompt_tokens": 188194,
-      "completion_tokens": 43661,
-      "total_tokens": 231855,
+      "requests": 156,
+      "successes": 0,
+      "failures": 156,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_tokens": 0,
       "models": {
         "glm-4.5": {
-          "requests": 89,
-          "failures": 89,
+          "requests": 86,
+          "failures": 86,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
           "cooldown_remaining_seconds": 0
         },
         "glm-4.5-air": {
-          "status": "cooldown",
-          "requests": 153,
-          "successes": 89,
-          "prompt_tokens": 188194,
-          "completion_tokens": 43661,
-          "total_tokens": 231855,
-          "failures": 64,
+          "requests": 70,
+          "failures": 70,
           "last_failure_category": "rate_limited",
+          "status": "cooldown",
           "cooldown_remaining_seconds": 0
         }
       },
@@ -565,7 +720,7 @@
         "status": "not_supported"
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1786072521.3701937,
+      "last_failure_at": 1786677960.8039465,
       "cooldown_remaining_seconds": 0
     },
     "deepseek": {
@@ -612,7 +767,7 @@
         ]
       },
       "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1786060483.083483,
+      "last_failure_at": 1786664721.8964388,
       "cooldown_remaining_seconds": 0
     }
   }
