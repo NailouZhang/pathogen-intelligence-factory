@@ -2,66 +2,113 @@
   "candidate_pool": {
     "policy_version": "v17.2-normalization-field-repair-quality-1",
     "scope": "processed_candidate_pool",
-    "severity": "normal",
+    "severity": "warning",
     "warning_ratio": 0.2,
     "critical_ratio": 0.5,
-    "message_zh": "本期七/五要素分析未触发全局降级告警。",
-    "message_en": "No global structured-analysis degradation warning was triggered.",
+    "message_zh": "本期有 1/5 条（20.0%）分析使用规则兜底。主要原因：请求触发限流；请结合原始摘要或正文阅读。",
+    "message_en": "1/5 analyses (20.0%) used deterministic fallback. Main causes: requests were rate limited.",
     "papers": {
-      "total_items": 4,
-      "analyzable": 4,
-      "passed": 4,
+      "total_items": 2,
+      "analyzable": 2,
+      "passed": 2,
       "fallback": 0,
       "fallback_ratio": 0.0,
       "statuses": {
-        "passed": 4
+        "passed": 2
       }
     },
     "news": {
-      "total_items": 7,
-      "analyzable": 7,
-      "passed": 7,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
+      "total_items": 3,
+      "analyzable": 3,
+      "passed": 2,
+      "fallback": 1,
+      "fallback_ratio": 0.3333,
       "statuses": {
-        "passed": 7
+        "fallback_source_extract": 1,
+        "passed": 2
       }
     },
     "combined": {
-      "total_items": 11,
-      "analyzable": 11,
-      "passed": 11,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
+      "total_items": 5,
+      "analyzable": 5,
+      "passed": 4,
+      "fallback": 1,
+      "fallback_ratio": 0.2,
       "statuses": {
-        "passed": 11
+        "fallback_source_extract": 1,
+        "passed": 4
       }
     },
-    "top_failure_categories": [],
+    "top_failure_categories": [
+      {
+        "category": "rate_limited",
+        "count": 1,
+        "label_zh": "请求触发限流",
+        "label_en": "requests were rate limited"
+      }
+    ],
     "provider_attempts": {
       "bigmodel:failed": 6,
-      "bigmodel:skipped": 16,
-      "gemini:skipped": 11,
-      "siliconflow:success": 11
+      "bigmodel:skipped": 4,
+      "deepseek:skipped": 1,
+      "gemini:skipped": 5,
+      "groq:skipped": 1,
+      "mistral:failed": 2,
+      "mistral:success": 2,
+      "openrouter:failed": 2,
+      "siliconflow:failed": 6,
+      "siliconflow:success": 2
     },
     "model_attempts": {
       "bigmodel/glm-4.5-air:failed": 4,
-      "bigmodel/glm-4.5-air:skipped": 7,
+      "bigmodel/glm-4.5-air:skipped": 1,
       "bigmodel/glm-4.5:failed": 2,
-      "bigmodel/glm-4.5:skipped": 9,
-      "gemini/not_selected:skipped": 11,
-      "siliconflow/Qwen/Qwen3-8B:success": 11
+      "bigmodel/glm-4.5:skipped": 3,
+      "deepseek/not_selected:skipped": 1,
+      "gemini/not_selected:skipped": 5,
+      "groq/not_selected:skipped": 1,
+      "mistral/mistral-small-2603:failed": 1,
+      "mistral/mistral-small-latest:failed": 1,
+      "mistral/mistral-small-latest:success": 2,
+      "openrouter/cohere/north-mini-code:free:failed": 1,
+      "openrouter/openrouter/free:failed": 1,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 3,
+      "siliconflow/Qwen/Qwen3-8B:failed": 3,
+      "siliconflow/Qwen/Qwen3-8B:success": 2
     },
     "attempt_failure_categories": {
-      "rate_limited": 6
+      "context_or_output_limit": 2,
+      "empty_response": 1,
+      "invalid_json": 1,
+      "rate_limited": 6,
+      "timeout": 2,
+      "validation_failed": 4
     },
-    "validation_issue_categories": {},
-    "normalization_repairs": {},
-    "field_repair_statuses": {},
-    "field_repair_records": [],
+    "validation_issue_categories": {
+      "evidence_ids_missing": 13,
+      "invalid_confidence": 2
+    },
+    "normalization_repairs": {
+      "analysis_container_rebuilt": 1,
+      "evidence_ids_container_rebuilt": 2
+    },
+    "field_repair_statuses": {
+      "disabled_or_not_validation_failure": 1
+    },
+    "field_repair_records": [
+      {
+        "type": "news",
+        "id": "news-9e6e913f284ce7fc",
+        "title": "CDC in Guinea - Centers for Disease Control and Prevention | CDC (.gov)",
+        "status": "disabled_or_not_validation_failure",
+        "rounds": [],
+        "initial_candidate": {},
+        "final_validation": {}
+      }
+    ],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-08-09T18:31:24+00:00",
+      "generated_at": "2026-08-16T18:19:23+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -181,56 +228,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:12+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 50
+              "elapsed_ms": 60
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:12+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 41
+              "elapsed_ms": 59
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:13+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 51
+              "elapsed_ms": 61
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:13+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 44
+              "elapsed_ms": 59
             }
           ]
         },
@@ -301,12 +348,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:13+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 368,
+              "elapsed_ms": 306,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -317,8 +364,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 119,
-                "completion_tokens": 64,
-                "total_tokens": 183
+                "completion_tokens": 69,
+                "total_tokens": 188
               }
             }
           ]
@@ -326,7 +373,7 @@
         {
           "provider": "openrouter",
           "status": "passed",
-          "model": "google/gemma-4-26b-a4b-it:free",
+          "model": "nvidia/nemotron-nano-9b-v2:free",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -341,10 +388,11 @@
             "cohere/north-mini-code:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b-it:free",
-            "inclusionai/ling-3.0-tiny:free",
+            "liquid/lfm-2.5-2.6b:free",
             "nvidia/nemotron-3-nano-30b-a3b:free",
             "nvidia/nemotron-3-ultra-550b-a55b:free",
             "nvidia/nemotron-3.5-content-safety:free",
+            "nvidia/nemotron-3.5-lightning:free",
             "nvidia/nemotron-nano-12b-v2-vl:free",
             "nvidia/nemotron-nano-9b-v2:free",
             "openai/gpt-oss-20b:free",
@@ -352,6 +400,7 @@
             "poolside/laguna-xs-2.1:free",
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             "nvidia/nemotron-3-super-120b-a12b:free",
+            "dots-studio/dots-3-note-preview:free",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -359,16 +408,17 @@
             "status": "discovered",
             "endpoint": "https://openrouter.ai/api/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 17,
+            "discovered_count": 19,
             "discovered_models": [
               "openrouter/free",
               "cohere/north-mini-code:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
-              "inclusionai/ling-3.0-tiny:free",
+              "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-nano-30b-a3b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
               "nvidia/nemotron-3.5-content-safety:free",
+              "nvidia/nemotron-3.5-lightning:free",
               "nvidia/nemotron-nano-12b-v2-vl:free",
               "nvidia/nemotron-nano-9b-v2:free",
               "openai/gpt-oss-20b:free",
@@ -376,6 +426,7 @@
               "poolside/laguna-xs-2.1:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
+              "dots-studio/dots-3-note-preview:free",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -390,10 +441,11 @@
               "cohere/north-mini-code:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
-              "inclusionai/ling-3.0-tiny:free",
+              "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-nano-30b-a3b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
               "nvidia/nemotron-3.5-content-safety:free",
+              "nvidia/nemotron-3.5-lightning:free",
               "nvidia/nemotron-nano-12b-v2-vl:free",
               "nvidia/nemotron-nano-9b-v2:free",
               "openai/gpt-oss-20b:free",
@@ -401,6 +453,7 @@
               "poolside/laguna-xs-2.1:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
+              "dots-studio/dots-3-note-preview:free",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -415,12 +468,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:13+00:00",
+              "at": "2026-08-16T18:19:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
-              "response_model": "google/gemma-4-26b-a4b-it:free",
-              "elapsed_ms": 2718,
+              "response_model": "nvidia/nemotron-nano-9b-v2:free",
+              "elapsed_ms": 3570,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -430,9 +483,9 @@
               },
               "normalization_audit": {},
               "usage": {
-                "prompt_tokens": 87,
-                "completion_tokens": 6,
-                "total_tokens": 93
+                "prompt_tokens": 29,
+                "completion_tokens": 93,
+                "total_tokens": 122
               }
             }
           ]
@@ -456,6 +509,7 @@
             "ministral-8b-latest",
             "voxtral-small-2507",
             "voxtral-small-latest",
+            "glm-5-2",
             "mistral-code-agent-latest",
             "mistral-code-fim-latest",
             "mistral-code-latest",
@@ -470,17 +524,16 @@
             "mistral-vibe-cli-fast",
             "mistral-vibe-cli-latest",
             "mistral-vibe-cli-with-tools",
+            "zai-glm-5-2",
             "mistral-large-2512",
             "mistral-large-latest",
-            "codestral-2508",
-            "codestral-latest",
-            "devstral-2512"
+            "codestral-2508"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://api.mistral.ai/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 34,
+            "discovered_count": 36,
             "discovered_models": [
               "mistral-small-latest",
               "mistral-small-2603",
@@ -493,6 +546,7 @@
               "ministral-8b-latest",
               "voxtral-small-2507",
               "voxtral-small-latest",
+              "glm-5-2",
               "mistral-code-agent-latest",
               "mistral-code-fim-latest",
               "mistral-code-latest",
@@ -507,11 +561,10 @@
               "mistral-vibe-cli-fast",
               "mistral-vibe-cli-latest",
               "mistral-vibe-cli-with-tools",
+              "zai-glm-5-2",
               "mistral-large-2512",
               "mistral-large-latest",
-              "codestral-2508",
-              "codestral-latest",
-              "devstral-2512"
+              "codestral-2508"
             ],
             "explicit_preferences": [
               "mistral-small-latest"
@@ -531,6 +584,7 @@
               "ministral-8b-latest",
               "voxtral-small-2507",
               "voxtral-small-latest",
+              "glm-5-2",
               "mistral-code-agent-latest",
               "mistral-code-fim-latest",
               "mistral-code-latest",
@@ -545,11 +599,10 @@
               "mistral-vibe-cli-fast",
               "mistral-vibe-cli-latest",
               "mistral-vibe-cli-with-tools",
+              "zai-glm-5-2",
               "mistral-large-2512",
               "mistral-large-latest",
-              "codestral-2508",
-              "codestral-latest",
-              "devstral-2512"
+              "codestral-2508"
             ],
             "ignored_retired_models": [],
             "gemini_lite_preferred": false,
@@ -562,12 +615,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:17+00:00",
+              "at": "2026-08-16T18:19:13+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 422,
+              "elapsed_ms": 637,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -590,10 +643,10 @@
           "model": "Qwen/Qwen3-8B",
           "account": {
             "status": "ok",
-            "account_status": "normal",
+            "account_status": "",
             "balance": "0",
-            "charge_balance": "0.1",
-            "total_balance": "0.1"
+            "charge_balance": "0",
+            "total_balance": "0"
           },
           "model_candidates": [
             "Qwen/Qwen3-8B",
@@ -713,12 +766,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:19+00:00",
+              "at": "2026-08-16T18:19:16+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 955,
+              "elapsed_ms": 3461,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -749,13 +802,14 @@
             "glm-5-turbo",
             "glm-5.1",
             "glm-5.2",
+            "glm-5.3",
             "glm-4.7-flash"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://open.bigmodel.cn/api/paas/v4/models",
             "discovery_enabled": true,
-            "discovered_count": 8,
+            "discovered_count": 9,
             "discovered_models": [
               "glm-4.5",
               "glm-4.5-air",
@@ -764,7 +818,8 @@
               "glm-5",
               "glm-5-turbo",
               "glm-5.1",
-              "glm-5.2"
+              "glm-5.2",
+              "glm-5.3"
             ],
             "explicit_preferences": [
               "glm-4.7-flash"
@@ -781,6 +836,7 @@
               "glm-5-turbo",
               "glm-5.1",
               "glm-5.2",
+              "glm-5.3",
               "glm-4.7-flash"
             ],
             "ignored_retired_models": [],
@@ -799,28 +855,28 @@
               "provider": "bigmodel",
               "model": "glm-4.5",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:21+00:00",
+              "at": "2026-08-16T18:19:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 255
+              "elapsed_ms": 280
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-4.5-air",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:21+00:00",
+              "at": "2026-08-16T18:19:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 283
+              "elapsed_ms": 296
             }
           ]
         },
@@ -881,28 +937,28 @@
               "provider": "deepseek",
               "model": "deepseek-v4-flash",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:23+00:00",
+              "at": "2026-08-16T18:19:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 621
+              "elapsed_ms": 565
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:23+00:00",
+              "at": "2026-08-16T18:19:22+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 617
+              "elapsed_ms": 564
             }
           ]
         }
@@ -1008,71 +1064,346 @@
         }
       ]
     },
-    "fallback_records": []
+    "fallback_records": [
+      {
+        "type": "news",
+        "id": "news-9e6e913f284ce7fc",
+        "title": "CDC in Guinea - Centers for Disease Control and Prevention | CDC (.gov)",
+        "failure_category": "rate_limited",
+        "fallback_policy": "cue_and_position_rescue",
+        "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
+        "attempts": [
+          {
+            "task": "news_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-08-16T21:34:05+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "bigmodel",
+            "model": "glm-4.5",
+            "retry_index": 0,
+            "at": "2026-08-16T21:34:05+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
+            "elapsed_ms": 560
+          },
+          {
+            "task": "news_analysis",
+            "provider": "bigmodel",
+            "model": "glm-4.5-air",
+            "retry_index": 0,
+            "at": "2026-08-16T21:34:06+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
+            "elapsed_ms": 370
+          },
+          {
+            "task": "news_analysis",
+            "provider": "siliconflow",
+            "model": "Qwen/Qwen3-8B",
+            "retry_index": 0,
+            "at": "2026-08-16T21:34:06+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "timeout",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://api.siliconflow.cn/v1/chat/completions: HTTPSConnectionPool(host='api.siliconflow.cn', port=443): Read timed out. (read timeout=90)",
+            "elapsed_ms": 90086
+          },
+          {
+            "task": "news_analysis",
+            "provider": "siliconflow",
+            "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
+            "retry_index": 0,
+            "at": "2026-08-16T21:35:36+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "context_or_output_limit",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid complete JSON",
+            "elapsed_ms": 44961
+          },
+          {
+            "task": "news_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-08-16T21:36:21+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"scale_impact_and_risk\"}], \"warnings\": [], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 3856,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "scale_impact_and_risk"
+                }
+              ],
+              "warnings": [],
+              "issue_counts": {
+                "evidence_ids_missing": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 2345,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "news_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2603",
+            "retry_index": 0,
+            "at": "2026-08-16T21:36:25+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"scale_impact_and_risk\"}], \"warnings\": [], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 3628,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "scale_impact_and_risk"
+                }
+              ],
+              "warnings": [],
+              "issue_counts": {
+                "evidence_ids_missing": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 1950,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "news_analysis",
+            "provider": "deepseek",
+            "model": "",
+            "at": "2026-08-16T21:36:29+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-08-16T21:36:29+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid complete JSON",
+            "elapsed_ms": 1614
+          },
+          {
+            "task": "news_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-08-16T21:36:30+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "openrouter returned empty content: {'id': 'gen-1786916190-6nzKPK0cIaLlQQ0ORZ36', 'object': 'chat.completion', 'created': 1786916190, 'model': 'cohere/north-mini-code:free', 'provider': 'Cohere', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'max_tokens', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need to produce a JSON with analysis fields and brief_en (since generate_brief=true). Must use only evidence IDs from the supplied evidence. The evidence list includes many entries with IDs N1...N48. We need to map each of the five analytical fields to evidence IDs that support them.\\n\\nWe need to analyze exactly one news report, official notice, or substantive syndicated summary. The source is CDC website page \"CDC in Guinea\". This is an official government ",
+            "elapsed_ms": 51939
+          },
+          {
+            "task": "news_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-08-16T21:37:22+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          }
+        ]
+      }
+    ]
   },
   "displayed_primary_and_news": {
     "policy_version": "v17.2-normalization-field-repair-quality-1",
     "scope": "displayed_primary_and_news",
-    "severity": "normal",
+    "severity": "warning",
     "warning_ratio": 0.2,
     "critical_ratio": 0.5,
-    "message_zh": "本期七/五要素分析未触发全局降级告警。",
-    "message_en": "No global structured-analysis degradation warning was triggered.",
+    "message_zh": "本期有 1/5 条（20.0%）分析使用规则兜底。主要原因：请求触发限流；请结合原始摘要或正文阅读。",
+    "message_en": "1/5 analyses (20.0%) used deterministic fallback. Main causes: requests were rate limited.",
     "papers": {
-      "total_items": 4,
-      "analyzable": 4,
-      "passed": 4,
+      "total_items": 2,
+      "analyzable": 2,
+      "passed": 2,
       "fallback": 0,
       "fallback_ratio": 0.0,
       "statuses": {
-        "passed": 4
+        "passed": 2
       }
     },
     "news": {
-      "total_items": 7,
-      "analyzable": 7,
-      "passed": 7,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
+      "total_items": 3,
+      "analyzable": 3,
+      "passed": 2,
+      "fallback": 1,
+      "fallback_ratio": 0.3333,
       "statuses": {
-        "passed": 7
+        "fallback_source_extract": 1,
+        "passed": 2
       }
     },
     "combined": {
-      "total_items": 11,
-      "analyzable": 11,
-      "passed": 11,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
+      "total_items": 5,
+      "analyzable": 5,
+      "passed": 4,
+      "fallback": 1,
+      "fallback_ratio": 0.2,
       "statuses": {
-        "passed": 11
+        "fallback_source_extract": 1,
+        "passed": 4
       }
     },
-    "top_failure_categories": [],
+    "top_failure_categories": [
+      {
+        "category": "rate_limited",
+        "count": 1,
+        "label_zh": "请求触发限流",
+        "label_en": "requests were rate limited"
+      }
+    ],
     "provider_attempts": {
       "bigmodel:failed": 6,
-      "bigmodel:skipped": 16,
-      "gemini:skipped": 11,
-      "siliconflow:success": 11
+      "bigmodel:skipped": 4,
+      "deepseek:skipped": 1,
+      "gemini:skipped": 5,
+      "groq:skipped": 1,
+      "mistral:failed": 2,
+      "mistral:success": 2,
+      "openrouter:failed": 2,
+      "siliconflow:failed": 6,
+      "siliconflow:success": 2
     },
     "model_attempts": {
       "bigmodel/glm-4.5-air:failed": 4,
-      "bigmodel/glm-4.5-air:skipped": 7,
+      "bigmodel/glm-4.5-air:skipped": 1,
       "bigmodel/glm-4.5:failed": 2,
-      "bigmodel/glm-4.5:skipped": 9,
-      "gemini/not_selected:skipped": 11,
-      "siliconflow/Qwen/Qwen3-8B:success": 11
+      "bigmodel/glm-4.5:skipped": 3,
+      "deepseek/not_selected:skipped": 1,
+      "gemini/not_selected:skipped": 5,
+      "groq/not_selected:skipped": 1,
+      "mistral/mistral-small-2603:failed": 1,
+      "mistral/mistral-small-latest:failed": 1,
+      "mistral/mistral-small-latest:success": 2,
+      "openrouter/cohere/north-mini-code:free:failed": 1,
+      "openrouter/openrouter/free:failed": 1,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 3,
+      "siliconflow/Qwen/Qwen3-8B:failed": 3,
+      "siliconflow/Qwen/Qwen3-8B:success": 2
     },
     "attempt_failure_categories": {
-      "rate_limited": 6
+      "context_or_output_limit": 2,
+      "empty_response": 1,
+      "invalid_json": 1,
+      "rate_limited": 6,
+      "timeout": 2,
+      "validation_failed": 4
     },
-    "validation_issue_categories": {},
-    "normalization_repairs": {},
-    "field_repair_statuses": {},
-    "field_repair_records": [],
+    "validation_issue_categories": {
+      "evidence_ids_missing": 13,
+      "invalid_confidence": 2
+    },
+    "normalization_repairs": {
+      "analysis_container_rebuilt": 1,
+      "evidence_ids_container_rebuilt": 2
+    },
+    "field_repair_statuses": {
+      "disabled_or_not_validation_failure": 1
+    },
+    "field_repair_records": [
+      {
+        "type": "news",
+        "id": "news-9e6e913f284ce7fc",
+        "title": "CDC in Guinea - Centers for Disease Control and Prevention | CDC (.gov)",
+        "status": "disabled_or_not_validation_failure",
+        "rounds": [],
+        "initial_candidate": {},
+        "final_validation": {}
+      }
+    ],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-08-09T18:31:24+00:00",
+      "generated_at": "2026-08-16T18:19:23+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -1192,56 +1523,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:12+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 50
+              "elapsed_ms": 60
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:12+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 41
+              "elapsed_ms": 59
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:13+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 51
+              "elapsed_ms": 61
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:13+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 44
+              "elapsed_ms": 59
             }
           ]
         },
@@ -1312,12 +1643,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:13+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 368,
+              "elapsed_ms": 306,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1328,8 +1659,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 119,
-                "completion_tokens": 64,
-                "total_tokens": 183
+                "completion_tokens": 69,
+                "total_tokens": 188
               }
             }
           ]
@@ -1337,7 +1668,7 @@
         {
           "provider": "openrouter",
           "status": "passed",
-          "model": "google/gemma-4-26b-a4b-it:free",
+          "model": "nvidia/nemotron-nano-9b-v2:free",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -1352,10 +1683,11 @@
             "cohere/north-mini-code:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b-it:free",
-            "inclusionai/ling-3.0-tiny:free",
+            "liquid/lfm-2.5-2.6b:free",
             "nvidia/nemotron-3-nano-30b-a3b:free",
             "nvidia/nemotron-3-ultra-550b-a55b:free",
             "nvidia/nemotron-3.5-content-safety:free",
+            "nvidia/nemotron-3.5-lightning:free",
             "nvidia/nemotron-nano-12b-v2-vl:free",
             "nvidia/nemotron-nano-9b-v2:free",
             "openai/gpt-oss-20b:free",
@@ -1363,6 +1695,7 @@
             "poolside/laguna-xs-2.1:free",
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             "nvidia/nemotron-3-super-120b-a12b:free",
+            "dots-studio/dots-3-note-preview:free",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -1370,16 +1703,17 @@
             "status": "discovered",
             "endpoint": "https://openrouter.ai/api/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 17,
+            "discovered_count": 19,
             "discovered_models": [
               "openrouter/free",
               "cohere/north-mini-code:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
-              "inclusionai/ling-3.0-tiny:free",
+              "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-nano-30b-a3b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
               "nvidia/nemotron-3.5-content-safety:free",
+              "nvidia/nemotron-3.5-lightning:free",
               "nvidia/nemotron-nano-12b-v2-vl:free",
               "nvidia/nemotron-nano-9b-v2:free",
               "openai/gpt-oss-20b:free",
@@ -1387,6 +1721,7 @@
               "poolside/laguna-xs-2.1:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
+              "dots-studio/dots-3-note-preview:free",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -1401,10 +1736,11 @@
               "cohere/north-mini-code:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
-              "inclusionai/ling-3.0-tiny:free",
+              "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-nano-30b-a3b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
               "nvidia/nemotron-3.5-content-safety:free",
+              "nvidia/nemotron-3.5-lightning:free",
               "nvidia/nemotron-nano-12b-v2-vl:free",
               "nvidia/nemotron-nano-9b-v2:free",
               "openai/gpt-oss-20b:free",
@@ -1412,6 +1748,7 @@
               "poolside/laguna-xs-2.1:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
+              "dots-studio/dots-3-note-preview:free",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -1426,12 +1763,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:13+00:00",
+              "at": "2026-08-16T18:19:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
-              "response_model": "google/gemma-4-26b-a4b-it:free",
-              "elapsed_ms": 2718,
+              "response_model": "nvidia/nemotron-nano-9b-v2:free",
+              "elapsed_ms": 3570,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1441,9 +1778,9 @@
               },
               "normalization_audit": {},
               "usage": {
-                "prompt_tokens": 87,
-                "completion_tokens": 6,
-                "total_tokens": 93
+                "prompt_tokens": 29,
+                "completion_tokens": 93,
+                "total_tokens": 122
               }
             }
           ]
@@ -1467,6 +1804,7 @@
             "ministral-8b-latest",
             "voxtral-small-2507",
             "voxtral-small-latest",
+            "glm-5-2",
             "mistral-code-agent-latest",
             "mistral-code-fim-latest",
             "mistral-code-latest",
@@ -1481,17 +1819,16 @@
             "mistral-vibe-cli-fast",
             "mistral-vibe-cli-latest",
             "mistral-vibe-cli-with-tools",
+            "zai-glm-5-2",
             "mistral-large-2512",
             "mistral-large-latest",
-            "codestral-2508",
-            "codestral-latest",
-            "devstral-2512"
+            "codestral-2508"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://api.mistral.ai/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 34,
+            "discovered_count": 36,
             "discovered_models": [
               "mistral-small-latest",
               "mistral-small-2603",
@@ -1504,6 +1841,7 @@
               "ministral-8b-latest",
               "voxtral-small-2507",
               "voxtral-small-latest",
+              "glm-5-2",
               "mistral-code-agent-latest",
               "mistral-code-fim-latest",
               "mistral-code-latest",
@@ -1518,11 +1856,10 @@
               "mistral-vibe-cli-fast",
               "mistral-vibe-cli-latest",
               "mistral-vibe-cli-with-tools",
+              "zai-glm-5-2",
               "mistral-large-2512",
               "mistral-large-latest",
-              "codestral-2508",
-              "codestral-latest",
-              "devstral-2512"
+              "codestral-2508"
             ],
             "explicit_preferences": [
               "mistral-small-latest"
@@ -1542,6 +1879,7 @@
               "ministral-8b-latest",
               "voxtral-small-2507",
               "voxtral-small-latest",
+              "glm-5-2",
               "mistral-code-agent-latest",
               "mistral-code-fim-latest",
               "mistral-code-latest",
@@ -1556,11 +1894,10 @@
               "mistral-vibe-cli-fast",
               "mistral-vibe-cli-latest",
               "mistral-vibe-cli-with-tools",
+              "zai-glm-5-2",
               "mistral-large-2512",
               "mistral-large-latest",
-              "codestral-2508",
-              "codestral-latest",
-              "devstral-2512"
+              "codestral-2508"
             ],
             "ignored_retired_models": [],
             "gemini_lite_preferred": false,
@@ -1573,12 +1910,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:17+00:00",
+              "at": "2026-08-16T18:19:13+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 422,
+              "elapsed_ms": 637,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1601,10 +1938,10 @@
           "model": "Qwen/Qwen3-8B",
           "account": {
             "status": "ok",
-            "account_status": "normal",
+            "account_status": "",
             "balance": "0",
-            "charge_balance": "0.1",
-            "total_balance": "0.1"
+            "charge_balance": "0",
+            "total_balance": "0"
           },
           "model_candidates": [
             "Qwen/Qwen3-8B",
@@ -1724,12 +2061,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:19+00:00",
+              "at": "2026-08-16T18:19:16+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 955,
+              "elapsed_ms": 3461,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1760,13 +2097,14 @@
             "glm-5-turbo",
             "glm-5.1",
             "glm-5.2",
+            "glm-5.3",
             "glm-4.7-flash"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://open.bigmodel.cn/api/paas/v4/models",
             "discovery_enabled": true,
-            "discovered_count": 8,
+            "discovered_count": 9,
             "discovered_models": [
               "glm-4.5",
               "glm-4.5-air",
@@ -1775,7 +2113,8 @@
               "glm-5",
               "glm-5-turbo",
               "glm-5.1",
-              "glm-5.2"
+              "glm-5.2",
+              "glm-5.3"
             ],
             "explicit_preferences": [
               "glm-4.7-flash"
@@ -1792,6 +2131,7 @@
               "glm-5-turbo",
               "glm-5.1",
               "glm-5.2",
+              "glm-5.3",
               "glm-4.7-flash"
             ],
             "ignored_retired_models": [],
@@ -1810,28 +2150,28 @@
               "provider": "bigmodel",
               "model": "glm-4.5",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:21+00:00",
+              "at": "2026-08-16T18:19:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 255
+              "elapsed_ms": 280
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-4.5-air",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:21+00:00",
+              "at": "2026-08-16T18:19:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 283
+              "elapsed_ms": 296
             }
           ]
         },
@@ -1892,28 +2232,28 @@
               "provider": "deepseek",
               "model": "deepseek-v4-flash",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:23+00:00",
+              "at": "2026-08-16T18:19:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 621
+              "elapsed_ms": 565
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:23+00:00",
+              "at": "2026-08-16T18:19:22+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 617
+              "elapsed_ms": 564
             }
           ]
         }
@@ -2019,71 +2359,346 @@
         }
       ]
     },
-    "fallback_records": []
+    "fallback_records": [
+      {
+        "type": "news",
+        "id": "news-9e6e913f284ce7fc",
+        "title": "CDC in Guinea - Centers for Disease Control and Prevention | CDC (.gov)",
+        "failure_category": "rate_limited",
+        "fallback_policy": "cue_and_position_rescue",
+        "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
+        "attempts": [
+          {
+            "task": "news_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-08-16T21:34:05+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "bigmodel",
+            "model": "glm-4.5",
+            "retry_index": 0,
+            "at": "2026-08-16T21:34:05+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
+            "elapsed_ms": 560
+          },
+          {
+            "task": "news_analysis",
+            "provider": "bigmodel",
+            "model": "glm-4.5-air",
+            "retry_index": 0,
+            "at": "2026-08-16T21:34:06+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
+            "elapsed_ms": 370
+          },
+          {
+            "task": "news_analysis",
+            "provider": "siliconflow",
+            "model": "Qwen/Qwen3-8B",
+            "retry_index": 0,
+            "at": "2026-08-16T21:34:06+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "timeout",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://api.siliconflow.cn/v1/chat/completions: HTTPSConnectionPool(host='api.siliconflow.cn', port=443): Read timed out. (read timeout=90)",
+            "elapsed_ms": 90086
+          },
+          {
+            "task": "news_analysis",
+            "provider": "siliconflow",
+            "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
+            "retry_index": 0,
+            "at": "2026-08-16T21:35:36+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "context_or_output_limit",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid complete JSON",
+            "elapsed_ms": 44961
+          },
+          {
+            "task": "news_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-08-16T21:36:21+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"scale_impact_and_risk\"}], \"warnings\": [], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 3856,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "scale_impact_and_risk"
+                }
+              ],
+              "warnings": [],
+              "issue_counts": {
+                "evidence_ids_missing": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 2345,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "news_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2603",
+            "retry_index": 0,
+            "at": "2026-08-16T21:36:25+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"scale_impact_and_risk\"}], \"warnings\": [], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 3628,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "scale_impact_and_risk"
+                }
+              ],
+              "warnings": [],
+              "issue_counts": {
+                "evidence_ids_missing": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 1950,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "news_analysis",
+            "provider": "deepseek",
+            "model": "",
+            "at": "2026-08-16T21:36:29+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-08-16T21:36:29+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid complete JSON",
+            "elapsed_ms": 1614
+          },
+          {
+            "task": "news_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-08-16T21:36:30+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "openrouter returned empty content: {'id': 'gen-1786916190-6nzKPK0cIaLlQQ0ORZ36', 'object': 'chat.completion', 'created': 1786916190, 'model': 'cohere/north-mini-code:free', 'provider': 'Cohere', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'max_tokens', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need to produce a JSON with analysis fields and brief_en (since generate_brief=true). Must use only evidence IDs from the supplied evidence. The evidence list includes many entries with IDs N1...N48. We need to map each of the five analytical fields to evidence IDs that support them.\\n\\nWe need to analyze exactly one news report, official notice, or substantive syndicated summary. The source is CDC website page \"CDC in Guinea\". This is an official government ",
+            "elapsed_ms": 51939
+          },
+          {
+            "task": "news_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-08-16T21:37:22+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          }
+        ]
+      }
+    ]
   },
   "run": {
     "policy_version": "v17.2-normalization-field-repair-quality-1",
     "scope": "processed_candidate_pool",
-    "severity": "normal",
+    "severity": "warning",
     "warning_ratio": 0.2,
     "critical_ratio": 0.5,
-    "message_zh": "本期七/五要素分析未触发全局降级告警。",
-    "message_en": "No global structured-analysis degradation warning was triggered.",
+    "message_zh": "本期有 1/5 条（20.0%）分析使用规则兜底。主要原因：请求触发限流；请结合原始摘要或正文阅读。",
+    "message_en": "1/5 analyses (20.0%) used deterministic fallback. Main causes: requests were rate limited.",
     "papers": {
-      "total_items": 4,
-      "analyzable": 4,
-      "passed": 4,
+      "total_items": 2,
+      "analyzable": 2,
+      "passed": 2,
       "fallback": 0,
       "fallback_ratio": 0.0,
       "statuses": {
-        "passed": 4
+        "passed": 2
       }
     },
     "news": {
-      "total_items": 7,
-      "analyzable": 7,
-      "passed": 7,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
+      "total_items": 3,
+      "analyzable": 3,
+      "passed": 2,
+      "fallback": 1,
+      "fallback_ratio": 0.3333,
       "statuses": {
-        "passed": 7
+        "fallback_source_extract": 1,
+        "passed": 2
       }
     },
     "combined": {
-      "total_items": 11,
-      "analyzable": 11,
-      "passed": 11,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
+      "total_items": 5,
+      "analyzable": 5,
+      "passed": 4,
+      "fallback": 1,
+      "fallback_ratio": 0.2,
       "statuses": {
-        "passed": 11
+        "fallback_source_extract": 1,
+        "passed": 4
       }
     },
-    "top_failure_categories": [],
+    "top_failure_categories": [
+      {
+        "category": "rate_limited",
+        "count": 1,
+        "label_zh": "请求触发限流",
+        "label_en": "requests were rate limited"
+      }
+    ],
     "provider_attempts": {
       "bigmodel:failed": 6,
-      "bigmodel:skipped": 16,
-      "gemini:skipped": 11,
-      "siliconflow:success": 11
+      "bigmodel:skipped": 4,
+      "deepseek:skipped": 1,
+      "gemini:skipped": 5,
+      "groq:skipped": 1,
+      "mistral:failed": 2,
+      "mistral:success": 2,
+      "openrouter:failed": 2,
+      "siliconflow:failed": 6,
+      "siliconflow:success": 2
     },
     "model_attempts": {
       "bigmodel/glm-4.5-air:failed": 4,
-      "bigmodel/glm-4.5-air:skipped": 7,
+      "bigmodel/glm-4.5-air:skipped": 1,
       "bigmodel/glm-4.5:failed": 2,
-      "bigmodel/glm-4.5:skipped": 9,
-      "gemini/not_selected:skipped": 11,
-      "siliconflow/Qwen/Qwen3-8B:success": 11
+      "bigmodel/glm-4.5:skipped": 3,
+      "deepseek/not_selected:skipped": 1,
+      "gemini/not_selected:skipped": 5,
+      "groq/not_selected:skipped": 1,
+      "mistral/mistral-small-2603:failed": 1,
+      "mistral/mistral-small-latest:failed": 1,
+      "mistral/mistral-small-latest:success": 2,
+      "openrouter/cohere/north-mini-code:free:failed": 1,
+      "openrouter/openrouter/free:failed": 1,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 3,
+      "siliconflow/Qwen/Qwen3-8B:failed": 3,
+      "siliconflow/Qwen/Qwen3-8B:success": 2
     },
     "attempt_failure_categories": {
-      "rate_limited": 6
+      "context_or_output_limit": 2,
+      "empty_response": 1,
+      "invalid_json": 1,
+      "rate_limited": 6,
+      "timeout": 2,
+      "validation_failed": 4
     },
-    "validation_issue_categories": {},
-    "normalization_repairs": {},
-    "field_repair_statuses": {},
-    "field_repair_records": [],
+    "validation_issue_categories": {
+      "evidence_ids_missing": 13,
+      "invalid_confidence": 2
+    },
+    "normalization_repairs": {
+      "analysis_container_rebuilt": 1,
+      "evidence_ids_container_rebuilt": 2
+    },
+    "field_repair_statuses": {
+      "disabled_or_not_validation_failure": 1
+    },
+    "field_repair_records": [
+      {
+        "type": "news",
+        "id": "news-9e6e913f284ce7fc",
+        "title": "CDC in Guinea - Centers for Disease Control and Prevention | CDC (.gov)",
+        "status": "disabled_or_not_validation_failure",
+        "rounds": [],
+        "initial_candidate": {},
+        "final_validation": {}
+      }
+    ],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-08-09T18:31:24+00:00",
+      "generated_at": "2026-08-16T18:19:23+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -2203,56 +2818,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:12+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 50
+              "elapsed_ms": 60
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:12+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 41
+              "elapsed_ms": 59
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:13+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 51
+              "elapsed_ms": 61
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:13+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 44
+              "elapsed_ms": 59
             }
           ]
         },
@@ -2323,12 +2938,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:13+00:00",
+              "at": "2026-08-16T18:19:08+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 368,
+              "elapsed_ms": 306,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2339,8 +2954,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 119,
-                "completion_tokens": 64,
-                "total_tokens": 183
+                "completion_tokens": 69,
+                "total_tokens": 188
               }
             }
           ]
@@ -2348,7 +2963,7 @@
         {
           "provider": "openrouter",
           "status": "passed",
-          "model": "google/gemma-4-26b-a4b-it:free",
+          "model": "nvidia/nemotron-nano-9b-v2:free",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -2363,10 +2978,11 @@
             "cohere/north-mini-code:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b-it:free",
-            "inclusionai/ling-3.0-tiny:free",
+            "liquid/lfm-2.5-2.6b:free",
             "nvidia/nemotron-3-nano-30b-a3b:free",
             "nvidia/nemotron-3-ultra-550b-a55b:free",
             "nvidia/nemotron-3.5-content-safety:free",
+            "nvidia/nemotron-3.5-lightning:free",
             "nvidia/nemotron-nano-12b-v2-vl:free",
             "nvidia/nemotron-nano-9b-v2:free",
             "openai/gpt-oss-20b:free",
@@ -2374,6 +2990,7 @@
             "poolside/laguna-xs-2.1:free",
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             "nvidia/nemotron-3-super-120b-a12b:free",
+            "dots-studio/dots-3-note-preview:free",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -2381,16 +2998,17 @@
             "status": "discovered",
             "endpoint": "https://openrouter.ai/api/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 17,
+            "discovered_count": 19,
             "discovered_models": [
               "openrouter/free",
               "cohere/north-mini-code:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
-              "inclusionai/ling-3.0-tiny:free",
+              "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-nano-30b-a3b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
               "nvidia/nemotron-3.5-content-safety:free",
+              "nvidia/nemotron-3.5-lightning:free",
               "nvidia/nemotron-nano-12b-v2-vl:free",
               "nvidia/nemotron-nano-9b-v2:free",
               "openai/gpt-oss-20b:free",
@@ -2398,6 +3016,7 @@
               "poolside/laguna-xs-2.1:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
+              "dots-studio/dots-3-note-preview:free",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -2412,10 +3031,11 @@
               "cohere/north-mini-code:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
-              "inclusionai/ling-3.0-tiny:free",
+              "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-nano-30b-a3b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
               "nvidia/nemotron-3.5-content-safety:free",
+              "nvidia/nemotron-3.5-lightning:free",
               "nvidia/nemotron-nano-12b-v2-vl:free",
               "nvidia/nemotron-nano-9b-v2:free",
               "openai/gpt-oss-20b:free",
@@ -2423,6 +3043,7 @@
               "poolside/laguna-xs-2.1:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
+              "dots-studio/dots-3-note-preview:free",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -2437,12 +3058,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:13+00:00",
+              "at": "2026-08-16T18:19:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
-              "response_model": "google/gemma-4-26b-a4b-it:free",
-              "elapsed_ms": 2718,
+              "response_model": "nvidia/nemotron-nano-9b-v2:free",
+              "elapsed_ms": 3570,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2452,9 +3073,9 @@
               },
               "normalization_audit": {},
               "usage": {
-                "prompt_tokens": 87,
-                "completion_tokens": 6,
-                "total_tokens": 93
+                "prompt_tokens": 29,
+                "completion_tokens": 93,
+                "total_tokens": 122
               }
             }
           ]
@@ -2478,6 +3099,7 @@
             "ministral-8b-latest",
             "voxtral-small-2507",
             "voxtral-small-latest",
+            "glm-5-2",
             "mistral-code-agent-latest",
             "mistral-code-fim-latest",
             "mistral-code-latest",
@@ -2492,17 +3114,16 @@
             "mistral-vibe-cli-fast",
             "mistral-vibe-cli-latest",
             "mistral-vibe-cli-with-tools",
+            "zai-glm-5-2",
             "mistral-large-2512",
             "mistral-large-latest",
-            "codestral-2508",
-            "codestral-latest",
-            "devstral-2512"
+            "codestral-2508"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://api.mistral.ai/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 34,
+            "discovered_count": 36,
             "discovered_models": [
               "mistral-small-latest",
               "mistral-small-2603",
@@ -2515,6 +3136,7 @@
               "ministral-8b-latest",
               "voxtral-small-2507",
               "voxtral-small-latest",
+              "glm-5-2",
               "mistral-code-agent-latest",
               "mistral-code-fim-latest",
               "mistral-code-latest",
@@ -2529,11 +3151,10 @@
               "mistral-vibe-cli-fast",
               "mistral-vibe-cli-latest",
               "mistral-vibe-cli-with-tools",
+              "zai-glm-5-2",
               "mistral-large-2512",
               "mistral-large-latest",
-              "codestral-2508",
-              "codestral-latest",
-              "devstral-2512"
+              "codestral-2508"
             ],
             "explicit_preferences": [
               "mistral-small-latest"
@@ -2553,6 +3174,7 @@
               "ministral-8b-latest",
               "voxtral-small-2507",
               "voxtral-small-latest",
+              "glm-5-2",
               "mistral-code-agent-latest",
               "mistral-code-fim-latest",
               "mistral-code-latest",
@@ -2567,11 +3189,10 @@
               "mistral-vibe-cli-fast",
               "mistral-vibe-cli-latest",
               "mistral-vibe-cli-with-tools",
+              "zai-glm-5-2",
               "mistral-large-2512",
               "mistral-large-latest",
-              "codestral-2508",
-              "codestral-latest",
-              "devstral-2512"
+              "codestral-2508"
             ],
             "ignored_retired_models": [],
             "gemini_lite_preferred": false,
@@ -2584,12 +3205,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:17+00:00",
+              "at": "2026-08-16T18:19:13+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 422,
+              "elapsed_ms": 637,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2612,10 +3233,10 @@
           "model": "Qwen/Qwen3-8B",
           "account": {
             "status": "ok",
-            "account_status": "normal",
+            "account_status": "",
             "balance": "0",
-            "charge_balance": "0.1",
-            "total_balance": "0.1"
+            "charge_balance": "0",
+            "total_balance": "0"
           },
           "model_candidates": [
             "Qwen/Qwen3-8B",
@@ -2735,12 +3356,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:19+00:00",
+              "at": "2026-08-16T18:19:16+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 955,
+              "elapsed_ms": 3461,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2771,13 +3392,14 @@
             "glm-5-turbo",
             "glm-5.1",
             "glm-5.2",
+            "glm-5.3",
             "glm-4.7-flash"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://open.bigmodel.cn/api/paas/v4/models",
             "discovery_enabled": true,
-            "discovered_count": 8,
+            "discovered_count": 9,
             "discovered_models": [
               "glm-4.5",
               "glm-4.5-air",
@@ -2786,7 +3408,8 @@
               "glm-5",
               "glm-5-turbo",
               "glm-5.1",
-              "glm-5.2"
+              "glm-5.2",
+              "glm-5.3"
             ],
             "explicit_preferences": [
               "glm-4.7-flash"
@@ -2803,6 +3426,7 @@
               "glm-5-turbo",
               "glm-5.1",
               "glm-5.2",
+              "glm-5.3",
               "glm-4.7-flash"
             ],
             "ignored_retired_models": [],
@@ -2821,28 +3445,28 @@
               "provider": "bigmodel",
               "model": "glm-4.5",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:21+00:00",
+              "at": "2026-08-16T18:19:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 255
+              "elapsed_ms": 280
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-4.5-air",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:21+00:00",
+              "at": "2026-08-16T18:19:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 283
+              "elapsed_ms": 296
             }
           ]
         },
@@ -2903,28 +3527,28 @@
               "provider": "deepseek",
               "model": "deepseek-v4-flash",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:23+00:00",
+              "at": "2026-08-16T18:19:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 621
+              "elapsed_ms": 565
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-08-09T18:31:23+00:00",
+              "at": "2026-08-16T18:19:22+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 617
+              "elapsed_ms": 564
             }
           ]
         }
@@ -3030,6 +3654,234 @@
         }
       ]
     },
-    "fallback_records": []
+    "fallback_records": [
+      {
+        "type": "news",
+        "id": "news-9e6e913f284ce7fc",
+        "title": "CDC in Guinea - Centers for Disease Control and Prevention | CDC (.gov)",
+        "failure_category": "rate_limited",
+        "fallback_policy": "cue_and_position_rescue",
+        "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
+        "attempts": [
+          {
+            "task": "news_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-08-16T21:34:05+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "bigmodel",
+            "model": "glm-4.5",
+            "retry_index": 0,
+            "at": "2026-08-16T21:34:05+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
+            "elapsed_ms": 560
+          },
+          {
+            "task": "news_analysis",
+            "provider": "bigmodel",
+            "model": "glm-4.5-air",
+            "retry_index": 0,
+            "at": "2026-08-16T21:34:06+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
+            "elapsed_ms": 370
+          },
+          {
+            "task": "news_analysis",
+            "provider": "siliconflow",
+            "model": "Qwen/Qwen3-8B",
+            "retry_index": 0,
+            "at": "2026-08-16T21:34:06+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "timeout",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://api.siliconflow.cn/v1/chat/completions: HTTPSConnectionPool(host='api.siliconflow.cn', port=443): Read timed out. (read timeout=90)",
+            "elapsed_ms": 90086
+          },
+          {
+            "task": "news_analysis",
+            "provider": "siliconflow",
+            "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
+            "retry_index": 0,
+            "at": "2026-08-16T21:35:36+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "context_or_output_limit",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid complete JSON",
+            "elapsed_ms": 44961
+          },
+          {
+            "task": "news_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-08-16T21:36:21+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"scale_impact_and_risk\"}], \"warnings\": [], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 3856,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "scale_impact_and_risk"
+                }
+              ],
+              "warnings": [],
+              "issue_counts": {
+                "evidence_ids_missing": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 2345,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "news_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2603",
+            "retry_index": 0,
+            "at": "2026-08-16T21:36:25+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"scale_impact_and_risk\"}], \"warnings\": [], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 3628,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "scale_impact_and_risk"
+                }
+              ],
+              "warnings": [],
+              "issue_counts": {
+                "evidence_ids_missing": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 1950,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "news_analysis",
+            "provider": "deepseek",
+            "model": "",
+            "at": "2026-08-16T21:36:29+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "news_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-08-16T21:36:29+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid complete JSON",
+            "elapsed_ms": 1614
+          },
+          {
+            "task": "news_analysis",
+            "provider": "openrouter",
+            "model": "cohere/north-mini-code:free",
+            "retry_index": 0,
+            "at": "2026-08-16T21:36:30+00:00",
+            "system_chars": 5175,
+            "prompt_chars": 14126,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "openrouter returned empty content: {'id': 'gen-1786916190-6nzKPK0cIaLlQQ0ORZ36', 'object': 'chat.completion', 'created': 1786916190, 'model': 'cohere/north-mini-code:free', 'provider': 'Cohere', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'max_tokens', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need to produce a JSON with analysis fields and brief_en (since generate_brief=true). Must use only evidence IDs from the supplied evidence. The evidence list includes many entries with IDs N1...N48. We need to map each of the five analytical fields to evidence IDs that support them.\\n\\nWe need to analyze exactly one news report, official notice, or substantive syndicated summary. The source is CDC website page \"CDC in Guinea\". This is an official government ",
+            "elapsed_ms": 51939
+          },
+          {
+            "task": "news_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-08-16T21:37:22+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          }
+        ]
+      }
+    ]
   }
 }
