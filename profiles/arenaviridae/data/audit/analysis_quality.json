@@ -2,110 +2,75 @@
   "candidate_pool": {
     "policy_version": "v17.2-normalization-field-repair-quality-1",
     "scope": "processed_candidate_pool",
-    "severity": "warning",
+    "severity": "normal",
     "warning_ratio": 0.2,
     "critical_ratio": 0.5,
-    "message_zh": "本期有 1/11 条（9.1%）分析使用规则兜底。主要原因：请求触发限流；请结合原始摘要或正文阅读。",
-    "message_en": "1/11 analyses (9.1%) used deterministic fallback. Main causes: requests were rate limited.",
+    "message_zh": "本期七/五要素分析未触发全局降级告警。",
+    "message_en": "No global structured-analysis degradation warning was triggered.",
     "papers": {
       "total_items": 4,
       "analyzable": 4,
-      "passed": 3,
-      "fallback": 1,
-      "fallback_ratio": 0.25,
-      "statuses": {
-        "fallback_source_extract": 1,
-        "passed": 3
-      }
-    },
-    "news": {
-      "total_items": 7,
-      "analyzable": 7,
-      "passed": 7,
+      "passed": 4,
       "fallback": 0,
       "fallback_ratio": 0.0,
       "statuses": {
-        "passed": 7
+        "passed": 4
+      }
+    },
+    "news": {
+      "total_items": 1,
+      "analyzable": 1,
+      "passed": 1,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 1
       }
     },
     "combined": {
-      "total_items": 11,
-      "analyzable": 11,
-      "passed": 10,
-      "fallback": 1,
-      "fallback_ratio": 0.0909,
+      "total_items": 5,
+      "analyzable": 5,
+      "passed": 5,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
       "statuses": {
-        "fallback_source_extract": 1,
-        "passed": 10
+        "passed": 5
       }
     },
-    "top_failure_categories": [
-      {
-        "category": "rate_limited",
-        "count": 1,
-        "label_zh": "请求触发限流",
-        "label_en": "requests were rate limited"
-      }
-    ],
+    "top_failure_categories": [],
     "provider_attempts": {
-      "bigmodel:failed": 9,
-      "bigmodel:skipped": 13,
-      "deepseek:skipped": 1,
-      "gemini:skipped": 11,
-      "groq:skipped": 1,
-      "mistral:failed": 2,
-      "mistral:success": 7,
-      "openrouter:failed": 2,
-      "siliconflow:failed": 8,
-      "siliconflow:skipped": 4,
-      "siliconflow:success": 3
+      "bigmodel:failed": 5,
+      "bigmodel:skipped": 5,
+      "gemini:skipped": 5,
+      "mistral:success": 4,
+      "siliconflow:failed": 6,
+      "siliconflow:skipped": 1,
+      "siliconflow:success": 1
     },
     "model_attempts": {
-      "bigmodel/glm-4.5-air:failed": 5,
-      "bigmodel/glm-4.5-air:skipped": 6,
-      "bigmodel/glm-4.5:failed": 4,
-      "bigmodel/glm-4.5:skipped": 7,
-      "deepseek/not_selected:skipped": 1,
-      "gemini/not_selected:skipped": 11,
-      "groq/not_selected:skipped": 1,
-      "mistral/mistral-small-2603:failed": 1,
-      "mistral/mistral-small-latest:failed": 1,
-      "mistral/mistral-small-latest:success": 7,
-      "openrouter/cohere/north-mini-code:free:failed": 1,
-      "openrouter/openrouter/free:failed": 1,
-      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 4,
-      "siliconflow/Qwen/Qwen3-8B:failed": 4,
-      "siliconflow/Qwen/Qwen3-8B:success": 3,
-      "siliconflow/not_selected:skipped": 4
+      "bigmodel/glm-4.5-air:failed": 3,
+      "bigmodel/glm-4.5-air:skipped": 2,
+      "bigmodel/glm-4.5:failed": 2,
+      "bigmodel/glm-4.5:skipped": 3,
+      "gemini/not_selected:skipped": 5,
+      "mistral/mistral-small-latest:success": 4,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 3,
+      "siliconflow/Qwen/Qwen3-8B:failed": 3,
+      "siliconflow/Qwen/Qwen3-8B:success": 1,
+      "siliconflow/not_selected:skipped": 1
     },
     "attempt_failure_categories": {
       "context_or_output_limit": 3,
-      "invalid_json": 1,
-      "rate_limited": 11,
-      "timeout": 2,
-      "validation_failed": 4
+      "rate_limited": 5,
+      "timeout": 3
     },
-    "validation_issue_categories": {
-      "evidence_ids_missing": 4
-    },
+    "validation_issue_categories": {},
     "normalization_repairs": {},
-    "field_repair_statuses": {
-      "disabled_or_not_validation_failure": 1
-    },
-    "field_repair_records": [
-      {
-        "type": "paper",
-        "id": "paper-029a42a41d8e715d",
-        "title": "Deadbolt Drug Discovery: Locking the Door to Class 1 Viral Entry by Small Molecules.",
-        "status": "disabled_or_not_validation_failure",
-        "rounds": [],
-        "initial_candidate": {},
-        "final_validation": {}
-      }
-    ],
+    "field_repair_statuses": {},
+    "field_repair_records": [],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-08-14T18:45:38+00:00",
+      "generated_at": "2026-08-21T18:28:23+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -214,7 +179,7 @@
             "failure_category": "authentication_failed",
             "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.ModelService.ListModels\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }"
           },
-          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
           "action_hint": "Regenerate the provider key and replace GitHub Secret GEMINI_API_KEY.",
           "account": {
             "status": "not_supported"
@@ -225,56 +190,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 118
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 28
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
-              "elapsed_ms": 43
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 25
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 43
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 27
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 45
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 28
             }
           ]
         },
@@ -289,21 +254,19 @@
             "openai/gpt-oss-120b",
             "qwen/qwen3.6-27b",
             "openai/gpt-oss-20b",
-            "llama-3.3-70b-versatile",
-            "llama-3.1-8b-instant",
             "allam-2-7b",
             "canopylabs/orpheus-arabic-saudi",
-            "canopylabs/orpheus-v1-english"
+            "canopylabs/orpheus-v1-english",
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://api.groq.com/openai/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 8,
+            "discovered_count": 6,
             "discovered_models": [
-              "llama-3.1-8b-instant",
               "qwen/qwen3.6-27b",
-              "llama-3.3-70b-versatile",
               "openai/gpt-oss-20b",
               "openai/gpt-oss-120b",
               "allam-2-7b",
@@ -328,11 +291,11 @@
               "openai/gpt-oss-120b",
               "qwen/qwen3.6-27b",
               "openai/gpt-oss-20b",
-              "llama-3.3-70b-versatile",
-              "llama-3.1-8b-instant",
               "allam-2-7b",
               "canopylabs/orpheus-arabic-saudi",
-              "canopylabs/orpheus-v1-english"
+              "canopylabs/orpheus-v1-english",
+              "llama-3.3-70b-versatile",
+              "llama-3.1-8b-instant"
             ],
             "ignored_retired_models": [],
             "gemini_lite_preferred": false,
@@ -345,12 +308,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 313,
+              "elapsed_ms": 539,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -370,7 +333,7 @@
         {
           "provider": "openrouter",
           "status": "passed",
-          "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+          "model": "cohere/north-mini-code:free",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -385,6 +348,7 @@
             "cohere/north-mini-code:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b-it:free",
+            "z-ai/glm-5.2:free",
             "liquid/lfm-2.5-2.6b:free",
             "nvidia/nemotron-3-nano-30b-a3b:free",
             "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -397,6 +361,8 @@
             "poolside/laguna-xs-2.1:free",
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             "nvidia/nemotron-3-super-120b-a12b:free",
+            "dots-studio/dots-3-note-preview:free",
+            "stealth/ox-alpha",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -404,12 +370,13 @@
             "status": "discovered",
             "endpoint": "https://openrouter.ai/api/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 18,
+            "discovered_count": 21,
             "discovered_models": [
               "openrouter/free",
               "cohere/north-mini-code:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
+              "z-ai/glm-5.2:free",
               "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-nano-30b-a3b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -422,6 +389,8 @@
               "poolside/laguna-xs-2.1:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
+              "dots-studio/dots-3-note-preview:free",
+              "stealth/ox-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -436,6 +405,7 @@
               "cohere/north-mini-code:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
+              "z-ai/glm-5.2:free",
               "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-nano-30b-a3b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -448,6 +418,8 @@
               "poolside/laguna-xs-2.1:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
+              "dots-studio/dots-3-note-preview:free",
+              "stealth/ox-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -462,24 +434,24 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:29+00:00",
+              "at": "2026-08-21T18:28:13+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
-              "response_model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-              "elapsed_ms": 1119,
+              "response_model": "cohere/north-mini-code:free",
+              "elapsed_ms": 2768,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
-                "response_chars": 16,
+                "response_chars": 15,
                 "repaired": false,
                 "truncated_signal": false
               },
               "normalization_audit": {},
               "usage": {
-                "prompt_tokens": 33,
-                "completion_tokens": 52,
-                "total_tokens": 85
+                "prompt_tokens": 17,
+                "completion_tokens": 71,
+                "total_tokens": 88
               }
             }
           ]
@@ -527,7 +499,7 @@
             "status": "discovered",
             "endpoint": "https://api.mistral.ai/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 36,
+            "discovered_count": 37,
             "discovered_models": [
               "mistral-small-latest",
               "mistral-small-2603",
@@ -609,12 +581,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:30+00:00",
+              "at": "2026-08-21T18:28:16+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 358,
+              "elapsed_ms": 488,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -760,12 +732,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:33+00:00",
+              "at": "2026-08-21T18:28:18+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 1107,
+              "elapsed_ms": 967,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -796,13 +768,14 @@
             "glm-5-turbo",
             "glm-5.1",
             "glm-5.2",
+            "glm-5.3",
             "glm-4.7-flash"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://open.bigmodel.cn/api/paas/v4/models",
             "discovery_enabled": true,
-            "discovered_count": 8,
+            "discovered_count": 9,
             "discovered_models": [
               "glm-4.5",
               "glm-4.5-air",
@@ -811,7 +784,8 @@
               "glm-5",
               "glm-5-turbo",
               "glm-5.1",
-              "glm-5.2"
+              "glm-5.2",
+              "glm-5.3"
             ],
             "explicit_preferences": [
               "glm-4.7-flash"
@@ -828,6 +802,7 @@
               "glm-5-turbo",
               "glm-5.1",
               "glm-5.2",
+              "glm-5.3",
               "glm-4.7-flash"
             ],
             "ignored_retired_models": [],
@@ -846,28 +821,28 @@
               "provider": "bigmodel",
               "model": "glm-4.5",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:35+00:00",
+              "at": "2026-08-21T18:28:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 383
+              "elapsed_ms": 320
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-4.5-air",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:35+00:00",
+              "at": "2026-08-21T18:28:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 410
+              "elapsed_ms": 344
             }
           ]
         },
@@ -928,28 +903,28 @@
               "provider": "deepseek",
               "model": "deepseek-v4-flash",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:37+00:00",
+              "at": "2026-08-21T18:28:22+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 622
+              "elapsed_ms": 603
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:37+00:00",
+              "at": "2026-08-21T18:28:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 623
+              "elapsed_ms": 611
             }
           ]
         }
@@ -1055,449 +1030,80 @@
         }
       ]
     },
-    "fallback_records": [
-      {
-        "type": "paper",
-        "id": "paper-029a42a41d8e715d",
-        "title": "Deadbolt Drug Discovery: Locking the Door to Class 1 Viral Entry by Small Molecules.",
-        "failure_category": "rate_limited",
-        "fallback_policy": "role_cue_position_rescue",
-        "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
-        "attempts": [
-          {
-            "task": "paper_review_analysis",
-            "provider": "gemini",
-            "model": "",
-            "at": "2026-08-14T22:12:58+00:00",
-            "status": "skipped",
-            "failure_category": "authentication_failed",
-            "error": "authentication_failed"
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "bigmodel",
-            "model": "glm-4.5",
-            "retry_index": 0,
-            "at": "2026-08-14T22:12:58+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-            "elapsed_ms": 556
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "bigmodel",
-            "model": "glm-4.5-air",
-            "retry_index": 0,
-            "at": "2026-08-14T22:12:59+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-            "elapsed_ms": 345
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "siliconflow",
-            "model": "Qwen/Qwen3-8B",
-            "retry_index": 0,
-            "at": "2026-08-14T22:12:59+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "validation_failed",
-            "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"research_and_practice_implications\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"scope_and_question\", \"cited_roles\": [\"interpretation\"], \"allowed_roles\": [\"background\", \"general\", \"objective\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"evidence_base_and_review_method\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"controversies_and_evidence_gaps\", \"cited_roles\": [\"results\"], \"allowed_roles\": [\"general\", \"interpretation\", \"limitations\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 29778,
-            "validation": {
-              "policy_version": "v17.2-detailed-structured-validation-1",
-              "issues": [
-                {
-                  "category": "evidence_ids_missing",
-                  "field": "research_and_practice_implications"
-                }
-              ],
-              "warnings": [
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "scope_and_question",
-                  "cited_roles": [
-                    "interpretation"
-                  ],
-                  "allowed_roles": [
-                    "background",
-                    "general",
-                    "objective"
-                  ]
-                },
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "evidence_base_and_review_method",
-                  "cited_roles": [
-                    "general"
-                  ],
-                  "allowed_roles": [
-                    "design_population",
-                    "methods"
-                  ]
-                },
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "controversies_and_evidence_gaps",
-                  "cited_roles": [
-                    "results"
-                  ],
-                  "allowed_roles": [
-                    "general",
-                    "interpretation",
-                    "limitations"
-                  ]
-                }
-              ],
-              "issue_counts": {
-                "evidence_ids_missing": 1
-              }
-            },
-            "parser_audit": {
-              "policy_version": "v17.2-flexible-json-parser-1",
-              "method": "direct_json",
-              "response_chars": 2267,
-              "repaired": false,
-              "truncated_signal": false
-            },
-            "normalization_audit": {
-              "policy_version": "v17.2-prevalidation-normalization-1",
-              "repairs": [],
-              "warnings": [],
-              "postprocess": {
-                "removed_duplicate_sentences": 1,
-                "repaired_incomplete_fields": [],
-                "evidence_replacements": [
-                  "research_and_practice_implications"
-                ],
-                "policy": "v10-exclusive-rhetorical-fields-1"
-              },
-              "language_contract": {
-                "policy_version": "v17.1-source-language-safe-english-1",
-                "source_language": "en",
-                "verified_english": false,
-                "replacements": [
-                  {
-                    "field": "research_and_practice_implications",
-                    "detected_language": "zh"
-                  }
-                ],
-                "original_evidence_preserved": true
-              },
-              "repair_count": 0
-            }
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "siliconflow",
-            "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
-            "retry_index": 0,
-            "at": "2026-08-14T22:13:29+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "context_or_output_limit",
-            "error_type": "LLMError",
-            "error": "Model response did not contain valid complete JSON",
-            "elapsed_ms": 35194
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-latest",
-            "retry_index": 0,
-            "at": "2026-08-14T22:14:04+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "validation_failed",
-            "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"controversies_and_evidence_gaps\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"evidence_base_and_review_method\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 3835,
-            "validation": {
-              "policy_version": "v17.2-detailed-structured-validation-1",
-              "issues": [
-                {
-                  "category": "evidence_ids_missing",
-                  "field": "controversies_and_evidence_gaps"
-                }
-              ],
-              "warnings": [
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "evidence_base_and_review_method",
-                  "cited_roles": [
-                    "general"
-                  ],
-                  "allowed_roles": [
-                    "design_population",
-                    "methods"
-                  ]
-                }
-              ],
-              "issue_counts": {
-                "evidence_ids_missing": 1
-              }
-            },
-            "parser_audit": {
-              "policy_version": "v17.2-flexible-json-parser-1",
-              "method": "direct_json",
-              "response_chars": 2545,
-              "repaired": false,
-              "truncated_signal": false
-            },
-            "normalization_audit": {
-              "policy_version": "v17.2-prevalidation-normalization-1",
-              "repairs": [],
-              "warnings": [],
-              "postprocess": {
-                "removed_duplicate_sentences": 0,
-                "repaired_incomplete_fields": [],
-                "evidence_replacements": [],
-                "policy": "v10-exclusive-rhetorical-fields-1"
-              },
-              "language_contract": {
-                "policy_version": "v17.1-source-language-safe-english-1",
-                "source_language": "en",
-                "verified_english": true,
-                "replacements": [],
-                "original_evidence_preserved": false
-              },
-              "repair_count": 0
-            }
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-2603",
-            "retry_index": 0,
-            "at": "2026-08-14T22:14:08+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "validation_failed",
-            "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"controversies_and_evidence_gaps\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"evidence_base_and_review_method\", \"cited_roles\": [\"results\"], \"allowed_roles\": [\"design_population\", \"methods\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 4141,
-            "validation": {
-              "policy_version": "v17.2-detailed-structured-validation-1",
-              "issues": [
-                {
-                  "category": "evidence_ids_missing",
-                  "field": "controversies_and_evidence_gaps"
-                }
-              ],
-              "warnings": [
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "evidence_base_and_review_method",
-                  "cited_roles": [
-                    "results"
-                  ],
-                  "allowed_roles": [
-                    "design_population",
-                    "methods"
-                  ]
-                }
-              ],
-              "issue_counts": {
-                "evidence_ids_missing": 1
-              }
-            },
-            "parser_audit": {
-              "policy_version": "v17.2-flexible-json-parser-1",
-              "method": "direct_json",
-              "response_chars": 3051,
-              "repaired": false,
-              "truncated_signal": false
-            },
-            "normalization_audit": {
-              "policy_version": "v17.2-prevalidation-normalization-1",
-              "repairs": [],
-              "warnings": [],
-              "postprocess": {
-                "removed_duplicate_sentences": 0,
-                "repaired_incomplete_fields": [],
-                "evidence_replacements": [],
-                "policy": "v10-exclusive-rhetorical-fields-1"
-              },
-              "language_contract": {
-                "policy_version": "v17.1-source-language-safe-english-1",
-                "source_language": "en",
-                "verified_english": true,
-                "replacements": [],
-                "original_evidence_preserved": false
-              },
-              "repair_count": 0
-            }
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "deepseek",
-            "model": "",
-            "at": "2026-08-14T22:14:12+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "openrouter",
-            "model": "openrouter/free",
-            "retry_index": 0,
-            "at": "2026-08-14T22:14:12+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1786752000000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per da",
-            "elapsed_ms": 145
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "openrouter",
-            "model": "cohere/north-mini-code:free",
-            "retry_index": 0,
-            "at": "2026-08-14T22:14:12+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1786752000000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
-            "elapsed_ms": 409
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "groq",
-            "model": "",
-            "at": "2026-08-14T22:14:12+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          }
-        ]
-      }
-    ]
+    "fallback_records": []
   },
   "displayed_primary_and_news": {
     "policy_version": "v17.2-normalization-field-repair-quality-1",
     "scope": "displayed_primary_and_news",
-    "severity": "warning",
+    "severity": "normal",
     "warning_ratio": 0.2,
     "critical_ratio": 0.5,
-    "message_zh": "本期有 1/11 条（9.1%）分析使用规则兜底。主要原因：请求触发限流；请结合原始摘要或正文阅读。",
-    "message_en": "1/11 analyses (9.1%) used deterministic fallback. Main causes: requests were rate limited.",
+    "message_zh": "本期七/五要素分析未触发全局降级告警。",
+    "message_en": "No global structured-analysis degradation warning was triggered.",
     "papers": {
       "total_items": 4,
       "analyzable": 4,
-      "passed": 3,
-      "fallback": 1,
-      "fallback_ratio": 0.25,
-      "statuses": {
-        "fallback_source_extract": 1,
-        "passed": 3
-      }
-    },
-    "news": {
-      "total_items": 7,
-      "analyzable": 7,
-      "passed": 7,
+      "passed": 4,
       "fallback": 0,
       "fallback_ratio": 0.0,
       "statuses": {
-        "passed": 7
+        "passed": 4
+      }
+    },
+    "news": {
+      "total_items": 1,
+      "analyzable": 1,
+      "passed": 1,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 1
       }
     },
     "combined": {
-      "total_items": 11,
-      "analyzable": 11,
-      "passed": 10,
-      "fallback": 1,
-      "fallback_ratio": 0.0909,
+      "total_items": 5,
+      "analyzable": 5,
+      "passed": 5,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
       "statuses": {
-        "fallback_source_extract": 1,
-        "passed": 10
+        "passed": 5
       }
     },
-    "top_failure_categories": [
-      {
-        "category": "rate_limited",
-        "count": 1,
-        "label_zh": "请求触发限流",
-        "label_en": "requests were rate limited"
-      }
-    ],
+    "top_failure_categories": [],
     "provider_attempts": {
-      "bigmodel:failed": 9,
-      "bigmodel:skipped": 13,
-      "deepseek:skipped": 1,
-      "gemini:skipped": 11,
-      "groq:skipped": 1,
-      "mistral:failed": 2,
-      "mistral:success": 7,
-      "openrouter:failed": 2,
-      "siliconflow:failed": 8,
-      "siliconflow:skipped": 4,
-      "siliconflow:success": 3
+      "bigmodel:failed": 5,
+      "bigmodel:skipped": 5,
+      "gemini:skipped": 5,
+      "mistral:success": 4,
+      "siliconflow:failed": 6,
+      "siliconflow:skipped": 1,
+      "siliconflow:success": 1
     },
     "model_attempts": {
-      "bigmodel/glm-4.5-air:failed": 5,
-      "bigmodel/glm-4.5-air:skipped": 6,
-      "bigmodel/glm-4.5:failed": 4,
-      "bigmodel/glm-4.5:skipped": 7,
-      "deepseek/not_selected:skipped": 1,
-      "gemini/not_selected:skipped": 11,
-      "groq/not_selected:skipped": 1,
-      "mistral/mistral-small-2603:failed": 1,
-      "mistral/mistral-small-latest:failed": 1,
-      "mistral/mistral-small-latest:success": 7,
-      "openrouter/cohere/north-mini-code:free:failed": 1,
-      "openrouter/openrouter/free:failed": 1,
-      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 4,
-      "siliconflow/Qwen/Qwen3-8B:failed": 4,
-      "siliconflow/Qwen/Qwen3-8B:success": 3,
-      "siliconflow/not_selected:skipped": 4
+      "bigmodel/glm-4.5-air:failed": 3,
+      "bigmodel/glm-4.5-air:skipped": 2,
+      "bigmodel/glm-4.5:failed": 2,
+      "bigmodel/glm-4.5:skipped": 3,
+      "gemini/not_selected:skipped": 5,
+      "mistral/mistral-small-latest:success": 4,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 3,
+      "siliconflow/Qwen/Qwen3-8B:failed": 3,
+      "siliconflow/Qwen/Qwen3-8B:success": 1,
+      "siliconflow/not_selected:skipped": 1
     },
     "attempt_failure_categories": {
       "context_or_output_limit": 3,
-      "invalid_json": 1,
-      "rate_limited": 11,
-      "timeout": 2,
-      "validation_failed": 4
+      "rate_limited": 5,
+      "timeout": 3
     },
-    "validation_issue_categories": {
-      "evidence_ids_missing": 4
-    },
+    "validation_issue_categories": {},
     "normalization_repairs": {},
-    "field_repair_statuses": {
-      "disabled_or_not_validation_failure": 1
-    },
-    "field_repair_records": [
-      {
-        "type": "paper",
-        "id": "paper-029a42a41d8e715d",
-        "title": "Deadbolt Drug Discovery: Locking the Door to Class 1 Viral Entry by Small Molecules.",
-        "status": "disabled_or_not_validation_failure",
-        "rounds": [],
-        "initial_candidate": {},
-        "final_validation": {}
-      }
-    ],
+    "field_repair_statuses": {},
+    "field_repair_records": [],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-08-14T18:45:38+00:00",
+      "generated_at": "2026-08-21T18:28:23+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -1606,7 +1212,7 @@
             "failure_category": "authentication_failed",
             "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.ModelService.ListModels\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }"
           },
-          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
           "action_hint": "Regenerate the provider key and replace GitHub Secret GEMINI_API_KEY.",
           "account": {
             "status": "not_supported"
@@ -1617,56 +1223,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 118
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 28
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
-              "elapsed_ms": 43
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 25
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 43
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 27
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 45
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 28
             }
           ]
         },
@@ -1681,21 +1287,19 @@
             "openai/gpt-oss-120b",
             "qwen/qwen3.6-27b",
             "openai/gpt-oss-20b",
-            "llama-3.3-70b-versatile",
-            "llama-3.1-8b-instant",
             "allam-2-7b",
             "canopylabs/orpheus-arabic-saudi",
-            "canopylabs/orpheus-v1-english"
+            "canopylabs/orpheus-v1-english",
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://api.groq.com/openai/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 8,
+            "discovered_count": 6,
             "discovered_models": [
-              "llama-3.1-8b-instant",
               "qwen/qwen3.6-27b",
-              "llama-3.3-70b-versatile",
               "openai/gpt-oss-20b",
               "openai/gpt-oss-120b",
               "allam-2-7b",
@@ -1720,11 +1324,11 @@
               "openai/gpt-oss-120b",
               "qwen/qwen3.6-27b",
               "openai/gpt-oss-20b",
-              "llama-3.3-70b-versatile",
-              "llama-3.1-8b-instant",
               "allam-2-7b",
               "canopylabs/orpheus-arabic-saudi",
-              "canopylabs/orpheus-v1-english"
+              "canopylabs/orpheus-v1-english",
+              "llama-3.3-70b-versatile",
+              "llama-3.1-8b-instant"
             ],
             "ignored_retired_models": [],
             "gemini_lite_preferred": false,
@@ -1737,12 +1341,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 313,
+              "elapsed_ms": 539,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1762,7 +1366,7 @@
         {
           "provider": "openrouter",
           "status": "passed",
-          "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+          "model": "cohere/north-mini-code:free",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -1777,6 +1381,7 @@
             "cohere/north-mini-code:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b-it:free",
+            "z-ai/glm-5.2:free",
             "liquid/lfm-2.5-2.6b:free",
             "nvidia/nemotron-3-nano-30b-a3b:free",
             "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -1789,6 +1394,8 @@
             "poolside/laguna-xs-2.1:free",
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             "nvidia/nemotron-3-super-120b-a12b:free",
+            "dots-studio/dots-3-note-preview:free",
+            "stealth/ox-alpha",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -1796,12 +1403,13 @@
             "status": "discovered",
             "endpoint": "https://openrouter.ai/api/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 18,
+            "discovered_count": 21,
             "discovered_models": [
               "openrouter/free",
               "cohere/north-mini-code:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
+              "z-ai/glm-5.2:free",
               "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-nano-30b-a3b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -1814,6 +1422,8 @@
               "poolside/laguna-xs-2.1:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
+              "dots-studio/dots-3-note-preview:free",
+              "stealth/ox-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -1828,6 +1438,7 @@
               "cohere/north-mini-code:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
+              "z-ai/glm-5.2:free",
               "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-nano-30b-a3b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -1840,6 +1451,8 @@
               "poolside/laguna-xs-2.1:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
+              "dots-studio/dots-3-note-preview:free",
+              "stealth/ox-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -1854,24 +1467,24 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:29+00:00",
+              "at": "2026-08-21T18:28:13+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
-              "response_model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-              "elapsed_ms": 1119,
+              "response_model": "cohere/north-mini-code:free",
+              "elapsed_ms": 2768,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
-                "response_chars": 16,
+                "response_chars": 15,
                 "repaired": false,
                 "truncated_signal": false
               },
               "normalization_audit": {},
               "usage": {
-                "prompt_tokens": 33,
-                "completion_tokens": 52,
-                "total_tokens": 85
+                "prompt_tokens": 17,
+                "completion_tokens": 71,
+                "total_tokens": 88
               }
             }
           ]
@@ -1919,7 +1532,7 @@
             "status": "discovered",
             "endpoint": "https://api.mistral.ai/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 36,
+            "discovered_count": 37,
             "discovered_models": [
               "mistral-small-latest",
               "mistral-small-2603",
@@ -2001,12 +1614,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:30+00:00",
+              "at": "2026-08-21T18:28:16+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 358,
+              "elapsed_ms": 488,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2152,12 +1765,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:33+00:00",
+              "at": "2026-08-21T18:28:18+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 1107,
+              "elapsed_ms": 967,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2188,13 +1801,14 @@
             "glm-5-turbo",
             "glm-5.1",
             "glm-5.2",
+            "glm-5.3",
             "glm-4.7-flash"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://open.bigmodel.cn/api/paas/v4/models",
             "discovery_enabled": true,
-            "discovered_count": 8,
+            "discovered_count": 9,
             "discovered_models": [
               "glm-4.5",
               "glm-4.5-air",
@@ -2203,7 +1817,8 @@
               "glm-5",
               "glm-5-turbo",
               "glm-5.1",
-              "glm-5.2"
+              "glm-5.2",
+              "glm-5.3"
             ],
             "explicit_preferences": [
               "glm-4.7-flash"
@@ -2220,6 +1835,7 @@
               "glm-5-turbo",
               "glm-5.1",
               "glm-5.2",
+              "glm-5.3",
               "glm-4.7-flash"
             ],
             "ignored_retired_models": [],
@@ -2238,28 +1854,28 @@
               "provider": "bigmodel",
               "model": "glm-4.5",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:35+00:00",
+              "at": "2026-08-21T18:28:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 383
+              "elapsed_ms": 320
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-4.5-air",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:35+00:00",
+              "at": "2026-08-21T18:28:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 410
+              "elapsed_ms": 344
             }
           ]
         },
@@ -2320,28 +1936,28 @@
               "provider": "deepseek",
               "model": "deepseek-v4-flash",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:37+00:00",
+              "at": "2026-08-21T18:28:22+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 622
+              "elapsed_ms": 603
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:37+00:00",
+              "at": "2026-08-21T18:28:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 623
+              "elapsed_ms": 611
             }
           ]
         }
@@ -2447,449 +2063,80 @@
         }
       ]
     },
-    "fallback_records": [
-      {
-        "type": "paper",
-        "id": "paper-029a42a41d8e715d",
-        "title": "Deadbolt Drug Discovery: Locking the Door to Class 1 Viral Entry by Small Molecules.",
-        "failure_category": "rate_limited",
-        "fallback_policy": "role_cue_position_rescue",
-        "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
-        "attempts": [
-          {
-            "task": "paper_review_analysis",
-            "provider": "gemini",
-            "model": "",
-            "at": "2026-08-14T22:12:58+00:00",
-            "status": "skipped",
-            "failure_category": "authentication_failed",
-            "error": "authentication_failed"
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "bigmodel",
-            "model": "glm-4.5",
-            "retry_index": 0,
-            "at": "2026-08-14T22:12:58+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-            "elapsed_ms": 556
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "bigmodel",
-            "model": "glm-4.5-air",
-            "retry_index": 0,
-            "at": "2026-08-14T22:12:59+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-            "elapsed_ms": 345
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "siliconflow",
-            "model": "Qwen/Qwen3-8B",
-            "retry_index": 0,
-            "at": "2026-08-14T22:12:59+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "validation_failed",
-            "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"research_and_practice_implications\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"scope_and_question\", \"cited_roles\": [\"interpretation\"], \"allowed_roles\": [\"background\", \"general\", \"objective\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"evidence_base_and_review_method\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"controversies_and_evidence_gaps\", \"cited_roles\": [\"results\"], \"allowed_roles\": [\"general\", \"interpretation\", \"limitations\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 29778,
-            "validation": {
-              "policy_version": "v17.2-detailed-structured-validation-1",
-              "issues": [
-                {
-                  "category": "evidence_ids_missing",
-                  "field": "research_and_practice_implications"
-                }
-              ],
-              "warnings": [
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "scope_and_question",
-                  "cited_roles": [
-                    "interpretation"
-                  ],
-                  "allowed_roles": [
-                    "background",
-                    "general",
-                    "objective"
-                  ]
-                },
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "evidence_base_and_review_method",
-                  "cited_roles": [
-                    "general"
-                  ],
-                  "allowed_roles": [
-                    "design_population",
-                    "methods"
-                  ]
-                },
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "controversies_and_evidence_gaps",
-                  "cited_roles": [
-                    "results"
-                  ],
-                  "allowed_roles": [
-                    "general",
-                    "interpretation",
-                    "limitations"
-                  ]
-                }
-              ],
-              "issue_counts": {
-                "evidence_ids_missing": 1
-              }
-            },
-            "parser_audit": {
-              "policy_version": "v17.2-flexible-json-parser-1",
-              "method": "direct_json",
-              "response_chars": 2267,
-              "repaired": false,
-              "truncated_signal": false
-            },
-            "normalization_audit": {
-              "policy_version": "v17.2-prevalidation-normalization-1",
-              "repairs": [],
-              "warnings": [],
-              "postprocess": {
-                "removed_duplicate_sentences": 1,
-                "repaired_incomplete_fields": [],
-                "evidence_replacements": [
-                  "research_and_practice_implications"
-                ],
-                "policy": "v10-exclusive-rhetorical-fields-1"
-              },
-              "language_contract": {
-                "policy_version": "v17.1-source-language-safe-english-1",
-                "source_language": "en",
-                "verified_english": false,
-                "replacements": [
-                  {
-                    "field": "research_and_practice_implications",
-                    "detected_language": "zh"
-                  }
-                ],
-                "original_evidence_preserved": true
-              },
-              "repair_count": 0
-            }
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "siliconflow",
-            "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
-            "retry_index": 0,
-            "at": "2026-08-14T22:13:29+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "context_or_output_limit",
-            "error_type": "LLMError",
-            "error": "Model response did not contain valid complete JSON",
-            "elapsed_ms": 35194
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-latest",
-            "retry_index": 0,
-            "at": "2026-08-14T22:14:04+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "validation_failed",
-            "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"controversies_and_evidence_gaps\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"evidence_base_and_review_method\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 3835,
-            "validation": {
-              "policy_version": "v17.2-detailed-structured-validation-1",
-              "issues": [
-                {
-                  "category": "evidence_ids_missing",
-                  "field": "controversies_and_evidence_gaps"
-                }
-              ],
-              "warnings": [
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "evidence_base_and_review_method",
-                  "cited_roles": [
-                    "general"
-                  ],
-                  "allowed_roles": [
-                    "design_population",
-                    "methods"
-                  ]
-                }
-              ],
-              "issue_counts": {
-                "evidence_ids_missing": 1
-              }
-            },
-            "parser_audit": {
-              "policy_version": "v17.2-flexible-json-parser-1",
-              "method": "direct_json",
-              "response_chars": 2545,
-              "repaired": false,
-              "truncated_signal": false
-            },
-            "normalization_audit": {
-              "policy_version": "v17.2-prevalidation-normalization-1",
-              "repairs": [],
-              "warnings": [],
-              "postprocess": {
-                "removed_duplicate_sentences": 0,
-                "repaired_incomplete_fields": [],
-                "evidence_replacements": [],
-                "policy": "v10-exclusive-rhetorical-fields-1"
-              },
-              "language_contract": {
-                "policy_version": "v17.1-source-language-safe-english-1",
-                "source_language": "en",
-                "verified_english": true,
-                "replacements": [],
-                "original_evidence_preserved": false
-              },
-              "repair_count": 0
-            }
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-2603",
-            "retry_index": 0,
-            "at": "2026-08-14T22:14:08+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "validation_failed",
-            "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"controversies_and_evidence_gaps\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"evidence_base_and_review_method\", \"cited_roles\": [\"results\"], \"allowed_roles\": [\"design_population\", \"methods\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 4141,
-            "validation": {
-              "policy_version": "v17.2-detailed-structured-validation-1",
-              "issues": [
-                {
-                  "category": "evidence_ids_missing",
-                  "field": "controversies_and_evidence_gaps"
-                }
-              ],
-              "warnings": [
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "evidence_base_and_review_method",
-                  "cited_roles": [
-                    "results"
-                  ],
-                  "allowed_roles": [
-                    "design_population",
-                    "methods"
-                  ]
-                }
-              ],
-              "issue_counts": {
-                "evidence_ids_missing": 1
-              }
-            },
-            "parser_audit": {
-              "policy_version": "v17.2-flexible-json-parser-1",
-              "method": "direct_json",
-              "response_chars": 3051,
-              "repaired": false,
-              "truncated_signal": false
-            },
-            "normalization_audit": {
-              "policy_version": "v17.2-prevalidation-normalization-1",
-              "repairs": [],
-              "warnings": [],
-              "postprocess": {
-                "removed_duplicate_sentences": 0,
-                "repaired_incomplete_fields": [],
-                "evidence_replacements": [],
-                "policy": "v10-exclusive-rhetorical-fields-1"
-              },
-              "language_contract": {
-                "policy_version": "v17.1-source-language-safe-english-1",
-                "source_language": "en",
-                "verified_english": true,
-                "replacements": [],
-                "original_evidence_preserved": false
-              },
-              "repair_count": 0
-            }
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "deepseek",
-            "model": "",
-            "at": "2026-08-14T22:14:12+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "openrouter",
-            "model": "openrouter/free",
-            "retry_index": 0,
-            "at": "2026-08-14T22:14:12+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1786752000000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per da",
-            "elapsed_ms": 145
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "openrouter",
-            "model": "cohere/north-mini-code:free",
-            "retry_index": 0,
-            "at": "2026-08-14T22:14:12+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1786752000000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
-            "elapsed_ms": 409
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "groq",
-            "model": "",
-            "at": "2026-08-14T22:14:12+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          }
-        ]
-      }
-    ]
+    "fallback_records": []
   },
   "run": {
     "policy_version": "v17.2-normalization-field-repair-quality-1",
     "scope": "processed_candidate_pool",
-    "severity": "warning",
+    "severity": "normal",
     "warning_ratio": 0.2,
     "critical_ratio": 0.5,
-    "message_zh": "本期有 1/11 条（9.1%）分析使用规则兜底。主要原因：请求触发限流；请结合原始摘要或正文阅读。",
-    "message_en": "1/11 analyses (9.1%) used deterministic fallback. Main causes: requests were rate limited.",
+    "message_zh": "本期七/五要素分析未触发全局降级告警。",
+    "message_en": "No global structured-analysis degradation warning was triggered.",
     "papers": {
       "total_items": 4,
       "analyzable": 4,
-      "passed": 3,
-      "fallback": 1,
-      "fallback_ratio": 0.25,
-      "statuses": {
-        "fallback_source_extract": 1,
-        "passed": 3
-      }
-    },
-    "news": {
-      "total_items": 7,
-      "analyzable": 7,
-      "passed": 7,
+      "passed": 4,
       "fallback": 0,
       "fallback_ratio": 0.0,
       "statuses": {
-        "passed": 7
+        "passed": 4
+      }
+    },
+    "news": {
+      "total_items": 1,
+      "analyzable": 1,
+      "passed": 1,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 1
       }
     },
     "combined": {
-      "total_items": 11,
-      "analyzable": 11,
-      "passed": 10,
-      "fallback": 1,
-      "fallback_ratio": 0.0909,
+      "total_items": 5,
+      "analyzable": 5,
+      "passed": 5,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
       "statuses": {
-        "fallback_source_extract": 1,
-        "passed": 10
+        "passed": 5
       }
     },
-    "top_failure_categories": [
-      {
-        "category": "rate_limited",
-        "count": 1,
-        "label_zh": "请求触发限流",
-        "label_en": "requests were rate limited"
-      }
-    ],
+    "top_failure_categories": [],
     "provider_attempts": {
-      "bigmodel:failed": 9,
-      "bigmodel:skipped": 13,
-      "deepseek:skipped": 1,
-      "gemini:skipped": 11,
-      "groq:skipped": 1,
-      "mistral:failed": 2,
-      "mistral:success": 7,
-      "openrouter:failed": 2,
-      "siliconflow:failed": 8,
-      "siliconflow:skipped": 4,
-      "siliconflow:success": 3
+      "bigmodel:failed": 5,
+      "bigmodel:skipped": 5,
+      "gemini:skipped": 5,
+      "mistral:success": 4,
+      "siliconflow:failed": 6,
+      "siliconflow:skipped": 1,
+      "siliconflow:success": 1
     },
     "model_attempts": {
-      "bigmodel/glm-4.5-air:failed": 5,
-      "bigmodel/glm-4.5-air:skipped": 6,
-      "bigmodel/glm-4.5:failed": 4,
-      "bigmodel/glm-4.5:skipped": 7,
-      "deepseek/not_selected:skipped": 1,
-      "gemini/not_selected:skipped": 11,
-      "groq/not_selected:skipped": 1,
-      "mistral/mistral-small-2603:failed": 1,
-      "mistral/mistral-small-latest:failed": 1,
-      "mistral/mistral-small-latest:success": 7,
-      "openrouter/cohere/north-mini-code:free:failed": 1,
-      "openrouter/openrouter/free:failed": 1,
-      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 4,
-      "siliconflow/Qwen/Qwen3-8B:failed": 4,
-      "siliconflow/Qwen/Qwen3-8B:success": 3,
-      "siliconflow/not_selected:skipped": 4
+      "bigmodel/glm-4.5-air:failed": 3,
+      "bigmodel/glm-4.5-air:skipped": 2,
+      "bigmodel/glm-4.5:failed": 2,
+      "bigmodel/glm-4.5:skipped": 3,
+      "gemini/not_selected:skipped": 5,
+      "mistral/mistral-small-latest:success": 4,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 3,
+      "siliconflow/Qwen/Qwen3-8B:failed": 3,
+      "siliconflow/Qwen/Qwen3-8B:success": 1,
+      "siliconflow/not_selected:skipped": 1
     },
     "attempt_failure_categories": {
       "context_or_output_limit": 3,
-      "invalid_json": 1,
-      "rate_limited": 11,
-      "timeout": 2,
-      "validation_failed": 4
+      "rate_limited": 5,
+      "timeout": 3
     },
-    "validation_issue_categories": {
-      "evidence_ids_missing": 4
-    },
+    "validation_issue_categories": {},
     "normalization_repairs": {},
-    "field_repair_statuses": {
-      "disabled_or_not_validation_failure": 1
-    },
-    "field_repair_records": [
-      {
-        "type": "paper",
-        "id": "paper-029a42a41d8e715d",
-        "title": "Deadbolt Drug Discovery: Locking the Door to Class 1 Viral Entry by Small Molecules.",
-        "status": "disabled_or_not_validation_failure",
-        "rounds": [],
-        "initial_candidate": {},
-        "final_validation": {}
-      }
-    ],
+    "field_repair_statuses": {},
+    "field_repair_records": [],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-08-14T18:45:38+00:00",
+      "generated_at": "2026-08-21T18:28:23+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -2998,7 +2245,7 @@
             "failure_category": "authentication_failed",
             "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.ModelService.ListModels\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }"
           },
-          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
           "action_hint": "Regenerate the provider key and replace GitHub Secret GEMINI_API_KEY.",
           "account": {
             "status": "not_supported"
@@ -3009,56 +2256,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 118
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 28
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
-              "elapsed_ms": 43
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 25
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 43
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 27
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 45
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 28
             }
           ]
         },
@@ -3073,21 +2320,19 @@
             "openai/gpt-oss-120b",
             "qwen/qwen3.6-27b",
             "openai/gpt-oss-20b",
-            "llama-3.3-70b-versatile",
-            "llama-3.1-8b-instant",
             "allam-2-7b",
             "canopylabs/orpheus-arabic-saudi",
-            "canopylabs/orpheus-v1-english"
+            "canopylabs/orpheus-v1-english",
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://api.groq.com/openai/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 8,
+            "discovered_count": 6,
             "discovered_models": [
-              "llama-3.1-8b-instant",
               "qwen/qwen3.6-27b",
-              "llama-3.3-70b-versatile",
               "openai/gpt-oss-20b",
               "openai/gpt-oss-120b",
               "allam-2-7b",
@@ -3112,11 +2357,11 @@
               "openai/gpt-oss-120b",
               "qwen/qwen3.6-27b",
               "openai/gpt-oss-20b",
-              "llama-3.3-70b-versatile",
-              "llama-3.1-8b-instant",
               "allam-2-7b",
               "canopylabs/orpheus-arabic-saudi",
-              "canopylabs/orpheus-v1-english"
+              "canopylabs/orpheus-v1-english",
+              "llama-3.3-70b-versatile",
+              "llama-3.1-8b-instant"
             ],
             "ignored_retired_models": [],
             "gemini_lite_preferred": false,
@@ -3129,12 +2374,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:28+00:00",
+              "at": "2026-08-21T18:28:12+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 313,
+              "elapsed_ms": 539,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -3154,7 +2399,7 @@
         {
           "provider": "openrouter",
           "status": "passed",
-          "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+          "model": "cohere/north-mini-code:free",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -3169,6 +2414,7 @@
             "cohere/north-mini-code:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b-it:free",
+            "z-ai/glm-5.2:free",
             "liquid/lfm-2.5-2.6b:free",
             "nvidia/nemotron-3-nano-30b-a3b:free",
             "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -3181,6 +2427,8 @@
             "poolside/laguna-xs-2.1:free",
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             "nvidia/nemotron-3-super-120b-a12b:free",
+            "dots-studio/dots-3-note-preview:free",
+            "stealth/ox-alpha",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -3188,12 +2436,13 @@
             "status": "discovered",
             "endpoint": "https://openrouter.ai/api/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 18,
+            "discovered_count": 21,
             "discovered_models": [
               "openrouter/free",
               "cohere/north-mini-code:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
+              "z-ai/glm-5.2:free",
               "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-nano-30b-a3b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -3206,6 +2455,8 @@
               "poolside/laguna-xs-2.1:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
+              "dots-studio/dots-3-note-preview:free",
+              "stealth/ox-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -3220,6 +2471,7 @@
               "cohere/north-mini-code:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
+              "z-ai/glm-5.2:free",
               "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-nano-30b-a3b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -3232,6 +2484,8 @@
               "poolside/laguna-xs-2.1:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
+              "dots-studio/dots-3-note-preview:free",
+              "stealth/ox-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -3246,24 +2500,24 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:29+00:00",
+              "at": "2026-08-21T18:28:13+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
-              "response_model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-              "elapsed_ms": 1119,
+              "response_model": "cohere/north-mini-code:free",
+              "elapsed_ms": 2768,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
-                "response_chars": 16,
+                "response_chars": 15,
                 "repaired": false,
                 "truncated_signal": false
               },
               "normalization_audit": {},
               "usage": {
-                "prompt_tokens": 33,
-                "completion_tokens": 52,
-                "total_tokens": 85
+                "prompt_tokens": 17,
+                "completion_tokens": 71,
+                "total_tokens": 88
               }
             }
           ]
@@ -3311,7 +2565,7 @@
             "status": "discovered",
             "endpoint": "https://api.mistral.ai/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 36,
+            "discovered_count": 37,
             "discovered_models": [
               "mistral-small-latest",
               "mistral-small-2603",
@@ -3393,12 +2647,12 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:30+00:00",
+              "at": "2026-08-21T18:28:16+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "mistral-small-latest",
-              "elapsed_ms": 358,
+              "elapsed_ms": 488,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -3544,12 +2798,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:33+00:00",
+              "at": "2026-08-21T18:28:18+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 1107,
+              "elapsed_ms": 967,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -3580,13 +2834,14 @@
             "glm-5-turbo",
             "glm-5.1",
             "glm-5.2",
+            "glm-5.3",
             "glm-4.7-flash"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://open.bigmodel.cn/api/paas/v4/models",
             "discovery_enabled": true,
-            "discovered_count": 8,
+            "discovered_count": 9,
             "discovered_models": [
               "glm-4.5",
               "glm-4.5-air",
@@ -3595,7 +2850,8 @@
               "glm-5",
               "glm-5-turbo",
               "glm-5.1",
-              "glm-5.2"
+              "glm-5.2",
+              "glm-5.3"
             ],
             "explicit_preferences": [
               "glm-4.7-flash"
@@ -3612,6 +2868,7 @@
               "glm-5-turbo",
               "glm-5.1",
               "glm-5.2",
+              "glm-5.3",
               "glm-4.7-flash"
             ],
             "ignored_retired_models": [],
@@ -3630,28 +2887,28 @@
               "provider": "bigmodel",
               "model": "glm-4.5",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:35+00:00",
+              "at": "2026-08-21T18:28:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 383
+              "elapsed_ms": 320
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-4.5-air",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:35+00:00",
+              "at": "2026-08-21T18:28:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 410
+              "elapsed_ms": 344
             }
           ]
         },
@@ -3712,28 +2969,28 @@
               "provider": "deepseek",
               "model": "deepseek-v4-flash",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:37+00:00",
+              "at": "2026-08-21T18:28:22+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 622
+              "elapsed_ms": 603
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-08-14T18:45:37+00:00",
+              "at": "2026-08-21T18:28:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 623
+              "elapsed_ms": 611
             }
           ]
         }
@@ -3839,340 +3096,6 @@
         }
       ]
     },
-    "fallback_records": [
-      {
-        "type": "paper",
-        "id": "paper-029a42a41d8e715d",
-        "title": "Deadbolt Drug Discovery: Locking the Door to Class 1 Viral Entry by Small Molecules.",
-        "failure_category": "rate_limited",
-        "fallback_policy": "role_cue_position_rescue",
-        "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
-        "attempts": [
-          {
-            "task": "paper_review_analysis",
-            "provider": "gemini",
-            "model": "",
-            "at": "2026-08-14T22:12:58+00:00",
-            "status": "skipped",
-            "failure_category": "authentication_failed",
-            "error": "authentication_failed"
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "bigmodel",
-            "model": "glm-4.5",
-            "retry_index": 0,
-            "at": "2026-08-14T22:12:58+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-            "elapsed_ms": 556
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "bigmodel",
-            "model": "glm-4.5-air",
-            "retry_index": 0,
-            "at": "2026-08-14T22:12:59+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-            "elapsed_ms": 345
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "siliconflow",
-            "model": "Qwen/Qwen3-8B",
-            "retry_index": 0,
-            "at": "2026-08-14T22:12:59+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "validation_failed",
-            "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"research_and_practice_implications\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"scope_and_question\", \"cited_roles\": [\"interpretation\"], \"allowed_roles\": [\"background\", \"general\", \"objective\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"evidence_base_and_review_method\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"controversies_and_evidence_gaps\", \"cited_roles\": [\"results\"], \"allowed_roles\": [\"general\", \"interpretation\", \"limitations\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 29778,
-            "validation": {
-              "policy_version": "v17.2-detailed-structured-validation-1",
-              "issues": [
-                {
-                  "category": "evidence_ids_missing",
-                  "field": "research_and_practice_implications"
-                }
-              ],
-              "warnings": [
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "scope_and_question",
-                  "cited_roles": [
-                    "interpretation"
-                  ],
-                  "allowed_roles": [
-                    "background",
-                    "general",
-                    "objective"
-                  ]
-                },
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "evidence_base_and_review_method",
-                  "cited_roles": [
-                    "general"
-                  ],
-                  "allowed_roles": [
-                    "design_population",
-                    "methods"
-                  ]
-                },
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "controversies_and_evidence_gaps",
-                  "cited_roles": [
-                    "results"
-                  ],
-                  "allowed_roles": [
-                    "general",
-                    "interpretation",
-                    "limitations"
-                  ]
-                }
-              ],
-              "issue_counts": {
-                "evidence_ids_missing": 1
-              }
-            },
-            "parser_audit": {
-              "policy_version": "v17.2-flexible-json-parser-1",
-              "method": "direct_json",
-              "response_chars": 2267,
-              "repaired": false,
-              "truncated_signal": false
-            },
-            "normalization_audit": {
-              "policy_version": "v17.2-prevalidation-normalization-1",
-              "repairs": [],
-              "warnings": [],
-              "postprocess": {
-                "removed_duplicate_sentences": 1,
-                "repaired_incomplete_fields": [],
-                "evidence_replacements": [
-                  "research_and_practice_implications"
-                ],
-                "policy": "v10-exclusive-rhetorical-fields-1"
-              },
-              "language_contract": {
-                "policy_version": "v17.1-source-language-safe-english-1",
-                "source_language": "en",
-                "verified_english": false,
-                "replacements": [
-                  {
-                    "field": "research_and_practice_implications",
-                    "detected_language": "zh"
-                  }
-                ],
-                "original_evidence_preserved": true
-              },
-              "repair_count": 0
-            }
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "siliconflow",
-            "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
-            "retry_index": 0,
-            "at": "2026-08-14T22:13:29+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "context_or_output_limit",
-            "error_type": "LLMError",
-            "error": "Model response did not contain valid complete JSON",
-            "elapsed_ms": 35194
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-latest",
-            "retry_index": 0,
-            "at": "2026-08-14T22:14:04+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "validation_failed",
-            "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"controversies_and_evidence_gaps\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"evidence_base_and_review_method\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 3835,
-            "validation": {
-              "policy_version": "v17.2-detailed-structured-validation-1",
-              "issues": [
-                {
-                  "category": "evidence_ids_missing",
-                  "field": "controversies_and_evidence_gaps"
-                }
-              ],
-              "warnings": [
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "evidence_base_and_review_method",
-                  "cited_roles": [
-                    "general"
-                  ],
-                  "allowed_roles": [
-                    "design_population",
-                    "methods"
-                  ]
-                }
-              ],
-              "issue_counts": {
-                "evidence_ids_missing": 1
-              }
-            },
-            "parser_audit": {
-              "policy_version": "v17.2-flexible-json-parser-1",
-              "method": "direct_json",
-              "response_chars": 2545,
-              "repaired": false,
-              "truncated_signal": false
-            },
-            "normalization_audit": {
-              "policy_version": "v17.2-prevalidation-normalization-1",
-              "repairs": [],
-              "warnings": [],
-              "postprocess": {
-                "removed_duplicate_sentences": 0,
-                "repaired_incomplete_fields": [],
-                "evidence_replacements": [],
-                "policy": "v10-exclusive-rhetorical-fields-1"
-              },
-              "language_contract": {
-                "policy_version": "v17.1-source-language-safe-english-1",
-                "source_language": "en",
-                "verified_english": true,
-                "replacements": [],
-                "original_evidence_preserved": false
-              },
-              "repair_count": 0
-            }
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-2603",
-            "retry_index": 0,
-            "at": "2026-08-14T22:14:08+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "validation_failed",
-            "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"controversies_and_evidence_gaps\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"evidence_base_and_review_method\", \"cited_roles\": [\"results\"], \"allowed_roles\": [\"design_population\", \"methods\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 4141,
-            "validation": {
-              "policy_version": "v17.2-detailed-structured-validation-1",
-              "issues": [
-                {
-                  "category": "evidence_ids_missing",
-                  "field": "controversies_and_evidence_gaps"
-                }
-              ],
-              "warnings": [
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "evidence_base_and_review_method",
-                  "cited_roles": [
-                    "results"
-                  ],
-                  "allowed_roles": [
-                    "design_population",
-                    "methods"
-                  ]
-                }
-              ],
-              "issue_counts": {
-                "evidence_ids_missing": 1
-              }
-            },
-            "parser_audit": {
-              "policy_version": "v17.2-flexible-json-parser-1",
-              "method": "direct_json",
-              "response_chars": 3051,
-              "repaired": false,
-              "truncated_signal": false
-            },
-            "normalization_audit": {
-              "policy_version": "v17.2-prevalidation-normalization-1",
-              "repairs": [],
-              "warnings": [],
-              "postprocess": {
-                "removed_duplicate_sentences": 0,
-                "repaired_incomplete_fields": [],
-                "evidence_replacements": [],
-                "policy": "v10-exclusive-rhetorical-fields-1"
-              },
-              "language_contract": {
-                "policy_version": "v17.1-source-language-safe-english-1",
-                "source_language": "en",
-                "verified_english": true,
-                "replacements": [],
-                "original_evidence_preserved": false
-              },
-              "repair_count": 0
-            }
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "deepseek",
-            "model": "",
-            "at": "2026-08-14T22:14:12+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "openrouter",
-            "model": "openrouter/free",
-            "retry_index": 0,
-            "at": "2026-08-14T22:14:12+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1786752000000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\"},{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per da",
-            "elapsed_ms": 145
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "openrouter",
-            "model": "cohere/north-mini-code:free",
-            "retry_index": 0,
-            "at": "2026-08-14T22:14:12+00:00",
-            "system_chars": 4668,
-            "prompt_chars": 8297,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1786752000000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
-            "elapsed_ms": 409
-          },
-          {
-            "task": "paper_review_analysis",
-            "provider": "groq",
-            "model": "",
-            "at": "2026-08-14T22:14:12+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          }
-        ]
-      }
-    ]
+    "fallback_records": []
   }
 }
