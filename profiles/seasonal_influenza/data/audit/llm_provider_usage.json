@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-08-17T19:40:42+00:00",
+  "generated_at": "2026-08-24T20:31:49+00:00",
   "shared_state_file": "/tmp/pif_data_repo/shared/state/provider_quota_daily.json",
   "provider_order": {
     "extract": [
@@ -186,7 +186,7 @@
       "status": "discovered",
       "endpoint": "https://api.mistral.ai/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 36,
+      "discovered_count": 37,
       "discovered_models": [
         "mistral-small-latest",
         "mistral-small-2603",
@@ -266,26 +266,25 @@
       "status": "discovered",
       "endpoint": "https://openrouter.ai/api/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 20,
+      "discovered_count": 19,
       "discovered_models": [
         "openrouter/free",
         "cohere/north-mini-code:free",
+        "thinkingmachines/inkling-small:free",
         "google/gemma-4-26b-a4b-it:free",
         "google/gemma-4-31b-it:free",
         "z-ai/glm-5.2:free",
         "liquid/lfm-2.5-2.6b:free",
-        "nvidia/nemotron-3-nano-30b-a3b:free",
         "nvidia/nemotron-3-ultra-550b-a55b:free",
         "nvidia/nemotron-3.5-content-safety:free",
         "nvidia/nemotron-3.5-lightning:free",
-        "nvidia/nemotron-nano-12b-v2-vl:free",
-        "nvidia/nemotron-nano-9b-v2:free",
-        "openai/gpt-oss-20b:free",
         "poolside/laguna-s-2.1:free",
         "poolside/laguna-xs-2.1:free",
         "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
         "nvidia/nemotron-3-super-120b-a12b:free",
+        "thinkingmachines/inkling:free",
         "dots-studio/dots-3-note-preview:free",
+        "stealth/ox-alpha",
         "google/lyria-3-clip-preview",
         "google/lyria-3-pro-preview"
       ],
@@ -298,22 +297,21 @@
       "selected_candidates": [
         "openrouter/free",
         "cohere/north-mini-code:free",
+        "thinkingmachines/inkling-small:free",
         "google/gemma-4-26b-a4b-it:free",
         "google/gemma-4-31b-it:free",
         "z-ai/glm-5.2:free",
         "liquid/lfm-2.5-2.6b:free",
-        "nvidia/nemotron-3-nano-30b-a3b:free",
         "nvidia/nemotron-3-ultra-550b-a55b:free",
         "nvidia/nemotron-3.5-content-safety:free",
         "nvidia/nemotron-3.5-lightning:free",
-        "nvidia/nemotron-nano-12b-v2-vl:free",
-        "nvidia/nemotron-nano-9b-v2:free",
-        "openai/gpt-oss-20b:free",
         "poolside/laguna-s-2.1:free",
         "poolside/laguna-xs-2.1:free",
         "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
         "nvidia/nemotron-3-super-120b-a12b:free",
+        "thinkingmachines/inkling:free",
         "dots-studio/dots-3-note-preview:free",
+        "stealth/ox-alpha",
         "google/lyria-3-clip-preview",
         "google/lyria-3-pro-preview"
       ],
@@ -411,49 +409,45 @@
         "status": "not_supported"
       },
       "last_failure_category": "authentication_failed",
-      "last_failure_at": 1786991354.0319774,
+      "last_failure_at": 1787596220.7791834,
       "cooldown_remaining_seconds": 0
     },
     "groq": {
       "configured": true,
       "provider": "groq",
-      "status": "quota_exhausted",
-      "disabled_reason": "quota_exhausted",
-      "requests": 13,
-      "successes": 2,
-      "failures": 11,
-      "prompt_tokens": 2243,
-      "completion_tokens": 1870,
-      "total_tokens": 4113,
+      "status": "healthy",
+      "disabled_reason": "",
+      "requests": 4,
+      "successes": 1,
+      "failures": 3,
+      "prompt_tokens": 119,
+      "completion_tokens": 81,
+      "total_tokens": 200,
       "models": {
         "openai/gpt-oss-120b": {
-          "status": "authentication_failed",
-          "requests": 8,
+          "status": "cooldown",
+          "requests": 3,
           "successes": 1,
           "prompt_tokens": 119,
-          "completion_tokens": 70,
-          "total_tokens": 189,
-          "failures": 7,
-          "last_failure_category": "authentication_failed",
+          "completion_tokens": 81,
+          "total_tokens": 200,
+          "failures": 2,
+          "last_failure_category": "rate_limited",
           "cooldown_remaining_seconds": 0
         },
         "qwen/qwen3.6-27b": {
-          "requests": 5,
-          "failures": 4,
-          "last_failure_category": "quota_exhausted",
-          "status": "quota_exhausted",
-          "successes": 1,
-          "prompt_tokens": 2124,
-          "completion_tokens": 1800,
-          "total_tokens": 3924,
+          "requests": 1,
+          "failures": 1,
+          "last_failure_category": "rate_limited",
+          "status": "cooldown",
           "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1786995501.3722475,
+      "last_failure_category": "rate_limited",
+      "last_failure_at": 1787602106.5441098,
       "cooldown_remaining_seconds": 0
     },
     "openrouter": {
@@ -461,33 +455,29 @@
       "provider": "openrouter",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 17,
-      "successes": 2,
-      "failures": 15,
-      "prompt_tokens": 3819,
-      "completion_tokens": 5108,
-      "total_tokens": 8927,
+      "requests": 4,
+      "successes": 1,
+      "failures": 3,
+      "prompt_tokens": 33,
+      "completion_tokens": 404,
+      "total_tokens": 437,
       "models": {
         "openrouter/free": {
-          "requests": 10,
-          "failures": 9,
-          "last_failure_category": "invalid_json",
           "status": "failed",
+          "requests": 3,
           "successes": 1,
-          "prompt_tokens": 3802,
-          "completion_tokens": 5031,
-          "total_tokens": 8833,
+          "prompt_tokens": 33,
+          "completion_tokens": 404,
+          "total_tokens": 437,
+          "failures": 2,
+          "last_failure_category": "invalid_json",
           "cooldown_remaining_seconds": 0
         },
         "cohere/north-mini-code:free": {
-          "status": "failed",
-          "requests": 7,
-          "successes": 1,
-          "prompt_tokens": 17,
-          "completion_tokens": 77,
-          "total_tokens": 94,
-          "failures": 6,
+          "requests": 1,
+          "failures": 1,
           "last_failure_category": "empty_response",
+          "status": "failed",
           "cooldown_remaining_seconds": 0
         }
       },
@@ -501,7 +491,7 @@
         "usage_monthly": 0
       },
       "last_failure_category": "empty_response",
-      "last_failure_at": 1786995640.248053,
+      "last_failure_at": 1787602088.791818,
       "cooldown_remaining_seconds": 0
     },
     "mistral": {
@@ -509,41 +499,41 @@
       "provider": "mistral",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 109,
-      "successes": 94,
-      "failures": 15,
-      "prompt_tokens": 197070,
-      "completion_tokens": 24820,
-      "total_tokens": 221890,
+      "requests": 93,
+      "successes": 75,
+      "failures": 18,
+      "prompt_tokens": 119246,
+      "completion_tokens": 45950,
+      "total_tokens": 165196,
       "models": {
         "mistral-small-latest": {
-          "status": "failed",
-          "requests": 101,
-          "successes": 93,
-          "prompt_tokens": 193424,
-          "completion_tokens": 24216,
-          "total_tokens": 217640,
-          "failures": 8,
-          "last_failure_category": "validation_failed",
+          "status": "healthy",
+          "requests": 84,
+          "successes": 74,
+          "prompt_tokens": 117380,
+          "completion_tokens": 44560,
+          "total_tokens": 161940,
+          "failures": 10,
+          "last_failure_category": "context_or_output_limit",
           "cooldown_remaining_seconds": 0
         },
         "mistral-small-2603": {
-          "requests": 8,
-          "failures": 7,
-          "last_failure_category": "validation_failed",
+          "requests": 9,
+          "failures": 8,
+          "last_failure_category": "context_or_output_limit",
           "status": "failed",
           "successes": 1,
-          "prompt_tokens": 3646,
-          "completion_tokens": 604,
-          "total_tokens": 4250,
+          "prompt_tokens": 1866,
+          "completion_tokens": 1390,
+          "total_tokens": 3256,
           "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "validation_failed",
-      "last_failure_at": 1786995514.371834,
+      "last_failure_category": "",
+      "last_failure_at": 1787601981.2716205,
       "cooldown_remaining_seconds": 0
     },
     "siliconflow": {
@@ -551,27 +541,27 @@
       "provider": "siliconflow",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 56,
-      "successes": 25,
-      "failures": 31,
-      "prompt_tokens": 93843,
-      "completion_tokens": 10609,
-      "total_tokens": 104452,
+      "requests": 75,
+      "successes": 63,
+      "failures": 12,
+      "prompt_tokens": 261806,
+      "completion_tokens": 44414,
+      "total_tokens": 306220,
       "models": {
         "Qwen/Qwen3-8B": {
-          "status": "failed",
-          "requests": 41,
-          "successes": 25,
-          "prompt_tokens": 93843,
-          "completion_tokens": 10609,
-          "total_tokens": 104452,
-          "failures": 16,
-          "last_failure_category": "validation_failed",
+          "status": "healthy",
+          "requests": 69,
+          "successes": 63,
+          "prompt_tokens": 261806,
+          "completion_tokens": 44414,
+          "total_tokens": 306220,
+          "failures": 6,
+          "last_failure_category": "context_or_output_limit",
           "cooldown_remaining_seconds": 0
         },
         "LoRA/Qwen/Qwen2.5-7B-Instruct": {
-          "requests": 15,
-          "failures": 15,
+          "requests": 6,
+          "failures": 6,
           "last_failure_category": "context_or_output_limit",
           "status": "failed",
           "cooldown_remaining_seconds": 0
@@ -584,8 +574,8 @@
         "charge_balance": "0",
         "total_balance": "0"
       },
-      "last_failure_category": "context_or_output_limit",
-      "last_failure_at": 1786995564.2836306,
+      "last_failure_category": "",
+      "last_failure_at": 1787602042.854631,
       "cooldown_remaining_seconds": 0
     },
     "bigmodel": {
@@ -593,33 +583,33 @@
       "provider": "bigmodel",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 50,
+      "requests": 105,
       "successes": 0,
-      "failures": 50,
+      "failures": 105,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
       "models": {
         "glm-4.5": {
-          "requests": 29,
-          "failures": 29,
+          "requests": 57,
+          "failures": 57,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 0
+          "cooldown_remaining_seconds": 46.4
         },
         "glm-4.5-air": {
-          "requests": 21,
-          "failures": 21,
+          "requests": 48,
+          "failures": 48,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 0
+          "cooldown_remaining_seconds": 46.7
         }
       },
       "account": {
         "status": "not_supported"
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1786995503.1524866,
+      "last_failure_at": 1787603496.6071813,
       "cooldown_remaining_seconds": 0
     },
     "deepseek": {
@@ -666,7 +656,7 @@
         ]
       },
       "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1786991367.149501,
+      "last_failure_at": 1787596238.8651297,
       "cooldown_remaining_seconds": 0
     }
   }
