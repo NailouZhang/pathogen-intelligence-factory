@@ -48,25 +48,25 @@
     },
     "groq": {
       "provider": "groq",
-      "status": "healthy",
-      "disabled_reason": "",
+      "status": "authentication_failed",
+      "disabled_reason": "authentication_failed",
       "cooldown_until": 0.0,
-      "requests": 4,
+      "requests": 5,
       "successes": 3,
-      "failures": 1,
+      "failures": 2,
       "prompt_tokens": 7495,
       "completion_tokens": 2313,
       "total_tokens": 9808,
       "models": {
         "openai/gpt-oss-120b": {
-          "status": "healthy",
-          "requests": 4,
+          "status": "authentication_failed",
+          "requests": 5,
           "successes": 3,
           "prompt_tokens": 7495,
           "completion_tokens": 2313,
           "total_tokens": 9808,
-          "failures": 1,
-          "last_failure_category": "rate_limited",
+          "failures": 2,
+          "last_failure_category": "authentication_failed",
           "cooldown_until": 1787968203.7029204
         }
       },
@@ -74,34 +74,34 @@
         "status": "not_supported"
       },
       "key_fingerprint": "a8e20d7d74e17a6b",
-      "last_failure_category": "",
-      "last_failure_at": 1787968143.702919
+      "last_failure_category": "authentication_failed",
+      "last_failure_at": 1787974977.8694572
     },
     "openrouter": {
       "provider": "openrouter",
       "status": "healthy",
       "disabled_reason": "",
       "cooldown_until": 0.0,
-      "requests": 6,
-      "successes": 1,
-      "failures": 5,
-      "prompt_tokens": 173,
-      "completion_tokens": 5,
-      "total_tokens": 178,
+      "requests": 12,
+      "successes": 2,
+      "failures": 10,
+      "prompt_tokens": 3339,
+      "completion_tokens": 6791,
+      "total_tokens": 10130,
       "models": {
         "openrouter/free": {
           "status": "failed",
-          "requests": 4,
-          "successes": 1,
-          "prompt_tokens": 173,
-          "completion_tokens": 5,
-          "total_tokens": 178,
-          "failures": 3,
-          "last_failure_category": "context_or_output_limit"
+          "requests": 8,
+          "successes": 2,
+          "prompt_tokens": 3339,
+          "completion_tokens": 6791,
+          "total_tokens": 10130,
+          "failures": 6,
+          "last_failure_category": "empty_response"
         },
         "cohere/north-mini-code:free": {
-          "requests": 2,
-          "failures": 2,
+          "requests": 4,
+          "failures": 4,
           "last_failure_category": "empty_response",
           "status": "failed"
         }
@@ -117,34 +117,34 @@
       },
       "key_fingerprint": "6505954eadef4e10",
       "last_failure_category": "empty_response",
-      "last_failure_at": 1787973384.4447422
+      "last_failure_at": 1787980293.526402
     },
     "mistral": {
       "provider": "mistral",
       "status": "healthy",
       "disabled_reason": "",
       "cooldown_until": 1787968571.5549958,
-      "requests": 104,
-      "successes": 88,
-      "failures": 16,
-      "prompt_tokens": 140726,
-      "completion_tokens": 56932,
-      "total_tokens": 197658,
+      "requests": 278,
+      "successes": 248,
+      "failures": 30,
+      "prompt_tokens": 327104,
+      "completion_tokens": 110320,
+      "total_tokens": 437424,
       "models": {
         "mistral-small-latest": {
-          "status": "healthy",
-          "requests": 95,
-          "successes": 85,
-          "prompt_tokens": 134356,
-          "completion_tokens": 54341,
-          "total_tokens": 188697,
-          "failures": 10,
+          "status": "failed",
+          "requests": 263,
+          "successes": 245,
+          "prompt_tokens": 320734,
+          "completion_tokens": 107729,
+          "total_tokens": 428463,
+          "failures": 18,
           "last_failure_category": "validation_failed",
           "cooldown_until": 1787968571.5549958
         },
         "mistral-small-2603": {
-          "requests": 9,
-          "failures": 6,
+          "requests": 15,
+          "failures": 12,
           "last_failure_category": "validation_failed",
           "status": "failed",
           "successes": 3,
@@ -157,34 +157,35 @@
         "status": "not_supported"
       },
       "key_fingerprint": "f6e0d567fde1313a",
-      "last_failure_category": "",
-      "last_failure_at": 1787973344.507747
+      "last_failure_category": "validation_failed",
+      "last_failure_at": 1787980147.9365144
     },
     "siliconflow": {
       "provider": "siliconflow",
-      "status": "healthy",
-      "disabled_reason": "",
-      "cooldown_until": 0.0,
-      "requests": 100,
-      "successes": 73,
-      "failures": 27,
-      "prompt_tokens": 312506,
-      "completion_tokens": 51560,
-      "total_tokens": 364066,
+      "status": "cooldown",
+      "disabled_reason": "timeout",
+      "cooldown_until": 1787980298.019318,
+      "requests": 159,
+      "successes": 121,
+      "failures": 38,
+      "prompt_tokens": 492674,
+      "completion_tokens": 82787,
+      "total_tokens": 575461,
       "models": {
         "Qwen/Qwen3-8B": {
-          "status": "healthy",
-          "requests": 87,
-          "successes": 73,
-          "prompt_tokens": 312506,
-          "completion_tokens": 51560,
-          "total_tokens": 364066,
-          "failures": 14,
-          "last_failure_category": "validation_failed"
+          "status": "cooldown",
+          "requests": 141,
+          "successes": 121,
+          "prompt_tokens": 492674,
+          "completion_tokens": 82787,
+          "total_tokens": 575461,
+          "failures": 20,
+          "last_failure_category": "timeout",
+          "cooldown_until": 1787980298.019318
         },
         "LoRA/Qwen/Qwen2.5-7B-Instruct": {
-          "requests": 13,
-          "failures": 13,
+          "requests": 18,
+          "failures": 18,
           "last_failure_category": "context_or_output_limit",
           "status": "failed"
         }
@@ -195,34 +196,34 @@
         "error": "HTTP request failed: https://api.siliconflow.cn/v1/user/info: HTTP status 410: 410 Client Error: Gone for url: https://api.siliconflow.cn/v1/user/info; response={\"code\":20092,\"message\":\"This endpoint is deprecated and is no longer available.\",\"data\":null}"
       },
       "key_fingerprint": "40a15ddbbb0c6185",
-      "last_failure_category": "",
-      "last_failure_at": 1787973336.9587219
+      "last_failure_category": "context_or_output_limit",
+      "last_failure_at": 1787980272.4099503
     },
     "bigmodel": {
       "provider": "bigmodel",
       "status": "healthy",
       "disabled_reason": "",
       "cooldown_until": 0.0,
-      "requests": 116,
+      "requests": 224,
       "successes": 0,
-      "failures": 116,
+      "failures": 224,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
       "models": {
         "glm-5.3-flash": {
-          "requests": 63,
-          "failures": 63,
+          "requests": 120,
+          "failures": 120,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_until": 1787973806.8776588
+          "cooldown_until": 1787980198.2051284
         },
         "glm-4.5": {
-          "requests": 53,
-          "failures": 53,
+          "requests": 104,
+          "failures": 104,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_until": 1787973807.11022
+          "cooldown_until": 1787980198.4514463
         }
       },
       "account": {
@@ -230,7 +231,7 @@
       },
       "key_fingerprint": "574aa919642b8f5b",
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1787973747.1102185
+      "last_failure_at": 1787980138.4514446
     },
     "deepseek": {
       "provider": "deepseek",
@@ -278,5 +279,5 @@
       "last_failure_at": 1787966592.0164285
     }
   },
-  "updated_at_epoch": 1787973798.5203497
+  "updated_at_epoch": 1787980293.52664
 }
