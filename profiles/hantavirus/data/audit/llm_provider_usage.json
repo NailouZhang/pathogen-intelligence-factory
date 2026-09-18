@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-09-11T02:04:55+00:00",
+  "generated_at": "2026-09-18T02:25:35+00:00",
   "shared_state_file": "/tmp/pif_data_repo/shared/state/provider_quota_daily.json",
   "provider_order": {
     "extract": [
@@ -64,15 +64,15 @@
   "task_failures": [
     {
       "task": "relevance_compact_review",
-      "at": "2026-09-11T00:08:00+00:00",
-      "failure_category": "rate_limited",
-      "error": "All configured LLM attempts failed (rate_limited): authentication_failed",
+      "at": "2026-09-18T01:08:08+00:00",
+      "failure_category": "quota_exhausted",
+      "error": "All configured LLM attempts failed (quota_exhausted): HTTP request failed: https://api.groq.com/openai/v1/chat/completions: HTTP status 413: 413 Client Error: Payload Too Large for url: https://api.groq.com/openai/v1/chat/completions; response={\"error\":{\"message\":\"Request too large for model `openai/gpt-oss-120b` in organization `org_01kxfxy383e72t9rgc2e5r3bja` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Requested 9994, please reduce your message size and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}",
       "attempts": [
         {
           "task": "relevance_compact_review",
           "provider": "gemini",
           "model": "",
-          "at": "2026-09-11T00:06:23+00:00",
+          "at": "2026-09-18T01:06:34+00:00",
           "status": "skipped",
           "failure_category": "authentication_failed",
           "error": "authentication_failed"
@@ -82,23 +82,23 @@
           "provider": "bigmodel",
           "model": "glm-5.3-flash",
           "retry_index": 0,
-          "at": "2026-09-11T00:06:24+00:00",
+          "at": "2026-09-18T01:06:34+00:00",
           "system_chars": 2207,
-          "prompt_chars": 13798,
+          "prompt_chars": 40842,
           "status": "failed",
           "failure_category": "rate_limited",
           "error_type": "RuntimeError",
           "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-          "elapsed_ms": 570
+          "elapsed_ms": 524
         },
         {
           "task": "relevance_compact_review",
           "provider": "siliconflow",
           "model": "Qwen/Qwen3-8B",
           "retry_index": 0,
-          "at": "2026-09-11T00:06:26+00:00",
+          "at": "2026-09-18T01:06:35+00:00",
           "system_chars": 2207,
-          "prompt_chars": 13798,
+          "prompt_chars": 40842,
           "status": "failed",
           "failure_category": "timeout",
           "error_type": "RuntimeError",
@@ -110,20 +110,20 @@
           "provider": "mistral",
           "model": "mistral-small-latest",
           "retry_index": 0,
-          "at": "2026-09-11T00:07:56+00:00",
+          "at": "2026-09-18T01:08:05+00:00",
           "system_chars": 2207,
-          "prompt_chars": 13798,
+          "prompt_chars": 40842,
           "status": "failed",
           "failure_category": "rate_limited",
           "error_type": "RuntimeError",
           "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-          "elapsed_ms": 206
+          "elapsed_ms": 255
         },
         {
           "task": "relevance_compact_review",
           "provider": "deepseek",
           "model": "",
-          "at": "2026-09-11T00:07:56+00:00",
+          "at": "2026-09-18T01:08:06+00:00",
           "status": "skipped",
           "failure_category": "quota_exhausted",
           "error": "quota_exhausted"
@@ -133,27 +133,355 @@
           "provider": "openrouter",
           "model": "openrouter/free",
           "retry_index": 0,
-          "at": "2026-09-11T00:07:57+00:00",
+          "at": "2026-09-18T01:08:06+00:00",
           "system_chars": 2207,
-          "prompt_chars": 13798,
+          "prompt_chars": 40842,
           "status": "failed",
           "failure_category": "invalid_json",
           "error_type": "LLMError",
           "error": "Model response did not contain valid complete JSON",
-          "elapsed_ms": 3533
+          "elapsed_ms": 2247
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b",
+          "retry_index": 0,
+          "at": "2026-09-18T01:08:08+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 40842,
+          "status": "failed",
+          "failure_category": "quota_exhausted",
+          "error_type": "RuntimeError",
+          "error": "HTTP request failed: https://api.groq.com/openai/v1/chat/completions: HTTP status 413: 413 Client Error: Payload Too Large for url: https://api.groq.com/openai/v1/chat/completions; response={\"error\":{\"message\":\"Request too large for model `openai/gpt-oss-120b` in organization `org_01kxfxy383e72t9rgc2e5r3bja` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Requested 9994, please reduce your message size and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}",
+          "elapsed_ms": 90
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r32",
+          "r33",
+          "r34",
+          "r35",
+          "r36",
+          "r37",
+          "r38",
+          "r39",
+          "r40",
+          "r41",
+          "r42",
+          "r43",
+          "r44",
+          "r45",
+          "r47",
+          "r48",
+          "r49",
+          "r50",
+          "r53",
+          "r54",
+          "r55",
+          "r56",
+          "r57",
+          "r58",
+          "r59",
+          "r60",
+          "r61",
+          "r62",
+          "r63",
+          "r64",
+          "r65",
+          "r66",
+          "r67",
+          "r68",
+          "r69"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-09-18T01:08:13+00:00",
+      "failure_category": "rate_limited",
+      "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
+          "model": "",
+          "at": "2026-09-18T01:08:08+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-5.3-flash",
+          "retry_index": 0,
+          "at": "2026-09-18T01:08:08+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 20476,
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "error_type": "RuntimeError",
+          "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
+          "elapsed_ms": 465
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-09-18T01:08:09+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "timeout"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-09-18T01:08:09+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-09-18T01:08:09+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "retry_index": 0,
+          "at": "2026-09-18T01:08:09+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 20476,
+          "status": "failed",
+          "failure_category": "invalid_json",
+          "error_type": "LLMError",
+          "error": "Model response did not contain valid complete JSON",
+          "elapsed_ms": 4388
         },
         {
           "task": "relevance_compact_review",
           "provider": "groq",
           "model": "",
-          "at": "2026-09-11T00:08:00+00:00",
+          "at": "2026-09-18T01:08:13+00:00",
           "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
         }
       ],
       "context": {
-        "kind": "news",
+        "kind": "paper",
+        "record_ids": [
+          "r32",
+          "r33",
+          "r34",
+          "r35",
+          "r36",
+          "r37",
+          "r38",
+          "r39",
+          "r40",
+          "r41",
+          "r42",
+          "r43",
+          "r44",
+          "r45",
+          "r47",
+          "r48",
+          "r49"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-09-18T01:08:29+00:00",
+      "failure_category": "empty_response",
+      "error": "All configured LLM attempts failed (empty_response): quota_exhausted",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
+          "model": "",
+          "at": "2026-09-18T01:08:13+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-5.3-flash",
+          "at": "2026-09-18T01:08:13+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-09-18T01:08:13+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "timeout"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-09-18T01:08:13+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-09-18T01:08:13+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "retry_index": 0,
+          "at": "2026-09-18T01:08:13+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 11545,
+          "status": "failed",
+          "failure_category": "empty_response",
+          "error_type": "LLMError",
+          "error": "openrouter returned empty content: {'id': 'gen-1789693693-AAvslRPjzcm6KgSXrCqR', 'object': 'chat.completion', 'created': 1789693693, 'model': 'cohere/north-mini-code:free', 'provider': 'Cohere', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'max_tokens', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need to process the given data. The task: \"Use the compact Python-extracted evidence. A=target main subject; C=material comparative/co-infection evidence; S=related non-target entity with substantive information, supplementary-only; B=background/list/reference only; N=hard unrelated/lexical noise/identifier conflict; U=needs fuller evidence.\"\\n\\nWe have a profile: target viruses: Hantavirus, orthohantavirus, hantavirus infection, Hantaviridae, Hantaan virus, ",
+          "elapsed_ms": 16187
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "",
+          "at": "2026-09-18T01:08:29+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        }
+      ],
+      "context": {
+        "kind": "paper",
+        "record_ids": [
+          "r32",
+          "r33",
+          "r34",
+          "r35",
+          "r36",
+          "r37",
+          "r38",
+          "r39"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-09-18T01:17:19+00:00",
+      "failure_category": "rate_limited",
+      "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
+          "model": "",
+          "at": "2026-09-18T01:15:11+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-5.3-flash",
+          "retry_index": 0,
+          "at": "2026-09-18T01:15:11+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 14555,
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "error_type": "RuntimeError",
+          "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
+          "elapsed_ms": 535
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "Qwen/Qwen3-8B",
+          "retry_index": 0,
+          "at": "2026-09-18T01:15:12+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 14555,
+          "status": "failed",
+          "failure_category": "timeout",
+          "error_type": "RuntimeError",
+          "error": "HTTP request failed: https://api.siliconflow.cn/v1/chat/completions: HTTPSConnectionPool(host='api.siliconflow.cn', port=443): Read timed out. (read timeout=90)",
+          "elapsed_ms": 90637
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "retry_index": 0,
+          "at": "2026-09-18T01:16:42+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 14555,
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "error_type": "RuntimeError",
+          "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+          "elapsed_ms": 297
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-09-18T01:16:43+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "retry_index": 0,
+          "at": "2026-09-18T01:16:43+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 14555,
+          "status": "failed",
+          "failure_category": "empty_response",
+          "error_type": "LLMError",
+          "error": "openrouter returned empty content: {'id': 'gen-1789694203-bEWV0Kve15LsGZZQAoqn', 'object': 'chat.completion', 'created': 1789694203, 'model': 'deepseek/deepseek-v4-flash-0731:free', 'provider': 'OpenInference', 'system_fingerprint': 'vllm-dev-ep-17a051ab', 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need answer JSON only. Need decide for each record. Need use schema. Need inspect records. Need output compact JSON with decisions. Need reason codes. Need determine for each record.\\n\\nWe have records r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11? Actually records listed: r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11? Wait r11? There is r11? The input has r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11? Let\\'s parse: after r10, there is r11? A",
+          "elapsed_ms": 36801
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "",
+          "at": "2026-09-18T01:17:19+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        }
+      ],
+      "context": {
+        "kind": "paper",
         "record_ids": [
           "r0",
           "r1",
@@ -171,830 +499,7 @@
           "r13",
           "r14",
           "r15",
-          "r16",
-          "r17",
-          "r18",
-          "r19",
-          "r21",
-          "r22",
-          "r24",
-          "r25",
-          "r26",
-          "r27",
-          "r28",
-          "r29",
-          "r30",
-          "r31",
-          "r32",
-          "r33",
-          "r34",
-          "r35",
-          "r36",
-          "r37",
-          "r38",
-          "r39",
-          "r40",
-          "r41",
-          "r42",
-          "r43",
-          "r44"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-09-11T00:08:09+00:00",
-      "failure_category": "rate_limited",
-      "error": "All configured LLM attempts failed (rate_limited): authentication_failed",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-09-11T00:08:00+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "glm-5.3-flash",
-          "retry_index": 0,
-          "at": "2026-09-11T00:08:00+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 8807,
-          "status": "failed",
-          "failure_category": "rate_limited",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-          "elapsed_ms": 561
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-09-11T00:08:01+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-09-11T00:08:01+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-09-11T00:08:01+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "retry_index": 0,
-          "at": "2026-09-11T00:08:01+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 8807,
-          "status": "failed",
-          "failure_category": "empty_response",
-          "error_type": "LLMError",
-          "error": "openrouter returned empty content: {'id': 'gen-1789085281-70dEGJ1wkw5clU0HJiAU', 'object': 'chat.completion', 'created': 1789085281, 'model': 'nex-agi/nex-n2.5-mini:free', 'provider': 'Nex AGI', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': '\\nWe need answer compact JSON exactly records IDs and schema. Need adjudicate each. Need use supplied only, no infer. Need understand IDs missing r20? Records r0-r19 then r21, no r20. Must exact requested record IDs presumably those supplied. Need decisions.\\n\\nWe have retrieval query explains found, not proof. Evidence empty all. Titles and context can classify B/N likely. Need carefully assign.\\n\\nProfile hantavirus. Records:\\nr0 title viral outbreaks, query hanta",
-          "elapsed_ms": 8369
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-09-11T00:08:09+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        }
-      ],
-      "context": {
-        "kind": "news",
-        "record_ids": [
-          "r0",
-          "r1",
-          "r2",
-          "r3",
-          "r4",
-          "r5",
-          "r6",
-          "r7",
-          "r8",
-          "r9",
-          "r10",
-          "r11",
-          "r12",
-          "r13",
-          "r14",
-          "r15",
-          "r16",
-          "r17",
-          "r18",
-          "r19",
-          "r21"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-09-11T00:08:34+00:00",
-      "failure_category": "empty_response",
-      "error": "All configured LLM attempts failed (empty_response): authentication_failed",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-09-11T00:08:18+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "glm-5.3-flash",
-          "at": "2026-09-11T00:08:18+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-09-11T00:08:18+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-09-11T00:08:18+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-09-11T00:08:18+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "retry_index": 0,
-          "at": "2026-09-11T00:08:18+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 6344,
-          "status": "failed",
-          "failure_category": "empty_response",
-          "error_type": "LLMError",
-          "error": "openrouter returned empty content: {'id': 'gen-1789085298-p57jnvbmX6npMM7fPfnI', 'object': 'chat.completion', 'created': 1789085298, 'model': 'dots-studio/dots-3-note-preview:free', 'provider': 'AtlasCloud', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'The user wants me to adjudicate the relevance of several records to the \"hantavirus\" profile based on the provided topic contract, retrieval provenance, entity matches, and evidence sentences.\\n\\nLet\\'s look at the records:\\n- r10: \"凑2万韩元前往动物医院的小学生们......打开面包袋竟是这只动物- 阿视亚经济 - 아시아경제\", q=[\"肾综合征出血热\"], route=\"reject\", ev=[], py=\"reject\", ps=0. The query was \"肾综合征出血热\" (HFRS), but the title is about elementary students collecting money to visit an animal hospi",
-          "elapsed_ms": 16138
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-09-11T00:08:34+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        }
-      ],
-      "context": {
-        "kind": "news",
-        "record_ids": [
-          "r10",
-          "r11",
-          "r12",
-          "r13",
-          "r14",
-          "r15",
-          "r16",
-          "r17",
-          "r18",
-          "r19",
-          "r21"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-09-11T00:11:04+00:00",
-      "failure_category": "rate_limited",
-      "error": "All configured LLM attempts failed (rate_limited): authentication_failed",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-09-11T00:09:27+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "glm-5.3-flash",
-          "at": "2026-09-11T00:09:27+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "Qwen/Qwen3-8B",
-          "retry_index": 0,
-          "at": "2026-09-11T00:09:27+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 8734,
-          "status": "failed",
-          "failure_category": "timeout",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://api.siliconflow.cn/v1/chat/completions: HTTPSConnectionPool(host='api.siliconflow.cn', port=443): Read timed out. (read timeout=90)",
-          "elapsed_ms": 90093
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "retry_index": 0,
-          "at": "2026-09-11T00:10:57+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 8734,
-          "status": "failed",
-          "failure_category": "rate_limited",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-          "elapsed_ms": 188
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-09-11T00:10:58+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "retry_index": 0,
-          "at": "2026-09-11T00:10:58+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 8734,
-          "status": "failed",
-          "failure_category": "empty_response",
-          "error_type": "LLMError",
-          "error": "openrouter returned empty content: {'id': 'gen-1789085458-fmuENwuC2aQJPao5CRHX', 'object': 'chat.completion', 'created': 1789085458, 'model': 'nex-agi/nex-n2.5-mini:free', 'provider': 'Nex AGI', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': '\\nWe need answer compact JSON only exact IDs decisions schema. Need adjudicate based only supplied. All records have no evidence, route reject, titles/query likely noise due ambiguous \"Seoul virus\" = Seoul city? Need decide N hard unrelated/lexical noise, B background/list/reference only, or U insufficient fuller evidence. We need use supplied title and query. They explicitly have no evidence sentences. Need not infer missing facts. Decision U if evidence insufficie",
-          "elapsed_ms": 6826
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-09-11T00:11:04+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        }
-      ],
-      "context": {
-        "kind": "news",
-        "record_ids": [
-          "r22",
-          "r24",
-          "r25",
-          "r26",
-          "r27",
-          "r28",
-          "r29",
-          "r30",
-          "r31",
-          "r32",
-          "r33",
-          "r34",
-          "r35",
-          "r36",
-          "r37",
-          "r38",
-          "r39",
-          "r40",
-          "r41",
-          "r42",
-          "r43",
-          "r44"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-09-11T00:11:19+00:00",
-      "failure_category": "rate_limited",
-      "error": "All configured LLM attempts failed (rate_limited): authentication_failed",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-09-11T00:11:04+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "glm-5.3-flash",
-          "retry_index": 0,
-          "at": "2026-09-11T00:11:04+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 6310,
-          "status": "failed",
-          "failure_category": "rate_limited",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-          "elapsed_ms": 487
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-09-11T00:11:05+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-09-11T00:11:05+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-09-11T00:11:05+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "retry_index": 0,
-          "at": "2026-09-11T00:11:05+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 6310,
-          "status": "failed",
-          "failure_category": "invalid_json",
-          "error_type": "LLMError",
-          "error": "Model response did not contain valid complete JSON",
-          "elapsed_ms": 13815
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-09-11T00:11:19+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        }
-      ],
-      "context": {
-        "kind": "news",
-        "record_ids": [
-          "r22",
-          "r24",
-          "r25",
-          "r26",
-          "r27",
-          "r28",
-          "r29",
-          "r30",
-          "r31",
-          "r32",
-          "r33"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-09-11T00:11:40+00:00",
-      "failure_category": "empty_response",
-      "error": "All configured LLM attempts failed (empty_response): authentication_failed",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-09-11T00:11:19+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "glm-5.3-flash",
-          "at": "2026-09-11T00:11:19+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-09-11T00:11:19+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-09-11T00:11:19+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-09-11T00:11:19+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "retry_index": 0,
-          "at": "2026-09-11T00:11:19+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 4848,
-          "status": "failed",
-          "failure_category": "empty_response",
-          "error_type": "LLMError",
-          "error": "openrouter returned empty content: {'id': 'gen-1789085479-e5vbaan7NvL2219DrMc1', 'object': 'chat.completion', 'created': 1789085479, 'model': 'cohere/north-mini-code:free', 'provider': 'Cohere', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'max_tokens', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need to process the given task. The user says: \"Use the compact Python-extracted evidence. A=target main subject; C=material comparative/co-infection evidence; S=related non-target entity with substantive information, supplementary-only; B=background/list/reference only; N=hard unrelated/lexical noise/identifier conflict; U=needs fuller evidence.\"\\n\\nWe have a JSON with a \"records\" array containing several records (r22, r24, r25, r26, r27). Each record has fi",
-          "elapsed_ms": 21720
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-09-11T00:11:40+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        }
-      ],
-      "context": {
-        "kind": "news",
-        "record_ids": [
-          "r22",
-          "r24",
-          "r25",
-          "r26",
-          "r27"
-        ]
-      }
-    },
-    {
-      "task": "relevance_escalated_review",
-      "at": "2026-09-11T00:18:28+00:00",
-      "failure_category": "rate_limited",
-      "error": "All configured LLM attempts failed (rate_limited): authentication_failed",
-      "attempts": [
-        {
-          "task": "relevance_escalated_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-09-11T00:18:11+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "bigmodel",
-          "model": "glm-5.3-flash",
-          "retry_index": 0,
-          "at": "2026-09-11T00:18:11+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 33882,
-          "status": "failed",
-          "failure_category": "rate_limited",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-          "elapsed_ms": 806
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-09-11T00:18:12+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-09-11T00:18:12+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-09-11T00:18:12+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "retry_index": 0,
-          "at": "2026-09-11T00:18:12+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 33882,
-          "status": "failed",
-          "failure_category": "empty_response",
-          "error_type": "LLMError",
-          "error": "openrouter returned empty content: {'id': 'gen-1789085892-TmJKcpFTnD2whXP7O1dG', 'object': 'chat.completion', 'created': 1789085892, 'model': 'liquid/lfm-2.5-2.6b:free', 'provider': 'Liquid', 'system_fingerprint': 'vllm-0.26.1rc1.dev1261+gf25c580af-4c1cb98f', 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'The user wants me to classify each record (r31 through r50) as to whether it is substantively about the target virus (hantavirus/orthohantaviruses) or not. Let me analyze each record based on the provided metadata:\\n\\nTarget profile: Hantaviruses, specifically \"Hantavirus\" and related orthohantaviruses like Hantaan virus, Seoul virus, Puumala virus, Dobrava-Belgrade virus, Sin Nombre virus, Andes virus, etc.\\n\\nLet me go through ",
-          "elapsed_ms": 16537
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-09-11T00:18:28+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r31",
-          "r32",
-          "r33",
-          "r34",
-          "r35",
-          "r36",
-          "r37",
-          "r38",
-          "r39",
-          "r40",
-          "r41",
-          "r42",
-          "r43",
-          "r44",
-          "r45",
-          "r46",
-          "r47",
-          "r48",
-          "r50"
-        ]
-      }
-    },
-    {
-      "task": "relevance_escalated_review",
-      "at": "2026-09-11T00:21:19+00:00",
-      "failure_category": "rate_limited",
-      "error": "All configured LLM attempts failed (rate_limited): authentication_failed",
-      "attempts": [
-        {
-          "task": "relevance_escalated_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-09-11T00:19:37+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "bigmodel",
-          "model": "glm-5.3-flash",
-          "retry_index": 0,
-          "at": "2026-09-11T00:19:37+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 20889,
-          "status": "failed",
-          "failure_category": "rate_limited",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-          "elapsed_ms": 608
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "siliconflow",
-          "model": "Qwen/Qwen3-8B",
-          "retry_index": 0,
-          "at": "2026-09-11T00:19:38+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 20889,
-          "status": "failed",
-          "failure_category": "timeout",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://api.siliconflow.cn/v1/chat/completions: HTTPSConnectionPool(host='api.siliconflow.cn', port=443): Read timed out. (read timeout=90)",
-          "elapsed_ms": 90082
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "retry_index": 0,
-          "at": "2026-09-11T00:21:08+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 20889,
-          "status": "failed",
-          "failure_category": "rate_limited",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-          "elapsed_ms": 195
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-09-11T00:21:08+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "retry_index": 0,
-          "at": "2026-09-11T00:21:08+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 20889,
-          "status": "failed",
-          "failure_category": "empty_response",
-          "error_type": "LLMError",
-          "error": "openrouter returned empty content: {'id': 'gen-1789086068-eG4OAbbp6TrT3XvAsQeZ', 'object': 'chat.completion', 'created': 1789086068, 'model': 'liquid/lfm-2.5-2.6b:free', 'provider': 'Liquid', 'system_fingerprint': 'vllm-0.26.1rc1.dev1261+gf25c580af-4c1cb98f', 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'The user wants me to classify each record in the provided list based on whether it\\'s about the target virus (hantavirus/orthohantaviruses) or not. Let me analyze each record:\\n\\nTarget profile: Hantaviruses / 汉坦病毒 (Hantavirus)\\nAllowed entities include various hantaviruses like Hantaan virus, Seoul virus, Puumala virus, Dobrava-Belgrade virus, Sin Nombre virus, Andes virus, etc.\\n\\nLet me go through each record:\\n\\n**r40**: Titl",
-          "elapsed_ms": 10753
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-09-11T00:21:19+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r40",
-          "r41",
-          "r42",
-          "r43",
-          "r44",
-          "r45",
-          "r46",
-          "r47",
-          "r48",
-          "r50"
-        ]
-      }
-    },
-    {
-      "task": "relevance_escalated_review",
-      "at": "2026-09-11T00:21:21+00:00",
-      "failure_category": "rate_limited",
-      "error": "All configured LLM attempts failed (rate_limited): authentication_failed",
-      "attempts": [
-        {
-          "task": "relevance_escalated_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-09-11T00:21:19+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "bigmodel",
-          "model": "glm-5.3-flash",
-          "retry_index": 0,
-          "at": "2026-09-11T00:21:19+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 12533,
-          "status": "failed",
-          "failure_category": "rate_limited",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-          "elapsed_ms": 574
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-09-11T00:21:20+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-09-11T00:21:20+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-09-11T00:21:20+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "retry_index": 0,
-          "at": "2026-09-11T00:21:20+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 12533,
-          "status": "failed",
-          "failure_category": "invalid_json",
-          "error_type": "LLMError",
-          "error": "Model response did not contain valid complete JSON",
-          "elapsed_ms": 1634
-        },
-        {
-          "task": "relevance_escalated_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-09-11T00:21:21+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r40",
-          "r41",
-          "r42",
-          "r43",
-          "r44"
+          "r16"
         ]
       }
     }
@@ -1045,14 +550,13 @@
       "status": "discovered",
       "endpoint": "https://api.siliconflow.cn/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 63,
+      "discovered_count": 61,
       "discovered_models": [
         "Qwen/Qwen3-8B",
         "LoRA/Qwen/Qwen2.5-7B-Instruct",
         "Qwen/Qwen2.5-7B-Instruct",
         "Qwen/Qwen3-VL-8B-Instruct",
         "Qwen/Qwen3.5-27B",
-        "Qwen/Qwen3.5-397B-A17B",
         "Qwen/Qwen3.6-27B",
         "Qwen/Qwen3.8-27B",
         "deepseek-ai/DeepSeek-V4-Flash",
@@ -1060,11 +564,9 @@
         "Pro/Qwen/Qwen2.5-7B-Instruct",
         "Qwen/Qwen3-VL-8B-Thinking",
         "inclusionAI/Ling-mini-2.0",
-        "MiniMaxAI/MiniMax-M2.5",
         "tencent/Hunyuan-MT-7B",
         "inclusionAI/Ling-flash-2.0",
         "stepfun-ai/Step-3.5-Flash",
-        "Pro/MiniMaxAI/MiniMax-M2.5",
         "deepseek-ai/DeepSeek-V3",
         "deepseek-ai/DeepSeek-V3.1-Terminus",
         "deepseek-ai/DeepSeek-V3.2",
@@ -1076,7 +578,10 @@
         "Qwen/Qwen2.5-72B-Instruct",
         "Qwen/Qwen2.5-72B-Instruct-128K",
         "Qwen/Qwen3-14B",
-        "Qwen/Qwen3-30B-A3B-Instruct-2507"
+        "Qwen/Qwen3-30B-A3B-Instruct-2507",
+        "Qwen/Qwen3-32B",
+        "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "Qwen/Qwen3-Omni-30B-A3B-Captioner"
       ],
       "explicit_preferences": [
         "Qwen/Qwen3-8B"
@@ -1090,7 +595,6 @@
         "Qwen/Qwen2.5-7B-Instruct",
         "Qwen/Qwen3-VL-8B-Instruct",
         "Qwen/Qwen3.5-27B",
-        "Qwen/Qwen3.5-397B-A17B",
         "Qwen/Qwen3.6-27B",
         "Qwen/Qwen3.8-27B",
         "deepseek-ai/DeepSeek-V4-Flash",
@@ -1098,11 +602,9 @@
         "Pro/Qwen/Qwen2.5-7B-Instruct",
         "Qwen/Qwen3-VL-8B-Thinking",
         "inclusionAI/Ling-mini-2.0",
-        "MiniMaxAI/MiniMax-M2.5",
         "tencent/Hunyuan-MT-7B",
         "inclusionAI/Ling-flash-2.0",
         "stepfun-ai/Step-3.5-Flash",
-        "Pro/MiniMaxAI/MiniMax-M2.5",
         "deepseek-ai/DeepSeek-V3",
         "deepseek-ai/DeepSeek-V3.1-Terminus",
         "deepseek-ai/DeepSeek-V3.2",
@@ -1114,7 +616,10 @@
         "Qwen/Qwen2.5-72B-Instruct",
         "Qwen/Qwen2.5-72B-Instruct-128K",
         "Qwen/Qwen3-14B",
-        "Qwen/Qwen3-30B-A3B-Instruct-2507"
+        "Qwen/Qwen3-30B-A3B-Instruct-2507",
+        "Qwen/Qwen3-32B",
+        "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "Qwen/Qwen3-Omni-30B-A3B-Captioner"
       ],
       "ignored_retired_models": [],
       "gemini_lite_preferred": false,
@@ -1199,9 +704,11 @@
       "status": "discovered",
       "endpoint": "https://openrouter.ai/api/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 22,
+      "discovered_count": 25,
       "discovered_models": [
         "openrouter/free",
+        "qwen/qwen3.8-27b:free",
+        "deepseek/deepseek-v4-flash-0731:free",
         "cohere/north-mini-code:free",
         "nex-agi/nex-n2.5-mini:free",
         "inclusionai/ling-3.0-flash-fin:free",
@@ -1210,6 +717,7 @@
         "thinkingmachines/inkling-small:free",
         "google/gemma-4-26b-a4b-it:free",
         "google/gemma-4-31b-it:free",
+        "z-ai/glm-5.2:free",
         "liquid/lfm-2.5-2.6b:free",
         "nvidia/nemotron-3-ultra-550b-a55b:free",
         "nvidia/nemotron-3.5-content-safety:free",
@@ -1232,6 +740,8 @@
       ],
       "selected_candidates": [
         "openrouter/free",
+        "qwen/qwen3.8-27b:free",
+        "deepseek/deepseek-v4-flash-0731:free",
         "cohere/north-mini-code:free",
         "nex-agi/nex-n2.5-mini:free",
         "inclusionai/ling-3.0-flash-fin:free",
@@ -1240,6 +750,7 @@
         "thinkingmachines/inkling-small:free",
         "google/gemma-4-26b-a4b-it:free",
         "google/gemma-4-31b-it:free",
+        "z-ai/glm-5.2:free",
         "liquid/lfm-2.5-2.6b:free",
         "nvidia/nemotron-3-ultra-550b-a55b:free",
         "nvidia/nemotron-3.5-content-safety:free",
@@ -1253,6 +764,49 @@
         "dots-studio/dots-3-note-preview:free",
         "google/lyria-3-clip-preview",
         "google/lyria-3-pro-preview"
+      ],
+      "ignored_retired_models": [],
+      "gemini_lite_preferred": false,
+      "failure_category": "",
+      "error": ""
+    },
+    "groq": {
+      "status": "discovered",
+      "endpoint": "https://api.groq.com/openai/v1/models",
+      "discovery_enabled": true,
+      "discovered_count": 6,
+      "discovered_models": [
+        "openai/gpt-oss-20b",
+        "openai/gpt-oss-120b",
+        "qwen/qwen3.8-27b",
+        "allam-2-7b",
+        "canopylabs/orpheus-arabic-saudi",
+        "canopylabs/orpheus-v1-english"
+      ],
+      "explicit_preferences": [
+        "openai/gpt-oss-120b",
+        "qwen/qwen3.6-27b",
+        "openai/gpt-oss-20b",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant"
+      ],
+      "fallback_models": [
+        "openai/gpt-oss-120b",
+        "qwen/qwen3.6-27b",
+        "openai/gpt-oss-20b",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant"
+      ],
+      "selected_candidates": [
+        "openai/gpt-oss-120b",
+        "openai/gpt-oss-20b",
+        "qwen/qwen3.8-27b",
+        "allam-2-7b",
+        "canopylabs/orpheus-arabic-saudi",
+        "canopylabs/orpheus-v1-english",
+        "qwen/qwen3.6-27b",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant"
       ],
       "ignored_retired_models": [],
       "gemini_lite_preferred": false,
@@ -1306,49 +860,49 @@
         "status": "not_supported"
       },
       "last_failure_category": "authentication_failed",
-      "last_failure_at": 1789071550.338305,
+      "last_failure_at": 1789678251.0514247,
       "cooldown_remaining_seconds": 0
     },
     "groq": {
       "configured": true,
       "provider": "groq",
-      "status": "authentication_failed",
-      "disabled_reason": "authentication_failed",
-      "requests": 62,
-      "successes": 18,
-      "failures": 44,
-      "prompt_tokens": 29982,
-      "completion_tokens": 28927,
-      "total_tokens": 58909,
+      "status": "quota_exhausted",
+      "disabled_reason": "quota_exhausted",
+      "requests": 38,
+      "successes": 12,
+      "failures": 26,
+      "prompt_tokens": 28940,
+      "completion_tokens": 15909,
+      "total_tokens": 44849,
       "models": {
         "openai/gpt-oss-120b": {
-          "status": "authentication_failed",
-          "requests": 42,
-          "successes": 16,
-          "prompt_tokens": 26165,
-          "completion_tokens": 25327,
-          "total_tokens": 51492,
-          "failures": 26,
-          "last_failure_category": "authentication_failed",
+          "status": "quota_exhausted",
+          "requests": 27,
+          "successes": 10,
+          "prompt_tokens": 22554,
+          "completion_tokens": 13324,
+          "total_tokens": 35878,
+          "failures": 17,
+          "last_failure_category": "quota_exhausted",
           "cooldown_remaining_seconds": 0
         },
-        "qwen/qwen3.6-27b": {
-          "requests": 20,
-          "failures": 18,
-          "last_failure_category": "rate_limited",
-          "status": "cooldown",
+        "openai/gpt-oss-20b": {
+          "status": "healthy",
+          "requests": 11,
           "successes": 2,
-          "prompt_tokens": 3817,
-          "completion_tokens": 3600,
-          "total_tokens": 7417,
+          "prompt_tokens": 6386,
+          "completion_tokens": 2585,
+          "total_tokens": 8971,
+          "failures": 9,
+          "last_failure_category": "empty_response",
           "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "rate_limited",
-      "last_failure_at": 1789081999.0787194,
+      "last_failure_category": "quota_exhausted",
+      "last_failure_at": 1789693688.6687362,
       "cooldown_remaining_seconds": 0
     },
     "openrouter": {
@@ -1356,29 +910,33 @@
       "provider": "openrouter",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 131,
-      "successes": 15,
-      "failures": 116,
-      "prompt_tokens": 28118,
-      "completion_tokens": 20122,
-      "total_tokens": 48240,
+      "requests": 87,
+      "successes": 24,
+      "failures": 63,
+      "prompt_tokens": 40163,
+      "completion_tokens": 28852,
+      "total_tokens": 69015,
       "models": {
         "openrouter/free": {
-          "status": "cooldown",
-          "requests": 84,
-          "successes": 15,
-          "prompt_tokens": 28118,
-          "completion_tokens": 20122,
-          "total_tokens": 48240,
-          "failures": 69,
-          "last_failure_category": "rate_limited",
+          "requests": 65,
+          "failures": 44,
+          "last_failure_category": "context_or_output_limit",
+          "status": "failed",
+          "successes": 21,
+          "prompt_tokens": 37630,
+          "completion_tokens": 27554,
+          "total_tokens": 65184,
           "cooldown_remaining_seconds": 0
         },
-        "cohere/north-mini-code:free": {
-          "requests": 47,
-          "failures": 47,
-          "last_failure_category": "rate_limited",
-          "status": "cooldown",
+        "qwen/qwen3.8-27b:free": {
+          "requests": 22,
+          "failures": 19,
+          "last_failure_category": "empty_response",
+          "status": "failed",
+          "successes": 3,
+          "prompt_tokens": 2533,
+          "completion_tokens": 1298,
+          "total_tokens": 3831,
           "cooldown_remaining_seconds": 0
         }
       },
@@ -1391,8 +949,8 @@
         "usage_weekly": 0,
         "usage_monthly": 0
       },
-      "last_failure_category": "rate_limited",
-      "last_failure_at": 1789092139.6857085,
+      "last_failure_category": "empty_response",
+      "last_failure_at": 1789698271.1140337,
       "cooldown_remaining_seconds": 0
     },
     "mistral": {
@@ -1400,33 +958,33 @@
       "provider": "mistral",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 262,
+      "requests": 213,
       "successes": 0,
-      "failures": 262,
+      "failures": 213,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
       "models": {
         "mistral-small-latest": {
-          "requests": 137,
-          "failures": 137,
+          "requests": 112,
+          "failures": 112,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 52.9
+          "cooldown_remaining_seconds": 0
         },
         "mistral-small-2603": {
-          "requests": 125,
-          "failures": 125,
+          "requests": 101,
+          "failures": 101,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 53.1
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1789092288.8862987,
+      "last_failure_at": 1789698272.6106107,
       "cooldown_remaining_seconds": 0
     },
     "siliconflow": {
@@ -1434,33 +992,33 @@
       "provider": "siliconflow",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 363,
-      "successes": 261,
-      "failures": 102,
-      "prompt_tokens": 573199,
-      "completion_tokens": 89010,
-      "total_tokens": 662209,
+      "requests": 311,
+      "successes": 250,
+      "failures": 61,
+      "prompt_tokens": 680821,
+      "completion_tokens": 98988,
+      "total_tokens": 779809,
       "models": {
         "Qwen/Qwen3-8B": {
           "status": "healthy",
-          "requests": 315,
-          "successes": 260,
-          "prompt_tokens": 572329,
-          "completion_tokens": 87210,
-          "total_tokens": 659539,
-          "failures": 55,
+          "requests": 264,
+          "successes": 214,
+          "prompt_tokens": 574397,
+          "completion_tokens": 76977,
+          "total_tokens": 651374,
+          "failures": 50,
           "last_failure_category": "timeout",
           "cooldown_remaining_seconds": 0
         },
         "LoRA/Qwen/Qwen2.5-7B-Instruct": {
-          "requests": 48,
-          "failures": 47,
-          "last_failure_category": "context_or_output_limit",
+          "requests": 47,
+          "failures": 11,
+          "last_failure_category": "validation_failed",
           "status": "failed",
-          "successes": 1,
-          "prompt_tokens": 870,
-          "completion_tokens": 1800,
-          "total_tokens": 2670,
+          "successes": 36,
+          "prompt_tokens": 106424,
+          "completion_tokens": 22011,
+          "total_tokens": 128435,
           "cooldown_remaining_seconds": 0
         }
       },
@@ -1470,7 +1028,7 @@
         "error": "HTTP request failed: https://api.siliconflow.cn/v1/user/info: HTTP status 410: 410 Client Error: Gone for url: https://api.siliconflow.cn/v1/user/info; response={\"code\":20092,\"message\":\"This endpoint is deprecated and is no longer available.\",\"data\":null}"
       },
       "last_failure_category": "",
-      "last_failure_at": 1789092139.5122273,
+      "last_failure_at": 1789698149.5445561,
       "cooldown_remaining_seconds": 0
     },
     "bigmodel": {
@@ -1478,33 +1036,33 @@
       "provider": "bigmodel",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 284,
+      "requests": 268,
       "successes": 0,
-      "failures": 284,
+      "failures": 268,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
       "models": {
         "glm-5.3-flash": {
-          "requests": 160,
-          "failures": 160,
+          "requests": 152,
+          "failures": 152,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 52.5
+          "cooldown_remaining_seconds": 0
         },
         "glm-4.5": {
-          "requests": 124,
-          "failures": 124,
+          "requests": 116,
+          "failures": 116,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 52.7
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1789092288.496011,
+      "last_failure_at": 1789698272.0044491,
       "cooldown_remaining_seconds": 0
     },
     "deepseek": {
@@ -1551,7 +1109,7 @@
         ]
       },
       "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1789071561.2054417,
+      "last_failure_at": 1789678263.1181805,
       "cooldown_remaining_seconds": 0
     }
   }
