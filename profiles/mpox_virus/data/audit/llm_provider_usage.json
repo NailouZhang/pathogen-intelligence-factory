@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-09-14T00:12:28+00:00",
+  "generated_at": "2026-09-21T00:22:45+00:00",
   "shared_state_file": "/tmp/pif_data_repo/shared/state/provider_quota_daily.json",
   "provider_order": {
     "extract": [
@@ -67,9 +67,10 @@
       "status": "discovered",
       "endpoint": "https://open.bigmodel.cn/api/paas/v4/models",
       "discovery_enabled": true,
-      "discovered_count": 10,
+      "discovered_count": 11,
       "discovered_models": [
         "glm-5.3-flash",
+        "glm-5.3-flashx",
         "glm-4.5",
         "glm-4.5-air",
         "glm-4.6",
@@ -88,6 +89,7 @@
       ],
       "selected_candidates": [
         "glm-5.3-flash",
+        "glm-5.3-flashx",
         "glm-4.5",
         "glm-4.5-air",
         "glm-4.6",
@@ -108,7 +110,7 @@
       "status": "discovered",
       "endpoint": "https://api.siliconflow.cn/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 61,
+      "discovered_count": 62,
       "discovered_models": [
         "Qwen/Qwen3-8B",
         "LoRA/Qwen/Qwen2.5-7B-Instruct",
@@ -262,9 +264,10 @@
       "status": "discovered",
       "endpoint": "https://openrouter.ai/api/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 22,
+      "discovered_count": 24,
       "discovered_models": [
         "openrouter/free",
+        "qwen/qwen3.8-27b:free",
         "cohere/north-mini-code:free",
         "nex-agi/nex-n2.5-mini:free",
         "inclusionai/ling-3.0-flash-fin:free",
@@ -273,6 +276,7 @@
         "thinkingmachines/inkling-small:free",
         "google/gemma-4-26b-a4b-it:free",
         "google/gemma-4-31b-it:free",
+        "z-ai/glm-5.2:free",
         "liquid/lfm-2.5-2.6b:free",
         "nvidia/nemotron-3-ultra-550b-a55b:free",
         "nvidia/nemotron-3.5-content-safety:free",
@@ -295,6 +299,7 @@
       ],
       "selected_candidates": [
         "openrouter/free",
+        "qwen/qwen3.8-27b:free",
         "cohere/north-mini-code:free",
         "nex-agi/nex-n2.5-mini:free",
         "inclusionai/ling-3.0-flash-fin:free",
@@ -303,6 +308,7 @@
         "thinkingmachines/inkling-small:free",
         "google/gemma-4-26b-a4b-it:free",
         "google/gemma-4-31b-it:free",
+        "z-ai/glm-5.2:free",
         "liquid/lfm-2.5-2.6b:free",
         "nvidia/nemotron-3-ultra-550b-a55b:free",
         "nvidia/nemotron-3.5-content-safety:free",
@@ -316,6 +322,49 @@
         "dots-studio/dots-3-note-preview:free",
         "google/lyria-3-clip-preview",
         "google/lyria-3-pro-preview"
+      ],
+      "ignored_retired_models": [],
+      "gemini_lite_preferred": false,
+      "failure_category": "",
+      "error": ""
+    },
+    "groq": {
+      "status": "discovered",
+      "endpoint": "https://api.groq.com/openai/v1/models",
+      "discovery_enabled": true,
+      "discovered_count": 6,
+      "discovered_models": [
+        "openai/gpt-oss-20b",
+        "openai/gpt-oss-120b",
+        "qwen/qwen3.8-27b",
+        "allam-2-7b",
+        "canopylabs/orpheus-arabic-saudi",
+        "canopylabs/orpheus-v1-english"
+      ],
+      "explicit_preferences": [
+        "openai/gpt-oss-120b",
+        "qwen/qwen3.6-27b",
+        "openai/gpt-oss-20b",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant"
+      ],
+      "fallback_models": [
+        "openai/gpt-oss-120b",
+        "qwen/qwen3.6-27b",
+        "openai/gpt-oss-20b",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant"
+      ],
+      "selected_candidates": [
+        "openai/gpt-oss-120b",
+        "openai/gpt-oss-20b",
+        "qwen/qwen3.8-27b",
+        "allam-2-7b",
+        "canopylabs/orpheus-arabic-saudi",
+        "canopylabs/orpheus-v1-english",
+        "qwen/qwen3.6-27b",
+        "llama-3.3-70b-versatile",
+        "llama-3.1-8b-instant"
       ],
       "ignored_retired_models": [],
       "gemini_lite_preferred": false,
@@ -369,45 +418,49 @@
         "status": "not_supported"
       },
       "last_failure_category": "authentication_failed",
-      "last_failure_at": 1789329991.163364,
+      "last_failure_at": 1789934860.0041373,
       "cooldown_remaining_seconds": 0
     },
     "groq": {
       "configured": true,
       "provider": "groq",
-      "status": "authentication_failed",
-      "disabled_reason": "authentication_failed",
-      "requests": 13,
-      "successes": 7,
-      "failures": 6,
-      "prompt_tokens": 13221,
-      "completion_tokens": 4469,
-      "total_tokens": 17690,
+      "status": "healthy",
+      "disabled_reason": "",
+      "requests": 39,
+      "successes": 11,
+      "failures": 28,
+      "prompt_tokens": 18129,
+      "completion_tokens": 13241,
+      "total_tokens": 31370,
       "models": {
         "openai/gpt-oss-120b": {
-          "status": "cooldown",
-          "requests": 11,
-          "successes": 7,
-          "prompt_tokens": 13221,
-          "completion_tokens": 4469,
-          "total_tokens": 17690,
-          "failures": 4,
-          "last_failure_category": "rate_limited",
+          "status": "healthy",
+          "requests": 28,
+          "successes": 10,
+          "prompt_tokens": 15440,
+          "completion_tokens": 11945,
+          "total_tokens": 27385,
+          "failures": 18,
+          "last_failure_category": "timeout",
           "cooldown_remaining_seconds": 0
         },
-        "qwen/qwen3.6-27b": {
-          "requests": 2,
-          "failures": 2,
-          "last_failure_category": "authentication_failed",
-          "status": "authentication_failed",
+        "openai/gpt-oss-20b": {
+          "requests": 11,
+          "failures": 10,
+          "last_failure_category": "validation_failed",
+          "status": "healthy",
+          "successes": 1,
+          "prompt_tokens": 2689,
+          "completion_tokens": 1296,
+          "total_tokens": 3985,
           "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "authentication_failed",
-      "last_failure_at": 1789333387.0601768,
+      "last_failure_category": "",
+      "last_failure_at": 1789948210.615964,
       "cooldown_remaining_seconds": 0
     },
     "openrouter": {
@@ -415,33 +468,29 @@
       "provider": "openrouter",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 64,
-      "successes": 18,
-      "failures": 46,
-      "prompt_tokens": 19303,
-      "completion_tokens": 17950,
-      "total_tokens": 37253,
+      "requests": 61,
+      "successes": 16,
+      "failures": 45,
+      "prompt_tokens": 25909,
+      "completion_tokens": 76931,
+      "total_tokens": 102840,
       "models": {
         "openrouter/free": {
-          "status": "cooldown",
-          "requests": 46,
-          "successes": 15,
-          "prompt_tokens": 16455,
-          "completion_tokens": 15161,
-          "total_tokens": 31616,
-          "failures": 31,
-          "last_failure_category": "timeout",
+          "status": "failed",
+          "requests": 43,
+          "successes": 16,
+          "prompt_tokens": 25909,
+          "completion_tokens": 76931,
+          "total_tokens": 102840,
+          "failures": 27,
+          "last_failure_category": "empty_response",
           "cooldown_remaining_seconds": 0
         },
-        "cohere/north-mini-code:free": {
+        "qwen/qwen3.8-27b:free": {
           "requests": 18,
-          "failures": 15,
+          "failures": 18,
           "last_failure_category": "rate_limited",
-          "status": "healthy",
-          "successes": 3,
-          "prompt_tokens": 2848,
-          "completion_tokens": 2789,
-          "total_tokens": 5637,
+          "status": "cooldown",
           "cooldown_remaining_seconds": 0
         }
       },
@@ -454,8 +503,8 @@
         "usage_weekly": 0,
         "usage_monthly": 0
       },
-      "last_failure_category": "",
-      "last_failure_at": 1789344669.0805285,
+      "last_failure_category": "rate_limited",
+      "last_failure_at": 1789949979.5134025,
       "cooldown_remaining_seconds": 0
     },
     "mistral": {
@@ -463,33 +512,33 @@
       "provider": "mistral",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 200,
+      "requests": 171,
       "successes": 0,
-      "failures": 200,
+      "failures": 171,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
       "models": {
         "mistral-small-latest": {
-          "requests": 104,
-          "failures": 104,
+          "requests": 90,
+          "failures": 90,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 0
+          "cooldown_remaining_seconds": 38.4
         },
         "mistral-small-2603": {
-          "requests": 96,
-          "failures": 96,
+          "requests": 81,
+          "failures": 81,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 0
+          "cooldown_remaining_seconds": 38.6
         }
       },
       "account": {
         "status": "not_supported"
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1789344688.2517543,
+      "last_failure_at": 1789950143.9247682,
       "cooldown_remaining_seconds": 0
     },
     "siliconflow": {
@@ -497,32 +546,32 @@
       "provider": "siliconflow",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 265,
-      "successes": 227,
-      "failures": 38,
-      "prompt_tokens": 487440,
-      "completion_tokens": 85526,
-      "total_tokens": 572966,
+      "requests": 225,
+      "successes": 182,
+      "failures": 43,
+      "prompt_tokens": 391522,
+      "completion_tokens": 71253,
+      "total_tokens": 462775,
       "models": {
         "Qwen/Qwen3-8B": {
           "status": "healthy",
-          "requests": 237,
-          "successes": 205,
-          "prompt_tokens": 441749,
-          "completion_tokens": 71243,
-          "total_tokens": 512992,
-          "failures": 32,
+          "requests": 193,
+          "successes": 159,
+          "prompt_tokens": 331287,
+          "completion_tokens": 55996,
+          "total_tokens": 387283,
+          "failures": 34,
           "last_failure_category": "timeout",
           "cooldown_remaining_seconds": 0
         },
         "LoRA/Qwen/Qwen2.5-7B-Instruct": {
           "status": "healthy",
-          "requests": 28,
-          "successes": 22,
-          "prompt_tokens": 45691,
-          "completion_tokens": 14283,
-          "total_tokens": 59974,
-          "failures": 6,
+          "requests": 32,
+          "successes": 23,
+          "prompt_tokens": 60235,
+          "completion_tokens": 15257,
+          "total_tokens": 75492,
+          "failures": 9,
           "last_failure_category": "validation_failed",
           "cooldown_remaining_seconds": 0
         }
@@ -533,7 +582,7 @@
         "error": "HTTP request failed: https://api.siliconflow.cn/v1/user/info: HTTP status 410: 410 Client Error: Gone for url: https://api.siliconflow.cn/v1/user/info; response={\"code\":20092,\"message\":\"This endpoint is deprecated and is no longer available.\",\"data\":null}"
       },
       "last_failure_category": "",
-      "last_failure_at": 1789344556.148243,
+      "last_failure_at": 1789949927.1768558,
       "cooldown_remaining_seconds": 0
     },
     "bigmodel": {
@@ -541,33 +590,33 @@
       "provider": "bigmodel",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 226,
+      "requests": 203,
       "successes": 0,
-      "failures": 226,
+      "failures": 203,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
       "models": {
         "glm-5.3-flash": {
-          "requests": 129,
-          "failures": 129,
+          "requests": 113,
+          "failures": 113,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 21.6
+          "cooldown_remaining_seconds": 37.7
         },
-        "glm-4.5": {
-          "requests": 97,
-          "failures": 97,
+        "glm-5.3-flashx": {
+          "requests": 90,
+          "failures": 90,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 0
+          "cooldown_remaining_seconds": 38.2
         }
       },
       "account": {
         "status": "not_supported"
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1789344710.1699116,
+      "last_failure_at": 1789950143.4960132,
       "cooldown_remaining_seconds": 0
     },
     "deepseek": {
@@ -614,7 +663,7 @@
         ]
       },
       "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1789330002.5930612,
+      "last_failure_at": 1789934870.4288273,
       "cooldown_remaining_seconds": 0
     }
   }
