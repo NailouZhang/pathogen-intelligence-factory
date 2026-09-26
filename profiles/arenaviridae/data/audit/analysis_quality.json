@@ -5,107 +5,97 @@
     "severity": "warning",
     "warning_ratio": 0.2,
     "critical_ratio": 0.5,
-    "message_zh": "本期有 2/11 条（18.2%）分析使用规则兜底。主要原因：请求触发限流、模型未返回有效候选内容；请结合原始摘要或正文阅读。",
-    "message_en": "2/11 analyses (18.2%) used deterministic fallback. Main causes: requests were rate limited, the model returned no usable content.",
+    "message_zh": "本期有 2/16 条（12.5%）分析使用规则兜底。主要原因：请求触发限流；请结合原始摘要或正文阅读。",
+    "message_en": "2/16 analyses (12.5%) used deterministic fallback. Main causes: requests were rate limited.",
     "papers": {
-      "total_items": 7,
-      "analyzable": 7,
-      "passed": 5,
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 6,
       "fallback": 2,
-      "fallback_ratio": 0.2857,
+      "fallback_ratio": 0.25,
       "statuses": {
         "fallback_source_extract": 2,
-        "passed": 5
+        "passed": 6
       }
     },
     "news": {
-      "total_items": 4,
-      "analyzable": 4,
-      "passed": 4,
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 8,
       "fallback": 0,
       "fallback_ratio": 0.0,
       "statuses": {
-        "passed": 4
+        "passed": 8
       }
     },
     "combined": {
-      "total_items": 11,
-      "analyzable": 11,
-      "passed": 9,
+      "total_items": 16,
+      "analyzable": 16,
+      "passed": 14,
       "fallback": 2,
-      "fallback_ratio": 0.1818,
+      "fallback_ratio": 0.125,
       "statuses": {
         "fallback_source_extract": 2,
-        "passed": 9
+        "passed": 14
       }
     },
     "top_failure_categories": [
       {
         "category": "rate_limited",
-        "count": 1,
+        "count": 2,
         "label_zh": "请求触发限流",
         "label_en": "requests were rate limited"
-      },
-      {
-        "category": "empty_response",
-        "count": 1,
-        "label_zh": "模型未返回有效候选内容",
-        "label_en": "the model returned no usable content"
       }
     ],
     "provider_attempts": {
-      "bigmodel:failed": 3,
-      "bigmodel:skipped": 19,
+      "bigmodel:failed": 5,
+      "bigmodel:skipped": 27,
       "deepseek:skipped": 2,
-      "gemini:skipped": 11,
+      "gemini:skipped": 16,
       "groq:skipped": 2,
-      "mistral:failed": 2,
-      "mistral:skipped": 2,
-      "openrouter:failed": 3,
-      "openrouter:skipped": 1,
-      "siliconflow:failed": 4,
-      "siliconflow:skipped": 1,
-      "siliconflow:success": 9
+      "mistral:failed": 4,
+      "openrouter:failed": 4,
+      "siliconflow:failed": 5,
+      "siliconflow:success": 14
     },
     "model_attempts": {
-      "bigmodel/glm-5.3-flash:failed": 1,
-      "bigmodel/glm-5.3-flash:skipped": 10,
-      "bigmodel/glm-5.3-flashx:failed": 2,
-      "bigmodel/glm-5.3-flashx:skipped": 9,
+      "bigmodel/glm-5.3-flash:failed": 2,
+      "bigmodel/glm-5.3-flash:skipped": 14,
+      "bigmodel/glm-5.3-flashx:failed": 3,
+      "bigmodel/glm-5.3-flashx:skipped": 13,
       "deepseek/not_selected:skipped": 2,
-      "gemini/not_selected:skipped": 11,
+      "gemini/not_selected:skipped": 16,
       "groq/not_selected:skipped": 2,
-      "mistral/mistral-small-2603:failed": 1,
-      "mistral/mistral-small-2603:skipped": 1,
-      "mistral/mistral-small-latest:failed": 1,
-      "mistral/mistral-small-latest:skipped": 1,
+      "mistral/mistral-small-2603:failed": 2,
+      "mistral/mistral-small-latest:failed": 2,
       "openrouter/openrouter/free:failed": 2,
-      "openrouter/qwen/qwen3.8-27b:free:failed": 1,
-      "openrouter/qwen/qwen3.8-27b:free:skipped": 1,
-      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 1,
-      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:success": 2,
+      "openrouter/qwen/qwen3.8-27b:free:failed": 2,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 2,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:success": 1,
       "siliconflow/Qwen/Qwen3-8B:failed": 3,
-      "siliconflow/Qwen/Qwen3-8B:success": 7,
-      "siliconflow/not_selected:skipped": 1
+      "siliconflow/Qwen/Qwen3-8B:success": 13
     },
     "attempt_failure_categories": {
       "empty_response": 2,
-      "rate_limited": 6,
-      "timeout": 2,
-      "validation_failed": 2
+      "invalid_json": 1,
+      "rate_limited": 10,
+      "validation_failed": 5
     },
     "validation_issue_categories": {
-      "evidence_ids_missing": 2
+      "evidence_ids_missing": 13,
+      "invalid_confidence": 1
     },
-    "normalization_repairs": {},
+    "normalization_repairs": {
+      "evidence_ids_container_rebuilt": 1
+    },
     "field_repair_statuses": {
       "disabled_or_not_validation_failure": 2
     },
     "field_repair_records": [
       {
         "type": "paper",
-        "id": "paper-d0ae800123fda728",
-        "title": "Strengthening diagnostic capacity for viral hemorrhagic fevers in Forest Guinea: advances in Lassa fever case detection.",
+        "id": "paper-dff456684a4a1bde",
+        "title": "Perspectives for pharmaceutical screening at XFEL sources using the example of Lassa virus endonuclease.",
         "status": "disabled_or_not_validation_failure",
         "rounds": [],
         "initial_candidate": {},
@@ -113,8 +103,8 @@
       },
       {
         "type": "paper",
-        "id": "paper-f3a43dcc99adfe90",
-        "title": "Innate immune activation profiles are associated with polarization of the T cell response to recombinant arenaviral vectors",
+        "id": "paper-18d9f377dd091edc",
+        "title": "Pathways to health resilience: A cross-country analysis of health system response to re-emerging infectious diseases in Sub-Saharan Africa.",
         "status": "disabled_or_not_validation_failure",
         "rounds": [],
         "initial_candidate": {},
@@ -123,7 +113,7 @@
     ],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-09-18T20:16:29+00:00",
+      "generated_at": "2026-09-25T20:59:25+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -229,9 +219,9 @@
             "ignored_retired_models": [],
             "gemini_lite_preferred": true,
             "failure_category": "authentication_failed",
-            "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.ModelService.ListModels\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }"
+            "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.ModelService.ListModels\" } } ] } }"
           },
-          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
           "action_hint": "Regenerate the provider key and replace GitHub Secret GEMINI_API_KEY.",
           "account": {
             "status": "not_supported"
@@ -242,56 +232,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
-              "elapsed_ms": 42
+              "elapsed_ms": 62
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 49
+              "elapsed_ms": 54
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 81
+              "elapsed_ms": 104
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 39
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 56
             }
           ]
         },
@@ -362,12 +352,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 456,
+              "elapsed_ms": 328,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -378,8 +368,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 119,
-                "completion_tokens": 69,
-                "total_tokens": 188
+                "completion_tokens": 67,
+                "total_tokens": 186
               }
             }
           ]
@@ -400,27 +390,23 @@
           "model_candidates": [
             "openrouter/free",
             "qwen/qwen3.8-27b:free",
-            "deepseek/deepseek-v4-flash-0731:free",
             "cohere/north-mini-code:free",
-            "nex-agi/nex-n2.5-mini:free",
             "inclusionai/ling-3.0-flash-fin:free",
             "inclusionai/ling-3.0-flash-sante:free",
-            "inclusionai/ling-3.0-flash-vl:free",
             "thinkingmachines/inkling-small:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b-it:free",
-            "z-ai/glm-5.2:free",
             "liquid/lfm-2.5-2.6b:free",
             "nvidia/nemotron-3-ultra-550b-a55b:free",
             "nvidia/nemotron-3.5-content-safety:free",
             "nvidia/nemotron-3.5-lightning:free",
             "poolside/laguna-s-2.1:free",
             "poolside/laguna-xs-2.1:free",
-            "nex-agi/nex-n2.5-pro:free",
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             "nvidia/nemotron-3-super-120b-a12b:free",
             "thinkingmachines/inkling:free",
             "dots-studio/dots-3-note-preview:free",
+            "stealth/space-bunny-alpha",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -428,31 +414,27 @@
             "status": "discovered",
             "endpoint": "https://openrouter.ai/api/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 25,
+            "discovered_count": 21,
             "discovered_models": [
               "openrouter/free",
               "qwen/qwen3.8-27b:free",
-              "deepseek/deepseek-v4-flash-0731:free",
               "cohere/north-mini-code:free",
-              "nex-agi/nex-n2.5-mini:free",
               "inclusionai/ling-3.0-flash-fin:free",
               "inclusionai/ling-3.0-flash-sante:free",
-              "inclusionai/ling-3.0-flash-vl:free",
               "thinkingmachines/inkling-small:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
-              "z-ai/glm-5.2:free",
               "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
               "nvidia/nemotron-3.5-content-safety:free",
               "nvidia/nemotron-3.5-lightning:free",
               "poolside/laguna-s-2.1:free",
               "poolside/laguna-xs-2.1:free",
-              "nex-agi/nex-n2.5-pro:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
               "thinkingmachines/inkling:free",
               "dots-studio/dots-3-note-preview:free",
+              "stealth/space-bunny-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -465,27 +447,23 @@
             "selected_candidates": [
               "openrouter/free",
               "qwen/qwen3.8-27b:free",
-              "deepseek/deepseek-v4-flash-0731:free",
               "cohere/north-mini-code:free",
-              "nex-agi/nex-n2.5-mini:free",
               "inclusionai/ling-3.0-flash-fin:free",
               "inclusionai/ling-3.0-flash-sante:free",
-              "inclusionai/ling-3.0-flash-vl:free",
               "thinkingmachines/inkling-small:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
-              "z-ai/glm-5.2:free",
               "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
               "nvidia/nemotron-3.5-content-safety:free",
               "nvidia/nemotron-3.5-lightning:free",
               "poolside/laguna-s-2.1:free",
               "poolside/laguna-xs-2.1:free",
-              "nex-agi/nex-n2.5-pro:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
               "thinkingmachines/inkling:free",
               "dots-studio/dots-3-note-preview:free",
+              "stealth/space-bunny-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -500,12 +478,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:17+00:00",
+              "at": "2026-09-25T20:59:16+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "cohere/north-mini-code:free",
-              "elapsed_ms": 782,
+              "elapsed_ms": 730,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -516,8 +494,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 17,
-                "completion_tokens": 78,
-                "total_tokens": 95
+                "completion_tokens": 74,
+                "total_tokens": 91
               }
             }
           ]
@@ -641,28 +619,28 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:18+00:00",
+              "at": "2026-09-25T20:59:17+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 421
+              "elapsed_ms": 216
             },
             {
               "task": "credential_preflight",
               "provider": "mistral",
               "model": "mistral-small-2603",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:19+00:00",
+              "at": "2026-09-25T20:59:17+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 297
+              "elapsed_ms": 214
             }
           ]
         },
@@ -793,12 +771,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:23+00:00",
+              "at": "2026-09-25T20:59:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 2503,
+              "elapsed_ms": 732,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -888,28 +866,28 @@
               "provider": "bigmodel",
               "model": "glm-5.3-flash",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:26+00:00",
+              "at": "2026-09-25T20:59:22+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 584
+              "elapsed_ms": 540
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-5.3-flashx",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:27+00:00",
+              "at": "2026-09-25T20:59:22+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 492
+              "elapsed_ms": 430
             }
           ]
         },
@@ -948,7 +926,7 @@
             "failure_category": "",
             "error": ""
           },
-          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 62a131b3-39bc-4c91-83c7-afa467ede47a)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
           "action_hint": "Project/account quota is exhausted; wait for reset or use another configured provider.",
           "account": {
             "status": "ok",
@@ -972,28 +950,28 @@
               "provider": "deepseek",
               "model": "deepseek-flash",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:28+00:00",
+              "at": "2026-09-25T20:59:24+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 631
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: dd317c00-3e95-41ec-b027-6d73cb9013cc)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 630
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:29+00:00",
+              "at": "2026-09-25T20:59:25+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 638
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 62a131b3-39bc-4c91-83c7-afa467ede47a)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 632
             }
           ]
         }
@@ -1102,8 +1080,282 @@
     "fallback_records": [
       {
         "type": "paper",
-        "id": "paper-d0ae800123fda728",
-        "title": "Strengthening diagnostic capacity for viral hemorrhagic fevers in Forest Guinea: advances in Lassa fever case detection.",
+        "id": "paper-dff456684a4a1bde",
+        "title": "Perspectives for pharmaceutical screening at XFEL sources using the example of Lassa virus endonuclease.",
+        "failure_category": "rate_limited",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-09-26T01:21:47+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "bigmodel",
+            "model": "glm-5.3-flash",
+            "at": "2026-09-26T01:21:47+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "bigmodel",
+            "model": "glm-5.3-flashx",
+            "at": "2026-09-26T01:21:47+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "Qwen/Qwen3-8B",
+            "retry_index": 0,
+            "at": "2026-09-26T01:21:47+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"controversies_and_evidence_gaps\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"evidence_base_and_review_method\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 30591,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "controversies_and_evidence_gaps"
+                }
+              ],
+              "warnings": [
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "evidence_base_and_review_method",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                }
+              ],
+              "issue_counts": {
+                "evidence_ids_missing": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 3431,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [
+                  "evidence_base_and_review_method"
+                ],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:18+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"evidence_base_and_review_method\"}, {\"category\": \"evidence_ids_missing\", \"field\": \"consensus_and_key_conclusions\"}, {\"category\": \"evidence_ids_missing\", \"field\": \"controversies_and_evidence_gaps\"}], \"warnings\": [{\"category\": \"summary_length_outside_preferred_range\", \"field\": \"summary_en\", \"words\": 47, \"preferred\": [60, 280]}], \"issue_counts\": {\"evidence_ids_missing\": 3}}",
+            "elapsed_ms": 6409,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "evidence_base_and_review_method"
+                },
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "consensus_and_key_conclusions"
+                },
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "controversies_and_evidence_gaps"
+                }
+              ],
+              "warnings": [
+                {
+                  "category": "summary_length_outside_preferred_range",
+                  "field": "summary_en",
+                  "words": 47,
+                  "preferred": [
+                    60,
+                    280
+                  ]
+                }
+              ],
+              "issue_counts": {
+                "evidence_ids_missing": 3
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 829,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [
+                  "scope_and_question",
+                  "evidence_base_and_review_method",
+                  "consensus_and_key_conclusions",
+                  "controversies_and_evidence_gaps",
+                  "research_and_practice_implications"
+                ],
+                "evidence_replacements": [
+                  "scope_and_question",
+                  "evidence_base_and_review_method",
+                  "consensus_and_key_conclusions",
+                  "controversies_and_evidence_gaps",
+                  "research_and_practice_implications"
+                ],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": false,
+                "replacements": [
+                  {
+                    "field": "evidence_base_and_review_method",
+                    "detected_language": "zh"
+                  },
+                  {
+                    "field": "consensus_and_key_conclusions",
+                    "detected_language": "zh"
+                  },
+                  {
+                    "field": "controversies_and_evidence_gaps",
+                    "detected_language": "zh"
+                  }
+                ],
+                "original_evidence_preserved": true
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:24+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+            "elapsed_ms": 221
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2603",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:24+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+            "elapsed_ms": 248
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "deepseek",
+            "model": "",
+            "at": "2026-09-26T01:22:25+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:25+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid complete JSON",
+            "elapsed_ms": 1499
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "qwen/qwen3.8-27b:free",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:26+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3.8-27b:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"ModelRun\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to another provider with provider routing: https://openrouter.ai/docs/features/provider-routing\"}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 130
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-09-26T01:22:26+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-18d9f377dd091edc",
+        "title": "Pathways to health resilience: A cross-country analysis of health system response to re-emerging infectious diseases in Sub-Saharan Africa.",
         "failure_category": "rate_limited",
         "fallback_policy": "role_cue_position_rescue",
         "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
@@ -1112,7 +1364,7 @@
             "task": "paper_research_analysis",
             "provider": "gemini",
             "model": "",
-            "at": "2026-09-19T00:30:57+00:00",
+            "at": "2026-09-26T01:29:32+00:00",
             "status": "skipped",
             "failure_category": "authentication_failed",
             "error": "authentication_failed"
@@ -1121,7 +1373,7 @@
             "task": "paper_research_analysis",
             "provider": "bigmodel",
             "model": "glm-5.3-flash",
-            "at": "2026-09-19T00:30:57+00:00",
+            "at": "2026-09-26T01:29:32+00:00",
             "status": "skipped",
             "failure_category": "model_cooldown",
             "error": "model is temporarily cooling down"
@@ -1130,29 +1382,24 @@
             "task": "paper_research_analysis",
             "provider": "bigmodel",
             "model": "glm-5.3-flashx",
-            "retry_index": 0,
-            "at": "2026-09-19T00:30:57+00:00",
-            "system_chars": 6814,
-            "prompt_chars": 9576,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-            "elapsed_ms": 990
+            "at": "2026-09-26T01:29:32+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
           },
           {
             "task": "paper_research_analysis",
             "provider": "siliconflow",
             "model": "Qwen/Qwen3-8B",
             "retry_index": 0,
-            "at": "2026-09-19T00:30:58+00:00",
+            "at": "2026-09-26T01:29:32+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "validation_failed",
             "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"limitations_and_evidence_strength\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"research_question_and_background\", \"cited_roles\": [\"implications\"], \"allowed_roles\": [\"background\", \"general\", \"objective\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"results\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 63053,
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"limitations_and_evidence_strength\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\", \"methods\"], \"allowed_roles\": [\"results\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 22555,
             "validation": {
               "policy_version": "v17.2-detailed-structured-validation-1",
               "issues": [
@@ -1164,21 +1411,10 @@
               "warnings": [
                 {
                   "category": "evidence_role_mismatch",
-                  "field": "research_question_and_background",
-                  "cited_roles": [
-                    "implications"
-                  ],
-                  "allowed_roles": [
-                    "background",
-                    "general",
-                    "objective"
-                  ]
-                },
-                {
-                  "category": "evidence_role_mismatch",
                   "field": "main_results",
                   "cited_roles": [
-                    "general"
+                    "general",
+                    "methods"
                   ],
                   "allowed_roles": [
                     "results"
@@ -1192,7 +1428,7 @@
             "parser_audit": {
               "policy_version": "v17.2-flexible-json-parser-1",
               "method": "direct_json",
-              "response_chars": 3342,
+              "response_chars": 3184,
               "repaired": false,
               "truncated_signal": false
             },
@@ -1201,7 +1437,7 @@
               "repairs": [],
               "warnings": [],
               "postprocess": {
-                "removed_duplicate_sentences": 3,
+                "removed_duplicate_sentences": 0,
                 "repaired_incomplete_fields": [],
                 "evidence_replacements": [],
                 "policy": "v10-exclusive-rhetorical-fields-1"
@@ -1221,40 +1457,28 @@
             "provider": "siliconflow",
             "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:01+00:00",
+            "at": "2026-09-26T01:29:55+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "validation_failed",
             "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"methods\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"research_question_and_background\", \"cited_roles\": [\"implications\"], \"allowed_roles\": [\"background\", \"general\", \"objective\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"study_design_and_population\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\", \"methods\"], \"allowed_roles\": [\"results\"]}, {\"category\": \"summary_length_outside_preferred_range\", \"field\": \"summary_en\", \"words\": 36, \"preferred\": [60, 280]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 18852,
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"study_design_and_population\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"methods\", \"cited_roles\": [\"implications\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"results\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"limitations_and_evidence_strength\", \"cited_roles\": [\"methods\"], \"allowed_roles\": [\"conclusion\", \"general\", \"limitations\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 29953,
             "validation": {
               "policy_version": "v17.2-detailed-structured-validation-1",
               "issues": [
                 {
                   "category": "evidence_ids_missing",
-                  "field": "methods"
+                  "field": "study_design_and_population"
                 }
               ],
               "warnings": [
                 {
                   "category": "evidence_role_mismatch",
-                  "field": "research_question_and_background",
+                  "field": "methods",
                   "cited_roles": [
                     "implications"
-                  ],
-                  "allowed_roles": [
-                    "background",
-                    "general",
-                    "objective"
-                  ]
-                },
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "study_design_and_population",
-                  "cited_roles": [
-                    "general"
                   ],
                   "allowed_roles": [
                     "design_population",
@@ -1265,20 +1489,22 @@
                   "category": "evidence_role_mismatch",
                   "field": "main_results",
                   "cited_roles": [
-                    "general",
-                    "methods"
+                    "general"
                   ],
                   "allowed_roles": [
                     "results"
                   ]
                 },
                 {
-                  "category": "summary_length_outside_preferred_range",
-                  "field": "summary_en",
-                  "words": 36,
-                  "preferred": [
-                    60,
-                    280
+                  "category": "evidence_role_mismatch",
+                  "field": "limitations_and_evidence_strength",
+                  "cited_roles": [
+                    "methods"
+                  ],
+                  "allowed_roles": [
+                    "conclusion",
+                    "general",
+                    "limitations"
                   ]
                 }
               ],
@@ -1289,7 +1515,7 @@
             "parser_audit": {
               "policy_version": "v17.2-flexible-json-parser-1",
               "method": "direct_json",
-              "response_chars": 2718,
+              "response_chars": 3694,
               "repaired": false,
               "truncated_signal": false
             },
@@ -1298,10 +1524,10 @@
               "repairs": [],
               "warnings": [],
               "postprocess": {
-                "removed_duplicate_sentences": 1,
+                "removed_duplicate_sentences": 2,
                 "repaired_incomplete_fields": [],
                 "evidence_replacements": [
-                  "methods"
+                  "study_design_and_population"
                 ],
                 "policy": "v10-exclusive-rhetorical-fields-1"
               },
@@ -1311,7 +1537,7 @@
                 "verified_english": false,
                 "replacements": [
                   {
-                    "field": "methods",
+                    "field": "study_design_and_population",
                     "detected_language": "zh"
                   }
                 ],
@@ -1325,34 +1551,34 @@
             "provider": "mistral",
             "model": "mistral-small-latest",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:20+00:00",
+            "at": "2026-09-26T01:30:25+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "rate_limited",
             "error_type": "RuntimeError",
             "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-            "elapsed_ms": 231
+            "elapsed_ms": 225
           },
           {
             "task": "paper_research_analysis",
             "provider": "mistral",
             "model": "mistral-small-2603",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:21+00:00",
+            "at": "2026-09-26T01:30:25+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "rate_limited",
             "error_type": "RuntimeError",
             "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-            "elapsed_ms": 202
+            "elapsed_ms": 199
           },
           {
             "task": "paper_research_analysis",
             "provider": "deepseek",
             "model": "",
-            "at": "2026-09-19T00:32:21+00:00",
+            "at": "2026-09-26T01:30:25+00:00",
             "status": "skipped",
             "failure_category": "quota_exhausted",
             "error": "quota_exhausted"
@@ -1362,139 +1588,34 @@
             "provider": "openrouter",
             "model": "openrouter/free",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:21+00:00",
+            "at": "2026-09-26T01:30:25+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "empty_response",
             "error_type": "LLMError",
-            "error": "openrouter returned empty content: {'id': 'gen-1789777941-6fD6uVPl3D53LSsVQQqU', 'object': 'chat.completion', 'created': 1789777941, 'model': 'poolside/laguna-s-2.1:free', 'provider': 'Poolside', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'Let me carefully analyze this paper and the evidence provided.\\n\\nThe paper is about strengthening diagnostic capacity for viral hemorrhagic fevers in Forest Guinea, with a focus on Lassa fever case detection.\\n\\nLet me look at the evidence sentences:\\n\\nA1: \"Viral hemorrhagic fevers (VHFs) remain a major public health threat in resource-limited settings.\" - role: implications\\nA2: \"The 2014-2016 Ebola epidemic exposed critical gaps in laboratory preparedness and d",
-            "elapsed_ms": 32496
+            "error": "openrouter returned empty content: {'id': 'gen-1790386225-Du5RBG0eHi6eFNLQux67', 'object': 'chat.completion', 'created': 1790386225, 'model': 'cohere/north-mini-code:free', 'provider': 'Cohere', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'max_tokens', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need to produce a JSON with analysis fields and evidence IDs mapping. The paper is about health system resilience to re-emerging infectious diseases in Sub-Saharan Africa. However, the topic contract is about Arenaviridae, specifically human-relevant mammarenaviruses. The paper mentions \"Ebola virus disease, cholera, measles, Lassa fever, and Marburg virus disease.\" Lassa fever is a target entity (Lassa fever, Lassa virus). So the paper includes some target-s",
+            "elapsed_ms": 52200
           },
           {
             "task": "paper_research_analysis",
             "provider": "openrouter",
             "model": "qwen/qwen3.8-27b:free",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:54+00:00",
+            "at": "2026-09-26T01:31:17+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3.8-27b:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"ModelRun\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to another provider with provider routing: https://openrouter.ai/docs/features/provider-routing\"}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
-            "elapsed_ms": 136
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "groq",
-            "model": "",
-            "at": "2026-09-19T00:32:54+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          }
-        ]
-      },
-      {
-        "type": "paper",
-        "id": "paper-f3a43dcc99adfe90",
-        "title": "Innate immune activation profiles are associated with polarization of the T cell response to recombinant arenaviral vectors",
-        "failure_category": "empty_response",
-        "fallback_policy": "role_cue_position_rescue",
-        "error": "All configured LLM attempts failed (empty_response): quota_exhausted",
-        "attempts": [
-          {
-            "task": "paper_research_analysis",
-            "provider": "gemini",
-            "model": "",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "authentication_failed",
-            "error": "authentication_failed"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "bigmodel",
-            "model": "glm-5.3-flash",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "bigmodel",
-            "model": "glm-5.3-flashx",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "siliconflow",
-            "model": "",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "healthy",
-            "error": "provider is cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-latest",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-2603",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "deepseek",
-            "model": "",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "openrouter",
-            "model": "openrouter/free",
-            "retry_index": 0,
-            "at": "2026-09-19T01:09:49+00:00",
-            "system_chars": 6814,
-            "prompt_chars": 14140,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "empty_response",
             "error_type": "LLMError",
-            "error": "openrouter returned empty content: {'id': 'gen-1789780189-HZen2XMjD6rdvDXEaMDG', 'object': 'chat.completion', 'created': 1789780189, 'model': 'nex-agi/nex-n2.5-pro:free', 'provider': 'Nex AGI', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': '\\nWe need produce exact JSON only via cpa_final_answer tool commentary, append marker. Need analyze evidence, topic contract. Paper target LCMV and PICV vectors HB-201/HB-202 likely. Need ensure target-specific. Evidence supplied. Need create seven fields, summary 100-230 words, mappings, confidence. Must only use supplied evidence. Need carefully avoid duplicate sentence/paraphrase across fields due exclusive assignment. Need distinguish methods roles mislabeled: M3",
-            "elapsed_ms": 26429
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "openrouter",
-            "model": "qwen/qwen3.8-27b:free",
-            "at": "2026-09-19T01:10:15+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
+            "error": "openrouter returned empty content: {'id': 'gen-1790386277-Xm4eyMfkXLaMW1sVRuw8', 'object': 'chat.completion', 'created': 1790386277, 'model': 'qwen/qwen3.8-27b:free', 'provider': 'ModelRun', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need answer user\\'s request: produce JSON only with analysis fields, summary_en, evidence_ids, confidence. Need analyze paper evidence. Need ensure target-specific evidence? Topic contract Arenaviridae. Paper is about health system resilience to re-emerging infectious diseases in SSA, includes Lassa fever among threats. record_identity_hits: Lassa fever. record_relevance_route primary_candidate, decision review. Need analyze only target-specific evidence. But evidenc",
+            "elapsed_ms": 48446
           },
           {
             "task": "paper_research_analysis",
             "provider": "groq",
             "model": "",
-            "at": "2026-09-19T01:10:15+00:00",
+            "at": "2026-09-26T01:32:06+00:00",
             "status": "skipped",
             "failure_category": "quota_exhausted",
             "error": "quota_exhausted"
@@ -1509,107 +1630,97 @@
     "severity": "warning",
     "warning_ratio": 0.2,
     "critical_ratio": 0.5,
-    "message_zh": "本期有 2/11 条（18.2%）分析使用规则兜底。主要原因：请求触发限流、模型未返回有效候选内容；请结合原始摘要或正文阅读。",
-    "message_en": "2/11 analyses (18.2%) used deterministic fallback. Main causes: requests were rate limited, the model returned no usable content.",
+    "message_zh": "本期有 2/16 条（12.5%）分析使用规则兜底。主要原因：请求触发限流；请结合原始摘要或正文阅读。",
+    "message_en": "2/16 analyses (12.5%) used deterministic fallback. Main causes: requests were rate limited.",
     "papers": {
-      "total_items": 7,
-      "analyzable": 7,
-      "passed": 5,
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 6,
       "fallback": 2,
-      "fallback_ratio": 0.2857,
+      "fallback_ratio": 0.25,
       "statuses": {
         "fallback_source_extract": 2,
-        "passed": 5
+        "passed": 6
       }
     },
     "news": {
-      "total_items": 4,
-      "analyzable": 4,
-      "passed": 4,
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 8,
       "fallback": 0,
       "fallback_ratio": 0.0,
       "statuses": {
-        "passed": 4
+        "passed": 8
       }
     },
     "combined": {
-      "total_items": 11,
-      "analyzable": 11,
-      "passed": 9,
+      "total_items": 16,
+      "analyzable": 16,
+      "passed": 14,
       "fallback": 2,
-      "fallback_ratio": 0.1818,
+      "fallback_ratio": 0.125,
       "statuses": {
         "fallback_source_extract": 2,
-        "passed": 9
+        "passed": 14
       }
     },
     "top_failure_categories": [
       {
         "category": "rate_limited",
-        "count": 1,
+        "count": 2,
         "label_zh": "请求触发限流",
         "label_en": "requests were rate limited"
-      },
-      {
-        "category": "empty_response",
-        "count": 1,
-        "label_zh": "模型未返回有效候选内容",
-        "label_en": "the model returned no usable content"
       }
     ],
     "provider_attempts": {
-      "bigmodel:failed": 3,
-      "bigmodel:skipped": 19,
+      "bigmodel:failed": 5,
+      "bigmodel:skipped": 27,
       "deepseek:skipped": 2,
-      "gemini:skipped": 11,
+      "gemini:skipped": 16,
       "groq:skipped": 2,
-      "mistral:failed": 2,
-      "mistral:skipped": 2,
-      "openrouter:failed": 3,
-      "openrouter:skipped": 1,
-      "siliconflow:failed": 4,
-      "siliconflow:skipped": 1,
-      "siliconflow:success": 9
+      "mistral:failed": 4,
+      "openrouter:failed": 4,
+      "siliconflow:failed": 5,
+      "siliconflow:success": 14
     },
     "model_attempts": {
-      "bigmodel/glm-5.3-flash:failed": 1,
-      "bigmodel/glm-5.3-flash:skipped": 10,
-      "bigmodel/glm-5.3-flashx:failed": 2,
-      "bigmodel/glm-5.3-flashx:skipped": 9,
+      "bigmodel/glm-5.3-flash:failed": 2,
+      "bigmodel/glm-5.3-flash:skipped": 14,
+      "bigmodel/glm-5.3-flashx:failed": 3,
+      "bigmodel/glm-5.3-flashx:skipped": 13,
       "deepseek/not_selected:skipped": 2,
-      "gemini/not_selected:skipped": 11,
+      "gemini/not_selected:skipped": 16,
       "groq/not_selected:skipped": 2,
-      "mistral/mistral-small-2603:failed": 1,
-      "mistral/mistral-small-2603:skipped": 1,
-      "mistral/mistral-small-latest:failed": 1,
-      "mistral/mistral-small-latest:skipped": 1,
+      "mistral/mistral-small-2603:failed": 2,
+      "mistral/mistral-small-latest:failed": 2,
       "openrouter/openrouter/free:failed": 2,
-      "openrouter/qwen/qwen3.8-27b:free:failed": 1,
-      "openrouter/qwen/qwen3.8-27b:free:skipped": 1,
-      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 1,
-      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:success": 2,
+      "openrouter/qwen/qwen3.8-27b:free:failed": 2,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 2,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:success": 1,
       "siliconflow/Qwen/Qwen3-8B:failed": 3,
-      "siliconflow/Qwen/Qwen3-8B:success": 7,
-      "siliconflow/not_selected:skipped": 1
+      "siliconflow/Qwen/Qwen3-8B:success": 13
     },
     "attempt_failure_categories": {
       "empty_response": 2,
-      "rate_limited": 6,
-      "timeout": 2,
-      "validation_failed": 2
+      "invalid_json": 1,
+      "rate_limited": 10,
+      "validation_failed": 5
     },
     "validation_issue_categories": {
-      "evidence_ids_missing": 2
+      "evidence_ids_missing": 13,
+      "invalid_confidence": 1
     },
-    "normalization_repairs": {},
+    "normalization_repairs": {
+      "evidence_ids_container_rebuilt": 1
+    },
     "field_repair_statuses": {
       "disabled_or_not_validation_failure": 2
     },
     "field_repair_records": [
       {
         "type": "paper",
-        "id": "paper-d0ae800123fda728",
-        "title": "Strengthening diagnostic capacity for viral hemorrhagic fevers in Forest Guinea: advances in Lassa fever case detection.",
+        "id": "paper-dff456684a4a1bde",
+        "title": "Perspectives for pharmaceutical screening at XFEL sources using the example of Lassa virus endonuclease.",
         "status": "disabled_or_not_validation_failure",
         "rounds": [],
         "initial_candidate": {},
@@ -1617,8 +1728,8 @@
       },
       {
         "type": "paper",
-        "id": "paper-f3a43dcc99adfe90",
-        "title": "Innate immune activation profiles are associated with polarization of the T cell response to recombinant arenaviral vectors",
+        "id": "paper-18d9f377dd091edc",
+        "title": "Pathways to health resilience: A cross-country analysis of health system response to re-emerging infectious diseases in Sub-Saharan Africa.",
         "status": "disabled_or_not_validation_failure",
         "rounds": [],
         "initial_candidate": {},
@@ -1627,7 +1738,7 @@
     ],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-09-18T20:16:29+00:00",
+      "generated_at": "2026-09-25T20:59:25+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -1733,9 +1844,9 @@
             "ignored_retired_models": [],
             "gemini_lite_preferred": true,
             "failure_category": "authentication_failed",
-            "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.ModelService.ListModels\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }"
+            "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.ModelService.ListModels\" } } ] } }"
           },
-          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
           "action_hint": "Regenerate the provider key and replace GitHub Secret GEMINI_API_KEY.",
           "account": {
             "status": "not_supported"
@@ -1746,56 +1857,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
-              "elapsed_ms": 42
+              "elapsed_ms": 62
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 49
+              "elapsed_ms": 54
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 81
+              "elapsed_ms": 104
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 39
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 56
             }
           ]
         },
@@ -1866,12 +1977,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 456,
+              "elapsed_ms": 328,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1882,8 +1993,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 119,
-                "completion_tokens": 69,
-                "total_tokens": 188
+                "completion_tokens": 67,
+                "total_tokens": 186
               }
             }
           ]
@@ -1904,27 +2015,23 @@
           "model_candidates": [
             "openrouter/free",
             "qwen/qwen3.8-27b:free",
-            "deepseek/deepseek-v4-flash-0731:free",
             "cohere/north-mini-code:free",
-            "nex-agi/nex-n2.5-mini:free",
             "inclusionai/ling-3.0-flash-fin:free",
             "inclusionai/ling-3.0-flash-sante:free",
-            "inclusionai/ling-3.0-flash-vl:free",
             "thinkingmachines/inkling-small:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b-it:free",
-            "z-ai/glm-5.2:free",
             "liquid/lfm-2.5-2.6b:free",
             "nvidia/nemotron-3-ultra-550b-a55b:free",
             "nvidia/nemotron-3.5-content-safety:free",
             "nvidia/nemotron-3.5-lightning:free",
             "poolside/laguna-s-2.1:free",
             "poolside/laguna-xs-2.1:free",
-            "nex-agi/nex-n2.5-pro:free",
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             "nvidia/nemotron-3-super-120b-a12b:free",
             "thinkingmachines/inkling:free",
             "dots-studio/dots-3-note-preview:free",
+            "stealth/space-bunny-alpha",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -1932,31 +2039,27 @@
             "status": "discovered",
             "endpoint": "https://openrouter.ai/api/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 25,
+            "discovered_count": 21,
             "discovered_models": [
               "openrouter/free",
               "qwen/qwen3.8-27b:free",
-              "deepseek/deepseek-v4-flash-0731:free",
               "cohere/north-mini-code:free",
-              "nex-agi/nex-n2.5-mini:free",
               "inclusionai/ling-3.0-flash-fin:free",
               "inclusionai/ling-3.0-flash-sante:free",
-              "inclusionai/ling-3.0-flash-vl:free",
               "thinkingmachines/inkling-small:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
-              "z-ai/glm-5.2:free",
               "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
               "nvidia/nemotron-3.5-content-safety:free",
               "nvidia/nemotron-3.5-lightning:free",
               "poolside/laguna-s-2.1:free",
               "poolside/laguna-xs-2.1:free",
-              "nex-agi/nex-n2.5-pro:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
               "thinkingmachines/inkling:free",
               "dots-studio/dots-3-note-preview:free",
+              "stealth/space-bunny-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -1969,27 +2072,23 @@
             "selected_candidates": [
               "openrouter/free",
               "qwen/qwen3.8-27b:free",
-              "deepseek/deepseek-v4-flash-0731:free",
               "cohere/north-mini-code:free",
-              "nex-agi/nex-n2.5-mini:free",
               "inclusionai/ling-3.0-flash-fin:free",
               "inclusionai/ling-3.0-flash-sante:free",
-              "inclusionai/ling-3.0-flash-vl:free",
               "thinkingmachines/inkling-small:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
-              "z-ai/glm-5.2:free",
               "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
               "nvidia/nemotron-3.5-content-safety:free",
               "nvidia/nemotron-3.5-lightning:free",
               "poolside/laguna-s-2.1:free",
               "poolside/laguna-xs-2.1:free",
-              "nex-agi/nex-n2.5-pro:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
               "thinkingmachines/inkling:free",
               "dots-studio/dots-3-note-preview:free",
+              "stealth/space-bunny-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -2004,12 +2103,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:17+00:00",
+              "at": "2026-09-25T20:59:16+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "cohere/north-mini-code:free",
-              "elapsed_ms": 782,
+              "elapsed_ms": 730,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2020,8 +2119,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 17,
-                "completion_tokens": 78,
-                "total_tokens": 95
+                "completion_tokens": 74,
+                "total_tokens": 91
               }
             }
           ]
@@ -2145,28 +2244,28 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:18+00:00",
+              "at": "2026-09-25T20:59:17+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 421
+              "elapsed_ms": 216
             },
             {
               "task": "credential_preflight",
               "provider": "mistral",
               "model": "mistral-small-2603",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:19+00:00",
+              "at": "2026-09-25T20:59:17+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 297
+              "elapsed_ms": 214
             }
           ]
         },
@@ -2297,12 +2396,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:23+00:00",
+              "at": "2026-09-25T20:59:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 2503,
+              "elapsed_ms": 732,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2392,28 +2491,28 @@
               "provider": "bigmodel",
               "model": "glm-5.3-flash",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:26+00:00",
+              "at": "2026-09-25T20:59:22+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 584
+              "elapsed_ms": 540
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-5.3-flashx",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:27+00:00",
+              "at": "2026-09-25T20:59:22+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 492
+              "elapsed_ms": 430
             }
           ]
         },
@@ -2452,7 +2551,7 @@
             "failure_category": "",
             "error": ""
           },
-          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 62a131b3-39bc-4c91-83c7-afa467ede47a)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
           "action_hint": "Project/account quota is exhausted; wait for reset or use another configured provider.",
           "account": {
             "status": "ok",
@@ -2476,28 +2575,28 @@
               "provider": "deepseek",
               "model": "deepseek-flash",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:28+00:00",
+              "at": "2026-09-25T20:59:24+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 631
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: dd317c00-3e95-41ec-b027-6d73cb9013cc)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 630
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:29+00:00",
+              "at": "2026-09-25T20:59:25+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 638
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 62a131b3-39bc-4c91-83c7-afa467ede47a)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 632
             }
           ]
         }
@@ -2606,8 +2705,282 @@
     "fallback_records": [
       {
         "type": "paper",
-        "id": "paper-d0ae800123fda728",
-        "title": "Strengthening diagnostic capacity for viral hemorrhagic fevers in Forest Guinea: advances in Lassa fever case detection.",
+        "id": "paper-dff456684a4a1bde",
+        "title": "Perspectives for pharmaceutical screening at XFEL sources using the example of Lassa virus endonuclease.",
+        "failure_category": "rate_limited",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-09-26T01:21:47+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "bigmodel",
+            "model": "glm-5.3-flash",
+            "at": "2026-09-26T01:21:47+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "bigmodel",
+            "model": "glm-5.3-flashx",
+            "at": "2026-09-26T01:21:47+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "Qwen/Qwen3-8B",
+            "retry_index": 0,
+            "at": "2026-09-26T01:21:47+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"controversies_and_evidence_gaps\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"evidence_base_and_review_method\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 30591,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "controversies_and_evidence_gaps"
+                }
+              ],
+              "warnings": [
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "evidence_base_and_review_method",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                }
+              ],
+              "issue_counts": {
+                "evidence_ids_missing": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 3431,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [
+                  "evidence_base_and_review_method"
+                ],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:18+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"evidence_base_and_review_method\"}, {\"category\": \"evidence_ids_missing\", \"field\": \"consensus_and_key_conclusions\"}, {\"category\": \"evidence_ids_missing\", \"field\": \"controversies_and_evidence_gaps\"}], \"warnings\": [{\"category\": \"summary_length_outside_preferred_range\", \"field\": \"summary_en\", \"words\": 47, \"preferred\": [60, 280]}], \"issue_counts\": {\"evidence_ids_missing\": 3}}",
+            "elapsed_ms": 6409,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "evidence_base_and_review_method"
+                },
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "consensus_and_key_conclusions"
+                },
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "controversies_and_evidence_gaps"
+                }
+              ],
+              "warnings": [
+                {
+                  "category": "summary_length_outside_preferred_range",
+                  "field": "summary_en",
+                  "words": 47,
+                  "preferred": [
+                    60,
+                    280
+                  ]
+                }
+              ],
+              "issue_counts": {
+                "evidence_ids_missing": 3
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 829,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [
+                  "scope_and_question",
+                  "evidence_base_and_review_method",
+                  "consensus_and_key_conclusions",
+                  "controversies_and_evidence_gaps",
+                  "research_and_practice_implications"
+                ],
+                "evidence_replacements": [
+                  "scope_and_question",
+                  "evidence_base_and_review_method",
+                  "consensus_and_key_conclusions",
+                  "controversies_and_evidence_gaps",
+                  "research_and_practice_implications"
+                ],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": false,
+                "replacements": [
+                  {
+                    "field": "evidence_base_and_review_method",
+                    "detected_language": "zh"
+                  },
+                  {
+                    "field": "consensus_and_key_conclusions",
+                    "detected_language": "zh"
+                  },
+                  {
+                    "field": "controversies_and_evidence_gaps",
+                    "detected_language": "zh"
+                  }
+                ],
+                "original_evidence_preserved": true
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:24+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+            "elapsed_ms": 221
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2603",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:24+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+            "elapsed_ms": 248
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "deepseek",
+            "model": "",
+            "at": "2026-09-26T01:22:25+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:25+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid complete JSON",
+            "elapsed_ms": 1499
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "qwen/qwen3.8-27b:free",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:26+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3.8-27b:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"ModelRun\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to another provider with provider routing: https://openrouter.ai/docs/features/provider-routing\"}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 130
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-09-26T01:22:26+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-18d9f377dd091edc",
+        "title": "Pathways to health resilience: A cross-country analysis of health system response to re-emerging infectious diseases in Sub-Saharan Africa.",
         "failure_category": "rate_limited",
         "fallback_policy": "role_cue_position_rescue",
         "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
@@ -2616,7 +2989,7 @@
             "task": "paper_research_analysis",
             "provider": "gemini",
             "model": "",
-            "at": "2026-09-19T00:30:57+00:00",
+            "at": "2026-09-26T01:29:32+00:00",
             "status": "skipped",
             "failure_category": "authentication_failed",
             "error": "authentication_failed"
@@ -2625,7 +2998,7 @@
             "task": "paper_research_analysis",
             "provider": "bigmodel",
             "model": "glm-5.3-flash",
-            "at": "2026-09-19T00:30:57+00:00",
+            "at": "2026-09-26T01:29:32+00:00",
             "status": "skipped",
             "failure_category": "model_cooldown",
             "error": "model is temporarily cooling down"
@@ -2634,29 +3007,24 @@
             "task": "paper_research_analysis",
             "provider": "bigmodel",
             "model": "glm-5.3-flashx",
-            "retry_index": 0,
-            "at": "2026-09-19T00:30:57+00:00",
-            "system_chars": 6814,
-            "prompt_chars": 9576,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-            "elapsed_ms": 990
+            "at": "2026-09-26T01:29:32+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
           },
           {
             "task": "paper_research_analysis",
             "provider": "siliconflow",
             "model": "Qwen/Qwen3-8B",
             "retry_index": 0,
-            "at": "2026-09-19T00:30:58+00:00",
+            "at": "2026-09-26T01:29:32+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "validation_failed",
             "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"limitations_and_evidence_strength\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"research_question_and_background\", \"cited_roles\": [\"implications\"], \"allowed_roles\": [\"background\", \"general\", \"objective\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"results\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 63053,
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"limitations_and_evidence_strength\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\", \"methods\"], \"allowed_roles\": [\"results\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 22555,
             "validation": {
               "policy_version": "v17.2-detailed-structured-validation-1",
               "issues": [
@@ -2668,21 +3036,10 @@
               "warnings": [
                 {
                   "category": "evidence_role_mismatch",
-                  "field": "research_question_and_background",
-                  "cited_roles": [
-                    "implications"
-                  ],
-                  "allowed_roles": [
-                    "background",
-                    "general",
-                    "objective"
-                  ]
-                },
-                {
-                  "category": "evidence_role_mismatch",
                   "field": "main_results",
                   "cited_roles": [
-                    "general"
+                    "general",
+                    "methods"
                   ],
                   "allowed_roles": [
                     "results"
@@ -2696,7 +3053,7 @@
             "parser_audit": {
               "policy_version": "v17.2-flexible-json-parser-1",
               "method": "direct_json",
-              "response_chars": 3342,
+              "response_chars": 3184,
               "repaired": false,
               "truncated_signal": false
             },
@@ -2705,7 +3062,7 @@
               "repairs": [],
               "warnings": [],
               "postprocess": {
-                "removed_duplicate_sentences": 3,
+                "removed_duplicate_sentences": 0,
                 "repaired_incomplete_fields": [],
                 "evidence_replacements": [],
                 "policy": "v10-exclusive-rhetorical-fields-1"
@@ -2725,40 +3082,28 @@
             "provider": "siliconflow",
             "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:01+00:00",
+            "at": "2026-09-26T01:29:55+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "validation_failed",
             "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"methods\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"research_question_and_background\", \"cited_roles\": [\"implications\"], \"allowed_roles\": [\"background\", \"general\", \"objective\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"study_design_and_population\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\", \"methods\"], \"allowed_roles\": [\"results\"]}, {\"category\": \"summary_length_outside_preferred_range\", \"field\": \"summary_en\", \"words\": 36, \"preferred\": [60, 280]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 18852,
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"study_design_and_population\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"methods\", \"cited_roles\": [\"implications\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"results\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"limitations_and_evidence_strength\", \"cited_roles\": [\"methods\"], \"allowed_roles\": [\"conclusion\", \"general\", \"limitations\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 29953,
             "validation": {
               "policy_version": "v17.2-detailed-structured-validation-1",
               "issues": [
                 {
                   "category": "evidence_ids_missing",
-                  "field": "methods"
+                  "field": "study_design_and_population"
                 }
               ],
               "warnings": [
                 {
                   "category": "evidence_role_mismatch",
-                  "field": "research_question_and_background",
+                  "field": "methods",
                   "cited_roles": [
                     "implications"
-                  ],
-                  "allowed_roles": [
-                    "background",
-                    "general",
-                    "objective"
-                  ]
-                },
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "study_design_and_population",
-                  "cited_roles": [
-                    "general"
                   ],
                   "allowed_roles": [
                     "design_population",
@@ -2769,20 +3114,22 @@
                   "category": "evidence_role_mismatch",
                   "field": "main_results",
                   "cited_roles": [
-                    "general",
-                    "methods"
+                    "general"
                   ],
                   "allowed_roles": [
                     "results"
                   ]
                 },
                 {
-                  "category": "summary_length_outside_preferred_range",
-                  "field": "summary_en",
-                  "words": 36,
-                  "preferred": [
-                    60,
-                    280
+                  "category": "evidence_role_mismatch",
+                  "field": "limitations_and_evidence_strength",
+                  "cited_roles": [
+                    "methods"
+                  ],
+                  "allowed_roles": [
+                    "conclusion",
+                    "general",
+                    "limitations"
                   ]
                 }
               ],
@@ -2793,7 +3140,7 @@
             "parser_audit": {
               "policy_version": "v17.2-flexible-json-parser-1",
               "method": "direct_json",
-              "response_chars": 2718,
+              "response_chars": 3694,
               "repaired": false,
               "truncated_signal": false
             },
@@ -2802,10 +3149,10 @@
               "repairs": [],
               "warnings": [],
               "postprocess": {
-                "removed_duplicate_sentences": 1,
+                "removed_duplicate_sentences": 2,
                 "repaired_incomplete_fields": [],
                 "evidence_replacements": [
-                  "methods"
+                  "study_design_and_population"
                 ],
                 "policy": "v10-exclusive-rhetorical-fields-1"
               },
@@ -2815,7 +3162,7 @@
                 "verified_english": false,
                 "replacements": [
                   {
-                    "field": "methods",
+                    "field": "study_design_and_population",
                     "detected_language": "zh"
                   }
                 ],
@@ -2829,34 +3176,34 @@
             "provider": "mistral",
             "model": "mistral-small-latest",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:20+00:00",
+            "at": "2026-09-26T01:30:25+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "rate_limited",
             "error_type": "RuntimeError",
             "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-            "elapsed_ms": 231
+            "elapsed_ms": 225
           },
           {
             "task": "paper_research_analysis",
             "provider": "mistral",
             "model": "mistral-small-2603",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:21+00:00",
+            "at": "2026-09-26T01:30:25+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "rate_limited",
             "error_type": "RuntimeError",
             "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-            "elapsed_ms": 202
+            "elapsed_ms": 199
           },
           {
             "task": "paper_research_analysis",
             "provider": "deepseek",
             "model": "",
-            "at": "2026-09-19T00:32:21+00:00",
+            "at": "2026-09-26T01:30:25+00:00",
             "status": "skipped",
             "failure_category": "quota_exhausted",
             "error": "quota_exhausted"
@@ -2866,139 +3213,34 @@
             "provider": "openrouter",
             "model": "openrouter/free",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:21+00:00",
+            "at": "2026-09-26T01:30:25+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "empty_response",
             "error_type": "LLMError",
-            "error": "openrouter returned empty content: {'id': 'gen-1789777941-6fD6uVPl3D53LSsVQQqU', 'object': 'chat.completion', 'created': 1789777941, 'model': 'poolside/laguna-s-2.1:free', 'provider': 'Poolside', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'Let me carefully analyze this paper and the evidence provided.\\n\\nThe paper is about strengthening diagnostic capacity for viral hemorrhagic fevers in Forest Guinea, with a focus on Lassa fever case detection.\\n\\nLet me look at the evidence sentences:\\n\\nA1: \"Viral hemorrhagic fevers (VHFs) remain a major public health threat in resource-limited settings.\" - role: implications\\nA2: \"The 2014-2016 Ebola epidemic exposed critical gaps in laboratory preparedness and d",
-            "elapsed_ms": 32496
+            "error": "openrouter returned empty content: {'id': 'gen-1790386225-Du5RBG0eHi6eFNLQux67', 'object': 'chat.completion', 'created': 1790386225, 'model': 'cohere/north-mini-code:free', 'provider': 'Cohere', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'max_tokens', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need to produce a JSON with analysis fields and evidence IDs mapping. The paper is about health system resilience to re-emerging infectious diseases in Sub-Saharan Africa. However, the topic contract is about Arenaviridae, specifically human-relevant mammarenaviruses. The paper mentions \"Ebola virus disease, cholera, measles, Lassa fever, and Marburg virus disease.\" Lassa fever is a target entity (Lassa fever, Lassa virus). So the paper includes some target-s",
+            "elapsed_ms": 52200
           },
           {
             "task": "paper_research_analysis",
             "provider": "openrouter",
             "model": "qwen/qwen3.8-27b:free",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:54+00:00",
+            "at": "2026-09-26T01:31:17+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3.8-27b:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"ModelRun\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to another provider with provider routing: https://openrouter.ai/docs/features/provider-routing\"}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
-            "elapsed_ms": 136
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "groq",
-            "model": "",
-            "at": "2026-09-19T00:32:54+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          }
-        ]
-      },
-      {
-        "type": "paper",
-        "id": "paper-f3a43dcc99adfe90",
-        "title": "Innate immune activation profiles are associated with polarization of the T cell response to recombinant arenaviral vectors",
-        "failure_category": "empty_response",
-        "fallback_policy": "role_cue_position_rescue",
-        "error": "All configured LLM attempts failed (empty_response): quota_exhausted",
-        "attempts": [
-          {
-            "task": "paper_research_analysis",
-            "provider": "gemini",
-            "model": "",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "authentication_failed",
-            "error": "authentication_failed"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "bigmodel",
-            "model": "glm-5.3-flash",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "bigmodel",
-            "model": "glm-5.3-flashx",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "siliconflow",
-            "model": "",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "healthy",
-            "error": "provider is cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-latest",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-2603",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "deepseek",
-            "model": "",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "openrouter",
-            "model": "openrouter/free",
-            "retry_index": 0,
-            "at": "2026-09-19T01:09:49+00:00",
-            "system_chars": 6814,
-            "prompt_chars": 14140,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "empty_response",
             "error_type": "LLMError",
-            "error": "openrouter returned empty content: {'id': 'gen-1789780189-HZen2XMjD6rdvDXEaMDG', 'object': 'chat.completion', 'created': 1789780189, 'model': 'nex-agi/nex-n2.5-pro:free', 'provider': 'Nex AGI', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': '\\nWe need produce exact JSON only via cpa_final_answer tool commentary, append marker. Need analyze evidence, topic contract. Paper target LCMV and PICV vectors HB-201/HB-202 likely. Need ensure target-specific. Evidence supplied. Need create seven fields, summary 100-230 words, mappings, confidence. Must only use supplied evidence. Need carefully avoid duplicate sentence/paraphrase across fields due exclusive assignment. Need distinguish methods roles mislabeled: M3",
-            "elapsed_ms": 26429
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "openrouter",
-            "model": "qwen/qwen3.8-27b:free",
-            "at": "2026-09-19T01:10:15+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
+            "error": "openrouter returned empty content: {'id': 'gen-1790386277-Xm4eyMfkXLaMW1sVRuw8', 'object': 'chat.completion', 'created': 1790386277, 'model': 'qwen/qwen3.8-27b:free', 'provider': 'ModelRun', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need answer user\\'s request: produce JSON only with analysis fields, summary_en, evidence_ids, confidence. Need analyze paper evidence. Need ensure target-specific evidence? Topic contract Arenaviridae. Paper is about health system resilience to re-emerging infectious diseases in SSA, includes Lassa fever among threats. record_identity_hits: Lassa fever. record_relevance_route primary_candidate, decision review. Need analyze only target-specific evidence. But evidenc",
+            "elapsed_ms": 48446
           },
           {
             "task": "paper_research_analysis",
             "provider": "groq",
             "model": "",
-            "at": "2026-09-19T01:10:15+00:00",
+            "at": "2026-09-26T01:32:06+00:00",
             "status": "skipped",
             "failure_category": "quota_exhausted",
             "error": "quota_exhausted"
@@ -3013,107 +3255,97 @@
     "severity": "warning",
     "warning_ratio": 0.2,
     "critical_ratio": 0.5,
-    "message_zh": "本期有 2/11 条（18.2%）分析使用规则兜底。主要原因：请求触发限流、模型未返回有效候选内容；请结合原始摘要或正文阅读。",
-    "message_en": "2/11 analyses (18.2%) used deterministic fallback. Main causes: requests were rate limited, the model returned no usable content.",
+    "message_zh": "本期有 2/16 条（12.5%）分析使用规则兜底。主要原因：请求触发限流；请结合原始摘要或正文阅读。",
+    "message_en": "2/16 analyses (12.5%) used deterministic fallback. Main causes: requests were rate limited.",
     "papers": {
-      "total_items": 7,
-      "analyzable": 7,
-      "passed": 5,
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 6,
       "fallback": 2,
-      "fallback_ratio": 0.2857,
+      "fallback_ratio": 0.25,
       "statuses": {
         "fallback_source_extract": 2,
-        "passed": 5
+        "passed": 6
       }
     },
     "news": {
-      "total_items": 4,
-      "analyzable": 4,
-      "passed": 4,
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 8,
       "fallback": 0,
       "fallback_ratio": 0.0,
       "statuses": {
-        "passed": 4
+        "passed": 8
       }
     },
     "combined": {
-      "total_items": 11,
-      "analyzable": 11,
-      "passed": 9,
+      "total_items": 16,
+      "analyzable": 16,
+      "passed": 14,
       "fallback": 2,
-      "fallback_ratio": 0.1818,
+      "fallback_ratio": 0.125,
       "statuses": {
         "fallback_source_extract": 2,
-        "passed": 9
+        "passed": 14
       }
     },
     "top_failure_categories": [
       {
         "category": "rate_limited",
-        "count": 1,
+        "count": 2,
         "label_zh": "请求触发限流",
         "label_en": "requests were rate limited"
-      },
-      {
-        "category": "empty_response",
-        "count": 1,
-        "label_zh": "模型未返回有效候选内容",
-        "label_en": "the model returned no usable content"
       }
     ],
     "provider_attempts": {
-      "bigmodel:failed": 3,
-      "bigmodel:skipped": 19,
+      "bigmodel:failed": 5,
+      "bigmodel:skipped": 27,
       "deepseek:skipped": 2,
-      "gemini:skipped": 11,
+      "gemini:skipped": 16,
       "groq:skipped": 2,
-      "mistral:failed": 2,
-      "mistral:skipped": 2,
-      "openrouter:failed": 3,
-      "openrouter:skipped": 1,
-      "siliconflow:failed": 4,
-      "siliconflow:skipped": 1,
-      "siliconflow:success": 9
+      "mistral:failed": 4,
+      "openrouter:failed": 4,
+      "siliconflow:failed": 5,
+      "siliconflow:success": 14
     },
     "model_attempts": {
-      "bigmodel/glm-5.3-flash:failed": 1,
-      "bigmodel/glm-5.3-flash:skipped": 10,
-      "bigmodel/glm-5.3-flashx:failed": 2,
-      "bigmodel/glm-5.3-flashx:skipped": 9,
+      "bigmodel/glm-5.3-flash:failed": 2,
+      "bigmodel/glm-5.3-flash:skipped": 14,
+      "bigmodel/glm-5.3-flashx:failed": 3,
+      "bigmodel/glm-5.3-flashx:skipped": 13,
       "deepseek/not_selected:skipped": 2,
-      "gemini/not_selected:skipped": 11,
+      "gemini/not_selected:skipped": 16,
       "groq/not_selected:skipped": 2,
-      "mistral/mistral-small-2603:failed": 1,
-      "mistral/mistral-small-2603:skipped": 1,
-      "mistral/mistral-small-latest:failed": 1,
-      "mistral/mistral-small-latest:skipped": 1,
+      "mistral/mistral-small-2603:failed": 2,
+      "mistral/mistral-small-latest:failed": 2,
       "openrouter/openrouter/free:failed": 2,
-      "openrouter/qwen/qwen3.8-27b:free:failed": 1,
-      "openrouter/qwen/qwen3.8-27b:free:skipped": 1,
-      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 1,
-      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:success": 2,
+      "openrouter/qwen/qwen3.8-27b:free:failed": 2,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 2,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:success": 1,
       "siliconflow/Qwen/Qwen3-8B:failed": 3,
-      "siliconflow/Qwen/Qwen3-8B:success": 7,
-      "siliconflow/not_selected:skipped": 1
+      "siliconflow/Qwen/Qwen3-8B:success": 13
     },
     "attempt_failure_categories": {
       "empty_response": 2,
-      "rate_limited": 6,
-      "timeout": 2,
-      "validation_failed": 2
+      "invalid_json": 1,
+      "rate_limited": 10,
+      "validation_failed": 5
     },
     "validation_issue_categories": {
-      "evidence_ids_missing": 2
+      "evidence_ids_missing": 13,
+      "invalid_confidence": 1
     },
-    "normalization_repairs": {},
+    "normalization_repairs": {
+      "evidence_ids_container_rebuilt": 1
+    },
     "field_repair_statuses": {
       "disabled_or_not_validation_failure": 2
     },
     "field_repair_records": [
       {
         "type": "paper",
-        "id": "paper-d0ae800123fda728",
-        "title": "Strengthening diagnostic capacity for viral hemorrhagic fevers in Forest Guinea: advances in Lassa fever case detection.",
+        "id": "paper-dff456684a4a1bde",
+        "title": "Perspectives for pharmaceutical screening at XFEL sources using the example of Lassa virus endonuclease.",
         "status": "disabled_or_not_validation_failure",
         "rounds": [],
         "initial_candidate": {},
@@ -3121,8 +3353,8 @@
       },
       {
         "type": "paper",
-        "id": "paper-f3a43dcc99adfe90",
-        "title": "Innate immune activation profiles are associated with polarization of the T cell response to recombinant arenaviral vectors",
+        "id": "paper-18d9f377dd091edc",
+        "title": "Pathways to health resilience: A cross-country analysis of health system response to re-emerging infectious diseases in Sub-Saharan Africa.",
         "status": "disabled_or_not_validation_failure",
         "rounds": [],
         "initial_candidate": {},
@@ -3131,7 +3363,7 @@
     ],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-09-18T20:16:29+00:00",
+      "generated_at": "2026-09-25T20:59:25+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -3237,9 +3469,9 @@
             "ignored_retired_models": [],
             "gemini_lite_preferred": true,
             "failure_category": "authentication_failed",
-            "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.ModelService.ListModels\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }"
+            "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.ModelService.ListModels\" } } ] } }"
           },
-          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+          "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
           "action_hint": "Regenerate the provider key and replace GitHub Secret GEMINI_API_KEY.",
           "account": {
             "status": "not_supported"
@@ -3250,56 +3482,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
-              "elapsed_ms": 42
+              "elapsed_ms": 62
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 49
+              "elapsed_ms": 54
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 81
+              "elapsed_ms": 104
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 39
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 56
             }
           ]
         },
@@ -3370,12 +3602,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:16+00:00",
+              "at": "2026-09-25T20:59:15+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 456,
+              "elapsed_ms": 328,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -3386,8 +3618,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 119,
-                "completion_tokens": 69,
-                "total_tokens": 188
+                "completion_tokens": 67,
+                "total_tokens": 186
               }
             }
           ]
@@ -3408,27 +3640,23 @@
           "model_candidates": [
             "openrouter/free",
             "qwen/qwen3.8-27b:free",
-            "deepseek/deepseek-v4-flash-0731:free",
             "cohere/north-mini-code:free",
-            "nex-agi/nex-n2.5-mini:free",
             "inclusionai/ling-3.0-flash-fin:free",
             "inclusionai/ling-3.0-flash-sante:free",
-            "inclusionai/ling-3.0-flash-vl:free",
             "thinkingmachines/inkling-small:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b-it:free",
-            "z-ai/glm-5.2:free",
             "liquid/lfm-2.5-2.6b:free",
             "nvidia/nemotron-3-ultra-550b-a55b:free",
             "nvidia/nemotron-3.5-content-safety:free",
             "nvidia/nemotron-3.5-lightning:free",
             "poolside/laguna-s-2.1:free",
             "poolside/laguna-xs-2.1:free",
-            "nex-agi/nex-n2.5-pro:free",
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             "nvidia/nemotron-3-super-120b-a12b:free",
             "thinkingmachines/inkling:free",
             "dots-studio/dots-3-note-preview:free",
+            "stealth/space-bunny-alpha",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -3436,31 +3664,27 @@
             "status": "discovered",
             "endpoint": "https://openrouter.ai/api/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 25,
+            "discovered_count": 21,
             "discovered_models": [
               "openrouter/free",
               "qwen/qwen3.8-27b:free",
-              "deepseek/deepseek-v4-flash-0731:free",
               "cohere/north-mini-code:free",
-              "nex-agi/nex-n2.5-mini:free",
               "inclusionai/ling-3.0-flash-fin:free",
               "inclusionai/ling-3.0-flash-sante:free",
-              "inclusionai/ling-3.0-flash-vl:free",
               "thinkingmachines/inkling-small:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
-              "z-ai/glm-5.2:free",
               "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
               "nvidia/nemotron-3.5-content-safety:free",
               "nvidia/nemotron-3.5-lightning:free",
               "poolside/laguna-s-2.1:free",
               "poolside/laguna-xs-2.1:free",
-              "nex-agi/nex-n2.5-pro:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
               "thinkingmachines/inkling:free",
               "dots-studio/dots-3-note-preview:free",
+              "stealth/space-bunny-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -3473,27 +3697,23 @@
             "selected_candidates": [
               "openrouter/free",
               "qwen/qwen3.8-27b:free",
-              "deepseek/deepseek-v4-flash-0731:free",
               "cohere/north-mini-code:free",
-              "nex-agi/nex-n2.5-mini:free",
               "inclusionai/ling-3.0-flash-fin:free",
               "inclusionai/ling-3.0-flash-sante:free",
-              "inclusionai/ling-3.0-flash-vl:free",
               "thinkingmachines/inkling-small:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
-              "z-ai/glm-5.2:free",
               "liquid/lfm-2.5-2.6b:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
               "nvidia/nemotron-3.5-content-safety:free",
               "nvidia/nemotron-3.5-lightning:free",
               "poolside/laguna-s-2.1:free",
               "poolside/laguna-xs-2.1:free",
-              "nex-agi/nex-n2.5-pro:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
               "thinkingmachines/inkling:free",
               "dots-studio/dots-3-note-preview:free",
+              "stealth/space-bunny-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -3508,12 +3728,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:17+00:00",
+              "at": "2026-09-25T20:59:16+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "cohere/north-mini-code:free",
-              "elapsed_ms": 782,
+              "elapsed_ms": 730,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -3524,8 +3744,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 17,
-                "completion_tokens": 78,
-                "total_tokens": 95
+                "completion_tokens": 74,
+                "total_tokens": 91
               }
             }
           ]
@@ -3649,28 +3869,28 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:18+00:00",
+              "at": "2026-09-25T20:59:17+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 421
+              "elapsed_ms": 216
             },
             {
               "task": "credential_preflight",
               "provider": "mistral",
               "model": "mistral-small-2603",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:19+00:00",
+              "at": "2026-09-25T20:59:17+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 297
+              "elapsed_ms": 214
             }
           ]
         },
@@ -3801,12 +4021,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:23+00:00",
+              "at": "2026-09-25T20:59:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 2503,
+              "elapsed_ms": 732,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -3896,28 +4116,28 @@
               "provider": "bigmodel",
               "model": "glm-5.3-flash",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:26+00:00",
+              "at": "2026-09-25T20:59:22+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 584
+              "elapsed_ms": 540
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-5.3-flashx",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:27+00:00",
+              "at": "2026-09-25T20:59:22+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 492
+              "elapsed_ms": 430
             }
           ]
         },
@@ -3956,7 +4176,7 @@
             "failure_category": "",
             "error": ""
           },
-          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 62a131b3-39bc-4c91-83c7-afa467ede47a)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
           "action_hint": "Project/account quota is exhausted; wait for reset or use another configured provider.",
           "account": {
             "status": "ok",
@@ -3980,28 +4200,28 @@
               "provider": "deepseek",
               "model": "deepseek-flash",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:28+00:00",
+              "at": "2026-09-25T20:59:24+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 631
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: dd317c00-3e95-41ec-b027-6d73cb9013cc)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 630
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-09-18T20:16:29+00:00",
+              "at": "2026-09-25T20:59:25+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 638
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 62a131b3-39bc-4c91-83c7-afa467ede47a)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 632
             }
           ]
         }
@@ -4110,8 +4330,282 @@
     "fallback_records": [
       {
         "type": "paper",
-        "id": "paper-d0ae800123fda728",
-        "title": "Strengthening diagnostic capacity for viral hemorrhagic fevers in Forest Guinea: advances in Lassa fever case detection.",
+        "id": "paper-dff456684a4a1bde",
+        "title": "Perspectives for pharmaceutical screening at XFEL sources using the example of Lassa virus endonuclease.",
+        "failure_category": "rate_limited",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
+        "attempts": [
+          {
+            "task": "paper_review_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-09-26T01:21:47+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "bigmodel",
+            "model": "glm-5.3-flash",
+            "at": "2026-09-26T01:21:47+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "bigmodel",
+            "model": "glm-5.3-flashx",
+            "at": "2026-09-26T01:21:47+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "Qwen/Qwen3-8B",
+            "retry_index": 0,
+            "at": "2026-09-26T01:21:47+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"controversies_and_evidence_gaps\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"evidence_base_and_review_method\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 30591,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "controversies_and_evidence_gaps"
+                }
+              ],
+              "warnings": [
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "evidence_base_and_review_method",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                }
+              ],
+              "issue_counts": {
+                "evidence_ids_missing": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 3431,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [
+                  "evidence_base_and_review_method"
+                ],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "siliconflow",
+            "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:18+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"evidence_base_and_review_method\"}, {\"category\": \"evidence_ids_missing\", \"field\": \"consensus_and_key_conclusions\"}, {\"category\": \"evidence_ids_missing\", \"field\": \"controversies_and_evidence_gaps\"}], \"warnings\": [{\"category\": \"summary_length_outside_preferred_range\", \"field\": \"summary_en\", \"words\": 47, \"preferred\": [60, 280]}], \"issue_counts\": {\"evidence_ids_missing\": 3}}",
+            "elapsed_ms": 6409,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "evidence_base_and_review_method"
+                },
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "consensus_and_key_conclusions"
+                },
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "controversies_and_evidence_gaps"
+                }
+              ],
+              "warnings": [
+                {
+                  "category": "summary_length_outside_preferred_range",
+                  "field": "summary_en",
+                  "words": 47,
+                  "preferred": [
+                    60,
+                    280
+                  ]
+                }
+              ],
+              "issue_counts": {
+                "evidence_ids_missing": 3
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 829,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [
+                  "scope_and_question",
+                  "evidence_base_and_review_method",
+                  "consensus_and_key_conclusions",
+                  "controversies_and_evidence_gaps",
+                  "research_and_practice_implications"
+                ],
+                "evidence_replacements": [
+                  "scope_and_question",
+                  "evidence_base_and_review_method",
+                  "consensus_and_key_conclusions",
+                  "controversies_and_evidence_gaps",
+                  "research_and_practice_implications"
+                ],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": false,
+                "replacements": [
+                  {
+                    "field": "evidence_base_and_review_method",
+                    "detected_language": "zh"
+                  },
+                  {
+                    "field": "consensus_and_key_conclusions",
+                    "detected_language": "zh"
+                  },
+                  {
+                    "field": "controversies_and_evidence_gaps",
+                    "detected_language": "zh"
+                  }
+                ],
+                "original_evidence_preserved": true
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:24+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+            "elapsed_ms": 221
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2603",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:24+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+            "elapsed_ms": 248
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "deepseek",
+            "model": "",
+            "at": "2026-09-26T01:22:25+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:25+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "invalid_json",
+            "error_type": "LLMError",
+            "error": "Model response did not contain valid complete JSON",
+            "elapsed_ms": 1499
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "openrouter",
+            "model": "qwen/qwen3.8-27b:free",
+            "retry_index": 0,
+            "at": "2026-09-26T01:22:26+00:00",
+            "system_chars": 4668,
+            "prompt_chars": 10068,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3.8-27b:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"ModelRun\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to another provider with provider routing: https://openrouter.ai/docs/features/provider-routing\"}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+            "elapsed_ms": 130
+          },
+          {
+            "task": "paper_review_analysis",
+            "provider": "groq",
+            "model": "",
+            "at": "2026-09-26T01:22:26+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          }
+        ]
+      },
+      {
+        "type": "paper",
+        "id": "paper-18d9f377dd091edc",
+        "title": "Pathways to health resilience: A cross-country analysis of health system response to re-emerging infectious diseases in Sub-Saharan Africa.",
         "failure_category": "rate_limited",
         "fallback_policy": "role_cue_position_rescue",
         "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
@@ -4120,7 +4614,7 @@
             "task": "paper_research_analysis",
             "provider": "gemini",
             "model": "",
-            "at": "2026-09-19T00:30:57+00:00",
+            "at": "2026-09-26T01:29:32+00:00",
             "status": "skipped",
             "failure_category": "authentication_failed",
             "error": "authentication_failed"
@@ -4129,7 +4623,7 @@
             "task": "paper_research_analysis",
             "provider": "bigmodel",
             "model": "glm-5.3-flash",
-            "at": "2026-09-19T00:30:57+00:00",
+            "at": "2026-09-26T01:29:32+00:00",
             "status": "skipped",
             "failure_category": "model_cooldown",
             "error": "model is temporarily cooling down"
@@ -4138,29 +4632,24 @@
             "task": "paper_research_analysis",
             "provider": "bigmodel",
             "model": "glm-5.3-flashx",
-            "retry_index": 0,
-            "at": "2026-09-19T00:30:57+00:00",
-            "system_chars": 6814,
-            "prompt_chars": 9576,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-            "elapsed_ms": 990
+            "at": "2026-09-26T01:29:32+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
           },
           {
             "task": "paper_research_analysis",
             "provider": "siliconflow",
             "model": "Qwen/Qwen3-8B",
             "retry_index": 0,
-            "at": "2026-09-19T00:30:58+00:00",
+            "at": "2026-09-26T01:29:32+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "validation_failed",
             "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"limitations_and_evidence_strength\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"research_question_and_background\", \"cited_roles\": [\"implications\"], \"allowed_roles\": [\"background\", \"general\", \"objective\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"results\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 63053,
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"limitations_and_evidence_strength\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\", \"methods\"], \"allowed_roles\": [\"results\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 22555,
             "validation": {
               "policy_version": "v17.2-detailed-structured-validation-1",
               "issues": [
@@ -4172,21 +4661,10 @@
               "warnings": [
                 {
                   "category": "evidence_role_mismatch",
-                  "field": "research_question_and_background",
-                  "cited_roles": [
-                    "implications"
-                  ],
-                  "allowed_roles": [
-                    "background",
-                    "general",
-                    "objective"
-                  ]
-                },
-                {
-                  "category": "evidence_role_mismatch",
                   "field": "main_results",
                   "cited_roles": [
-                    "general"
+                    "general",
+                    "methods"
                   ],
                   "allowed_roles": [
                     "results"
@@ -4200,7 +4678,7 @@
             "parser_audit": {
               "policy_version": "v17.2-flexible-json-parser-1",
               "method": "direct_json",
-              "response_chars": 3342,
+              "response_chars": 3184,
               "repaired": false,
               "truncated_signal": false
             },
@@ -4209,7 +4687,7 @@
               "repairs": [],
               "warnings": [],
               "postprocess": {
-                "removed_duplicate_sentences": 3,
+                "removed_duplicate_sentences": 0,
                 "repaired_incomplete_fields": [],
                 "evidence_replacements": [],
                 "policy": "v10-exclusive-rhetorical-fields-1"
@@ -4229,40 +4707,28 @@
             "provider": "siliconflow",
             "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:01+00:00",
+            "at": "2026-09-26T01:29:55+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "validation_failed",
             "error_type": "LLMError",
-            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"methods\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"research_question_and_background\", \"cited_roles\": [\"implications\"], \"allowed_roles\": [\"background\", \"general\", \"objective\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"study_design_and_population\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\", \"methods\"], \"allowed_roles\": [\"results\"]}, {\"category\": \"summary_length_outside_preferred_range\", \"field\": \"summary_en\", \"words\": 36, \"preferred\": [60, 280]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
-            "elapsed_ms": 18852,
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"study_design_and_population\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"methods\", \"cited_roles\": [\"implications\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"results\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"limitations_and_evidence_strength\", \"cited_roles\": [\"methods\"], \"allowed_roles\": [\"conclusion\", \"general\", \"limitations\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 29953,
             "validation": {
               "policy_version": "v17.2-detailed-structured-validation-1",
               "issues": [
                 {
                   "category": "evidence_ids_missing",
-                  "field": "methods"
+                  "field": "study_design_and_population"
                 }
               ],
               "warnings": [
                 {
                   "category": "evidence_role_mismatch",
-                  "field": "research_question_and_background",
+                  "field": "methods",
                   "cited_roles": [
                     "implications"
-                  ],
-                  "allowed_roles": [
-                    "background",
-                    "general",
-                    "objective"
-                  ]
-                },
-                {
-                  "category": "evidence_role_mismatch",
-                  "field": "study_design_and_population",
-                  "cited_roles": [
-                    "general"
                   ],
                   "allowed_roles": [
                     "design_population",
@@ -4273,20 +4739,22 @@
                   "category": "evidence_role_mismatch",
                   "field": "main_results",
                   "cited_roles": [
-                    "general",
-                    "methods"
+                    "general"
                   ],
                   "allowed_roles": [
                     "results"
                   ]
                 },
                 {
-                  "category": "summary_length_outside_preferred_range",
-                  "field": "summary_en",
-                  "words": 36,
-                  "preferred": [
-                    60,
-                    280
+                  "category": "evidence_role_mismatch",
+                  "field": "limitations_and_evidence_strength",
+                  "cited_roles": [
+                    "methods"
+                  ],
+                  "allowed_roles": [
+                    "conclusion",
+                    "general",
+                    "limitations"
                   ]
                 }
               ],
@@ -4297,7 +4765,7 @@
             "parser_audit": {
               "policy_version": "v17.2-flexible-json-parser-1",
               "method": "direct_json",
-              "response_chars": 2718,
+              "response_chars": 3694,
               "repaired": false,
               "truncated_signal": false
             },
@@ -4306,10 +4774,10 @@
               "repairs": [],
               "warnings": [],
               "postprocess": {
-                "removed_duplicate_sentences": 1,
+                "removed_duplicate_sentences": 2,
                 "repaired_incomplete_fields": [],
                 "evidence_replacements": [
-                  "methods"
+                  "study_design_and_population"
                 ],
                 "policy": "v10-exclusive-rhetorical-fields-1"
               },
@@ -4319,7 +4787,7 @@
                 "verified_english": false,
                 "replacements": [
                   {
-                    "field": "methods",
+                    "field": "study_design_and_population",
                     "detected_language": "zh"
                   }
                 ],
@@ -4333,34 +4801,34 @@
             "provider": "mistral",
             "model": "mistral-small-latest",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:20+00:00",
+            "at": "2026-09-26T01:30:25+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "rate_limited",
             "error_type": "RuntimeError",
             "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-            "elapsed_ms": 231
+            "elapsed_ms": 225
           },
           {
             "task": "paper_research_analysis",
             "provider": "mistral",
             "model": "mistral-small-2603",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:21+00:00",
+            "at": "2026-09-26T01:30:25+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "rate_limited",
             "error_type": "RuntimeError",
             "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-            "elapsed_ms": 202
+            "elapsed_ms": 199
           },
           {
             "task": "paper_research_analysis",
             "provider": "deepseek",
             "model": "",
-            "at": "2026-09-19T00:32:21+00:00",
+            "at": "2026-09-26T01:30:25+00:00",
             "status": "skipped",
             "failure_category": "quota_exhausted",
             "error": "quota_exhausted"
@@ -4370,139 +4838,34 @@
             "provider": "openrouter",
             "model": "openrouter/free",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:21+00:00",
+            "at": "2026-09-26T01:30:25+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "empty_response",
             "error_type": "LLMError",
-            "error": "openrouter returned empty content: {'id': 'gen-1789777941-6fD6uVPl3D53LSsVQQqU', 'object': 'chat.completion', 'created': 1789777941, 'model': 'poolside/laguna-s-2.1:free', 'provider': 'Poolside', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'Let me carefully analyze this paper and the evidence provided.\\n\\nThe paper is about strengthening diagnostic capacity for viral hemorrhagic fevers in Forest Guinea, with a focus on Lassa fever case detection.\\n\\nLet me look at the evidence sentences:\\n\\nA1: \"Viral hemorrhagic fevers (VHFs) remain a major public health threat in resource-limited settings.\" - role: implications\\nA2: \"The 2014-2016 Ebola epidemic exposed critical gaps in laboratory preparedness and d",
-            "elapsed_ms": 32496
+            "error": "openrouter returned empty content: {'id': 'gen-1790386225-Du5RBG0eHi6eFNLQux67', 'object': 'chat.completion', 'created': 1790386225, 'model': 'cohere/north-mini-code:free', 'provider': 'Cohere', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'max_tokens', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need to produce a JSON with analysis fields and evidence IDs mapping. The paper is about health system resilience to re-emerging infectious diseases in Sub-Saharan Africa. However, the topic contract is about Arenaviridae, specifically human-relevant mammarenaviruses. The paper mentions \"Ebola virus disease, cholera, measles, Lassa fever, and Marburg virus disease.\" Lassa fever is a target entity (Lassa fever, Lassa virus). So the paper includes some target-s",
+            "elapsed_ms": 52200
           },
           {
             "task": "paper_research_analysis",
             "provider": "openrouter",
             "model": "qwen/qwen3.8-27b:free",
             "retry_index": 0,
-            "at": "2026-09-19T00:32:54+00:00",
+            "at": "2026-09-26T01:31:17+00:00",
             "system_chars": 6814,
-            "prompt_chars": 9576,
-            "status": "failed",
-            "failure_category": "rate_limited",
-            "error_type": "RuntimeError",
-            "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3.8-27b:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"ModelRun\",\"is_byok\":false,\"provider_error_code\":\"429\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to another provider with provider routing: https://openrouter.ai/docs/features/provider-routing\"}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
-            "elapsed_ms": 136
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "groq",
-            "model": "",
-            "at": "2026-09-19T00:32:54+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          }
-        ]
-      },
-      {
-        "type": "paper",
-        "id": "paper-f3a43dcc99adfe90",
-        "title": "Innate immune activation profiles are associated with polarization of the T cell response to recombinant arenaviral vectors",
-        "failure_category": "empty_response",
-        "fallback_policy": "role_cue_position_rescue",
-        "error": "All configured LLM attempts failed (empty_response): quota_exhausted",
-        "attempts": [
-          {
-            "task": "paper_research_analysis",
-            "provider": "gemini",
-            "model": "",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "authentication_failed",
-            "error": "authentication_failed"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "bigmodel",
-            "model": "glm-5.3-flash",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "bigmodel",
-            "model": "glm-5.3-flashx",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "siliconflow",
-            "model": "",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "healthy",
-            "error": "provider is cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-latest",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "mistral",
-            "model": "mistral-small-2603",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "deepseek",
-            "model": "",
-            "at": "2026-09-19T01:09:49+00:00",
-            "status": "skipped",
-            "failure_category": "quota_exhausted",
-            "error": "quota_exhausted"
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "openrouter",
-            "model": "openrouter/free",
-            "retry_index": 0,
-            "at": "2026-09-19T01:09:49+00:00",
-            "system_chars": 6814,
-            "prompt_chars": 14140,
+            "prompt_chars": 9735,
             "status": "failed",
             "failure_category": "empty_response",
             "error_type": "LLMError",
-            "error": "openrouter returned empty content: {'id': 'gen-1789780189-HZen2XMjD6rdvDXEaMDG', 'object': 'chat.completion', 'created': 1789780189, 'model': 'nex-agi/nex-n2.5-pro:free', 'provider': 'Nex AGI', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': '\\nWe need produce exact JSON only via cpa_final_answer tool commentary, append marker. Need analyze evidence, topic contract. Paper target LCMV and PICV vectors HB-201/HB-202 likely. Need ensure target-specific. Evidence supplied. Need create seven fields, summary 100-230 words, mappings, confidence. Must only use supplied evidence. Need carefully avoid duplicate sentence/paraphrase across fields due exclusive assignment. Need distinguish methods roles mislabeled: M3",
-            "elapsed_ms": 26429
-          },
-          {
-            "task": "paper_research_analysis",
-            "provider": "openrouter",
-            "model": "qwen/qwen3.8-27b:free",
-            "at": "2026-09-19T01:10:15+00:00",
-            "status": "skipped",
-            "failure_category": "model_cooldown",
-            "error": "model is temporarily cooling down"
+            "error": "openrouter returned empty content: {'id': 'gen-1790386277-Xm4eyMfkXLaMW1sVRuw8', 'object': 'chat.completion', 'created': 1790386277, 'model': 'qwen/qwen3.8-27b:free', 'provider': 'ModelRun', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need answer user\\'s request: produce JSON only with analysis fields, summary_en, evidence_ids, confidence. Need analyze paper evidence. Need ensure target-specific evidence? Topic contract Arenaviridae. Paper is about health system resilience to re-emerging infectious diseases in SSA, includes Lassa fever among threats. record_identity_hits: Lassa fever. record_relevance_route primary_candidate, decision review. Need analyze only target-specific evidence. But evidenc",
+            "elapsed_ms": 48446
           },
           {
             "task": "paper_research_analysis",
             "provider": "groq",
             "model": "",
-            "at": "2026-09-19T01:10:15+00:00",
+            "at": "2026-09-26T01:32:06+00:00",
             "status": "skipped",
             "failure_category": "quota_exhausted",
             "error": "quota_exhausted"
