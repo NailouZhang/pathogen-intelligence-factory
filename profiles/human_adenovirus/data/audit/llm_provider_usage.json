@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-09-26T23:16:41+00:00",
+  "generated_at": "2026-10-03T21:23:27+00:00",
   "shared_state_file": "/tmp/pif_data_repo/shared/state/provider_quota_daily.json",
   "provider_order": {
     "extract": [
@@ -264,12 +264,12 @@
       "status": "discovered",
       "endpoint": "https://openrouter.ai/api/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 21,
+      "discovered_count": 22,
       "discovered_models": [
         "openrouter/free",
         "qwen/qwen3.8-27b:free",
+        "apodex/apodex-1.1-mini:free",
         "cohere/north-mini-code:free",
-        "inclusionai/ling-3.0-flash-fin:free",
         "inclusionai/ling-3.0-flash-sante:free",
         "thinkingmachines/inkling-small:free",
         "google/gemma-4-26b-a4b-it:free",
@@ -283,6 +283,7 @@
         "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
         "nvidia/nemotron-3-super-120b-a12b:free",
         "thinkingmachines/inkling:free",
+        "inclusionai/ling-3.1-flash",
         "dots-studio/dots-3-note-preview:free",
         "stealth/space-bunny-alpha",
         "google/lyria-3-clip-preview",
@@ -297,8 +298,8 @@
       "selected_candidates": [
         "openrouter/free",
         "qwen/qwen3.8-27b:free",
+        "apodex/apodex-1.1-mini:free",
         "cohere/north-mini-code:free",
-        "inclusionai/ling-3.0-flash-fin:free",
         "inclusionai/ling-3.0-flash-sante:free",
         "thinkingmachines/inkling-small:free",
         "google/gemma-4-26b-a4b-it:free",
@@ -312,6 +313,7 @@
         "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
         "nvidia/nemotron-3-super-120b-a12b:free",
         "thinkingmachines/inkling:free",
+        "inclusionai/ling-3.1-flash",
         "dots-studio/dots-3-note-preview:free",
         "stealth/space-bunny-alpha",
         "google/lyria-3-clip-preview",
@@ -369,7 +371,7 @@
         "status": "not_supported"
       },
       "last_failure_category": "authentication_failed",
-      "last_failure_at": 1790454664.608205,
+      "last_failure_at": 1791059283.7158837,
       "cooldown_remaining_seconds": 0
     },
     "groq": {
@@ -377,30 +379,37 @@
       "provider": "groq",
       "status": "quota_exhausted",
       "disabled_reason": "quota_exhausted",
-      "requests": 2,
+      "requests": 6,
       "successes": 1,
-      "failures": 1,
+      "failures": 5,
       "prompt_tokens": 119,
-      "completion_tokens": 84,
-      "total_tokens": 203,
+      "completion_tokens": 63,
+      "total_tokens": 182,
       "models": {
         "openai/gpt-oss-120b": {
           "status": "quota_exhausted",
-          "requests": 2,
+          "requests": 5,
           "successes": 1,
           "prompt_tokens": 119,
-          "completion_tokens": 84,
-          "total_tokens": 203,
-          "failures": 1,
+          "completion_tokens": 63,
+          "total_tokens": 182,
+          "failures": 4,
           "last_failure_category": "quota_exhausted",
+          "cooldown_remaining_seconds": 0
+        },
+        "openai/gpt-oss-20b": {
+          "requests": 1,
+          "failures": 1,
+          "last_failure_category": "rate_limited",
+          "status": "cooldown",
           "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1790455125.1789272,
+      "last_failure_category": "rate_limited",
+      "last_failure_at": 1791060602.6367545,
       "cooldown_remaining_seconds": 0
     },
     "openrouter": {
@@ -408,30 +417,30 @@
       "provider": "openrouter",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 29,
-      "successes": 6,
-      "failures": 23,
-      "prompt_tokens": 16363,
-      "completion_tokens": 27630,
-      "total_tokens": 43993,
+      "requests": 18,
+      "successes": 2,
+      "failures": 16,
+      "prompt_tokens": 3712,
+      "completion_tokens": 7448,
+      "total_tokens": 11160,
       "models": {
         "openrouter/free": {
           "status": "failed",
-          "requests": 22,
-          "successes": 6,
-          "prompt_tokens": 16363,
-          "completion_tokens": 27630,
-          "total_tokens": 43993,
-          "failures": 16,
-          "last_failure_category": "validation_failed",
+          "requests": 13,
+          "successes": 2,
+          "prompt_tokens": 3712,
+          "completion_tokens": 7448,
+          "total_tokens": 11160,
+          "failures": 11,
+          "last_failure_category": "empty_response",
           "cooldown_remaining_seconds": 0
         },
         "qwen/qwen3.8-27b:free": {
-          "requests": 7,
-          "failures": 7,
-          "last_failure_category": "rate_limited",
-          "status": "cooldown",
-          "cooldown_remaining_seconds": 56.8
+          "requests": 5,
+          "failures": 5,
+          "last_failure_category": "validation_failed",
+          "status": "failed",
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
@@ -443,8 +452,8 @@
         "usage_weekly": 0,
         "usage_monthly": 0
       },
-      "last_failure_category": "rate_limited",
-      "last_failure_at": 1790464598.7676682,
+      "last_failure_category": "validation_failed",
+      "last_failure_at": 1791062604.7520459,
       "cooldown_remaining_seconds": 0
     },
     "mistral": {
@@ -452,33 +461,33 @@
       "provider": "mistral",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 102,
+      "requests": 29,
       "successes": 0,
-      "failures": 102,
+      "failures": 29,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
       "models": {
         "mistral-small-latest": {
-          "requests": 54,
-          "failures": 54,
+          "requests": 18,
+          "failures": 18,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 0
+          "cooldown_remaining_seconds": 2.7
         },
         "mistral-small-2603": {
-          "requests": 48,
-          "failures": 48,
+          "requests": 11,
+          "failures": 11,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 0
+          "cooldown_remaining_seconds": 2.9
         }
       },
       "account": {
         "status": "not_supported"
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1790464495.9289582,
+      "last_failure_at": 1791062550.0979319,
       "cooldown_remaining_seconds": 0
     },
     "siliconflow": {
@@ -486,33 +495,33 @@
       "provider": "siliconflow",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 212,
-      "successes": 194,
-      "failures": 18,
-      "prompt_tokens": 430837,
-      "completion_tokens": 72644,
-      "total_tokens": 503481,
+      "requests": 85,
+      "successes": 73,
+      "failures": 12,
+      "prompt_tokens": 233900,
+      "completion_tokens": 35177,
+      "total_tokens": 269077,
       "models": {
         "Qwen/Qwen3-8B": {
           "status": "failed",
-          "requests": 201,
-          "successes": 189,
-          "prompt_tokens": 414829,
-          "completion_tokens": 69072,
-          "total_tokens": 483901,
-          "failures": 12,
+          "requests": 78,
+          "successes": 71,
+          "prompt_tokens": 226272,
+          "completion_tokens": 34061,
+          "total_tokens": 260333,
+          "failures": 7,
           "last_failure_category": "validation_failed",
           "cooldown_remaining_seconds": 0
         },
         "LoRA/Qwen/Qwen2.5-7B-Instruct": {
-          "status": "failed",
-          "requests": 11,
-          "successes": 5,
-          "prompt_tokens": 16008,
-          "completion_tokens": 3572,
-          "total_tokens": 19580,
-          "failures": 6,
+          "requests": 7,
+          "failures": 5,
           "last_failure_category": "validation_failed",
+          "status": "failed",
+          "successes": 2,
+          "prompt_tokens": 7628,
+          "completion_tokens": 1116,
+          "total_tokens": 8744,
           "cooldown_remaining_seconds": 0
         }
       },
@@ -522,7 +531,7 @@
         "error": "HTTP request failed: https://api.siliconflow.cn/v1/user/info: HTTP status 410: 410 Client Error: Gone for url: https://api.siliconflow.cn/v1/user/info; response={\"code\":20092,\"message\":\"This endpoint is deprecated and is no longer available.\",\"data\":null}"
       },
       "last_failure_category": "validation_failed",
-      "last_failure_at": 1790464531.1212797,
+      "last_failure_at": 1791062578.3377159,
       "cooldown_remaining_seconds": 0
     },
     "bigmodel": {
@@ -530,33 +539,33 @@
       "provider": "bigmodel",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 132,
+      "requests": 58,
       "successes": 0,
-      "failures": 132,
+      "failures": 58,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
       "models": {
         "glm-5.3-flash": {
-          "requests": 75,
-          "failures": 75,
+          "requests": 35,
+          "failures": 35,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 0
+          "cooldown_remaining_seconds": 2.1
         },
         "glm-5.3-flashx": {
-          "requests": 57,
-          "failures": 57,
+          "requests": 23,
+          "failures": 23,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 0
+          "cooldown_remaining_seconds": 2.6
         }
       },
       "account": {
         "status": "not_supported"
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1790464495.630001,
+      "last_failure_at": 1791062549.7978094,
       "cooldown_remaining_seconds": 0
     },
     "deepseek": {
@@ -603,7 +612,7 @@
         ]
       },
       "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1790454676.885312,
+      "last_failure_at": 1791059296.066223,
       "cooldown_remaining_seconds": 0
     }
   }
