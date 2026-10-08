@@ -8,72 +8,100 @@
     "message_zh": "本期七/五要素分析未触发全局降级告警。",
     "message_en": "No global structured-analysis degradation warning was triggered.",
     "papers": {
-      "total_items": 4,
-      "analyzable": 4,
-      "passed": 4,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 7,
+      "fallback": 1,
+      "fallback_ratio": 0.125,
       "statuses": {
-        "passed": 4
+        "fallback_source_extract": 1,
+        "passed": 7
       }
     },
     "news": {
-      "total_items": 1,
-      "analyzable": 1,
-      "passed": 1,
+      "total_items": 0,
+      "analyzable": 0,
+      "passed": 0,
       "fallback": 0,
       "fallback_ratio": 0.0,
-      "statuses": {
-        "passed": 1
-      }
+      "statuses": {}
     },
     "combined": {
-      "total_items": 5,
-      "analyzable": 5,
-      "passed": 5,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 7,
+      "fallback": 1,
+      "fallback_ratio": 0.125,
       "statuses": {
-        "passed": 5
+        "fallback_source_extract": 1,
+        "passed": 7
       }
     },
-    "top_failure_categories": [],
+    "top_failure_categories": [
+      {
+        "category": "rate_limited",
+        "count": 1,
+        "label_zh": "请求触发限流",
+        "label_en": "requests were rate limited"
+      }
+    ],
     "provider_attempts": {
-      "bigmodel:failed": 1,
-      "bigmodel:skipped": 9,
-      "gemini:skipped": 5,
+      "bigmodel:failed": 9,
+      "bigmodel:skipped": 7,
+      "deepseek:skipped": 1,
+      "gemini:skipped": 8,
+      "groq:failed": 2,
+      "mistral:failed": 1,
+      "mistral:skipped": 1,
+      "openrouter:failed": 2,
       "siliconflow:failed": 2,
-      "siliconflow:success": 5
+      "siliconflow:success": 7
     },
     "model_attempts": {
       "bigmodel/glm-4.5:skipped": 1,
+      "bigmodel/glm-5.3-flash:failed": 3,
       "bigmodel/glm-5.3-flash:skipped": 5,
-      "bigmodel/glm-5.3-flashx:failed": 1,
-      "bigmodel/glm-5.3-flashx:skipped": 3,
-      "gemini/not_selected:skipped": 5,
-      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:success": 2,
-      "siliconflow/Qwen/Qwen3-8B:failed": 2,
-      "siliconflow/Qwen/Qwen3-8B:success": 3
+      "bigmodel/glm-5.3-flashx:failed": 6,
+      "bigmodel/glm-5.3-flashx:skipped": 1,
+      "deepseek/not_selected:skipped": 1,
+      "gemini/not_selected:skipped": 8,
+      "groq/openai/gpt-oss-120b:failed": 1,
+      "groq/openai/gpt-oss-20b:failed": 1,
+      "mistral/mistral-small-2603:skipped": 1,
+      "mistral/mistral-small-latest:failed": 1,
+      "openrouter/apodex/apodex-1.1-mini:free:failed": 1,
+      "openrouter/openrouter/free:failed": 1,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 1,
+      "siliconflow/Qwen/Qwen3-8B:failed": 1,
+      "siliconflow/Qwen/Qwen3-8B:success": 7
     },
     "attempt_failure_categories": {
-      "rate_limited": 1,
+      "empty_response": 4,
+      "rate_limited": 10,
       "validation_failed": 2
     },
     "validation_issue_categories": {
-      "evidence_ids_missing": 6,
-      "invalid_confidence": 1,
-      "invalid_source_assessment": 1
+      "evidence_id_unknown": 1,
+      "evidence_ids_missing": 1
     },
-    "normalization_repairs": {
-      "analysis_container_rebuilt": 1,
-      "brief_built_from_evidence_bound_fields": 1,
-      "evidence_ids_container_rebuilt": 1
+    "normalization_repairs": {},
+    "field_repair_statuses": {
+      "disabled_or_not_validation_failure": 1
     },
-    "field_repair_statuses": {},
-    "field_repair_records": [],
+    "field_repair_records": [
+      {
+        "type": "paper",
+        "id": "paper-b64dde4e65e649af",
+        "title": "Multimodal reasoning for broadly neutralizing antibody discovery from label-free human B cell repertoires across virus families",
+        "status": "disabled_or_not_validation_failure",
+        "rounds": [],
+        "initial_candidate": {},
+        "final_validation": {}
+      }
+    ],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-09-30T21:46:49+00:00",
+      "generated_at": "2026-10-07T22:32:22+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -192,56 +220,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 66
+              "elapsed_ms": 69
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 58
+              "elapsed_ms": 79
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 73
+              "elapsed_ms": 64
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 72
+              "elapsed_ms": 66
             }
           ]
         },
@@ -312,12 +340,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 370,
+              "elapsed_ms": 322,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -337,7 +365,7 @@
         {
           "provider": "openrouter",
           "status": "passed",
-          "model": "nvidia/nemotron-3.5-lightning:free",
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -349,7 +377,7 @@
           },
           "model_candidates": [
             "openrouter/free",
-            "qwen/qwen3.8-27b:free",
+            "apodex/apodex-1.1-mini:free",
             "cohere/north-mini-code:free",
             "inclusionai/ling-3.0-flash-sante:free",
             "thinkingmachines/inkling-small:free",
@@ -364,8 +392,8 @@
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             "nvidia/nemotron-3-super-120b-a12b:free",
             "thinkingmachines/inkling:free",
+            "inclusionai/ling-3.1-flash",
             "dots-studio/dots-3-note-preview:free",
-            "stealth/space-bunny-alpha",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -376,7 +404,7 @@
             "discovered_count": 20,
             "discovered_models": [
               "openrouter/free",
-              "qwen/qwen3.8-27b:free",
+              "apodex/apodex-1.1-mini:free",
               "cohere/north-mini-code:free",
               "inclusionai/ling-3.0-flash-sante:free",
               "thinkingmachines/inkling-small:free",
@@ -391,8 +419,8 @@
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
               "thinkingmachines/inkling:free",
+              "inclusionai/ling-3.1-flash",
               "dots-studio/dots-3-note-preview:free",
-              "stealth/space-bunny-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -404,7 +432,7 @@
             ],
             "selected_candidates": [
               "openrouter/free",
-              "qwen/qwen3.8-27b:free",
+              "apodex/apodex-1.1-mini:free",
               "cohere/north-mini-code:free",
               "inclusionai/ling-3.0-flash-sante:free",
               "thinkingmachines/inkling-small:free",
@@ -419,8 +447,8 @@
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
               "thinkingmachines/inkling:free",
+              "inclusionai/ling-3.1-flash",
               "dots-studio/dots-3-note-preview:free",
-              "stealth/space-bunny-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -435,12 +463,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:36+00:00",
+              "at": "2026-10-07T22:32:10+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
-              "response_model": "nvidia/nemotron-3.5-lightning:free",
-              "elapsed_ms": 4435,
+              "response_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+              "elapsed_ms": 3062,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -451,8 +479,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 33,
-                "completion_tokens": 246,
-                "total_tokens": 279
+                "completion_tokens": 30,
+                "total_tokens": 63
               }
             }
           ]
@@ -576,28 +604,28 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:41+00:00",
+              "at": "2026-10-07T22:32:13+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 228
+              "elapsed_ms": 221
             },
             {
               "task": "credential_preflight",
               "provider": "mistral",
               "model": "mistral-small-2603",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:41+00:00",
+              "at": "2026-10-07T22:32:14+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 268
+              "elapsed_ms": 215
             }
           ]
         },
@@ -728,12 +756,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:44+00:00",
+              "at": "2026-10-07T22:32:18+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 733,
+              "elapsed_ms": 844,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -823,28 +851,28 @@
               "provider": "bigmodel",
               "model": "glm-5.3-flash",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:46+00:00",
+              "at": "2026-10-07T22:32:19+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 520
+              "elapsed_ms": 504
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-5.3-flashx",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:46+00:00",
+              "at": "2026-10-07T22:32:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 444
+              "elapsed_ms": 451
             }
           ]
         },
@@ -883,7 +911,7 @@
             "failure_category": "",
             "error": ""
           },
-          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: a0df195c-3c30-47b3-9e21-8e528053fd0f)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: b8f823f0-aad7-4291-90ff-8d7212644830)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
           "action_hint": "Project/account quota is exhausted; wait for reset or use another configured provider.",
           "account": {
             "status": "ok",
@@ -907,27 +935,27 @@
               "provider": "deepseek",
               "model": "deepseek-flash",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:47+00:00",
+              "at": "2026-10-07T22:32:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 86d6cb24-2f5f-48e1-94db-2f1e73b029da)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 654
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: f444eae1-c474-486e-925d-7c6234595624)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 551
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:48+00:00",
+              "at": "2026-10-07T22:32:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
-              "failure_category": "quota_exhausted",
+              "failure_category": "rate_limited",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: a0df195c-3c30-47b3-9e21-8e528053fd0f)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: b8f823f0-aad7-4291-90ff-8d7212644830)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
               "elapsed_ms": 565
             }
           ]
@@ -1034,7 +1062,317 @@
         }
       ]
     },
-    "fallback_records": []
+    "fallback_records": [
+      {
+        "type": "paper",
+        "id": "paper-b64dde4e65e649af",
+        "title": "Multimodal reasoning for broadly neutralizing antibody discovery from label-free human B cell repertoires across virus families",
+        "failure_category": "rate_limited",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (rate_limited): groq returned empty content: {'id': 'chatcmpl-e005e449-2195-41a7-ab4f-457146f05e3d', 'object': 'chat.completion', 'created': 1791420546, 'model': 'openai/gpt-oss-20b', 'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': '', 'reasoning': 'We need to produce JSON with fields. We have evidence IDs A1-A6. Need to map each field to evidence IDs. Must use only target-specific evidence. The target is human metapneumovirus. Evidence A5 ",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-10-08T00:47:39+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "bigmodel",
+            "model": "glm-5.3-flash",
+            "at": "2026-10-08T00:47:39+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "bigmodel",
+            "model": "glm-5.3-flashx",
+            "at": "2026-10-08T00:47:39+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "Qwen/Qwen3-8B",
+            "retry_index": 0,
+            "at": "2026-10-08T00:47:39+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"limitations_and_evidence_strength\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"study_design_and_population\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"methods\", \"cited_roles\": [\"results\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"results\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 29971,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "limitations_and_evidence_strength"
+                }
+              ],
+              "warnings": [
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "study_design_and_population",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                },
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "methods",
+                  "cited_roles": [
+                    "results"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                },
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "main_results",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "results"
+                  ]
+                }
+              ],
+              "issue_counts": {
+                "evidence_ids_missing": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 3381,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:09+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_id_unknown\", \"field\": \"limitations_and_evidence_strength\", \"unknown\": [\"A7\"]}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"study_design_and_population\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"methods\", \"cited_roles\": [\"results\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"results\"]}, {\"category\": \"summary_length_outside_preferred_range\", \"field\": \"summary_en\", \"words\": 42, \"preferred\": [60, 280]}], \"issue_counts\": {\"evidence_id_unknown\": 1}}",
+            "elapsed_ms": 15176,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_id_unknown",
+                  "field": "limitations_and_evidence_strength",
+                  "unknown": [
+                    "A7"
+                  ]
+                }
+              ],
+              "warnings": [
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "study_design_and_population",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                },
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "methods",
+                  "cited_roles": [
+                    "results"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                },
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "main_results",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "results"
+                  ]
+                },
+                {
+                  "category": "summary_length_outside_preferred_range",
+                  "field": "summary_en",
+                  "words": 42,
+                  "preferred": [
+                    60,
+                    280
+                  ]
+                }
+              ],
+              "issue_counts": {
+                "evidence_id_unknown": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 2605,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:24+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+            "elapsed_ms": 203
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2603",
+            "at": "2026-10-08T00:48:25+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "deepseek",
+            "model": "",
+            "at": "2026-10-08T00:48:25+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:25+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "openrouter returned empty content: {'id': 'gen-1791420505-6g6jwaoGwzyprfuor77b', 'object': 'chat.completion', 'created': 1791420505, 'model': 'apodex/apodex-1.1-mini:free', 'provider': 'Novita', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'Let me analyze this paper carefully.\\n\\nThe paper is about \"ImmuneAgent\" - a multimodal AI system for broadly neutralizing antibody discovery. The topic contract is about human metapneumovirus (hMPV).\\n\\nKey evidence:\\n- A1: Background - bnAb discovery challenge\\n- A2: ImmuneAgent system description\\n- A3: Results - ~55% neutralization antibody discovery rate (60/110), ~11% bnAb yield (12/110), outperforming sequence-based predictors\\n- A4: Five antibodies conferred",
+            "elapsed_ms": 22192
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "apodex/apodex-1.1-mini:free",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:47+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "openrouter returned empty content: {'id': 'gen-1791420527-svL5RBITYZLBdMHnlFQe', 'object': 'chat.completion', 'created': 1791420527, 'model': 'apodex/apodex-1.1-mini:free', 'provider': 'Novita', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'The user wants me to analyze a paper about \"Multimodal reasoning for broadly neutralizing antibody discovery from label-free human B cell repertoires across virus families\" with a topic contract focused on Human metapneumovirus (hMPV).\\n\\nLet me check the topic contract:\\n- Target entities: human metapneumovirus, Metapneumovirus hominis, hMPV variants, etc.\\n- Related entities: avian metapneumovirus, turkey rhinotracheitis virus, avian pneumovirus, respiratory syncy",
+            "elapsed_ms": 8023
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "openai/gpt-oss-120b",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:55+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "groq returned empty content: {'id': 'chatcmpl-6b02da20-5e67-457f-8a32-3a17742592ea', 'object': 'chat.completion', 'created': 1791420542, 'model': 'openai/gpt-oss-120b', 'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': '', 'reasoning': 'We need to produce JSON with fields as per contract. Need to use evidence IDs. Must analyze only target-specific evidence. The paper is about broadly neutralizing antibody discovery across virus families, includes hMPV cross-neutralizing antibodies. Evidence includes general statements about discovery, results, etc. Need to ensure we only use target-specific evidence. The target is human metapneumovirus (hMPV). Evidence includes that the system discovered cross-neutralizing antibodies for hMPV (A5 mentions \"discovering human metapneumovirus (hMPV) cross-neutralizing ... antibodies\"). Also A4 mentions influenza protection, not target. Th",
+            "elapsed_ms": 6870
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "openai/gpt-oss-20b",
+            "retry_index": 0,
+            "at": "2026-10-08T00:49:02+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "groq returned empty content: {'id': 'chatcmpl-e005e449-2195-41a7-ab4f-457146f05e3d', 'object': 'chat.completion', 'created': 1791420546, 'model': 'openai/gpt-oss-20b', 'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': '', 'reasoning': 'We need to produce JSON with fields. We have evidence IDs A1-A6. Need to map each field to evidence IDs. Must use only target-specific evidence. The target is human metapneumovirus. Evidence A5 mentions \"human metapneumovirus (hMPV) cross-neutralizing\" antibodies. That is target-specific. A3 results mention 55% discovery rate, 11% bnAb yield. That is general but includes hMPV cross-neutralizing? It says \"discovered human metapneumovirus (hMPV) cross-neutralizing and human papillomavirus (HPV)-neutralizing antibodies without antigen-specific sorting.\" So A3 includes hMPV cross-neutralizing. So A3 is target-specific. A4 mentions five antib",
+            "elapsed_ms": 4132
+          }
+        ]
+      }
+    ]
   },
   "displayed_primary_and_news": {
     "policy_version": "v17.2-normalization-field-repair-quality-1",
@@ -1045,72 +1383,100 @@
     "message_zh": "本期七/五要素分析未触发全局降级告警。",
     "message_en": "No global structured-analysis degradation warning was triggered.",
     "papers": {
-      "total_items": 4,
-      "analyzable": 4,
-      "passed": 4,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 7,
+      "fallback": 1,
+      "fallback_ratio": 0.125,
       "statuses": {
-        "passed": 4
+        "fallback_source_extract": 1,
+        "passed": 7
       }
     },
     "news": {
-      "total_items": 1,
-      "analyzable": 1,
-      "passed": 1,
+      "total_items": 0,
+      "analyzable": 0,
+      "passed": 0,
       "fallback": 0,
       "fallback_ratio": 0.0,
-      "statuses": {
-        "passed": 1
-      }
+      "statuses": {}
     },
     "combined": {
-      "total_items": 5,
-      "analyzable": 5,
-      "passed": 5,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 7,
+      "fallback": 1,
+      "fallback_ratio": 0.125,
       "statuses": {
-        "passed": 5
+        "fallback_source_extract": 1,
+        "passed": 7
       }
     },
-    "top_failure_categories": [],
+    "top_failure_categories": [
+      {
+        "category": "rate_limited",
+        "count": 1,
+        "label_zh": "请求触发限流",
+        "label_en": "requests were rate limited"
+      }
+    ],
     "provider_attempts": {
-      "bigmodel:failed": 1,
-      "bigmodel:skipped": 9,
-      "gemini:skipped": 5,
+      "bigmodel:failed": 9,
+      "bigmodel:skipped": 7,
+      "deepseek:skipped": 1,
+      "gemini:skipped": 8,
+      "groq:failed": 2,
+      "mistral:failed": 1,
+      "mistral:skipped": 1,
+      "openrouter:failed": 2,
       "siliconflow:failed": 2,
-      "siliconflow:success": 5
+      "siliconflow:success": 7
     },
     "model_attempts": {
       "bigmodel/glm-4.5:skipped": 1,
+      "bigmodel/glm-5.3-flash:failed": 3,
       "bigmodel/glm-5.3-flash:skipped": 5,
-      "bigmodel/glm-5.3-flashx:failed": 1,
-      "bigmodel/glm-5.3-flashx:skipped": 3,
-      "gemini/not_selected:skipped": 5,
-      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:success": 2,
-      "siliconflow/Qwen/Qwen3-8B:failed": 2,
-      "siliconflow/Qwen/Qwen3-8B:success": 3
+      "bigmodel/glm-5.3-flashx:failed": 6,
+      "bigmodel/glm-5.3-flashx:skipped": 1,
+      "deepseek/not_selected:skipped": 1,
+      "gemini/not_selected:skipped": 8,
+      "groq/openai/gpt-oss-120b:failed": 1,
+      "groq/openai/gpt-oss-20b:failed": 1,
+      "mistral/mistral-small-2603:skipped": 1,
+      "mistral/mistral-small-latest:failed": 1,
+      "openrouter/apodex/apodex-1.1-mini:free:failed": 1,
+      "openrouter/openrouter/free:failed": 1,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 1,
+      "siliconflow/Qwen/Qwen3-8B:failed": 1,
+      "siliconflow/Qwen/Qwen3-8B:success": 7
     },
     "attempt_failure_categories": {
-      "rate_limited": 1,
+      "empty_response": 4,
+      "rate_limited": 10,
       "validation_failed": 2
     },
     "validation_issue_categories": {
-      "evidence_ids_missing": 6,
-      "invalid_confidence": 1,
-      "invalid_source_assessment": 1
+      "evidence_id_unknown": 1,
+      "evidence_ids_missing": 1
     },
-    "normalization_repairs": {
-      "analysis_container_rebuilt": 1,
-      "brief_built_from_evidence_bound_fields": 1,
-      "evidence_ids_container_rebuilt": 1
+    "normalization_repairs": {},
+    "field_repair_statuses": {
+      "disabled_or_not_validation_failure": 1
     },
-    "field_repair_statuses": {},
-    "field_repair_records": [],
+    "field_repair_records": [
+      {
+        "type": "paper",
+        "id": "paper-b64dde4e65e649af",
+        "title": "Multimodal reasoning for broadly neutralizing antibody discovery from label-free human B cell repertoires across virus families",
+        "status": "disabled_or_not_validation_failure",
+        "rounds": [],
+        "initial_candidate": {},
+        "final_validation": {}
+      }
+    ],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-09-30T21:46:49+00:00",
+      "generated_at": "2026-10-07T22:32:22+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -1229,56 +1595,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 66
+              "elapsed_ms": 69
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 58
+              "elapsed_ms": 79
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 73
+              "elapsed_ms": 64
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 72
+              "elapsed_ms": 66
             }
           ]
         },
@@ -1349,12 +1715,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 370,
+              "elapsed_ms": 322,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1374,7 +1740,7 @@
         {
           "provider": "openrouter",
           "status": "passed",
-          "model": "nvidia/nemotron-3.5-lightning:free",
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -1386,7 +1752,7 @@
           },
           "model_candidates": [
             "openrouter/free",
-            "qwen/qwen3.8-27b:free",
+            "apodex/apodex-1.1-mini:free",
             "cohere/north-mini-code:free",
             "inclusionai/ling-3.0-flash-sante:free",
             "thinkingmachines/inkling-small:free",
@@ -1401,8 +1767,8 @@
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             "nvidia/nemotron-3-super-120b-a12b:free",
             "thinkingmachines/inkling:free",
+            "inclusionai/ling-3.1-flash",
             "dots-studio/dots-3-note-preview:free",
-            "stealth/space-bunny-alpha",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -1413,7 +1779,7 @@
             "discovered_count": 20,
             "discovered_models": [
               "openrouter/free",
-              "qwen/qwen3.8-27b:free",
+              "apodex/apodex-1.1-mini:free",
               "cohere/north-mini-code:free",
               "inclusionai/ling-3.0-flash-sante:free",
               "thinkingmachines/inkling-small:free",
@@ -1428,8 +1794,8 @@
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
               "thinkingmachines/inkling:free",
+              "inclusionai/ling-3.1-flash",
               "dots-studio/dots-3-note-preview:free",
-              "stealth/space-bunny-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -1441,7 +1807,7 @@
             ],
             "selected_candidates": [
               "openrouter/free",
-              "qwen/qwen3.8-27b:free",
+              "apodex/apodex-1.1-mini:free",
               "cohere/north-mini-code:free",
               "inclusionai/ling-3.0-flash-sante:free",
               "thinkingmachines/inkling-small:free",
@@ -1456,8 +1822,8 @@
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
               "thinkingmachines/inkling:free",
+              "inclusionai/ling-3.1-flash",
               "dots-studio/dots-3-note-preview:free",
-              "stealth/space-bunny-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -1472,12 +1838,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:36+00:00",
+              "at": "2026-10-07T22:32:10+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
-              "response_model": "nvidia/nemotron-3.5-lightning:free",
-              "elapsed_ms": 4435,
+              "response_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+              "elapsed_ms": 3062,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1488,8 +1854,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 33,
-                "completion_tokens": 246,
-                "total_tokens": 279
+                "completion_tokens": 30,
+                "total_tokens": 63
               }
             }
           ]
@@ -1613,28 +1979,28 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:41+00:00",
+              "at": "2026-10-07T22:32:13+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 228
+              "elapsed_ms": 221
             },
             {
               "task": "credential_preflight",
               "provider": "mistral",
               "model": "mistral-small-2603",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:41+00:00",
+              "at": "2026-10-07T22:32:14+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 268
+              "elapsed_ms": 215
             }
           ]
         },
@@ -1765,12 +2131,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:44+00:00",
+              "at": "2026-10-07T22:32:18+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 733,
+              "elapsed_ms": 844,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1860,28 +2226,28 @@
               "provider": "bigmodel",
               "model": "glm-5.3-flash",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:46+00:00",
+              "at": "2026-10-07T22:32:19+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 520
+              "elapsed_ms": 504
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-5.3-flashx",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:46+00:00",
+              "at": "2026-10-07T22:32:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 444
+              "elapsed_ms": 451
             }
           ]
         },
@@ -1920,7 +2286,7 @@
             "failure_category": "",
             "error": ""
           },
-          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: a0df195c-3c30-47b3-9e21-8e528053fd0f)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: b8f823f0-aad7-4291-90ff-8d7212644830)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
           "action_hint": "Project/account quota is exhausted; wait for reset or use another configured provider.",
           "account": {
             "status": "ok",
@@ -1944,27 +2310,27 @@
               "provider": "deepseek",
               "model": "deepseek-flash",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:47+00:00",
+              "at": "2026-10-07T22:32:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 86d6cb24-2f5f-48e1-94db-2f1e73b029da)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 654
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: f444eae1-c474-486e-925d-7c6234595624)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 551
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:48+00:00",
+              "at": "2026-10-07T22:32:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
-              "failure_category": "quota_exhausted",
+              "failure_category": "rate_limited",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: a0df195c-3c30-47b3-9e21-8e528053fd0f)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: b8f823f0-aad7-4291-90ff-8d7212644830)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
               "elapsed_ms": 565
             }
           ]
@@ -2071,7 +2437,317 @@
         }
       ]
     },
-    "fallback_records": []
+    "fallback_records": [
+      {
+        "type": "paper",
+        "id": "paper-b64dde4e65e649af",
+        "title": "Multimodal reasoning for broadly neutralizing antibody discovery from label-free human B cell repertoires across virus families",
+        "failure_category": "rate_limited",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (rate_limited): groq returned empty content: {'id': 'chatcmpl-e005e449-2195-41a7-ab4f-457146f05e3d', 'object': 'chat.completion', 'created': 1791420546, 'model': 'openai/gpt-oss-20b', 'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': '', 'reasoning': 'We need to produce JSON with fields. We have evidence IDs A1-A6. Need to map each field to evidence IDs. Must use only target-specific evidence. The target is human metapneumovirus. Evidence A5 ",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-10-08T00:47:39+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "bigmodel",
+            "model": "glm-5.3-flash",
+            "at": "2026-10-08T00:47:39+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "bigmodel",
+            "model": "glm-5.3-flashx",
+            "at": "2026-10-08T00:47:39+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "Qwen/Qwen3-8B",
+            "retry_index": 0,
+            "at": "2026-10-08T00:47:39+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"limitations_and_evidence_strength\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"study_design_and_population\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"methods\", \"cited_roles\": [\"results\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"results\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 29971,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "limitations_and_evidence_strength"
+                }
+              ],
+              "warnings": [
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "study_design_and_population",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                },
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "methods",
+                  "cited_roles": [
+                    "results"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                },
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "main_results",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "results"
+                  ]
+                }
+              ],
+              "issue_counts": {
+                "evidence_ids_missing": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 3381,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:09+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_id_unknown\", \"field\": \"limitations_and_evidence_strength\", \"unknown\": [\"A7\"]}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"study_design_and_population\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"methods\", \"cited_roles\": [\"results\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"results\"]}, {\"category\": \"summary_length_outside_preferred_range\", \"field\": \"summary_en\", \"words\": 42, \"preferred\": [60, 280]}], \"issue_counts\": {\"evidence_id_unknown\": 1}}",
+            "elapsed_ms": 15176,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_id_unknown",
+                  "field": "limitations_and_evidence_strength",
+                  "unknown": [
+                    "A7"
+                  ]
+                }
+              ],
+              "warnings": [
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "study_design_and_population",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                },
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "methods",
+                  "cited_roles": [
+                    "results"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                },
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "main_results",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "results"
+                  ]
+                },
+                {
+                  "category": "summary_length_outside_preferred_range",
+                  "field": "summary_en",
+                  "words": 42,
+                  "preferred": [
+                    60,
+                    280
+                  ]
+                }
+              ],
+              "issue_counts": {
+                "evidence_id_unknown": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 2605,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:24+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+            "elapsed_ms": 203
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2603",
+            "at": "2026-10-08T00:48:25+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "deepseek",
+            "model": "",
+            "at": "2026-10-08T00:48:25+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:25+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "openrouter returned empty content: {'id': 'gen-1791420505-6g6jwaoGwzyprfuor77b', 'object': 'chat.completion', 'created': 1791420505, 'model': 'apodex/apodex-1.1-mini:free', 'provider': 'Novita', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'Let me analyze this paper carefully.\\n\\nThe paper is about \"ImmuneAgent\" - a multimodal AI system for broadly neutralizing antibody discovery. The topic contract is about human metapneumovirus (hMPV).\\n\\nKey evidence:\\n- A1: Background - bnAb discovery challenge\\n- A2: ImmuneAgent system description\\n- A3: Results - ~55% neutralization antibody discovery rate (60/110), ~11% bnAb yield (12/110), outperforming sequence-based predictors\\n- A4: Five antibodies conferred",
+            "elapsed_ms": 22192
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "apodex/apodex-1.1-mini:free",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:47+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "openrouter returned empty content: {'id': 'gen-1791420527-svL5RBITYZLBdMHnlFQe', 'object': 'chat.completion', 'created': 1791420527, 'model': 'apodex/apodex-1.1-mini:free', 'provider': 'Novita', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'The user wants me to analyze a paper about \"Multimodal reasoning for broadly neutralizing antibody discovery from label-free human B cell repertoires across virus families\" with a topic contract focused on Human metapneumovirus (hMPV).\\n\\nLet me check the topic contract:\\n- Target entities: human metapneumovirus, Metapneumovirus hominis, hMPV variants, etc.\\n- Related entities: avian metapneumovirus, turkey rhinotracheitis virus, avian pneumovirus, respiratory syncy",
+            "elapsed_ms": 8023
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "openai/gpt-oss-120b",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:55+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "groq returned empty content: {'id': 'chatcmpl-6b02da20-5e67-457f-8a32-3a17742592ea', 'object': 'chat.completion', 'created': 1791420542, 'model': 'openai/gpt-oss-120b', 'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': '', 'reasoning': 'We need to produce JSON with fields as per contract. Need to use evidence IDs. Must analyze only target-specific evidence. The paper is about broadly neutralizing antibody discovery across virus families, includes hMPV cross-neutralizing antibodies. Evidence includes general statements about discovery, results, etc. Need to ensure we only use target-specific evidence. The target is human metapneumovirus (hMPV). Evidence includes that the system discovered cross-neutralizing antibodies for hMPV (A5 mentions \"discovering human metapneumovirus (hMPV) cross-neutralizing ... antibodies\"). Also A4 mentions influenza protection, not target. Th",
+            "elapsed_ms": 6870
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "openai/gpt-oss-20b",
+            "retry_index": 0,
+            "at": "2026-10-08T00:49:02+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "groq returned empty content: {'id': 'chatcmpl-e005e449-2195-41a7-ab4f-457146f05e3d', 'object': 'chat.completion', 'created': 1791420546, 'model': 'openai/gpt-oss-20b', 'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': '', 'reasoning': 'We need to produce JSON with fields. We have evidence IDs A1-A6. Need to map each field to evidence IDs. Must use only target-specific evidence. The target is human metapneumovirus. Evidence A5 mentions \"human metapneumovirus (hMPV) cross-neutralizing\" antibodies. That is target-specific. A3 results mention 55% discovery rate, 11% bnAb yield. That is general but includes hMPV cross-neutralizing? It says \"discovered human metapneumovirus (hMPV) cross-neutralizing and human papillomavirus (HPV)-neutralizing antibodies without antigen-specific sorting.\" So A3 includes hMPV cross-neutralizing. So A3 is target-specific. A4 mentions five antib",
+            "elapsed_ms": 4132
+          }
+        ]
+      }
+    ]
   },
   "run": {
     "policy_version": "v17.2-normalization-field-repair-quality-1",
@@ -2082,72 +2758,100 @@
     "message_zh": "本期七/五要素分析未触发全局降级告警。",
     "message_en": "No global structured-analysis degradation warning was triggered.",
     "papers": {
-      "total_items": 4,
-      "analyzable": 4,
-      "passed": 4,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 7,
+      "fallback": 1,
+      "fallback_ratio": 0.125,
       "statuses": {
-        "passed": 4
+        "fallback_source_extract": 1,
+        "passed": 7
       }
     },
     "news": {
-      "total_items": 1,
-      "analyzable": 1,
-      "passed": 1,
+      "total_items": 0,
+      "analyzable": 0,
+      "passed": 0,
       "fallback": 0,
       "fallback_ratio": 0.0,
-      "statuses": {
-        "passed": 1
-      }
+      "statuses": {}
     },
     "combined": {
-      "total_items": 5,
-      "analyzable": 5,
-      "passed": 5,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
+      "total_items": 8,
+      "analyzable": 8,
+      "passed": 7,
+      "fallback": 1,
+      "fallback_ratio": 0.125,
       "statuses": {
-        "passed": 5
+        "fallback_source_extract": 1,
+        "passed": 7
       }
     },
-    "top_failure_categories": [],
+    "top_failure_categories": [
+      {
+        "category": "rate_limited",
+        "count": 1,
+        "label_zh": "请求触发限流",
+        "label_en": "requests were rate limited"
+      }
+    ],
     "provider_attempts": {
-      "bigmodel:failed": 1,
-      "bigmodel:skipped": 9,
-      "gemini:skipped": 5,
+      "bigmodel:failed": 9,
+      "bigmodel:skipped": 7,
+      "deepseek:skipped": 1,
+      "gemini:skipped": 8,
+      "groq:failed": 2,
+      "mistral:failed": 1,
+      "mistral:skipped": 1,
+      "openrouter:failed": 2,
       "siliconflow:failed": 2,
-      "siliconflow:success": 5
+      "siliconflow:success": 7
     },
     "model_attempts": {
       "bigmodel/glm-4.5:skipped": 1,
+      "bigmodel/glm-5.3-flash:failed": 3,
       "bigmodel/glm-5.3-flash:skipped": 5,
-      "bigmodel/glm-5.3-flashx:failed": 1,
-      "bigmodel/glm-5.3-flashx:skipped": 3,
-      "gemini/not_selected:skipped": 5,
-      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:success": 2,
-      "siliconflow/Qwen/Qwen3-8B:failed": 2,
-      "siliconflow/Qwen/Qwen3-8B:success": 3
+      "bigmodel/glm-5.3-flashx:failed": 6,
+      "bigmodel/glm-5.3-flashx:skipped": 1,
+      "deepseek/not_selected:skipped": 1,
+      "gemini/not_selected:skipped": 8,
+      "groq/openai/gpt-oss-120b:failed": 1,
+      "groq/openai/gpt-oss-20b:failed": 1,
+      "mistral/mistral-small-2603:skipped": 1,
+      "mistral/mistral-small-latest:failed": 1,
+      "openrouter/apodex/apodex-1.1-mini:free:failed": 1,
+      "openrouter/openrouter/free:failed": 1,
+      "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:failed": 1,
+      "siliconflow/Qwen/Qwen3-8B:failed": 1,
+      "siliconflow/Qwen/Qwen3-8B:success": 7
     },
     "attempt_failure_categories": {
-      "rate_limited": 1,
+      "empty_response": 4,
+      "rate_limited": 10,
       "validation_failed": 2
     },
     "validation_issue_categories": {
-      "evidence_ids_missing": 6,
-      "invalid_confidence": 1,
-      "invalid_source_assessment": 1
+      "evidence_id_unknown": 1,
+      "evidence_ids_missing": 1
     },
-    "normalization_repairs": {
-      "analysis_container_rebuilt": 1,
-      "brief_built_from_evidence_bound_fields": 1,
-      "evidence_ids_container_rebuilt": 1
+    "normalization_repairs": {},
+    "field_repair_statuses": {
+      "disabled_or_not_validation_failure": 1
     },
-    "field_repair_statuses": {},
-    "field_repair_records": [],
+    "field_repair_records": [
+      {
+        "type": "paper",
+        "id": "paper-b64dde4e65e649af",
+        "title": "Multimodal reasoning for broadly neutralizing antibody discovery from label-free human B cell repertoires across virus families",
+        "status": "disabled_or_not_validation_failure",
+        "rounds": [],
+        "initial_candidate": {},
+        "final_validation": {}
+      }
+    ],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-09-30T21:46:49+00:00",
+      "generated_at": "2026-10-07T22:32:22+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -2266,56 +2970,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 66
+              "elapsed_ms": 69
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 58
+              "elapsed_ms": 79
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 73
+              "elapsed_ms": 64
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 72
+              "elapsed_ms": 66
             }
           ]
         },
@@ -2386,12 +3090,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:35+00:00",
+              "at": "2026-10-07T22:32:09+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 370,
+              "elapsed_ms": 322,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2411,7 +3115,7 @@
         {
           "provider": "openrouter",
           "status": "passed",
-          "model": "nvidia/nemotron-3.5-lightning:free",
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
           "account": {
             "status": "ok",
             "is_free_tier": true,
@@ -2423,7 +3127,7 @@
           },
           "model_candidates": [
             "openrouter/free",
-            "qwen/qwen3.8-27b:free",
+            "apodex/apodex-1.1-mini:free",
             "cohere/north-mini-code:free",
             "inclusionai/ling-3.0-flash-sante:free",
             "thinkingmachines/inkling-small:free",
@@ -2438,8 +3142,8 @@
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
             "nvidia/nemotron-3-super-120b-a12b:free",
             "thinkingmachines/inkling:free",
+            "inclusionai/ling-3.1-flash",
             "dots-studio/dots-3-note-preview:free",
-            "stealth/space-bunny-alpha",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -2450,7 +3154,7 @@
             "discovered_count": 20,
             "discovered_models": [
               "openrouter/free",
-              "qwen/qwen3.8-27b:free",
+              "apodex/apodex-1.1-mini:free",
               "cohere/north-mini-code:free",
               "inclusionai/ling-3.0-flash-sante:free",
               "thinkingmachines/inkling-small:free",
@@ -2465,8 +3169,8 @@
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
               "thinkingmachines/inkling:free",
+              "inclusionai/ling-3.1-flash",
               "dots-studio/dots-3-note-preview:free",
-              "stealth/space-bunny-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -2478,7 +3182,7 @@
             ],
             "selected_candidates": [
               "openrouter/free",
-              "qwen/qwen3.8-27b:free",
+              "apodex/apodex-1.1-mini:free",
               "cohere/north-mini-code:free",
               "inclusionai/ling-3.0-flash-sante:free",
               "thinkingmachines/inkling-small:free",
@@ -2493,8 +3197,8 @@
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
               "nvidia/nemotron-3-super-120b-a12b:free",
               "thinkingmachines/inkling:free",
+              "inclusionai/ling-3.1-flash",
               "dots-studio/dots-3-note-preview:free",
-              "stealth/space-bunny-alpha",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -2509,12 +3213,12 @@
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:36+00:00",
+              "at": "2026-10-07T22:32:10+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
-              "response_model": "nvidia/nemotron-3.5-lightning:free",
-              "elapsed_ms": 4435,
+              "response_model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+              "elapsed_ms": 3062,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2525,8 +3229,8 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 33,
-                "completion_tokens": 246,
-                "total_tokens": 279
+                "completion_tokens": 30,
+                "total_tokens": 63
               }
             }
           ]
@@ -2650,28 +3354,28 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:41+00:00",
+              "at": "2026-10-07T22:32:13+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 228
+              "elapsed_ms": 221
             },
             {
               "task": "credential_preflight",
               "provider": "mistral",
               "model": "mistral-small-2603",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:41+00:00",
+              "at": "2026-10-07T22:32:14+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 268
+              "elapsed_ms": 215
             }
           ]
         },
@@ -2802,12 +3506,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:44+00:00",
+              "at": "2026-10-07T22:32:18+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 733,
+              "elapsed_ms": 844,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2897,28 +3601,28 @@
               "provider": "bigmodel",
               "model": "glm-5.3-flash",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:46+00:00",
+              "at": "2026-10-07T22:32:19+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 520
+              "elapsed_ms": 504
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-5.3-flashx",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:46+00:00",
+              "at": "2026-10-07T22:32:20+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 444
+              "elapsed_ms": 451
             }
           ]
         },
@@ -2957,7 +3661,7 @@
             "failure_category": "",
             "error": ""
           },
-          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: a0df195c-3c30-47b3-9e21-8e528053fd0f)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: b8f823f0-aad7-4291-90ff-8d7212644830)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
           "action_hint": "Project/account quota is exhausted; wait for reset or use another configured provider.",
           "account": {
             "status": "ok",
@@ -2981,27 +3685,27 @@
               "provider": "deepseek",
               "model": "deepseek-flash",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:47+00:00",
+              "at": "2026-10-07T22:32:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 86d6cb24-2f5f-48e1-94db-2f1e73b029da)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 654
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: f444eae1-c474-486e-925d-7c6234595624)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 551
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-09-30T21:46:48+00:00",
+              "at": "2026-10-07T22:32:21+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
-              "failure_category": "quota_exhausted",
+              "failure_category": "rate_limited",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: a0df195c-3c30-47b3-9e21-8e528053fd0f)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: b8f823f0-aad7-4291-90ff-8d7212644830)\",\"type\":\"unknown_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
               "elapsed_ms": 565
             }
           ]
@@ -3108,6 +3812,316 @@
         }
       ]
     },
-    "fallback_records": []
+    "fallback_records": [
+      {
+        "type": "paper",
+        "id": "paper-b64dde4e65e649af",
+        "title": "Multimodal reasoning for broadly neutralizing antibody discovery from label-free human B cell repertoires across virus families",
+        "failure_category": "rate_limited",
+        "fallback_policy": "role_cue_position_rescue",
+        "error": "All configured LLM attempts failed (rate_limited): groq returned empty content: {'id': 'chatcmpl-e005e449-2195-41a7-ab4f-457146f05e3d', 'object': 'chat.completion', 'created': 1791420546, 'model': 'openai/gpt-oss-20b', 'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': '', 'reasoning': 'We need to produce JSON with fields. We have evidence IDs A1-A6. Need to map each field to evidence IDs. Must use only target-specific evidence. The target is human metapneumovirus. Evidence A5 ",
+        "attempts": [
+          {
+            "task": "paper_research_analysis",
+            "provider": "gemini",
+            "model": "",
+            "at": "2026-10-08T00:47:39+00:00",
+            "status": "skipped",
+            "failure_category": "authentication_failed",
+            "error": "authentication_failed"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "bigmodel",
+            "model": "glm-5.3-flash",
+            "at": "2026-10-08T00:47:39+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "bigmodel",
+            "model": "glm-5.3-flashx",
+            "at": "2026-10-08T00:47:39+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "Qwen/Qwen3-8B",
+            "retry_index": 0,
+            "at": "2026-10-08T00:47:39+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_ids_missing\", \"field\": \"limitations_and_evidence_strength\"}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"study_design_and_population\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"methods\", \"cited_roles\": [\"results\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"results\"]}], \"issue_counts\": {\"evidence_ids_missing\": 1}}",
+            "elapsed_ms": 29971,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_ids_missing",
+                  "field": "limitations_and_evidence_strength"
+                }
+              ],
+              "warnings": [
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "study_design_and_population",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                },
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "methods",
+                  "cited_roles": [
+                    "results"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                },
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "main_results",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "results"
+                  ]
+                }
+              ],
+              "issue_counts": {
+                "evidence_ids_missing": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 3381,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "siliconflow",
+            "model": "LoRA/Qwen/Qwen2.5-7B-Instruct",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:09+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "validation_failed",
+            "error_type": "LLMError",
+            "error": "validation_failed: {\"policy_version\": \"v17.2-detailed-structured-validation-1\", \"issues\": [{\"category\": \"evidence_id_unknown\", \"field\": \"limitations_and_evidence_strength\", \"unknown\": [\"A7\"]}], \"warnings\": [{\"category\": \"evidence_role_mismatch\", \"field\": \"study_design_and_population\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"methods\", \"cited_roles\": [\"results\"], \"allowed_roles\": [\"design_population\", \"methods\"]}, {\"category\": \"evidence_role_mismatch\", \"field\": \"main_results\", \"cited_roles\": [\"general\"], \"allowed_roles\": [\"results\"]}, {\"category\": \"summary_length_outside_preferred_range\", \"field\": \"summary_en\", \"words\": 42, \"preferred\": [60, 280]}], \"issue_counts\": {\"evidence_id_unknown\": 1}}",
+            "elapsed_ms": 15176,
+            "validation": {
+              "policy_version": "v17.2-detailed-structured-validation-1",
+              "issues": [
+                {
+                  "category": "evidence_id_unknown",
+                  "field": "limitations_and_evidence_strength",
+                  "unknown": [
+                    "A7"
+                  ]
+                }
+              ],
+              "warnings": [
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "study_design_and_population",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                },
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "methods",
+                  "cited_roles": [
+                    "results"
+                  ],
+                  "allowed_roles": [
+                    "design_population",
+                    "methods"
+                  ]
+                },
+                {
+                  "category": "evidence_role_mismatch",
+                  "field": "main_results",
+                  "cited_roles": [
+                    "general"
+                  ],
+                  "allowed_roles": [
+                    "results"
+                  ]
+                },
+                {
+                  "category": "summary_length_outside_preferred_range",
+                  "field": "summary_en",
+                  "words": 42,
+                  "preferred": [
+                    60,
+                    280
+                  ]
+                }
+              ],
+              "issue_counts": {
+                "evidence_id_unknown": 1
+              }
+            },
+            "parser_audit": {
+              "policy_version": "v17.2-flexible-json-parser-1",
+              "method": "direct_json",
+              "response_chars": 2605,
+              "repaired": false,
+              "truncated_signal": false
+            },
+            "normalization_audit": {
+              "policy_version": "v17.2-prevalidation-normalization-1",
+              "repairs": [],
+              "warnings": [],
+              "postprocess": {
+                "removed_duplicate_sentences": 0,
+                "repaired_incomplete_fields": [],
+                "evidence_replacements": [],
+                "policy": "v10-exclusive-rhetorical-fields-1"
+              },
+              "language_contract": {
+                "policy_version": "v17.1-source-language-safe-english-1",
+                "source_language": "en",
+                "verified_english": true,
+                "replacements": [],
+                "original_evidence_preserved": false
+              },
+              "repair_count": 0
+            }
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-latest",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:24+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "rate_limited",
+            "error_type": "RuntimeError",
+            "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+            "elapsed_ms": 203
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "mistral",
+            "model": "mistral-small-2603",
+            "at": "2026-10-08T00:48:25+00:00",
+            "status": "skipped",
+            "failure_category": "model_cooldown",
+            "error": "model is temporarily cooling down"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "deepseek",
+            "model": "",
+            "at": "2026-10-08T00:48:25+00:00",
+            "status": "skipped",
+            "failure_category": "quota_exhausted",
+            "error": "quota_exhausted"
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "openrouter/free",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:25+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "openrouter returned empty content: {'id': 'gen-1791420505-6g6jwaoGwzyprfuor77b', 'object': 'chat.completion', 'created': 1791420505, 'model': 'apodex/apodex-1.1-mini:free', 'provider': 'Novita', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'Let me analyze this paper carefully.\\n\\nThe paper is about \"ImmuneAgent\" - a multimodal AI system for broadly neutralizing antibody discovery. The topic contract is about human metapneumovirus (hMPV).\\n\\nKey evidence:\\n- A1: Background - bnAb discovery challenge\\n- A2: ImmuneAgent system description\\n- A3: Results - ~55% neutralization antibody discovery rate (60/110), ~11% bnAb yield (12/110), outperforming sequence-based predictors\\n- A4: Five antibodies conferred",
+            "elapsed_ms": 22192
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "openrouter",
+            "model": "apodex/apodex-1.1-mini:free",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:47+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "openrouter returned empty content: {'id': 'gen-1791420527-svL5RBITYZLBdMHnlFQe', 'object': 'chat.completion', 'created': 1791420527, 'model': 'apodex/apodex-1.1-mini:free', 'provider': 'Novita', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'The user wants me to analyze a paper about \"Multimodal reasoning for broadly neutralizing antibody discovery from label-free human B cell repertoires across virus families\" with a topic contract focused on Human metapneumovirus (hMPV).\\n\\nLet me check the topic contract:\\n- Target entities: human metapneumovirus, Metapneumovirus hominis, hMPV variants, etc.\\n- Related entities: avian metapneumovirus, turkey rhinotracheitis virus, avian pneumovirus, respiratory syncy",
+            "elapsed_ms": 8023
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "openai/gpt-oss-120b",
+            "retry_index": 0,
+            "at": "2026-10-08T00:48:55+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "groq returned empty content: {'id': 'chatcmpl-6b02da20-5e67-457f-8a32-3a17742592ea', 'object': 'chat.completion', 'created': 1791420542, 'model': 'openai/gpt-oss-120b', 'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': '', 'reasoning': 'We need to produce JSON with fields as per contract. Need to use evidence IDs. Must analyze only target-specific evidence. The paper is about broadly neutralizing antibody discovery across virus families, includes hMPV cross-neutralizing antibodies. Evidence includes general statements about discovery, results, etc. Need to ensure we only use target-specific evidence. The target is human metapneumovirus (hMPV). Evidence includes that the system discovered cross-neutralizing antibodies for hMPV (A5 mentions \"discovering human metapneumovirus (hMPV) cross-neutralizing ... antibodies\"). Also A4 mentions influenza protection, not target. Th",
+            "elapsed_ms": 6870
+          },
+          {
+            "task": "paper_research_analysis",
+            "provider": "groq",
+            "model": "openai/gpt-oss-20b",
+            "retry_index": 0,
+            "at": "2026-10-08T00:49:02+00:00",
+            "system_chars": 6814,
+            "prompt_chars": 7199,
+            "status": "failed",
+            "failure_category": "empty_response",
+            "error_type": "LLMError",
+            "error": "groq returned empty content: {'id': 'chatcmpl-e005e449-2195-41a7-ab4f-457146f05e3d', 'object': 'chat.completion', 'created': 1791420546, 'model': 'openai/gpt-oss-20b', 'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': '', 'reasoning': 'We need to produce JSON with fields. We have evidence IDs A1-A6. Need to map each field to evidence IDs. Must use only target-specific evidence. The target is human metapneumovirus. Evidence A5 mentions \"human metapneumovirus (hMPV) cross-neutralizing\" antibodies. That is target-specific. A3 results mention 55% discovery rate, 11% bnAb yield. That is general but includes hMPV cross-neutralizing? It says \"discovered human metapneumovirus (hMPV) cross-neutralizing and human papillomavirus (HPV)-neutralizing antibodies without antigen-specific sorting.\" So A3 includes hMPV cross-neutralizing. So A3 is target-specific. A4 mentions five antib",
+            "elapsed_ms": 4132
+          }
+        ]
+      }
+    ]
   }
 }
