@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-10-25T22:18:31+00:00",
+  "generated_at": "2026-11-01T23:36:57+00:00",
   "shared_state_file": "/tmp/pif_data_repo/shared/state/provider_quota_daily.json",
   "provider_order": {
     "extract": [
@@ -61,421 +61,7 @@
       "groq"
     ]
   },
-  "task_failures": [
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-10-25T20:23:28+00:00",
-      "failure_category": "quota_exhausted",
-      "error": "All configured LLM attempts failed (quota_exhausted): HTTP request failed: https://api.groq.com/openai/v1/chat/completions: HTTP status 413: 413 Client Error: Payload Too Large for url: https://api.groq.com/openai/v1/chat/completions; response={\"error\":{\"message\":\"Request too large for model `openai/gpt-oss-120b` in organization `org_01kxfxy383e72t9rgc2e5r3bja` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Requested 9810, please reduce your message size and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-10-25T20:21:46+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "glm-5.3-flash",
-          "retry_index": 0,
-          "at": "2026-10-25T20:21:46+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 40243,
-          "status": "failed",
-          "failure_category": "rate_limited",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-          "elapsed_ms": 654
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "Qwen/Qwen3-8B",
-          "retry_index": 0,
-          "at": "2026-10-25T20:21:47+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 40243,
-          "status": "failed",
-          "failure_category": "timeout",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://api.siliconflow.cn/v1/chat/completions: HTTPSConnectionPool(host='api.siliconflow.cn', port=443): Read timed out. (read timeout=90)",
-          "elapsed_ms": 90092
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "retry_index": 0,
-          "at": "2026-10-25T20:23:18+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 40243,
-          "status": "failed",
-          "failure_category": "rate_limited",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-          "elapsed_ms": 273
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-10-25T20:23:18+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "retry_index": 0,
-          "at": "2026-10-25T20:23:19+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 40243,
-          "status": "failed",
-          "failure_category": "empty_response",
-          "error_type": "LLMError",
-          "error": "openrouter returned empty content: {'id': 'gen-1792959799-8QQmUduT6jEpbiFkQ3i7', 'object': 'chat.completion', 'created': 1792959799, 'model': 'nvidia/nemotron-3.5-super-vl:free', 'provider': 'Nvidia', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'The user wants me to classify each record based on the provided topic contract for SARS-CoV-2.\\n\\nLet me analyze each record:\\n\\n**r34**: \"Choosing the spatial scale of aggregation in epidemic models: compression versus distortion\"\\n- Query: COVID-19, Omicron SARS-CoV-2, COVID 19\\n- Evidence: \"Applying this to two years of US county-level COVID-19 cases...\" - This is about COVID-19 cases specifically. It\\'s a main subject (epidemic models applied to COVID-19 c",
-          "elapsed_ms": 9025
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "openai/gpt-oss-120b",
-          "retry_index": 0,
-          "at": "2026-10-25T20:23:28+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 40243,
-          "status": "failed",
-          "failure_category": "quota_exhausted",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://api.groq.com/openai/v1/chat/completions: HTTP status 413: 413 Client Error: Payload Too Large for url: https://api.groq.com/openai/v1/chat/completions; response={\"error\":{\"message\":\"Request too large for model `openai/gpt-oss-120b` in organization `org_01kxfxy383e72t9rgc2e5r3bja` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Requested 9810, please reduce your message size and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}",
-          "elapsed_ms": 54
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r34",
-          "r35",
-          "r36",
-          "r37",
-          "r38",
-          "r39",
-          "r41",
-          "r42",
-          "r45",
-          "r46",
-          "r47",
-          "r48",
-          "r49",
-          "r51",
-          "r52",
-          "r53",
-          "r54",
-          "r56",
-          "r57",
-          "r58",
-          "r59",
-          "r60",
-          "r61",
-          "r63",
-          "r64",
-          "r65",
-          "r66",
-          "r67",
-          "r68",
-          "r69",
-          "r70",
-          "r71",
-          "r72",
-          "r73",
-          "r74"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-10-25T20:23:32+00:00",
-      "failure_category": "rate_limited",
-      "error": "All configured LLM attempts failed (rate_limited): quota_exhausted",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-10-25T20:23:28+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "glm-5.3-flash",
-          "retry_index": 0,
-          "at": "2026-10-25T20:23:28+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 23096,
-          "status": "failed",
-          "failure_category": "rate_limited",
-          "error_type": "RuntimeError",
-          "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-          "elapsed_ms": 708
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-10-25T20:23:29+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-10-25T20:23:29+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-10-25T20:23:29+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "retry_index": 0,
-          "at": "2026-10-25T20:23:29+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 23096,
-          "status": "failed",
-          "failure_category": "empty_response",
-          "error_type": "LLMError",
-          "error": "openrouter returned empty content: {'id': 'gen-1792959809-lBCPPEABRX4Pj6kMLisF', 'object': 'chat.completion', 'created': 1792959809, 'model': 'liquid/lfm-2.5-2.6b:free', 'provider': 'Liquid', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'The user wants me to classify the provided records based on the compact Python-extracted evidence and the decision codes (A, C, S, B, N, U). Let me analyze each record against the target profile (SARS-CoV-2 / COVID-19).\\n\\nThe task is to use the \"compact Python-extracted evidence\" - but I don\\'t see any explicit \"Python-extracted evidence\" in the provided data. The records are from Europe PMC and other sources. I need to evaluate each record against the decision rules:",
-          "elapsed_ms": 3316
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-10-25T20:23:32+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r34",
-          "r35",
-          "r36",
-          "r37",
-          "r38",
-          "r39",
-          "r41",
-          "r42",
-          "r45",
-          "r46",
-          "r47",
-          "r48",
-          "r49",
-          "r51",
-          "r52",
-          "r53",
-          "r54"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-10-25T20:24:11+00:00",
-      "failure_category": "empty_response",
-      "error": "All configured LLM attempts failed (empty_response): quota_exhausted",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-10-25T20:23:32+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "glm-5.3-flash",
-          "at": "2026-10-25T20:23:32+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-10-25T20:23:32+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-10-25T20:23:32+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-10-25T20:23:32+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "retry_index": 0,
-          "at": "2026-10-25T20:23:32+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 11927,
-          "status": "failed",
-          "failure_category": "empty_response",
-          "error_type": "LLMError",
-          "error": "openrouter returned empty content: {'id': 'gen-1792959812-wKFn6BUFh0Jv01A7iKi8', 'object': 'chat.completion', 'created': 1792959812, 'model': 'nvidia/nemotron-3.5-super-vl:free', 'provider': 'Nvidia', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'The user wants me to adjudicate biomedical relevance for a set of records against a SARS-CoV-2 profile. I need to output compact JSON only with the exact schema: {\"d\":[{\"id\":\"record id\",\"c\":\"A|C|S|B|N|U\",\"p\":0,\"r\":\"short reason code\"}]}\\n\\nLet me analyze each record carefully.\\n\\nProfile: SARS-CoV-2, COVID-19, named variants (Omicron, JN.1, BA.2.86, XBB), post-COVID condition, long COVID.\\n\\nDecision codes:\\n- A: target virus/main subject with substantive evid",
-          "elapsed_ms": 39531
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-10-25T20:24:11+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r34",
-          "r35",
-          "r36",
-          "r37",
-          "r38",
-          "r39",
-          "r41",
-          "r42"
-        ]
-      }
-    },
-    {
-      "task": "relevance_compact_review",
-      "at": "2026-10-25T20:24:22+00:00",
-      "failure_category": "empty_response",
-      "error": "All configured LLM attempts failed (empty_response): quota_exhausted",
-      "attempts": [
-        {
-          "task": "relevance_compact_review",
-          "provider": "gemini",
-          "model": "",
-          "at": "2026-10-25T20:24:11+00:00",
-          "status": "skipped",
-          "failure_category": "authentication_failed",
-          "error": "authentication_failed"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "bigmodel",
-          "model": "glm-5.3-flash",
-          "at": "2026-10-25T20:24:11+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "siliconflow",
-          "model": "",
-          "at": "2026-10-25T20:24:11+00:00",
-          "status": "skipped",
-          "failure_category": "cooldown",
-          "error": "timeout"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "mistral",
-          "model": "mistral-small-latest",
-          "at": "2026-10-25T20:24:11+00:00",
-          "status": "skipped",
-          "failure_category": "model_cooldown",
-          "error": "model is temporarily cooling down"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "deepseek",
-          "model": "",
-          "at": "2026-10-25T20:24:11+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "openrouter",
-          "model": "openrouter/free",
-          "retry_index": 0,
-          "at": "2026-10-25T20:24:11+00:00",
-          "system_chars": 2207,
-          "prompt_chars": 7909,
-          "status": "failed",
-          "failure_category": "empty_response",
-          "error_type": "LLMError",
-          "error": "openrouter returned empty content: {'id': 'gen-1792959851-6S1WU1iYURvomWM0dQS0', 'object': 'chat.completion', 'created': 1792959851, 'model': 'recursive/flint-v1.0:free', 'provider': 'Recursive', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need answer final JSON only. Need adjudicate records. We need parse task. We have topic contract SARS-CoV-2. Records r34-r37. Need use supplied evidence. Need decide codes.\\n\\nWe need be careful. We need output compact JSON exactly requested record IDs and decision schema. Probably {\"out\":{\"d\":[{\"id\":\"r34\",\"c\":\"...\",\"p\":0,\"r\":\"...\"}]}} etc? They gave out schema: {\"d\":[{\"id\":\"record id\",\"c\":\"A|C|S|B|N|U\",\"p\":0,\"r\":\"short reason code\"}]}. Need likely for each reco",
-          "elapsed_ms": 10888
-        },
-        {
-          "task": "relevance_compact_review",
-          "provider": "groq",
-          "model": "",
-          "at": "2026-10-25T20:24:22+00:00",
-          "status": "skipped",
-          "failure_category": "quota_exhausted",
-          "error": "quota_exhausted"
-        }
-      ],
-      "context": {
-        "kind": "paper",
-        "record_ids": [
-          "r34",
-          "r35",
-          "r36",
-          "r37"
-        ]
-      }
-    }
-  ],
+  "task_failures": [],
   "model_discovery": {
     "bigmodel": {
       "status": "discovered",
@@ -604,7 +190,7 @@
       "status": "discovered",
       "endpoint": "https://api.mistral.ai/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 27,
+      "discovered_count": 18,
       "discovered_models": [
         "mistral-small-latest",
         "mistral-small-2603",
@@ -619,20 +205,11 @@
         "voxtral-small-latest",
         "mistral-code-fim-latest",
         "mistral-code-latest",
-        "mistral-medium",
-        "mistral-medium-2604",
-        "mistral-medium-3",
-        "mistral-medium-3-5",
-        "mistral-medium-3.5",
-        "mistral-medium-latest",
         "mistral-vibe-cli-fast",
-        "mistral-vibe-cli-latest",
-        "mistral-vibe-cli-with-tools",
         "codestral-2508",
         "codestral-latest",
         "labs-leanstral-1-5",
-        "labs-leanstral-1-5-1",
-        "magistral-medium-latest"
+        "labs-leanstral-1-5-1"
       ],
       "explicit_preferences": [
         "mistral-small-latest"
@@ -654,20 +231,11 @@
         "voxtral-small-latest",
         "mistral-code-fim-latest",
         "mistral-code-latest",
-        "mistral-medium",
-        "mistral-medium-2604",
-        "mistral-medium-3",
-        "mistral-medium-3-5",
-        "mistral-medium-3.5",
-        "mistral-medium-latest",
         "mistral-vibe-cli-fast",
-        "mistral-vibe-cli-latest",
-        "mistral-vibe-cli-with-tools",
         "codestral-2508",
         "codestral-latest",
         "labs-leanstral-1-5",
-        "labs-leanstral-1-5-1",
-        "magistral-medium-latest"
+        "labs-leanstral-1-5-1"
       ],
       "ignored_retired_models": [],
       "gemini_lite_preferred": false,
@@ -678,7 +246,7 @@
       "status": "discovered",
       "endpoint": "https://openrouter.ai/api/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 20,
+      "discovered_count": 17,
       "discovered_models": [
         "openrouter/free",
         "cohere/north-mini-code:free",
@@ -690,12 +258,9 @@
         "nvidia/nemotron-3.5-content-safety:free",
         "nvidia/nemotron-3.5-lightning:free",
         "nvidia/nemotron-3.5-super-vl:free",
-        "poolside/laguna-s-2.1:free",
-        "poolside/laguna-xs-2.1:free",
         "recursive/flint-v1.0:free",
         "xingchen-agi/xing4.0-29b-a4b:free",
         "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-        "nvidia/nemotron-3-super-120b-a12b:free",
         "thinkingmachines/inkling:free",
         "dots-studio/dots-3-note-preview:free",
         "google/lyria-3-clip-preview",
@@ -718,12 +283,9 @@
         "nvidia/nemotron-3.5-content-safety:free",
         "nvidia/nemotron-3.5-lightning:free",
         "nvidia/nemotron-3.5-super-vl:free",
-        "poolside/laguna-s-2.1:free",
-        "poolside/laguna-xs-2.1:free",
         "recursive/flint-v1.0:free",
         "xingchen-agi/xing4.0-29b-a4b:free",
         "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-        "nvidia/nemotron-3-super-120b-a12b:free",
         "thinkingmachines/inkling:free",
         "dots-studio/dots-3-note-preview:free",
         "google/lyria-3-clip-preview",
@@ -824,38 +386,49 @@
         "status": "not_supported"
       },
       "last_failure_category": "authentication_failed",
-      "last_failure_at": 1792959359.1784716,
+      "last_failure_at": 1793568950.172575,
       "cooldown_remaining_seconds": 0
     },
     "groq": {
       "configured": true,
       "provider": "groq",
-      "status": "quota_exhausted",
-      "disabled_reason": "quota_exhausted",
-      "requests": 2,
-      "successes": 1,
-      "failures": 1,
-      "prompt_tokens": 119,
-      "completion_tokens": 69,
-      "total_tokens": 188,
+      "status": "healthy",
+      "disabled_reason": "",
+      "requests": 11,
+      "successes": 2,
+      "failures": 9,
+      "prompt_tokens": 3371,
+      "completion_tokens": 1259,
+      "total_tokens": 4630,
       "models": {
         "openai/gpt-oss-120b": {
-          "status": "quota_exhausted",
-          "requests": 2,
+          "status": "failed",
+          "requests": 8,
           "successes": 1,
           "prompt_tokens": 119,
           "completion_tokens": 69,
           "total_tokens": 188,
-          "failures": 1,
-          "last_failure_category": "quota_exhausted",
+          "failures": 7,
+          "last_failure_category": "context_or_output_limit",
+          "cooldown_remaining_seconds": 0
+        },
+        "openai/gpt-oss-20b": {
+          "requests": 3,
+          "failures": 2,
+          "last_failure_category": "rate_limited",
+          "status": "healthy",
+          "successes": 1,
+          "prompt_tokens": 3252,
+          "completion_tokens": 1190,
+          "total_tokens": 4442,
           "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1792959808.3085835,
+      "last_failure_category": "",
+      "last_failure_at": 1793573616.2788813,
       "cooldown_remaining_seconds": 0
     },
     "openrouter": {
@@ -863,33 +436,29 @@
       "provider": "openrouter",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 20,
-      "successes": 5,
-      "failures": 15,
-      "prompt_tokens": 3213,
-      "completion_tokens": 2237,
-      "total_tokens": 5450,
+      "requests": 12,
+      "successes": 2,
+      "failures": 10,
+      "prompt_tokens": 4215,
+      "completion_tokens": 747,
+      "total_tokens": 4962,
       "models": {
         "openrouter/free": {
           "status": "failed",
-          "requests": 15,
-          "successes": 3,
-          "prompt_tokens": 1697,
-          "completion_tokens": 1220,
-          "total_tokens": 2917,
-          "failures": 12,
-          "last_failure_category": "empty_response",
+          "requests": 9,
+          "successes": 2,
+          "prompt_tokens": 4215,
+          "completion_tokens": 747,
+          "total_tokens": 4962,
+          "failures": 7,
+          "last_failure_category": "context_or_output_limit",
           "cooldown_remaining_seconds": 0
         },
         "cohere/north-mini-code:free": {
-          "requests": 5,
+          "requests": 3,
           "failures": 3,
           "last_failure_category": "empty_response",
           "status": "failed",
-          "successes": 2,
-          "prompt_tokens": 1516,
-          "completion_tokens": 1017,
-          "total_tokens": 2533,
           "cooldown_remaining_seconds": 0
         }
       },
@@ -903,7 +472,7 @@
         "usage_monthly": 0
       },
       "last_failure_category": "empty_response",
-      "last_failure_at": 1792962242.550061,
+      "last_failure_at": 1793573609.6872952,
       "cooldown_remaining_seconds": 0
     },
     "mistral": {
@@ -911,33 +480,33 @@
       "provider": "mistral",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 107,
+      "requests": 114,
       "successes": 0,
-      "failures": 107,
+      "failures": 114,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
       "models": {
         "mistral-small-latest": {
+          "requests": 59,
+          "failures": 59,
+          "last_failure_category": "rate_limited",
+          "status": "cooldown",
+          "cooldown_remaining_seconds": 0
+        },
+        "mistral-small-2603": {
           "requests": 55,
           "failures": 55,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 10.2
-        },
-        "mistral-small-2603": {
-          "requests": 52,
-          "failures": 52,
-          "last_failure_category": "rate_limited",
-          "status": "cooldown",
-          "cooldown_remaining_seconds": 10.4
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1792966661.8891969,
+      "last_failure_at": 1793576155.8860986,
       "cooldown_remaining_seconds": 0
     },
     "siliconflow": {
@@ -945,21 +514,21 @@
       "provider": "siliconflow",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 162,
-      "successes": 153,
-      "failures": 9,
-      "prompt_tokens": 322031,
-      "completion_tokens": 54322,
-      "total_tokens": 376353,
+      "requests": 260,
+      "successes": 252,
+      "failures": 8,
+      "prompt_tokens": 449270,
+      "completion_tokens": 84534,
+      "total_tokens": 533804,
       "models": {
         "Qwen/Qwen3-8B": {
           "status": "healthy",
-          "requests": 157,
-          "successes": 151,
-          "prompt_tokens": 316902,
-          "completion_tokens": 53137,
-          "total_tokens": 370039,
-          "failures": 6,
+          "requests": 255,
+          "successes": 250,
+          "prompt_tokens": 442115,
+          "completion_tokens": 83699,
+          "total_tokens": 525814,
+          "failures": 5,
           "last_failure_category": "validation_failed",
           "cooldown_remaining_seconds": 0
         },
@@ -967,11 +536,11 @@
           "requests": 5,
           "failures": 3,
           "last_failure_category": "validation_failed",
-          "status": "failed",
+          "status": "healthy",
           "successes": 2,
-          "prompt_tokens": 5129,
-          "completion_tokens": 1185,
-          "total_tokens": 6314,
+          "prompt_tokens": 7155,
+          "completion_tokens": 835,
+          "total_tokens": 7990,
           "cooldown_remaining_seconds": 0
         }
       },
@@ -981,7 +550,7 @@
         "error": "HTTP request failed: https://api.siliconflow.cn/v1/user/info: HTTP status 410: 410 Client Error: Gone for url: https://api.siliconflow.cn/v1/user/info; response={\"code\":20092,\"message\":\"This endpoint is deprecated and is no longer available.\",\"data\":null}"
       },
       "last_failure_category": "",
-      "last_failure_at": 1792962215.931901,
+      "last_failure_at": 1793576055.666601,
       "cooldown_remaining_seconds": 0
     },
     "bigmodel": {
@@ -989,33 +558,33 @@
       "provider": "bigmodel",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 149,
+      "requests": 147,
       "successes": 0,
-      "failures": 149,
+      "failures": 147,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
       "models": {
         "glm-5.3-flash": {
-          "requests": 82,
-          "failures": 82,
+          "requests": 80,
+          "failures": 80,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 27.9
+          "cooldown_remaining_seconds": 0
         },
         "glm-5.3-flashx": {
           "requests": 67,
           "failures": 67,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 28.5
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1792966679.9853885,
+      "last_failure_at": 1793576155.2115097,
       "cooldown_remaining_seconds": 0
     },
     "deepseek": {
@@ -1062,7 +631,7 @@
         ]
       },
       "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1792959387.385838,
+      "last_failure_at": 1793568960.844794,
       "cooldown_remaining_seconds": 0
     }
   }
