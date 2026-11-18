@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-11-11T00:44:13+00:00",
+  "generated_at": "2026-11-18T02:21:51+00:00",
   "shared_state_file": "/tmp/pif_data_repo/shared/state/provider_quota_daily.json",
   "provider_order": {
     "extract": [
@@ -61,7 +61,361 @@
       "groq"
     ]
   },
-  "task_failures": [],
+  "task_failures": [
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-11-18T00:27:57+00:00",
+      "failure_category": "rate_limited",
+      "error": "All configured LLM attempts failed (rate_limited): HTTP request failed: https://api.groq.com/openai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01kxfxy383e72t9rgc2e5r3bja` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Used 6675, Requested 7115. Please try again in 43.425s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
+          "model": "",
+          "at": "2026-11-18T00:25:59+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-5.3-flash",
+          "retry_index": 0,
+          "at": "2026-11-18T00:25:59+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 19788,
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "error_type": "RuntimeError",
+          "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
+          "elapsed_ms": 514
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "Qwen/Qwen3-8B",
+          "retry_index": 0,
+          "at": "2026-11-18T00:26:00+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 19788,
+          "status": "failed",
+          "failure_category": "timeout",
+          "error_type": "RuntimeError",
+          "error": "HTTP request failed: https://api.siliconflow.cn/v1/chat/completions: HTTPSConnectionPool(host='api.siliconflow.cn', port=443): Read timed out. (read timeout=90)",
+          "elapsed_ms": 90093
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "retry_index": 0,
+          "at": "2026-11-18T00:27:30+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 19788,
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "error_type": "RuntimeError",
+          "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
+          "elapsed_ms": 200
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-11-18T00:27:30+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "retry_index": 0,
+          "at": "2026-11-18T00:27:31+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 19788,
+          "status": "failed",
+          "failure_category": "empty_response",
+          "error_type": "LLMError",
+          "error": "openrouter returned empty content: {'id': 'gen-1794961652-UsKsTWIQZ0nS5hUSqkoS', 'object': 'chat.completion', 'created': 1794961652, 'model': 'dots-studio/dots-3-note-preview:free', 'provider': 'AtlasCloud', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'The user wants me to adjudicate the relevance of several records to the pathogen profile \"respiratory_syncytial_virus\" (Human respiratory syncytial virus, RSV-A, RSV-B).\\n\\nLet\\'s review the rules and definitions:\\n- Target: Human respiratory syncytial virus (Orthopneumovirus hominis), RSV-A, RSV-B.\\n- Target entities: respiratory syncytial virus, human respiratory syncytial virus, human orthopneumovirus, Orthopneumovirus hominis, RSV-A, RSV-B, HRSV-A, ",
+          "elapsed_ms": 22075
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b",
+          "retry_index": 0,
+          "at": "2026-11-18T00:27:53+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 19788,
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "error_type": "RuntimeError",
+          "error": "HTTP request failed: https://api.groq.com/openai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01kxfxy383e72t9rgc2e5r3bja` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Used 6675, Requested 7115. Please try again in 43.425s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}",
+          "elapsed_ms": 3529
+        }
+      ],
+      "context": {
+        "kind": "news",
+        "record_ids": [
+          "r2",
+          "r7",
+          "r9",
+          "r10",
+          "r11",
+          "r12",
+          "r13",
+          "r14",
+          "r15",
+          "r16",
+          "r17",
+          "r18",
+          "r19",
+          "r20",
+          "r21",
+          "r22",
+          "r23",
+          "r24",
+          "r25",
+          "r26",
+          "r27",
+          "r28",
+          "r29",
+          "r30",
+          "r31",
+          "r32",
+          "r33",
+          "r34",
+          "r35",
+          "r36",
+          "r37",
+          "r38",
+          "r39",
+          "r40",
+          "r41",
+          "r42",
+          "r43",
+          "r44",
+          "r45",
+          "r46",
+          "r47",
+          "r48",
+          "r49",
+          "r50",
+          "r51",
+          "r52",
+          "r53",
+          "r54",
+          "r55"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-11-18T00:28:12+00:00",
+      "failure_category": "rate_limited",
+      "error": "All configured LLM attempts failed (rate_limited): model is temporarily cooling down",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
+          "model": "",
+          "at": "2026-11-18T00:27:57+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-5.3-flash",
+          "retry_index": 0,
+          "at": "2026-11-18T00:27:57+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 12214,
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "error_type": "RuntimeError",
+          "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
+          "elapsed_ms": 560
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-11-18T00:27:57+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "timeout"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-11-18T00:27:57+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-11-18T00:27:57+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "retry_index": 0,
+          "at": "2026-11-18T00:27:57+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 12214,
+          "status": "failed",
+          "failure_category": "empty_response",
+          "error_type": "LLMError",
+          "error": "openrouter returned empty content: {'id': 'gen-1794961677-AaEFIfJL2Yv7SfxKefLV', 'object': 'chat.completion', 'created': 1794961677, 'model': 'liquid/lfm-3-1.7b:free', 'provider': 'Liquid', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'We need to parse the task. The user gave a \"topic contract\" and \"records\". We must produce output: compact JSON only, using exactly requested record IDs and decision schema.\\n\\nLet\\'s understand the input:\\n\\n- There is a function-like description: `{\"task\":\"Use the compact Python-extracted evidence... Decision codes: A, C, S, B, N, U...\"}`.\\n\\n- Then there is a big block with fields like kind, scope, target_entities, disease_entities, include, allowed, related_entities,",
+          "elapsed_ms": 14870
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b",
+          "at": "2026-11-18T00:28:12+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        }
+      ],
+      "context": {
+        "kind": "news",
+        "record_ids": [
+          "r2",
+          "r7",
+          "r9",
+          "r10",
+          "r11",
+          "r12",
+          "r13",
+          "r14",
+          "r15",
+          "r16",
+          "r17",
+          "r18",
+          "r19",
+          "r20",
+          "r21",
+          "r22",
+          "r23",
+          "r24",
+          "r25",
+          "r26",
+          "r27",
+          "r28",
+          "r29",
+          "r30"
+        ]
+      }
+    },
+    {
+      "task": "relevance_compact_review",
+      "at": "2026-11-18T00:28:46+00:00",
+      "failure_category": "empty_response",
+      "error": "All configured LLM attempts failed (empty_response): model is temporarily cooling down",
+      "attempts": [
+        {
+          "task": "relevance_compact_review",
+          "provider": "gemini",
+          "model": "",
+          "at": "2026-11-18T00:28:25+00:00",
+          "status": "skipped",
+          "failure_category": "authentication_failed",
+          "error": "authentication_failed"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "bigmodel",
+          "model": "glm-5.3-flash",
+          "at": "2026-11-18T00:28:25+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "siliconflow",
+          "model": "",
+          "at": "2026-11-18T00:28:25+00:00",
+          "status": "skipped",
+          "failure_category": "cooldown",
+          "error": "timeout"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "mistral",
+          "model": "mistral-small-latest",
+          "at": "2026-11-18T00:28:25+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "deepseek",
+          "model": "",
+          "at": "2026-11-18T00:28:25+00:00",
+          "status": "skipped",
+          "failure_category": "quota_exhausted",
+          "error": "quota_exhausted"
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "openrouter",
+          "model": "openrouter/free",
+          "retry_index": 0,
+          "at": "2026-11-18T00:28:25+00:00",
+          "system_chars": 2207,
+          "prompt_chars": 6641,
+          "status": "failed",
+          "failure_category": "empty_response",
+          "error_type": "LLMError",
+          "error": "openrouter returned empty content: {'id': 'gen-1794961705-gI2dfnoaSO5ghFmJGNKk', 'object': 'chat.completion', 'created': 1794961705, 'model': 'nvidia/nemotron-3-ultra-550b-a55b:free', 'provider': 'Nvidia', 'system_fingerprint': None, 'service_tier': None, 'choices': [{'index': 0, 'logprobs': None, 'finish_reason': 'length', 'native_finish_reason': 'length', 'message': {'role': 'assistant', 'content': None, 'refusal': None, 'reasoning': 'The user wants me to adjudicate the relevance of each record to the target pathogen profile: Human respiratory syncytial virus (Orthopneumovirus hominis), RSV-A and RSV-B. I need to assign a decision code (A, C, S, B, N, U) to each record based on the provided evidence and the rules.\\n\\nLet me analyze each record:\\n\\n**Record r19**: \"FDA clears Molecular Designs\\' multiplex test for flu and RSV\"\\n- Evidence: \"The test identifies and differentiates influen",
+          "elapsed_ms": 21274
+        },
+        {
+          "task": "relevance_compact_review",
+          "provider": "groq",
+          "model": "openai/gpt-oss-120b",
+          "at": "2026-11-18T00:28:46+00:00",
+          "status": "skipped",
+          "failure_category": "model_cooldown",
+          "error": "model is temporarily cooling down"
+        }
+      ],
+      "context": {
+        "kind": "news",
+        "record_ids": [
+          "r19",
+          "r20",
+          "r21",
+          "r22",
+          "r23",
+          "r24",
+          "r25",
+          "r26",
+          "r27",
+          "r28",
+          "r29",
+          "r30"
+        ]
+      }
+    }
+  ],
   "model_discovery": {
     "bigmodel": {
       "status": "discovered",
@@ -112,7 +466,7 @@
       "status": "discovered",
       "endpoint": "https://api.siliconflow.cn/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 63,
+      "discovered_count": 57,
       "discovered_models": [
         "Qwen/Qwen3-8B",
         "LoRA/Qwen/Qwen2.5-7B-Instruct",
@@ -127,10 +481,8 @@
         "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
         "Pro/Qwen/Qwen2.5-7B-Instruct",
         "Qwen/Qwen3-VL-8B-Thinking",
-        "inclusionAI/Ling-mini-2.0",
         "tencent/Hunyuan-MT-7B",
         "inclusionAI/Ling-flash-2.0",
-        "stepfun-ai/Step-3.5-Flash",
         "deepseek-ai/DeepSeek-V3",
         "deepseek-ai/DeepSeek-V3.1-Terminus",
         "deepseek-ai/DeepSeek-V3.2",
@@ -143,7 +495,9 @@
         "Qwen/Qwen2.5-72B-Instruct-128K",
         "Qwen/Qwen3-14B",
         "Qwen/Qwen3-30B-A3B-Instruct-2507",
-        "Qwen/Qwen3-32B"
+        "Qwen/Qwen3-32B",
+        "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "Qwen/Qwen3-Omni-30B-A3B-Captioner"
       ],
       "explicit_preferences": [
         "Qwen/Qwen3-8B"
@@ -165,10 +519,8 @@
         "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
         "Pro/Qwen/Qwen2.5-7B-Instruct",
         "Qwen/Qwen3-VL-8B-Thinking",
-        "inclusionAI/Ling-mini-2.0",
         "tencent/Hunyuan-MT-7B",
         "inclusionAI/Ling-flash-2.0",
-        "stepfun-ai/Step-3.5-Flash",
         "deepseek-ai/DeepSeek-V3",
         "deepseek-ai/DeepSeek-V3.1-Terminus",
         "deepseek-ai/DeepSeek-V3.2",
@@ -181,7 +533,9 @@
         "Qwen/Qwen2.5-72B-Instruct-128K",
         "Qwen/Qwen3-14B",
         "Qwen/Qwen3-30B-A3B-Instruct-2507",
-        "Qwen/Qwen3-32B"
+        "Qwen/Qwen3-32B",
+        "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "Qwen/Qwen3-Omni-30B-A3B-Captioner"
       ],
       "ignored_retired_models": [],
       "gemini_lite_preferred": false,
@@ -192,7 +546,7 @@
       "status": "discovered",
       "endpoint": "https://api.mistral.ai/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 29,
+      "discovered_count": 27,
       "discovered_models": [
         "mistral-small-latest",
         "mistral-small-2603",
@@ -216,8 +570,6 @@
         "mistral-vibe-cli-fast",
         "mistral-vibe-cli-latest",
         "mistral-vibe-cli-with-tools",
-        "mistral-large-4",
-        "mistral-large-4-0",
         "codestral-2508",
         "codestral-latest",
         "labs-leanstral-1-5",
@@ -253,8 +605,6 @@
         "mistral-vibe-cli-fast",
         "mistral-vibe-cli-latest",
         "mistral-vibe-cli-with-tools",
-        "mistral-large-4",
-        "mistral-large-4-0",
         "codestral-2508",
         "codestral-latest",
         "labs-leanstral-1-5",
@@ -270,20 +620,21 @@
       "status": "discovered",
       "endpoint": "https://openrouter.ai/api/v1/models",
       "discovery_enabled": true,
-      "discovered_count": 16,
+      "discovered_count": 17,
       "discovered_models": [
         "openrouter/free",
         "cohere/north-mini-code:free",
         "liquid/lfm-3-1.7b:free",
+        "inclusionai/ling-3.2-flash:free",
         "thinkingmachines/inkling-2-small:free",
         "google/gemma-4-26b-a4b-it:free",
         "google/gemma-4-31b-it:free",
-        "liquid/lfm-2.5-2.6b:free",
         "nvidia/nemotron-3-ultra-550b-a55b:free",
         "nvidia/nemotron-3.5-lightning:free",
         "nvidia/nemotron-3.5-super-vl:free",
+        "particle-ai/particle-1:free",
         "recursive/flint-v1.0:free",
-        "xingchen-agi/xing4.0-29b-a4b:free",
+        "baidu/ernie-5.5-flash-preview:free",
         "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
         "dots-studio/dots-3-note-preview:free",
         "google/lyria-3-clip-preview",
@@ -299,15 +650,16 @@
         "openrouter/free",
         "cohere/north-mini-code:free",
         "liquid/lfm-3-1.7b:free",
+        "inclusionai/ling-3.2-flash:free",
         "thinkingmachines/inkling-2-small:free",
         "google/gemma-4-26b-a4b-it:free",
         "google/gemma-4-31b-it:free",
-        "liquid/lfm-2.5-2.6b:free",
         "nvidia/nemotron-3-ultra-550b-a55b:free",
         "nvidia/nemotron-3.5-lightning:free",
         "nvidia/nemotron-3.5-super-vl:free",
+        "particle-ai/particle-1:free",
         "recursive/flint-v1.0:free",
-        "xingchen-agi/xing4.0-29b-a4b:free",
+        "baidu/ernie-5.5-flash-preview:free",
         "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
         "dots-studio/dots-3-note-preview:free",
         "google/lyria-3-clip-preview",
@@ -408,7 +760,7 @@
         "status": "not_supported"
       },
       "last_failure_category": "authentication_failed",
-      "last_failure_at": 1794350624.5943098,
+      "last_failure_at": 1794961278.8560722,
       "cooldown_remaining_seconds": 0
     },
     "groq": {
@@ -416,28 +768,28 @@
       "provider": "groq",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 8,
-      "successes": 1,
+      "requests": 9,
+      "successes": 2,
       "failures": 7,
-      "prompt_tokens": 119,
-      "completion_tokens": 69,
-      "total_tokens": 188,
+      "prompt_tokens": 2678,
+      "completion_tokens": 1231,
+      "total_tokens": 3909,
       "models": {
         "openai/gpt-oss-120b": {
-          "status": "failed",
-          "requests": 7,
-          "successes": 1,
-          "prompt_tokens": 119,
-          "completion_tokens": 69,
-          "total_tokens": 188,
+          "status": "healthy",
+          "requests": 8,
+          "successes": 2,
+          "prompt_tokens": 2678,
+          "completion_tokens": 1231,
+          "total_tokens": 3909,
           "failures": 6,
-          "last_failure_category": "context_or_output_limit",
+          "last_failure_category": "empty_response",
           "cooldown_remaining_seconds": 0
         },
         "openai/gpt-oss-20b": {
           "requests": 1,
           "failures": 1,
-          "last_failure_category": "context_or_output_limit",
+          "last_failure_category": "empty_response",
           "status": "failed",
           "cooldown_remaining_seconds": 0
         }
@@ -445,8 +797,8 @@
       "account": {
         "status": "not_supported"
       },
-      "last_failure_category": "context_or_output_limit",
-      "last_failure_at": 1794355684.7019484,
+      "last_failure_category": "",
+      "last_failure_at": 1794963488.5321271,
       "cooldown_remaining_seconds": 0
     },
     "openrouter": {
@@ -454,27 +806,27 @@
       "provider": "openrouter",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 8,
-      "successes": 1,
-      "failures": 7,
-      "prompt_tokens": 32,
-      "completion_tokens": 93,
-      "total_tokens": 125,
+      "requests": 13,
+      "successes": 2,
+      "failures": 11,
+      "prompt_tokens": 2892,
+      "completion_tokens": 1399,
+      "total_tokens": 4291,
       "models": {
         "openrouter/free": {
           "status": "failed",
-          "requests": 7,
-          "successes": 1,
-          "prompt_tokens": 32,
-          "completion_tokens": 93,
-          "total_tokens": 125,
-          "failures": 6,
+          "requests": 11,
+          "successes": 2,
+          "prompt_tokens": 2892,
+          "completion_tokens": 1399,
+          "total_tokens": 4291,
+          "failures": 9,
           "last_failure_category": "empty_response",
           "cooldown_remaining_seconds": 0
         },
         "cohere/north-mini-code:free": {
-          "requests": 1,
-          "failures": 1,
+          "requests": 2,
+          "failures": 2,
           "last_failure_category": "empty_response",
           "status": "failed",
           "cooldown_remaining_seconds": 0
@@ -490,7 +842,7 @@
         "usage_monthly": 0
       },
       "last_failure_category": "empty_response",
-      "last_failure_at": 1794355657.0508137,
+      "last_failure_at": 1794966710.3160927,
       "cooldown_remaining_seconds": 0
     },
     "mistral": {
@@ -498,33 +850,33 @@
       "provider": "mistral",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 95,
+      "requests": 70,
       "successes": 0,
-      "failures": 95,
+      "failures": 70,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
       "models": {
         "mistral-small-latest": {
-          "requests": 49,
-          "failures": 49,
+          "requests": 37,
+          "failures": 37,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 47.3
+          "cooldown_remaining_seconds": 0
         },
         "mistral-small-2603": {
-          "requests": 46,
-          "failures": 46,
+          "requests": 33,
+          "failures": 33,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 47.6
+          "cooldown_remaining_seconds": 0
         }
       },
       "account": {
         "status": "not_supported"
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1794357841.0120146,
+      "last_failure_at": 1794968283.4542828,
       "cooldown_remaining_seconds": 0
     },
     "siliconflow": {
@@ -532,33 +884,33 @@
       "provider": "siliconflow",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 145,
-      "successes": 139,
-      "failures": 6,
-      "prompt_tokens": 299839,
-      "completion_tokens": 71052,
-      "total_tokens": 370891,
+      "requests": 185,
+      "successes": 172,
+      "failures": 13,
+      "prompt_tokens": 436337,
+      "completion_tokens": 90927,
+      "total_tokens": 527264,
       "models": {
         "Qwen/Qwen3-8B": {
           "status": "healthy",
-          "requests": 140,
-          "successes": 135,
-          "prompt_tokens": 287256,
-          "completion_tokens": 68239,
-          "total_tokens": 355495,
-          "failures": 5,
-          "last_failure_category": "context_or_output_limit",
+          "requests": 175,
+          "successes": 164,
+          "prompt_tokens": 408702,
+          "completion_tokens": 85857,
+          "total_tokens": 494559,
+          "failures": 11,
+          "last_failure_category": "validation_failed",
           "cooldown_remaining_seconds": 0
         },
         "LoRA/Qwen/Qwen2.5-7B-Instruct": {
-          "status": "failed",
-          "requests": 5,
-          "successes": 4,
-          "prompt_tokens": 12583,
-          "completion_tokens": 2813,
-          "total_tokens": 15396,
-          "failures": 1,
-          "last_failure_category": "context_or_output_limit",
+          "status": "healthy",
+          "requests": 10,
+          "successes": 8,
+          "prompt_tokens": 27635,
+          "completion_tokens": 5070,
+          "total_tokens": 32705,
+          "failures": 2,
+          "last_failure_category": "validation_failed",
           "cooldown_remaining_seconds": 0
         }
       },
@@ -568,7 +920,7 @@
         "error": "HTTP request failed: https://api.siliconflow.cn/v1/user/info: HTTP status 410: 410 Client Error: Gone for url: https://api.siliconflow.cn/v1/user/info; response={\"code\":20092,\"message\":\"This endpoint is deprecated and is no longer available.\",\"data\":null}"
       },
       "last_failure_category": "",
-      "last_failure_at": 1794355625.4089985,
+      "last_failure_at": 1794968082.2937908,
       "cooldown_remaining_seconds": 0
     },
     "bigmodel": {
@@ -576,33 +928,33 @@
       "provider": "bigmodel",
       "status": "healthy",
       "disabled_reason": "",
-      "requests": 124,
+      "requests": 150,
       "successes": 0,
-      "failures": 124,
+      "failures": 150,
       "prompt_tokens": 0,
       "completion_tokens": 0,
       "total_tokens": 0,
       "models": {
         "glm-5.3-flash": {
-          "requests": 65,
-          "failures": 65,
+          "requests": 80,
+          "failures": 80,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 46.6
+          "cooldown_remaining_seconds": 2.8
         },
         "glm-5.3-flashx": {
-          "requests": 59,
-          "failures": 59,
+          "requests": 70,
+          "failures": 70,
           "last_failure_category": "rate_limited",
           "status": "cooldown",
-          "cooldown_remaining_seconds": 47.0
+          "cooldown_remaining_seconds": 3.3
         }
       },
       "account": {
         "status": "not_supported"
       },
       "last_failure_category": "rate_limited",
-      "last_failure_at": 1794357840.5011287,
+      "last_failure_at": 1794968454.9173636,
       "cooldown_remaining_seconds": 0
     },
     "deepseek": {
@@ -649,7 +1001,7 @@
         ]
       },
       "last_failure_category": "quota_exhausted",
-      "last_failure_at": 1794350635.0927083,
+      "last_failure_at": 1794961291.203364,
       "cooldown_remaining_seconds": 0
     }
   }
