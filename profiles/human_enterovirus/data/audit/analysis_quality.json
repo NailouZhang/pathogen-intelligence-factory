@@ -8,6 +8,16 @@
     "message_zh": "本期七/五要素分析未触发全局降级告警。",
     "message_en": "No global structured-analysis degradation warning was triggered.",
     "papers": {
+      "total_items": 3,
+      "analyzable": 3,
+      "passed": 3,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 3
+      }
+    },
+    "news": {
       "total_items": 2,
       "analyzable": 2,
       "passed": 2,
@@ -17,54 +27,50 @@
         "passed": 2
       }
     },
-    "news": {
-      "total_items": 0,
-      "analyzable": 0,
-      "passed": 0,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
-      "statuses": {}
-    },
     "combined": {
-      "total_items": 2,
-      "analyzable": 2,
-      "passed": 2,
+      "total_items": 5,
+      "analyzable": 5,
+      "passed": 5,
       "fallback": 0,
       "fallback_ratio": 0.0,
       "statuses": {
-        "passed": 2
+        "passed": 5
       }
     },
     "top_failure_categories": [],
     "provider_attempts": {
-      "bigmodel:failed": 1,
+      "bigmodel:failed": 7,
       "bigmodel:skipped": 3,
-      "gemini:skipped": 2,
+      "gemini:skipped": 5,
       "siliconflow:failed": 1,
-      "siliconflow:success": 2
+      "siliconflow:success": 5
     },
     "model_attempts": {
+      "bigmodel/glm-5.3-flash:failed": 3,
       "bigmodel/glm-5.3-flash:skipped": 2,
-      "bigmodel/glm-5.3-flashx:failed": 1,
+      "bigmodel/glm-5.3-flashx:failed": 4,
       "bigmodel/glm-5.3-flashx:skipped": 1,
-      "gemini/not_selected:skipped": 2,
+      "gemini/not_selected:skipped": 5,
       "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:success": 1,
       "siliconflow/Qwen/Qwen3-8B:failed": 1,
-      "siliconflow/Qwen/Qwen3-8B:success": 1
+      "siliconflow/Qwen/Qwen3-8B:success": 4
     },
     "attempt_failure_categories": {
-      "rate_limited": 1,
+      "rate_limited": 7,
       "validation_failed": 1
     },
     "validation_issue_categories": {
-      "evidence_ids_missing": 1
+      "evidence_ids_missing": 7,
+      "invalid_confidence": 1
     },
-    "normalization_repairs": {},
+    "normalization_repairs": {
+      "evidence_ids_container_rebuilt": 1
+    },
     "field_repair_statuses": {},
     "field_repair_records": [],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-11-14T21:53:54+00:00",
+      "generated_at": "2026-11-21T22:41:34+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -77,7 +83,6 @@
       ],
       "analysis_provider_passed": [
         "groq",
-        "openrouter",
         "siliconflow"
       ],
       "live_probe_performed": true,
@@ -183,56 +188,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 60
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 67
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
-              "elapsed_ms": 130
+              "elapsed_ms": 110
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
-              "elapsed_ms": 120
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 150
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 171
+              "elapsed_ms": 230
             }
           ]
         },
@@ -303,12 +308,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:24+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 466,
+              "elapsed_ms": 545,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -319,31 +324,21 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 119,
-                "completion_tokens": 80,
-                "total_tokens": 199
+                "completion_tokens": 69,
+                "total_tokens": 188
               }
             }
           ]
         },
         {
           "provider": "openrouter",
-          "status": "passed",
-          "model": "inclusionai/ling-3.2-flash:free",
-          "account": {
-            "status": "ok",
-            "is_free_tier": true,
-            "limit": null,
-            "limit_remaining": null,
-            "usage_daily": 0,
-            "usage_weekly": 0,
-            "usage_monthly": 0
-          },
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "model": "liquid/lfm-3-1.7b:free",
           "model_candidates": [
             "openrouter/free",
-            "cohere/north-mini-code:free",
             "liquid/lfm-3-1.7b:free",
             "inclusionai/ling-3.2-flash:free",
-            "thinkingmachines/inkling-2-small:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b-it:free",
             "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -353,7 +348,6 @@
             "recursive/flint-v1.0:free",
             "baidu/ernie-5.5-flash-preview:free",
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-            "dots-studio/dots-3-note-preview:free",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -361,13 +355,11 @@
             "status": "discovered",
             "endpoint": "https://openrouter.ai/api/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 17,
+            "discovered_count": 14,
             "discovered_models": [
               "openrouter/free",
-              "cohere/north-mini-code:free",
               "liquid/lfm-3-1.7b:free",
               "inclusionai/ling-3.2-flash:free",
-              "thinkingmachines/inkling-2-small:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -377,7 +369,6 @@
               "recursive/flint-v1.0:free",
               "baidu/ernie-5.5-flash-preview:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-              "dots-studio/dots-3-note-preview:free",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -389,10 +380,8 @@
             ],
             "selected_candidates": [
               "openrouter/free",
-              "cohere/north-mini-code:free",
               "liquid/lfm-3-1.7b:free",
               "inclusionai/ling-3.2-flash:free",
-              "thinkingmachines/inkling-2-small:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -402,7 +391,6 @@
               "recursive/flint-v1.0:free",
               "baidu/ernie-5.5-flash-preview:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-              "dots-studio/dots-3-note-preview:free",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -411,31 +399,45 @@
             "failure_category": "",
             "error": ""
           },
+          "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795305600000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+          "action_hint": "Provider is in temporary cooldown; honor Retry-After or let the router use another provider.",
+          "account": {
+            "status": "ok",
+            "is_free_tier": true,
+            "limit": null,
+            "limit_remaining": null,
+            "usage_daily": 0,
+            "usage_weekly": 0,
+            "usage_monthly": 0
+          },
           "attempts": [
             {
               "task": "credential_preflight",
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:42+00:00",
+              "at": "2026-11-21T22:41:25+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
-              "status": "success",
-              "response_model": "inclusionai/ling-3.2-flash:free",
-              "elapsed_ms": 3185,
-              "parser_audit": {
-                "policy_version": "v17.2-flexible-json-parser-1",
-                "method": "direct_json",
-                "response_chars": 15,
-                "repaired": false,
-                "truncated_signal": false
-              },
-              "normalization_audit": {},
-              "usage": {
-                "prompt_tokens": 37,
-                "completion_tokens": 35,
-                "total_tokens": 72
-              }
+              "status": "failed",
+              "failure_category": "rate_limited",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795305600000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credit",
+              "elapsed_ms": 198
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "openrouter",
+              "model": "liquid/lfm-3-1.7b:free",
+              "retry_index": 0,
+              "at": "2026-11-21T22:41:25+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "rate_limited",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795305600000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+              "elapsed_ms": 190
             }
           ]
         },
@@ -469,15 +471,13 @@
             "mistral-vibe-cli-with-tools",
             "codestral-2508",
             "codestral-latest",
-            "labs-leanstral-1-5",
-            "labs-leanstral-1-5-1",
             "magistral-medium-latest"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://api.mistral.ai/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 27,
+            "discovered_count": 25,
             "discovered_models": [
               "mistral-small-latest",
               "mistral-small-2603",
@@ -503,8 +503,6 @@
               "mistral-vibe-cli-with-tools",
               "codestral-2508",
               "codestral-latest",
-              "labs-leanstral-1-5",
-              "labs-leanstral-1-5-1",
               "magistral-medium-latest"
             ],
             "explicit_preferences": [
@@ -538,8 +536,6 @@
               "mistral-vibe-cli-with-tools",
               "codestral-2508",
               "codestral-latest",
-              "labs-leanstral-1-5",
-              "labs-leanstral-1-5-1",
               "magistral-medium-latest"
             ],
             "ignored_retired_models": [],
@@ -558,28 +554,28 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:46+00:00",
+              "at": "2026-11-21T22:41:26+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 293
+              "elapsed_ms": 981
             },
             {
               "task": "credential_preflight",
               "provider": "mistral",
               "model": "mistral-small-2603",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:46+00:00",
+              "at": "2026-11-21T22:41:27+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 237
+              "elapsed_ms": 215
             }
           ]
         },
@@ -606,10 +602,8 @@
             "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
             "Pro/Qwen/Qwen2.5-7B-Instruct",
             "Qwen/Qwen3-VL-8B-Thinking",
-            "inclusionAI/Ling-mini-2.0",
             "tencent/Hunyuan-MT-7B",
             "inclusionAI/Ling-flash-2.0",
-            "stepfun-ai/Step-3.5-Flash",
             "deepseek-ai/DeepSeek-V3",
             "deepseek-ai/DeepSeek-V3.1-Terminus",
             "deepseek-ai/DeepSeek-V3.2",
@@ -622,13 +616,15 @@
             "Qwen/Qwen2.5-72B-Instruct-128K",
             "Qwen/Qwen3-14B",
             "Qwen/Qwen3-30B-A3B-Instruct-2507",
-            "Qwen/Qwen3-32B"
+            "Qwen/Qwen3-32B",
+            "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+            "Qwen/Qwen3-Omni-30B-A3B-Captioner"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://api.siliconflow.cn/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 63,
+            "discovered_count": 57,
             "discovered_models": [
               "Qwen/Qwen3-8B",
               "LoRA/Qwen/Qwen2.5-7B-Instruct",
@@ -643,10 +639,8 @@
               "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
               "Pro/Qwen/Qwen2.5-7B-Instruct",
               "Qwen/Qwen3-VL-8B-Thinking",
-              "inclusionAI/Ling-mini-2.0",
               "tencent/Hunyuan-MT-7B",
               "inclusionAI/Ling-flash-2.0",
-              "stepfun-ai/Step-3.5-Flash",
               "deepseek-ai/DeepSeek-V3",
               "deepseek-ai/DeepSeek-V3.1-Terminus",
               "deepseek-ai/DeepSeek-V3.2",
@@ -659,7 +653,9 @@
               "Qwen/Qwen2.5-72B-Instruct-128K",
               "Qwen/Qwen3-14B",
               "Qwen/Qwen3-30B-A3B-Instruct-2507",
-              "Qwen/Qwen3-32B"
+              "Qwen/Qwen3-32B",
+              "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+              "Qwen/Qwen3-Omni-30B-A3B-Captioner"
             ],
             "explicit_preferences": [
               "Qwen/Qwen3-8B"
@@ -681,10 +677,8 @@
               "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
               "Pro/Qwen/Qwen2.5-7B-Instruct",
               "Qwen/Qwen3-VL-8B-Thinking",
-              "inclusionAI/Ling-mini-2.0",
               "tencent/Hunyuan-MT-7B",
               "inclusionAI/Ling-flash-2.0",
-              "stepfun-ai/Step-3.5-Flash",
               "deepseek-ai/DeepSeek-V3",
               "deepseek-ai/DeepSeek-V3.1-Terminus",
               "deepseek-ai/DeepSeek-V3.2",
@@ -697,7 +691,9 @@
               "Qwen/Qwen2.5-72B-Instruct-128K",
               "Qwen/Qwen3-14B",
               "Qwen/Qwen3-30B-A3B-Instruct-2507",
-              "Qwen/Qwen3-32B"
+              "Qwen/Qwen3-32B",
+              "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+              "Qwen/Qwen3-Omni-30B-A3B-Captioner"
             ],
             "ignored_retired_models": [],
             "gemini_lite_preferred": false,
@@ -710,12 +706,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:49+00:00",
+              "at": "2026-11-21T22:41:30+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 762,
+              "elapsed_ms": 616,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -808,28 +804,28 @@
               "provider": "bigmodel",
               "model": "glm-5.3-flash",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:50+00:00",
+              "at": "2026-11-21T22:41:31+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 706
+              "elapsed_ms": 542
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-5.3-flashx",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:51+00:00",
+              "at": "2026-11-21T22:41:31+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 612
+              "elapsed_ms": 547
             }
           ]
         },
@@ -868,7 +864,7 @@
             "failure_category": "",
             "error": ""
           },
-          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 85acbabf-d294-41f6-94de-ba70278ef219)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 8e47a4c4-394a-471b-a89e-f6f689994b9d)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
           "action_hint": "Project/account quota is exhausted; wait for reset or use another configured provider.",
           "account": {
             "status": "ok",
@@ -892,28 +888,28 @@
               "provider": "deepseek",
               "model": "deepseek-flash",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:53+00:00",
+              "at": "2026-11-21T22:41:33+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: bd888632-5698-4d29-8ab6-91bf42f53b4b)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 615
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: b0c6deac-39f0-44fa-96e6-161e0911c08e)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 825
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:53+00:00",
+              "at": "2026-11-21T22:41:34+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 85acbabf-d294-41f6-94de-ba70278ef219)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 615
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 8e47a4c4-394a-471b-a89e-f6f689994b9d)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 740
             }
           ]
         }
@@ -1030,6 +1026,16 @@
     "message_zh": "本期七/五要素分析未触发全局降级告警。",
     "message_en": "No global structured-analysis degradation warning was triggered.",
     "papers": {
+      "total_items": 3,
+      "analyzable": 3,
+      "passed": 3,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 3
+      }
+    },
+    "news": {
       "total_items": 2,
       "analyzable": 2,
       "passed": 2,
@@ -1039,54 +1045,50 @@
         "passed": 2
       }
     },
-    "news": {
-      "total_items": 0,
-      "analyzable": 0,
-      "passed": 0,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
-      "statuses": {}
-    },
     "combined": {
-      "total_items": 2,
-      "analyzable": 2,
-      "passed": 2,
+      "total_items": 5,
+      "analyzable": 5,
+      "passed": 5,
       "fallback": 0,
       "fallback_ratio": 0.0,
       "statuses": {
-        "passed": 2
+        "passed": 5
       }
     },
     "top_failure_categories": [],
     "provider_attempts": {
-      "bigmodel:failed": 1,
+      "bigmodel:failed": 7,
       "bigmodel:skipped": 3,
-      "gemini:skipped": 2,
+      "gemini:skipped": 5,
       "siliconflow:failed": 1,
-      "siliconflow:success": 2
+      "siliconflow:success": 5
     },
     "model_attempts": {
+      "bigmodel/glm-5.3-flash:failed": 3,
       "bigmodel/glm-5.3-flash:skipped": 2,
-      "bigmodel/glm-5.3-flashx:failed": 1,
+      "bigmodel/glm-5.3-flashx:failed": 4,
       "bigmodel/glm-5.3-flashx:skipped": 1,
-      "gemini/not_selected:skipped": 2,
+      "gemini/not_selected:skipped": 5,
       "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:success": 1,
       "siliconflow/Qwen/Qwen3-8B:failed": 1,
-      "siliconflow/Qwen/Qwen3-8B:success": 1
+      "siliconflow/Qwen/Qwen3-8B:success": 4
     },
     "attempt_failure_categories": {
-      "rate_limited": 1,
+      "rate_limited": 7,
       "validation_failed": 1
     },
     "validation_issue_categories": {
-      "evidence_ids_missing": 1
+      "evidence_ids_missing": 7,
+      "invalid_confidence": 1
     },
-    "normalization_repairs": {},
+    "normalization_repairs": {
+      "evidence_ids_container_rebuilt": 1
+    },
     "field_repair_statuses": {},
     "field_repair_records": [],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-11-14T21:53:54+00:00",
+      "generated_at": "2026-11-21T22:41:34+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -1099,7 +1101,6 @@
       ],
       "analysis_provider_passed": [
         "groq",
-        "openrouter",
         "siliconflow"
       ],
       "live_probe_performed": true,
@@ -1205,56 +1206,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 60
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 67
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
-              "elapsed_ms": 130
+              "elapsed_ms": 110
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
-              "elapsed_ms": 120
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 150
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 171
+              "elapsed_ms": 230
             }
           ]
         },
@@ -1325,12 +1326,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:24+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 466,
+              "elapsed_ms": 545,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1341,31 +1342,21 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 119,
-                "completion_tokens": 80,
-                "total_tokens": 199
+                "completion_tokens": 69,
+                "total_tokens": 188
               }
             }
           ]
         },
         {
           "provider": "openrouter",
-          "status": "passed",
-          "model": "inclusionai/ling-3.2-flash:free",
-          "account": {
-            "status": "ok",
-            "is_free_tier": true,
-            "limit": null,
-            "limit_remaining": null,
-            "usage_daily": 0,
-            "usage_weekly": 0,
-            "usage_monthly": 0
-          },
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "model": "liquid/lfm-3-1.7b:free",
           "model_candidates": [
             "openrouter/free",
-            "cohere/north-mini-code:free",
             "liquid/lfm-3-1.7b:free",
             "inclusionai/ling-3.2-flash:free",
-            "thinkingmachines/inkling-2-small:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b-it:free",
             "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -1375,7 +1366,6 @@
             "recursive/flint-v1.0:free",
             "baidu/ernie-5.5-flash-preview:free",
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-            "dots-studio/dots-3-note-preview:free",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -1383,13 +1373,11 @@
             "status": "discovered",
             "endpoint": "https://openrouter.ai/api/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 17,
+            "discovered_count": 14,
             "discovered_models": [
               "openrouter/free",
-              "cohere/north-mini-code:free",
               "liquid/lfm-3-1.7b:free",
               "inclusionai/ling-3.2-flash:free",
-              "thinkingmachines/inkling-2-small:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -1399,7 +1387,6 @@
               "recursive/flint-v1.0:free",
               "baidu/ernie-5.5-flash-preview:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-              "dots-studio/dots-3-note-preview:free",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -1411,10 +1398,8 @@
             ],
             "selected_candidates": [
               "openrouter/free",
-              "cohere/north-mini-code:free",
               "liquid/lfm-3-1.7b:free",
               "inclusionai/ling-3.2-flash:free",
-              "thinkingmachines/inkling-2-small:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -1424,7 +1409,6 @@
               "recursive/flint-v1.0:free",
               "baidu/ernie-5.5-flash-preview:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-              "dots-studio/dots-3-note-preview:free",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -1433,31 +1417,45 @@
             "failure_category": "",
             "error": ""
           },
+          "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795305600000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+          "action_hint": "Provider is in temporary cooldown; honor Retry-After or let the router use another provider.",
+          "account": {
+            "status": "ok",
+            "is_free_tier": true,
+            "limit": null,
+            "limit_remaining": null,
+            "usage_daily": 0,
+            "usage_weekly": 0,
+            "usage_monthly": 0
+          },
           "attempts": [
             {
               "task": "credential_preflight",
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:42+00:00",
+              "at": "2026-11-21T22:41:25+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
-              "status": "success",
-              "response_model": "inclusionai/ling-3.2-flash:free",
-              "elapsed_ms": 3185,
-              "parser_audit": {
-                "policy_version": "v17.2-flexible-json-parser-1",
-                "method": "direct_json",
-                "response_chars": 15,
-                "repaired": false,
-                "truncated_signal": false
-              },
-              "normalization_audit": {},
-              "usage": {
-                "prompt_tokens": 37,
-                "completion_tokens": 35,
-                "total_tokens": 72
-              }
+              "status": "failed",
+              "failure_category": "rate_limited",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795305600000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credit",
+              "elapsed_ms": 198
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "openrouter",
+              "model": "liquid/lfm-3-1.7b:free",
+              "retry_index": 0,
+              "at": "2026-11-21T22:41:25+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "rate_limited",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795305600000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+              "elapsed_ms": 190
             }
           ]
         },
@@ -1491,15 +1489,13 @@
             "mistral-vibe-cli-with-tools",
             "codestral-2508",
             "codestral-latest",
-            "labs-leanstral-1-5",
-            "labs-leanstral-1-5-1",
             "magistral-medium-latest"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://api.mistral.ai/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 27,
+            "discovered_count": 25,
             "discovered_models": [
               "mistral-small-latest",
               "mistral-small-2603",
@@ -1525,8 +1521,6 @@
               "mistral-vibe-cli-with-tools",
               "codestral-2508",
               "codestral-latest",
-              "labs-leanstral-1-5",
-              "labs-leanstral-1-5-1",
               "magistral-medium-latest"
             ],
             "explicit_preferences": [
@@ -1560,8 +1554,6 @@
               "mistral-vibe-cli-with-tools",
               "codestral-2508",
               "codestral-latest",
-              "labs-leanstral-1-5",
-              "labs-leanstral-1-5-1",
               "magistral-medium-latest"
             ],
             "ignored_retired_models": [],
@@ -1580,28 +1572,28 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:46+00:00",
+              "at": "2026-11-21T22:41:26+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 293
+              "elapsed_ms": 981
             },
             {
               "task": "credential_preflight",
               "provider": "mistral",
               "model": "mistral-small-2603",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:46+00:00",
+              "at": "2026-11-21T22:41:27+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 237
+              "elapsed_ms": 215
             }
           ]
         },
@@ -1628,10 +1620,8 @@
             "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
             "Pro/Qwen/Qwen2.5-7B-Instruct",
             "Qwen/Qwen3-VL-8B-Thinking",
-            "inclusionAI/Ling-mini-2.0",
             "tencent/Hunyuan-MT-7B",
             "inclusionAI/Ling-flash-2.0",
-            "stepfun-ai/Step-3.5-Flash",
             "deepseek-ai/DeepSeek-V3",
             "deepseek-ai/DeepSeek-V3.1-Terminus",
             "deepseek-ai/DeepSeek-V3.2",
@@ -1644,13 +1634,15 @@
             "Qwen/Qwen2.5-72B-Instruct-128K",
             "Qwen/Qwen3-14B",
             "Qwen/Qwen3-30B-A3B-Instruct-2507",
-            "Qwen/Qwen3-32B"
+            "Qwen/Qwen3-32B",
+            "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+            "Qwen/Qwen3-Omni-30B-A3B-Captioner"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://api.siliconflow.cn/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 63,
+            "discovered_count": 57,
             "discovered_models": [
               "Qwen/Qwen3-8B",
               "LoRA/Qwen/Qwen2.5-7B-Instruct",
@@ -1665,10 +1657,8 @@
               "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
               "Pro/Qwen/Qwen2.5-7B-Instruct",
               "Qwen/Qwen3-VL-8B-Thinking",
-              "inclusionAI/Ling-mini-2.0",
               "tencent/Hunyuan-MT-7B",
               "inclusionAI/Ling-flash-2.0",
-              "stepfun-ai/Step-3.5-Flash",
               "deepseek-ai/DeepSeek-V3",
               "deepseek-ai/DeepSeek-V3.1-Terminus",
               "deepseek-ai/DeepSeek-V3.2",
@@ -1681,7 +1671,9 @@
               "Qwen/Qwen2.5-72B-Instruct-128K",
               "Qwen/Qwen3-14B",
               "Qwen/Qwen3-30B-A3B-Instruct-2507",
-              "Qwen/Qwen3-32B"
+              "Qwen/Qwen3-32B",
+              "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+              "Qwen/Qwen3-Omni-30B-A3B-Captioner"
             ],
             "explicit_preferences": [
               "Qwen/Qwen3-8B"
@@ -1703,10 +1695,8 @@
               "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
               "Pro/Qwen/Qwen2.5-7B-Instruct",
               "Qwen/Qwen3-VL-8B-Thinking",
-              "inclusionAI/Ling-mini-2.0",
               "tencent/Hunyuan-MT-7B",
               "inclusionAI/Ling-flash-2.0",
-              "stepfun-ai/Step-3.5-Flash",
               "deepseek-ai/DeepSeek-V3",
               "deepseek-ai/DeepSeek-V3.1-Terminus",
               "deepseek-ai/DeepSeek-V3.2",
@@ -1719,7 +1709,9 @@
               "Qwen/Qwen2.5-72B-Instruct-128K",
               "Qwen/Qwen3-14B",
               "Qwen/Qwen3-30B-A3B-Instruct-2507",
-              "Qwen/Qwen3-32B"
+              "Qwen/Qwen3-32B",
+              "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+              "Qwen/Qwen3-Omni-30B-A3B-Captioner"
             ],
             "ignored_retired_models": [],
             "gemini_lite_preferred": false,
@@ -1732,12 +1724,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:49+00:00",
+              "at": "2026-11-21T22:41:30+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 762,
+              "elapsed_ms": 616,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -1830,28 +1822,28 @@
               "provider": "bigmodel",
               "model": "glm-5.3-flash",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:50+00:00",
+              "at": "2026-11-21T22:41:31+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 706
+              "elapsed_ms": 542
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-5.3-flashx",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:51+00:00",
+              "at": "2026-11-21T22:41:31+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 612
+              "elapsed_ms": 547
             }
           ]
         },
@@ -1890,7 +1882,7 @@
             "failure_category": "",
             "error": ""
           },
-          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 85acbabf-d294-41f6-94de-ba70278ef219)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 8e47a4c4-394a-471b-a89e-f6f689994b9d)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
           "action_hint": "Project/account quota is exhausted; wait for reset or use another configured provider.",
           "account": {
             "status": "ok",
@@ -1914,28 +1906,28 @@
               "provider": "deepseek",
               "model": "deepseek-flash",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:53+00:00",
+              "at": "2026-11-21T22:41:33+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: bd888632-5698-4d29-8ab6-91bf42f53b4b)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 615
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: b0c6deac-39f0-44fa-96e6-161e0911c08e)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 825
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:53+00:00",
+              "at": "2026-11-21T22:41:34+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 85acbabf-d294-41f6-94de-ba70278ef219)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 615
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 8e47a4c4-394a-471b-a89e-f6f689994b9d)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 740
             }
           ]
         }
@@ -2052,6 +2044,16 @@
     "message_zh": "本期七/五要素分析未触发全局降级告警。",
     "message_en": "No global structured-analysis degradation warning was triggered.",
     "papers": {
+      "total_items": 3,
+      "analyzable": 3,
+      "passed": 3,
+      "fallback": 0,
+      "fallback_ratio": 0.0,
+      "statuses": {
+        "passed": 3
+      }
+    },
+    "news": {
       "total_items": 2,
       "analyzable": 2,
       "passed": 2,
@@ -2061,54 +2063,50 @@
         "passed": 2
       }
     },
-    "news": {
-      "total_items": 0,
-      "analyzable": 0,
-      "passed": 0,
-      "fallback": 0,
-      "fallback_ratio": 0.0,
-      "statuses": {}
-    },
     "combined": {
-      "total_items": 2,
-      "analyzable": 2,
-      "passed": 2,
+      "total_items": 5,
+      "analyzable": 5,
+      "passed": 5,
       "fallback": 0,
       "fallback_ratio": 0.0,
       "statuses": {
-        "passed": 2
+        "passed": 5
       }
     },
     "top_failure_categories": [],
     "provider_attempts": {
-      "bigmodel:failed": 1,
+      "bigmodel:failed": 7,
       "bigmodel:skipped": 3,
-      "gemini:skipped": 2,
+      "gemini:skipped": 5,
       "siliconflow:failed": 1,
-      "siliconflow:success": 2
+      "siliconflow:success": 5
     },
     "model_attempts": {
+      "bigmodel/glm-5.3-flash:failed": 3,
       "bigmodel/glm-5.3-flash:skipped": 2,
-      "bigmodel/glm-5.3-flashx:failed": 1,
+      "bigmodel/glm-5.3-flashx:failed": 4,
       "bigmodel/glm-5.3-flashx:skipped": 1,
-      "gemini/not_selected:skipped": 2,
+      "gemini/not_selected:skipped": 5,
       "siliconflow/LoRA/Qwen/Qwen2.5-7B-Instruct:success": 1,
       "siliconflow/Qwen/Qwen3-8B:failed": 1,
-      "siliconflow/Qwen/Qwen3-8B:success": 1
+      "siliconflow/Qwen/Qwen3-8B:success": 4
     },
     "attempt_failure_categories": {
-      "rate_limited": 1,
+      "rate_limited": 7,
       "validation_failed": 1
     },
     "validation_issue_categories": {
-      "evidence_ids_missing": 1
+      "evidence_ids_missing": 7,
+      "invalid_confidence": 1
     },
-    "normalization_repairs": {},
+    "normalization_repairs": {
+      "evidence_ids_container_rebuilt": 1
+    },
     "field_repair_statuses": {},
     "field_repair_records": [],
     "preflight": {
       "schema_version": 7,
-      "generated_at": "2026-11-14T21:53:54+00:00",
+      "generated_at": "2026-11-21T22:41:34+00:00",
       "status": "ready",
       "analysis_provider_configured": [
         "gemini",
@@ -2121,7 +2119,6 @@
       ],
       "analysis_provider_passed": [
         "groq",
-        "openrouter",
         "siliconflow"
       ],
       "live_probe_performed": true,
@@ -2227,56 +2224,56 @@
               "provider": "gemini",
               "model": "gemini-3.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 60
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
+              "elapsed_ms": 67
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.1-flash-lite",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
-              "elapsed_ms": 130
+              "elapsed_ms": 110
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-2.5-flash-lite",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"service\": \"generativelanguage.googleapis.com\", \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\" } } ] } }",
-              "elapsed_ms": 120
+              "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
+              "elapsed_ms": 150
             },
             {
               "task": "credential_preflight",
               "provider": "gemini",
               "model": "gemini-3.5-flash",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:23+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "authentication_failed",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent: HTTP status 401: 401 Client Error: Unauthorized for url: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent; response={ \"error\": { \"code\": 401, \"message\": \"API key not valid. Please pass a valid API key.\", \"status\": \"UNAUTHENTICATED\", \"details\": [ { \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\": \"ACCESS_TOKEN_TYPE_UNSUPPORTED\", \"metadata\": { \"method\": \"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\", \"service\": \"generativelanguage.googleapis.com\" } } ] } }",
-              "elapsed_ms": 171
+              "elapsed_ms": 230
             }
           ]
         },
@@ -2347,12 +2344,12 @@
               "provider": "groq",
               "model": "openai/gpt-oss-120b",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:41+00:00",
+              "at": "2026-11-21T22:41:24+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "openai/gpt-oss-120b",
-              "elapsed_ms": 466,
+              "elapsed_ms": 545,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2363,31 +2360,21 @@
               "normalization_audit": {},
               "usage": {
                 "prompt_tokens": 119,
-                "completion_tokens": 80,
-                "total_tokens": 199
+                "completion_tokens": 69,
+                "total_tokens": 188
               }
             }
           ]
         },
         {
           "provider": "openrouter",
-          "status": "passed",
-          "model": "inclusionai/ling-3.2-flash:free",
-          "account": {
-            "status": "ok",
-            "is_free_tier": true,
-            "limit": null,
-            "limit_remaining": null,
-            "usage_daily": 0,
-            "usage_weekly": 0,
-            "usage_monthly": 0
-          },
+          "status": "failed",
+          "failure_category": "rate_limited",
+          "model": "liquid/lfm-3-1.7b:free",
           "model_candidates": [
             "openrouter/free",
-            "cohere/north-mini-code:free",
             "liquid/lfm-3-1.7b:free",
             "inclusionai/ling-3.2-flash:free",
-            "thinkingmachines/inkling-2-small:free",
             "google/gemma-4-26b-a4b-it:free",
             "google/gemma-4-31b-it:free",
             "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -2397,7 +2384,6 @@
             "recursive/flint-v1.0:free",
             "baidu/ernie-5.5-flash-preview:free",
             "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-            "dots-studio/dots-3-note-preview:free",
             "google/lyria-3-clip-preview",
             "google/lyria-3-pro-preview"
           ],
@@ -2405,13 +2391,11 @@
             "status": "discovered",
             "endpoint": "https://openrouter.ai/api/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 17,
+            "discovered_count": 14,
             "discovered_models": [
               "openrouter/free",
-              "cohere/north-mini-code:free",
               "liquid/lfm-3-1.7b:free",
               "inclusionai/ling-3.2-flash:free",
-              "thinkingmachines/inkling-2-small:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -2421,7 +2405,6 @@
               "recursive/flint-v1.0:free",
               "baidu/ernie-5.5-flash-preview:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-              "dots-studio/dots-3-note-preview:free",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -2433,10 +2416,8 @@
             ],
             "selected_candidates": [
               "openrouter/free",
-              "cohere/north-mini-code:free",
               "liquid/lfm-3-1.7b:free",
               "inclusionai/ling-3.2-flash:free",
-              "thinkingmachines/inkling-2-small:free",
               "google/gemma-4-26b-a4b-it:free",
               "google/gemma-4-31b-it:free",
               "nvidia/nemotron-3-ultra-550b-a55b:free",
@@ -2446,7 +2427,6 @@
               "recursive/flint-v1.0:free",
               "baidu/ernie-5.5-flash-preview:free",
               "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-              "dots-studio/dots-3-note-preview:free",
               "google/lyria-3-clip-preview",
               "google/lyria-3-pro-preview"
             ],
@@ -2455,31 +2435,45 @@
             "failure_category": "",
             "error": ""
           },
+          "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795305600000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+          "action_hint": "Provider is in temporary cooldown; honor Retry-After or let the router use another provider.",
+          "account": {
+            "status": "ok",
+            "is_free_tier": true,
+            "limit": null,
+            "limit_remaining": null,
+            "usage_daily": 0,
+            "usage_weekly": 0,
+            "usage_monthly": 0
+          },
           "attempts": [
             {
               "task": "credential_preflight",
               "provider": "openrouter",
               "model": "openrouter/free",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:42+00:00",
+              "at": "2026-11-21T22:41:25+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
-              "status": "success",
-              "response_model": "inclusionai/ling-3.2-flash:free",
-              "elapsed_ms": 3185,
-              "parser_audit": {
-                "policy_version": "v17.2-flexible-json-parser-1",
-                "method": "direct_json",
-                "response_chars": 15,
-                "repaired": false,
-                "truncated_signal": false
-              },
-              "normalization_audit": {},
-              "usage": {
-                "prompt_tokens": 37,
-                "completion_tokens": 35,
-                "total_tokens": 72
-              }
+              "status": "failed",
+              "failure_category": "rate_limited",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795305600000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null,\"previous_errors\":[{\"code\":429,\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credit",
+              "elapsed_ms": 198
+            },
+            {
+              "task": "credential_preflight",
+              "provider": "openrouter",
+              "model": "liquid/lfm-3-1.7b:free",
+              "retry_index": 0,
+              "at": "2026-11-21T22:41:25+00:00",
+              "system_chars": 39,
+              "prompt_chars": 31,
+              "status": "failed",
+              "failure_category": "rate_limited",
+              "error_type": "RuntimeError",
+              "error": "HTTP request failed: https://openrouter.ai/api/v1/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"message\":\"Rate limit exceeded: free-models-per-day. Add 10 credits to unlock 1000 free model requests per day: https://openrouter.ai/settings/credits?utm_source=api&utm_campaign=free_daily_limit\",\"code\":429,\"metadata\":{\"headers\":{\"X-RateLimit-Limit\":\"50\",\"X-RateLimit-Remaining\":\"0\",\"X-RateLimit-Reset\":\"1795305600000\"},\"limit_source\":\"openrouter_free_tier_daily\",\"remedy_hint\":\"Wait for the daily reset (see X-RateLimit-Reset), or purchase credits to raise your free-model daily limit.\",\"provider_name\":null}},\"user_id\":\"user_3GgPxajrxzb1MsLDHFSy4PWbpec\"}",
+              "elapsed_ms": 190
             }
           ]
         },
@@ -2513,15 +2507,13 @@
             "mistral-vibe-cli-with-tools",
             "codestral-2508",
             "codestral-latest",
-            "labs-leanstral-1-5",
-            "labs-leanstral-1-5-1",
             "magistral-medium-latest"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://api.mistral.ai/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 27,
+            "discovered_count": 25,
             "discovered_models": [
               "mistral-small-latest",
               "mistral-small-2603",
@@ -2547,8 +2539,6 @@
               "mistral-vibe-cli-with-tools",
               "codestral-2508",
               "codestral-latest",
-              "labs-leanstral-1-5",
-              "labs-leanstral-1-5-1",
               "magistral-medium-latest"
             ],
             "explicit_preferences": [
@@ -2582,8 +2572,6 @@
               "mistral-vibe-cli-with-tools",
               "codestral-2508",
               "codestral-latest",
-              "labs-leanstral-1-5",
-              "labs-leanstral-1-5-1",
               "magistral-medium-latest"
             ],
             "ignored_retired_models": [],
@@ -2602,28 +2590,28 @@
               "provider": "mistral",
               "model": "mistral-small-latest",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:46+00:00",
+              "at": "2026-11-21T22:41:26+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 293
+              "elapsed_ms": 981
             },
             {
               "task": "credential_preflight",
               "provider": "mistral",
               "model": "mistral-small-2603",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:46+00:00",
+              "at": "2026-11-21T22:41:27+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://api.mistral.ai/v1/chat/completions: HTTP status 429: retryable status 429; response={\"object\":\"error\",\"message\":\"Rate limit exceeded\",\"type\":\"rate_limited\",\"param\":null,\"code\":\"1300\",\"raw_status_code\":429}",
-              "elapsed_ms": 237
+              "elapsed_ms": 215
             }
           ]
         },
@@ -2650,10 +2638,8 @@
             "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
             "Pro/Qwen/Qwen2.5-7B-Instruct",
             "Qwen/Qwen3-VL-8B-Thinking",
-            "inclusionAI/Ling-mini-2.0",
             "tencent/Hunyuan-MT-7B",
             "inclusionAI/Ling-flash-2.0",
-            "stepfun-ai/Step-3.5-Flash",
             "deepseek-ai/DeepSeek-V3",
             "deepseek-ai/DeepSeek-V3.1-Terminus",
             "deepseek-ai/DeepSeek-V3.2",
@@ -2666,13 +2652,15 @@
             "Qwen/Qwen2.5-72B-Instruct-128K",
             "Qwen/Qwen3-14B",
             "Qwen/Qwen3-30B-A3B-Instruct-2507",
-            "Qwen/Qwen3-32B"
+            "Qwen/Qwen3-32B",
+            "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+            "Qwen/Qwen3-Omni-30B-A3B-Captioner"
           ],
           "model_discovery": {
             "status": "discovered",
             "endpoint": "https://api.siliconflow.cn/v1/models",
             "discovery_enabled": true,
-            "discovered_count": 63,
+            "discovered_count": 57,
             "discovered_models": [
               "Qwen/Qwen3-8B",
               "LoRA/Qwen/Qwen2.5-7B-Instruct",
@@ -2687,10 +2675,8 @@
               "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
               "Pro/Qwen/Qwen2.5-7B-Instruct",
               "Qwen/Qwen3-VL-8B-Thinking",
-              "inclusionAI/Ling-mini-2.0",
               "tencent/Hunyuan-MT-7B",
               "inclusionAI/Ling-flash-2.0",
-              "stepfun-ai/Step-3.5-Flash",
               "deepseek-ai/DeepSeek-V3",
               "deepseek-ai/DeepSeek-V3.1-Terminus",
               "deepseek-ai/DeepSeek-V3.2",
@@ -2703,7 +2689,9 @@
               "Qwen/Qwen2.5-72B-Instruct-128K",
               "Qwen/Qwen3-14B",
               "Qwen/Qwen3-30B-A3B-Instruct-2507",
-              "Qwen/Qwen3-32B"
+              "Qwen/Qwen3-32B",
+              "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+              "Qwen/Qwen3-Omni-30B-A3B-Captioner"
             ],
             "explicit_preferences": [
               "Qwen/Qwen3-8B"
@@ -2725,10 +2713,8 @@
               "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
               "Pro/Qwen/Qwen2.5-7B-Instruct",
               "Qwen/Qwen3-VL-8B-Thinking",
-              "inclusionAI/Ling-mini-2.0",
               "tencent/Hunyuan-MT-7B",
               "inclusionAI/Ling-flash-2.0",
-              "stepfun-ai/Step-3.5-Flash",
               "deepseek-ai/DeepSeek-V3",
               "deepseek-ai/DeepSeek-V3.1-Terminus",
               "deepseek-ai/DeepSeek-V3.2",
@@ -2741,7 +2727,9 @@
               "Qwen/Qwen2.5-72B-Instruct-128K",
               "Qwen/Qwen3-14B",
               "Qwen/Qwen3-30B-A3B-Instruct-2507",
-              "Qwen/Qwen3-32B"
+              "Qwen/Qwen3-32B",
+              "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+              "Qwen/Qwen3-Omni-30B-A3B-Captioner"
             ],
             "ignored_retired_models": [],
             "gemini_lite_preferred": false,
@@ -2754,12 +2742,12 @@
               "provider": "siliconflow",
               "model": "Qwen/Qwen3-8B",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:49+00:00",
+              "at": "2026-11-21T22:41:30+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "success",
               "response_model": "Qwen/Qwen3-8B",
-              "elapsed_ms": 762,
+              "elapsed_ms": 616,
               "parser_audit": {
                 "policy_version": "v17.2-flexible-json-parser-1",
                 "method": "direct_json",
@@ -2852,28 +2840,28 @@
               "provider": "bigmodel",
               "model": "glm-5.3-flash",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:50+00:00",
+              "at": "2026-11-21T22:41:31+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 706
+              "elapsed_ms": 542
             },
             {
               "task": "credential_preflight",
               "provider": "bigmodel",
               "model": "glm-5.3-flashx",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:51+00:00",
+              "at": "2026-11-21T22:41:31+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "rate_limited",
               "error_type": "RuntimeError",
               "error": "HTTP request failed: https://open.bigmodel.cn/api/paas/v4/chat/completions: HTTP status 429: retryable status 429; response={\"error\":{\"code\":\"1113\",\"message\":\"Insufficient balance or no resource package. Please recharge.\"}}",
-              "elapsed_ms": 612
+              "elapsed_ms": 547
             }
           ]
         },
@@ -2912,7 +2900,7 @@
             "failure_category": "",
             "error": ""
           },
-          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 85acbabf-d294-41f6-94de-ba70278ef219)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+          "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 8e47a4c4-394a-471b-a89e-f6f689994b9d)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
           "action_hint": "Project/account quota is exhausted; wait for reset or use another configured provider.",
           "account": {
             "status": "ok",
@@ -2936,28 +2924,28 @@
               "provider": "deepseek",
               "model": "deepseek-flash",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:53+00:00",
+              "at": "2026-11-21T22:41:33+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: bd888632-5698-4d29-8ab6-91bf42f53b4b)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 615
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: b0c6deac-39f0-44fa-96e6-161e0911c08e)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 825
             },
             {
               "task": "credential_preflight",
               "provider": "deepseek",
               "model": "deepseek-v4-pro",
               "retry_index": 0,
-              "at": "2026-11-14T21:53:53+00:00",
+              "at": "2026-11-21T22:41:34+00:00",
               "system_chars": 39,
               "prompt_chars": 31,
               "status": "failed",
               "failure_category": "quota_exhausted",
               "error_type": "RuntimeError",
-              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 85acbabf-d294-41f6-94de-ba70278ef219)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
-              "elapsed_ms": 615
+              "error": "HTTP request failed: https://api.deepseek.com/chat/completions: HTTP status 402: 402 Client Error: Payment Required for url: https://api.deepseek.com/chat/completions; response={\"error\":{\"message\":\"Insufficient Balance (request_id: 8e47a4c4-394a-471b-a89e-f6f689994b9d)\",\"type\":\"insufficient_balance_error\",\"param\":null,\"code\":\"invalid_request_error\"}}",
+              "elapsed_ms": 740
             }
           ]
         }
